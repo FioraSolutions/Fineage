@@ -111,8 +111,15 @@ def resolve_uc_default(uc_dir: Path, class_name: str, prop_name: str) -> str | N
     return None
 
 
-def texture_ref(imps: dict, ref: str | None) -> str:
-    full = full_name(imps, ref, "Texture")
+def layer_ref(ly: dict, key: str) -> dict:
+    """parse_layers keeps the ref string under <key> and the raw UE2 ref index
+    under _<key>_index — resolution goes through the index (object names are
+    not unique in the import table)."""
+    return {"ref": ly.get(key), "index": ly.get("_" + key + "_index")}
+
+
+def texture_ref(imps: dict, ref_or_field) -> str:
+    full = full_name(imps, ref_or_field, "Texture")
     return "None" if not full else f"Texture'{full}'"
 
 
@@ -120,8 +127,8 @@ def format_terrain_layer(ly: dict, imps: dict) -> str:
     """One Layers(i)= line. Same field set as rebuild_terrain_layers.format_layer,
     but refs keep their official full names (lobby alphamaps sit at the package
     root, there is no synthetic 'Height' group)."""
-    parts = [f"Texture={texture_ref(imps, ly.get('Texture'))}"]
-    alpha = texture_ref(imps, ly.get("AlphaMap"))
+    parts = [f"Texture={texture_ref(imps, layer_ref(ly, 'Texture'))}"]
+    alpha = texture_ref(imps, layer_ref(ly, "AlphaMap"))
     if alpha != "None":
         parts.append(f"AlphaMap={alpha}")
     parts.append(f"UScale={fmt_float(ly.get('UScale', 0))}")
@@ -181,7 +188,7 @@ def rot_str(rot: dict | None) -> str:
 
 def sma_block(export: dict, imps: dict) -> tuple[str, str | None]:
     name = export.get("name") or "StaticMeshActor"
-    mesh = full_name(imps, (prop(export, "StaticMesh") or {}).get("ref"), "StaticMesh")
+    mesh = full_name(imps, prop(export, "StaticMesh"), "StaticMesh")
     lines = [f"Begin Actor Class=StaticMeshActor Name={name}"]
     if mesh:
         lines.append(f"    StaticMesh=StaticMesh'{mesh}'")
@@ -240,7 +247,7 @@ def interpolation_block(export: dict) -> str:
 def ambient_block(export: dict, imps: dict, as_type_names: list[str]) -> str:
     name = export.get("name") or "AmbientSoundObject"
     lines = [f"Begin LevelObject Class=AmbientSoundObject Name={name}"]
-    sound = full_name(imps, (prop(export, "AmbientSound") or {}).get("ref"), "Sound")
+    sound = full_name(imps, prop(export, "AmbientSound"), "Sound")
     if sound:
         lines.append(f"    AmbientSound=Sound'{sound}'")
     for key in ("SoundRadius", "AmbientSoundStartTime"):
@@ -277,6 +284,32 @@ def find_case_insensitive(root: Path, name: str) -> Path | None:
     return None
 
 
+def collect_mesh_refs(doc: dict, imps: dict) -> set[str]:
+    """Every StaticMesh full name the lobby references (StaticMeshActors +
+    terrain deco layers), resolved through the raw UE2 ref indices."""
+    out: set[str] = set()
+    for export in doc.get("exports") or []:
+        if export.get("class") != "StaticMeshActor":
+            continue
+        mesh = full_name(imps, prop(export, "StaticMesh"), "StaticMesh")
+        if mesh:
+            out.add(mesh)
+    deco_prop = prop(find_ti(doc), "DecoLayers")
+    for lay in (deco_prop.get("subproperties") or []) if deco_prop else []:
+        for fld in lay if isinstance(lay, list) else [lay]:
+            if isinstance(fld, dict) and fld.get("name") == "StaticMesh":
+                mesh = full_name(imps, fld, "StaticMesh")
+                if mesh:
+                    out.add(mesh)
+    return out
+
+
+def mesh_on_disk(full: str) -> bool:
+    parts = full.split(".")
+    folder = find_case_insensitive(SM, parts[0])
+    return bool(folder and any(p.stem.lower() == parts[-1].lower() for p in folder.glob("*.fbx")))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--dump", type=Path, default=WORLD / "env/Lobby.unr.json.gz")
@@ -310,7 +343,7 @@ def main() -> int:
     words = load_words(args.quadvisibility)
 
     # --- TerrainInfo0.txt ---
-    terrain_map = full_name(imps, (prop(ti, "TerrainMap") or {}).get("ref"), "Texture")
+    terrain_map = full_name(imps, prop(ti, "TerrainMap"), "Texture")
     if not terrain_map:
         raise SystemExit("ERROR TerrainInfo has no TerrainMap ref")
     scale = (prop(ti, "TerrainScale") or {}).get("vector") or {}
@@ -376,14 +409,14 @@ def main() -> int:
     refs_tex: set[str] = set()
     for ly in parse_layers(ti):
         for key in ("Texture", "AlphaMap"):
-            full = full_name(imps, ly.get(key), "Texture")
+            full = full_name(imps, layer_ref(ly, key), "Texture")
             if full:
                 refs_tex.add(full)
     for lay in deco_layers:
         for fld in lay if isinstance(lay, list) else [lay]:
             if not isinstance(fld, dict) or fld.get("name") not in ("DensityMap", "ColorMap", "ScaleMap"):
                 continue
-            full = full_name(imps, fld.get("ref"), "Texture")
+            full = full_name(imps, fld, "Texture")
             if full:
                 refs_tex.add(full)
     deco_meshes: set[str] = set()
@@ -391,7 +424,7 @@ def main() -> int:
         for fld in lay if isinstance(lay, list) else [lay]:
             if not isinstance(fld, dict) or fld.get("name") != "StaticMesh":
                 continue
-            full = full_name(imps, fld.get("ref"), "StaticMesh")
+            full = full_name(imps, fld, "StaticMesh")
             if full:
                 deco_meshes.add(full)
     for full in sorted(refs_tex):
@@ -411,12 +444,9 @@ def main() -> int:
     if not (tm_folder and any(p.stem.lower() == tm_stem for p in tm_folder.glob("*.bmp"))):
         missing.append(f"heightmap {terrain_map} (want {TEX}/<case-insensitive {tm_parts[0]}>/{tm_stem}.bmp)")
     for full in sorted(set(individuals) | deco_meshes):
-        parts = full.split(".")
-        pkg, name = parts[0], parts[-1]
-        folder = find_case_insensitive(SM, pkg)
-        hit = folder and any(p.stem.lower() == name.lower() for p in folder.glob("*.fbx"))
-        if not hit:
-            missing.append(f"mesh {full} (want {SM}/<case-insensitive {pkg}>/{name}.fbx)")
+        if not mesh_on_disk(full):
+            parts = full.split(".")
+            missing.append(f"mesh {full} (want {SM}/<case-insensitive {parts[0]}>/{parts[-1]}.fbx)")
 
     print(
         f"{TILE}: {len(layer_lines)} layers, {len(deco_lines)} deco layers, "

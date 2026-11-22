@@ -90,6 +90,10 @@ def parse_layers(ti: dict) -> list[dict]:
                 n = sp.get("name")
                 if n in ("Texture", "AlphaMap", "LayerWeightMap") and sp.get("ref"):
                     fields[n] = sp["ref"]
+                    # Raw UE2 ref index: texture names are not unique across a
+                    # dump's import table (e.g. 22_23 imports 22_23_001 twice),
+                    # so exact resolution needs the index, not the name.
+                    fields["_" + n + "_index"] = sp.get("index")
                 elif n in ("UScale", "VScale", "UPan", "VPan", "TextureRotation", "bUseAlpha", "TextureMapAxis", "KFriction", "KRestitution") and "value" in sp:
                     fields[n] = sp["value"]
                 elif n == "LayerRotation" and sp.get("rotator"):

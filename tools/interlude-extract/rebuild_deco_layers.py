@@ -138,42 +138,106 @@ def load_map(tile: str) -> dict:
 
 
 def import_index(doc: dict) -> dict:
-    out = {}
+    """Index the dump tables for UE2 object-ref resolution.
+
+    "by_index": raw signed UE2 ref -> table entry (negative: import table,
+    positive: export table, both 1-based shifted). The Outer chain
+    (package_index on imports, outer_index on exports) is walked through
+    this map — never through names: Lobby alone imports two Packages named
+    "tree" (RionSctgart_tree_s vs speaking_tree_s) and two named "Town",
+    and duplicate StaticMesh/Texture/Sound names are common across the tile
+    dumps, so any name-keyed walk silently picks the last duplicate.
+    "by_ref": canonical dump ref string ("import:<class_pkg>:<class>:<name>")
+    -> every matching entry; ambiguous string resolution is a hard error.
+    """
+    by_index: dict[int, dict] = {}
     for im in doc.get("imports") or []:
-        out[im["object_name"]] = im
-        out[(im.get("class_name"), im["object_name"])] = im
-    return out
+        by_index[-(im["import_index"] + 1)] = im
+    for ex in doc.get("exports") or []:
+        by_index[ex["export_index"] + 1] = ex
+    by_ref: dict[str, list[dict]] = {}
+    for im in doc.get("imports") or []:
+        key = f"import:{im.get('class_package')}:{im.get('class_name')}:{im['object_name']}"
+        by_ref.setdefault(key, []).append(im)
+    return {"by_index": by_index, "by_ref": by_ref}
 
 
-def package_of(im: dict | None) -> str | None:
-    if not im:
-        return None
-    pkg = im.get("package") or ""
-    if ":Package:" in pkg:
-        return pkg.split(":Package:")[-1]
-    return None
+def _entry_name(entry: dict) -> str:
+    return entry.get("object_name") or entry.get("name") or "?"
 
 
-def full_name(imps: dict, ref: str | None, expect_cls: str) -> str | None:
-    if not ref or ref == "none":
-        return None
-    name = ref.split(":")[-1]
-    im = imps.get((expect_cls, name)) or imps.get(name)
-    if not im:
-        return name
-    parts = [name]
-    cur = im
-    seen = set()
-    for _ in range(6):
-        pkg = package_of(cur)
-        if not pkg or pkg in seen:
+def _full_path(imps: dict, entry: dict) -> str:
+    parts = [_entry_name(entry)]
+    cur = entry
+    for _ in range(16):
+        outer = cur.get("package_index", cur.get("outer_index")) or 0
+        if outer == 0:
             break
-        seen.add(pkg)
-        parts.insert(0, pkg)
-        cur = imps.get(("Package", pkg)) or imps.get(pkg)
-        if not cur:
-            break
+        parent = imps["by_index"].get(outer)
+        if parent is None:
+            raise SystemExit(
+                f"ERROR Outer ref {outer} of {_entry_name(cur)} is outside the "
+                "import/export tables — corrupt dump"
+            )
+        parts.insert(0, _entry_name(parent))
+        cur = parent
     return ".".join(parts)
+
+
+def _resolve(imps: dict, ref_or_field, expect_cls: str) -> dict | None:
+    if ref_or_field is None or ref_or_field == "none":
+        return None
+    if isinstance(ref_or_field, dict):
+        idx = ref_or_field.get("index") or 0
+        if idx == 0:
+            ref = ref_or_field.get("ref")
+            if ref and ref != "none":
+                raise SystemExit(f"ERROR property ref {ref} carries no usable index — dump shape regression")
+            return None
+        entry = imps["by_index"].get(idx)
+        if entry is None:
+            raise SystemExit(f"ERROR ref index {idx} ({ref_or_field.get('ref')}) outside the import/export tables")
+    else:
+        ref = ref_or_field
+        if not isinstance(ref, str):
+            raise SystemExit(f"ERROR unresolvable ref {ref!r} (expected {expect_cls})")
+        if ref.startswith("export:"):
+            # export:<pkg>:<0-based export_index>:<class>:<name> — the index is exact.
+            try:
+                idx = int(ref.split(":")[2]) + 1
+            except (ValueError, IndexError):
+                raise SystemExit(f"ERROR malformed export ref {ref}")
+            entry = imps["by_index"].get(idx)
+            if entry is None:
+                raise SystemExit(f"ERROR export ref {ref} outside the export table")
+        else:
+            candidates = imps["by_ref"].get(ref) or []
+            if not candidates:
+                raise SystemExit(f"ERROR no import matches ref {ref} (expected {expect_cls})")
+            if len(candidates) > 1:
+                paths = ", ".join(_full_path(imps, c) for c in candidates)
+                raise SystemExit(
+                    f"ERROR ambiguous ref {ref}: {paths} — pass the property "
+                    "field (with its numeric index) instead of the ref string"
+                )
+            entry = candidates[0]
+    cls = entry.get("class_name") or entry.get("class")
+    if expect_cls and cls != expect_cls:
+        raise SystemExit(f"ERROR ref {ref_or_field} resolves to class {cls}, expected {expect_cls}")
+    return entry
+
+
+def full_name(imps: dict, ref_or_field, expect_cls: str) -> str | None:
+    """Full Package[.Group].Object name for a dump Object-property.
+
+    Pass the property field dict ({"ref","index",...}) for exact resolution
+    through the raw UE2 ref index; a bare ref string only resolves when the
+    (class_package, class, name) tuple is unique in the import table.
+    """
+    entry = _resolve(imps, ref_or_field, expect_cls)
+    if entry is None:
+        return None
+    return _full_path(imps, entry)
 
 
 def field(layer: list, name: str) -> dict | None:
@@ -248,10 +312,10 @@ def mesh_ref(full: str | None) -> str:
 
 
 def format_layer(i: int, layer: list, imps: dict) -> str:
-    sm = full_name(imps, (field(layer, "StaticMesh") or {}).get("ref"), "StaticMesh")
-    dm = full_name(imps, (field(layer, "DensityMap") or {}).get("ref"), "Texture")
-    cm = full_name(imps, (field(layer, "ColorMap") or {}).get("ref"), "Texture")
-    scm = full_name(imps, (field(layer, "ScaleMap") or {}).get("ref"), "Texture")
+    sm = full_name(imps, field(layer, "StaticMesh"), "StaticMesh")
+    dm = full_name(imps, field(layer, "DensityMap"), "Texture")
+    cm = full_name(imps, field(layer, "ColorMap"), "Texture")
+    scm = full_name(imps, field(layer, "ScaleMap"), "Texture")
     sc = scale_ranges(layer)
     fade = range_minmax(layer, "FadeoutRadius")
     dens = range_minmax(layer, "DensityMultiplier")
