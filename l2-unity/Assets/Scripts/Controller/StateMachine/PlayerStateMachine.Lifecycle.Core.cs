@@ -47,7 +47,7 @@ public partial class PlayerStateMachine : MonoBehaviour
         return true;
     }
 
-    public static void AdoptFromPlayer(PlayerEntity player)
+    public static void AdoptFromPlayer(PlayerEntity player, PlayerRebirthRelay rebirth)
     {
         if (player == null)
             return;
@@ -56,11 +56,18 @@ public partial class PlayerStateMachine : MonoBehaviour
         if (onPlayer == null)
             return;
 
+        if (rebirth == null)
+        {
+            throw new InvalidOperationException(
+                "[PlayerStateMachine] IPlayerRebirth missing — PlayerSpawner was not given PlayerRebirthRelay, so the live machine was not attached.");
+        }
+
         if (_instance != null && _instance != onPlayer && _instance.GetComponentInParent<PlayerEntity>() == null)
             Destroy(_instance);
 
         _instance = onPlayer;
         onPlayer.enabled = true;
+        rebirth.Attach(onPlayer);
         PlayerStatePacketServices.Bind(playerState: onPlayer);
         if (DomainPacketServices.LocalPlayer != null)
             onPlayer.Player = DomainPacketServices.LocalPlayer;

@@ -101,7 +101,7 @@ public sealed partial class PlayerSpawner
 
         if (_characterInfo != null)
             _characterInfo.UpdateValues();
-        PlayerStateMachine.AdoptFromPlayer(player);
+        PlayerStateMachine.AdoptFromPlayer(player, _rebirth);
         if (PlayerStatePacketServices.PlayerState != null)
             PlayerStatePacketServices.PlayerState.Player = player;
 
