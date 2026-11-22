@@ -1,6 +1,9 @@
 using UnityEngine;
 
-/// <summary>Roadmap step 14: tier-driven animator rate and skinned culling.</summary>
+/// <summary>
+/// Roadmap step 14: tier-driven animator rate and skinned culling.
+/// Invoked from crowd tier refresh (<see cref="CrowdTierSystem"/>; same path under unified visibility #1650).
+/// </summary>
 public static class CrowdTierVisualPolicy
 {
     public static void Apply(Transform root, CrowdDetailTier tier, CrowdLodProfile profile)
@@ -33,33 +36,8 @@ public static class CrowdTierVisualPolicy
                 if (smr == null || smr.sharedMesh == null)
                     continue;
                 smr.updateWhenOffscreen = tier < CrowdDetailTier.T3Far;
-                ShrinkInflatedSkinnedBoundsIfNeeded(smr);
-
-                if (!smr.enabled)
-                    continue;
-
-                string meshName = smr.sharedMesh != null ? smr.sharedMesh.name : smr.name;
-                Material mat = smr.sharedMaterial;
-                if (mat != null)
-                    L2ActorMaterialSetup.LogMissingBaseMapOnce(mat, meshName);
+                L2ActorMeshPolicy.ClampInflatedSkinnedLocalBounds(smr);
             }
         }
-    }
-
-    /// <summary>
-    /// Step 14 only shrinks stale <em>inflated</em> localBounds (weapon reach). Replacing
-    /// tuned bounds with raw mesh.bounds culled distant skinned bodies (#1608).
-    /// </summary>
-    public static void ShrinkInflatedSkinnedBoundsIfNeeded(SkinnedMeshRenderer smr)
-    {
-        Bounds meshLocal = smr.sharedMesh.bounds;
-        Bounds current = smr.localBounds;
-        Vector3 meshSize = meshLocal.size;
-        Vector3 curSize = current.size;
-        const float inflateFactor = 1.35f;
-        if (curSize.x > meshSize.x * inflateFactor
-            || curSize.y > meshSize.y * inflateFactor
-            || curSize.z > meshSize.z * inflateFactor)
-            smr.localBounds = meshLocal;
     }
 }

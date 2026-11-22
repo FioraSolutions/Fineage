@@ -149,7 +149,7 @@ public static partial class L2ActorMaterialSetup
             return mat.GetTexture("_BaseMap") != null;
         if (mat.HasProperty("_MainTex"))
             return mat.GetTexture("_MainTex") != null;
-        return true;
+        return false;
     }
 
     public static void LogMissingBaseMapOnce(Material mat, string meshContext)
