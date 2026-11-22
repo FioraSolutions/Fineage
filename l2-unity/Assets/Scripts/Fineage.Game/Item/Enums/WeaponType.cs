@@ -46,7 +46,6 @@ public class WeaponTypeParser {
         switch (weaponType) {
             case WeaponType.none:
                 return "1HS";
-            case WeaponType.fist:
             case WeaponType.hand:
                 return "hand";
             case WeaponType.sword:
@@ -56,8 +55,10 @@ public class WeaponTypeParser {
             case WeaponType.bigword:
             case WeaponType.bigblunt:
                 return "2HS";
+            case WeaponType.fist:
             case WeaponType.dual:
             case WeaponType.dualfist:
+                // Interlude fists and dual swords share the two-contact swing.
                 return "dual";
             case WeaponType.pole:
             case WeaponType.staff:

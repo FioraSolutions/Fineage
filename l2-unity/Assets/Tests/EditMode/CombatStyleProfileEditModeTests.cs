@@ -39,6 +39,16 @@ public sealed class CombatStyleProfileEditModeTests
     }
 
     [Test]
+    public void Fist_weapongrp_uses_the_dual_swing()
+    {
+        var grp = new Weapongrp { WeaponType = WeaponType.fist };
+        CombatStyleProfile profile = CombatStyleProfileResolver.Resolve(grp, weaponItemId: 252);
+        Assert.AreEqual("dual", profile.AnimSuffix);
+        Assert.IsTrue(profile.IsDualAnimSuffix);
+        Assert.IsFalse(profile.IsRanged);
+    }
+
+    [Test]
     public void Dual_weapongrp_sets_dual_anim_suffix_flag()
     {
         var grp = new Weapongrp { WeaponType = WeaponType.dual };

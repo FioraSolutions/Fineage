@@ -18,5 +18,13 @@ public sealed class AttackHitPresentationDualEditModeTests
         Assert.AreEqual(4, AttackHitPresentation.ResolveHit(dto, 0).Damage);
         Assert.AreEqual(7, AttackHitPresentation.ResolveHit(dto, 1).Damage);
         Assert.IsTrue(AttackHitPresentation.ResolveHit(dto, 1).isCrit());
+
+        AttackHitCue[] cues = AttackHitPresentation.PlanCues(dto);
+        Assert.AreEqual(2, cues.Length);
+        Assert.AreEqual(0.25f, cues[0].CycleFraction, 0.001f);
+        Assert.AreEqual(0.5f, cues[1].CycleFraction, 0.001f);
+        Assert.AreEqual("4", cues[0].Label);
+        Assert.AreEqual("7", cues[1].Label);
+        Assert.AreEqual(AttackHitLabelKind.Critical, cues[1].Kind);
     }
 }

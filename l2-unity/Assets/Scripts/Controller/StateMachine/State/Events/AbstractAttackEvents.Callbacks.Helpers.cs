@@ -94,6 +94,13 @@ public abstract partial class AbstractAttackEvents
                 // $"[HIT_FX] 2.CallBackAttackShot SKIP not-melee-attack-shot frame={Time.frameCount} anim={animName}");
             return;
         }
+
+        // Packet hit list owns text, sound, soulshot and impact at each hit time.
+        // A second AttackShot must not emit another blade spark on top of that clock.
+        var scheduled = CombatPacketServices.Hits;
+        if (scheduled != null && scheduled.HasScheduledMeleeHits(player))
+            return;
+
         if (player == null || SwordCollisionPacketServices.Collision == null)
         {
             // Debug.LogWarning(
