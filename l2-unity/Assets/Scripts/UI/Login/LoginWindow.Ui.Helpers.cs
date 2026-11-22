@@ -70,6 +70,8 @@ public partial class LoginWindow
         _rememberToggle = root.Q<Toggle>("RememberToggle");
         if (_rememberToggle != null)
         {
+            // Interlude NCAuthWnd has no Remember control (Login.json deviations); keep vault behavior off-screen.
+            _rememberToggle.style.display = DisplayStyle.None;
             L10nUiBinder.SetText(_rememberToggle, "ui.login.remember");
             _rememberToggle.RegisterValueChangedCallback(evt =>
             {
