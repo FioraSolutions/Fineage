@@ -9,6 +9,6 @@ public sealed class LoginMenuNotImplementedEditModeTests
     public void Production_team_logs_concrete_not_implemented_error()
     {
         LogAssert.Expect(LogType.Error, new Regex("NCLoginFunctionWnd/ProductionTeamButton"));
-        LoginWindow.LogLoginNotImplemented("NCLoginFunctionWnd/ProductionTeamButton", "Interlude credits roll is not ported");
+        InterludeLoginNotImplemented.Log("NCLoginFunctionWnd/ProductionTeamButton", "Interlude credits roll is not ported");
     }
 }

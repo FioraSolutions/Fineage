@@ -26,6 +26,11 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Fineage.EditModeTests asmdef reachability (Unity compile parity)
+        run: python3 scripts/check-unity-editmode-guards.py
+
       - run: |
           echo "PR gate is pr-sanity; full build-and-test runs on push to dev/main."
           echo "Drop this stub from branch protection when Nikita switches required checks."

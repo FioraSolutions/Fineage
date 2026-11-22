@@ -44,6 +44,7 @@ jobs:
           python3 scripts/check-frozen-incoming-packet-actions.py
           python3 scripts/check-frozen-net-domain-maps.py
           python3 scripts/check-client-asmdef-layout.py
+          python3 scripts/check-unity-editmode-guards.py
 
       - name: Playtest helper self-tests
         run: |
