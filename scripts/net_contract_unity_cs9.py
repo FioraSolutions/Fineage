@@ -50,6 +50,16 @@ def expand_file_scoped_namespace(text: str) -> str:
     return f"{before}namespace {ns}\n{{\n}}\n"
 
 
+def fix_null_coalesce_empty_collection(text: str) -> str:
+    """`expr ?? []` → `expr ?? System.Array.Empty<T>()` for known contract fields."""
+    return (
+        text.replace(".Skills ?? []", ".Skills ?? System.Array.Empty<EnchantSkillListEntryNet>()")
+        .replace(".Requirements ?? []", ".Requirements ?? System.Array.Empty<EnchantSkillRequirementNet>()")
+        .replace(".ItemIds ?? []", ".ItemIds ?? System.Array.Empty<int>()")
+        .replace(".Rows ?? []", ".Rows ?? System.Array.Empty<CursedWeaponLocationRowNet>()")
+    )
+
+
 def fix_empty_collection_expression_defaults(text: str) -> str:
     """`public T[] Prop { get; set; } = [];` → `System.Array.Empty<T>()`."""
 
@@ -68,6 +78,7 @@ def transform_for_unity_cs9(text: str) -> str:
     text = normalize_newlines(text)
     text = expand_file_scoped_namespace(text)
     text = fix_empty_collection_expression_defaults(text)
+    text = fix_null_coalesce_empty_collection(text)
     return text
 
 
