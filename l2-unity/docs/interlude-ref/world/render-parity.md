@@ -175,6 +175,19 @@ When the Mac is free, measure p50/p95 frame time, draw calls, SetPass, tris, bat
 4. Capture a screenshot of the Rendering profiler at each stop and append numbers to `render-perf.tsv` (p50/p95 ms, draw calls, SetPass, tris, used-memory).
 5. Note whether GPU instancing, terrain pixel error, shadow distance, and texture streaming are on, and whether SMA are instanced or individual MeshRenderers.
 
+## Follow-up issues
+
+Opened from this audit and linked from [#1673](https://github.com/FioraSolutions/Fineage/issues/1673):
+
+- [#1685](https://github.com/FioraSolutions/Fineage/issues/1685) — terrain holes (`QuadVisibilityBitmap`) not applied; Meta truncated outside TI
+- [#1686](https://github.com/FioraSolutions/Fineage/issues/1686) — terrain layers: Meta drops splat textures; parser drops axis/rotation
+- [#1687](https://github.com/FioraSolutions/Fineage/issues/1687) — DecoLayers fade, density, and MaxPerQuad ignored; Meta missing outside TI
+- [#1688](https://github.com/FioraSolutions/Fineage/issues/1688) — StaticMeshActor counts, transforms, vertex lighting, and L2 LOD
+- [#1689](https://github.com/FioraSolutions/Fineage/issues/1689) — water is a flat shared quad and missing on the harbour and several towns
+- [#1690](https://github.com/FioraSolutions/Fineage/issues/1690) — UE2 world materials approximated to URP Lit diffuse
+- [#1691](https://github.com/FioraSolutions/Fineage/issues/1691) — per-tile ZoneInfo fog and SkyZoneInfo not applied
+- [#1692](https://github.com/FioraSolutions/Fineage/issues/1692) — starting-zone perf: uninstanced SMA, unused L2 LOD, deco fade
+
 ## Files
 
 - `render-parity.md` (this file)
