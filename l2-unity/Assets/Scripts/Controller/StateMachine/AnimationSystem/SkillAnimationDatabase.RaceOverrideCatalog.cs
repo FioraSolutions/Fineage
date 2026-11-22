@@ -162,7 +162,7 @@ public partial class SkillAnimationDatabase
     }
 
     /// <summary>Clear catalog cache for EditMode.</summary>
-    internal static void ClearRaceOverrideClipCacheForTests()
+    public static void ClearRaceOverrideClipCacheForTests()
     {
         RaceOverrideClipCache.Clear();
         RaceOverrideMissLogged.Clear();
