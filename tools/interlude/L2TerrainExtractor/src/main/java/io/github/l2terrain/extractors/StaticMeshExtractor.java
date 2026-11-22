@@ -105,6 +105,7 @@ public class StaticMeshExtractor {
                     imports.put(-(i + 1), pkg.imports[i]);
                 }
                 
+                List<String> deletedActors = new ArrayList<>();
                 for (ExportedObject exp : pkg.objects) {
                     if (exp == null) continue;
                     
@@ -113,6 +114,13 @@ public class StaticMeshExtractor {
                     
                     try {
                         Object obj = pkg.object(exp);
+                        if (isDeleted(obj)) {
+                            // UE2 destroys bDeleteMe/bPendingDelete actors on map load
+                            // (UnrealEd tombstones). They must not reach the bake meta;
+                            // the lossless .unr dumps keep them.
+                            deletedActors.add(exp.name.name);
+                            continue;
+                        }
                         StaticMeshInfo info = parseStaticMeshActor(obj, exp.name.name, imports);
                         if (info != null) {
                             meshes.add(info);
@@ -120,6 +128,11 @@ public class StaticMeshExtractor {
                     } catch (Exception e) {
                         // Skip actors that can't be parsed
                     }
+                }
+                if (!deletedActors.isEmpty()) {
+                    System.out.println("  excluded " + deletedActors.size()
+                            + " deleted StaticMeshActors (bDeleteMe/bPendingDelete): "
+                            + String.join(", ", deletedActors));
                 }
             }
         } finally {
@@ -183,6 +196,20 @@ public class StaticMeshExtractor {
         return String.join(".", parts);
     }
     
+    /**
+     * bDeleteMe/bPendingDelete mark actors the engine deletes on map load.
+     */
+    private boolean isDeleted(Object obj) {
+        for (Property prop : obj.properties) {
+            String propName = prop.name.name;
+            if (("bDeleteMe".equals(propName) || "bPendingDelete".equals(propName))
+                    && prop instanceof BooleanProperty boolProp && boolProp.value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private StaticMeshInfo parseStaticMeshActor(Object obj, String actorName,
                                                  Map<Integer, Import> imports) {
         StaticMeshInfo info = new StaticMeshInfo();

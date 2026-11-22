@@ -157,6 +157,47 @@ def build_terrain_info0(tile_id: str, meta: dict, tile_tex_pkg: str) -> str:
     return "\n".join(lines) + "\n"
 
 
+def deleted_actor_names(tile_id: str) -> set[str] | None:
+    """bDeleteMe/bPendingDelete StaticMeshActor names from the tile's committed
+    lossless dump (UE2 destroys them on map load — UnrealEd tombstones).
+    StaticMeshExtractor skips them at extraction time; this cross-check repairs
+    staticmeshes.json produced before that fix. None when the dump is absent."""
+    import gzip
+
+    dump = UNITY / "docs/interlude-ref/world/maps" / f"{tile_id}.unr.json.gz"
+    if not dump.is_file():
+        return None
+    doc = json.load(gzip.open(dump))
+    out: set[str] = set()
+    for export in doc.get("exports") or []:
+        if export.get("class") != "StaticMeshActor":
+            continue
+        props = {p.get("name"): p for p in (export.get("properties") or [])}
+        if props.get("bDeleteMe", {}).get("value") or props.get("bPendingDelete", {}).get("value"):
+            out.add(export.get("name") or "")
+    out.discard("")
+    return out
+
+
+def filter_deleted_actors(tile_id: str, static_meshes: list[dict]) -> list[dict]:
+    deleted = deleted_actor_names(tile_id)
+    if deleted is None:
+        print(
+            f"NOTE {tile_id}: no committed lossless dump for the bDeleteMe cross-check; "
+            "relying on StaticMeshExtractor's exclusion"
+        )
+        return static_meshes
+    kept = [m for m in static_meshes if (m.get("name") or "") not in deleted]
+    dropped = [m.get("name") or "?" for m in static_meshes if (m.get("name") or "") in deleted]
+    if dropped:
+        print(
+            f"{tile_id}: excluded {len(dropped)} deleted StaticMeshActors "
+            f"(bDeleteMe/bPendingDelete per the lossless dump; kept there): "
+            + ", ".join(sorted(dropped))
+        )
+    return kept
+
+
 def build_t3d(tile_id: str, terrain_info0: str, static_meshes: list[dict]) -> tuple[str, list[str]]:
     out = ["Begin Map", f"Begin Actor Class=TerrainInfo Name=TerrainInfo0"]
     for line in terrain_info0.splitlines():
@@ -248,7 +289,7 @@ def main() -> None:
     else:
         meta["quad_words"] = qwords
     sm_data = json.loads(sm_path.read_text(encoding="utf-8"))
-    static_meshes = sm_data["staticMeshes"]
+    static_meshes = filter_deleted_actors(tile_id, sm_data["staticMeshes"])
 
     meta_dir = MAPS / tile_id / "Meta"
     meta_dir.mkdir(parents=True, exist_ok=True)
