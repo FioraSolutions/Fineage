@@ -14,7 +14,7 @@ public static class CharacterCombatAudioDispatch
         Vector3 position,
         int entityId)
     {
-        if (!AudioWorldGate.ShouldPlayWorldSound(position))
+        if (!AudioWorldGate.ShouldPlayWorldSound(entityId, position))
             return false;
 
         AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
@@ -42,7 +42,7 @@ public static class CharacterCombatAudioDispatch
         Vector3 position,
         int entityId)
     {
-        if (!AudioWorldGate.ShouldPlayWorldSound(position))
+        if (!AudioWorldGate.ShouldPlayWorldSound(entityId, position))
             return false;
 
         if (race == CharacterRaceSound.Default)
@@ -82,7 +82,7 @@ public static class CharacterCombatAudioDispatch
             return false;
         }
 
-        if (!AudioWorldGate.ShouldPlayWorldSound(position))
+        if (!AudioWorldGate.ShouldPlayWorldSound(entityId, position))
             return false;
 
         if (string.IsNullOrEmpty(npcClassName))
@@ -125,7 +125,7 @@ public static class CharacterCombatAudioDispatch
         Entity target,
         bool shieldBlock = false)
     {
-        if (!AudioWorldGate.ShouldPlayWorldSound(position))
+        if (!AudioWorldGate.ShouldPlayWorldSound(entityId, position))
             return false;
 
         AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
@@ -181,7 +181,7 @@ public static class CharacterCombatAudioDispatch
 
     public static bool PlayItemSoundToken(string datToken, Vector3 position, int entityId)
     {
-        if (!AudioWorldGate.ShouldPlayWorldSound(position))
+        if (!AudioWorldGate.ShouldPlayWorldSound(entityId, position))
             return false;
 
         if (!InterludeSoundTokenPath.TryFromDatToken(datToken, out string eventPath))

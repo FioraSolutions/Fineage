@@ -7,6 +7,30 @@ public static class GameSettings
     const string KResW = "opt.res.w", KResH = "opt.res.h", KFull = "opt.res.full";
     const string KGfxQuality = "opt.gfx.quality";
 
+    public static float PawnClippingRange
+    {
+        get => InterludeVisibilityOptions.PawnClippingUnits;
+        set => InterludeVisibilityOptions.PawnClippingUnits = value;
+    }
+
+    public static float TerrainClippingRange
+    {
+        get => InterludeVisibilityOptions.TerrainClippingUnits;
+        set => InterludeVisibilityOptions.TerrainClippingUnits = value;
+    }
+
+    public static int RenderCharacterCount
+    {
+        get => InterludeVisibilityOptions.RenderCharacterCount;
+        set => InterludeVisibilityOptions.RenderCharacterCount = value;
+    }
+
+    public static int ModelDetail
+    {
+        get => InterludeVisibilityOptions.ModelDetail;
+        set => InterludeVisibilityOptions.ModelDetail = value;
+    }
+
     public static bool HasSavedGraphicsQuality => PlayerPrefs.HasKey(KGfxQuality);
 
     public static int GraphicsQualityLevelIndex

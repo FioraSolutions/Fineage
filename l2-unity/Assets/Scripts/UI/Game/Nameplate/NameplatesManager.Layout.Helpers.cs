@@ -36,11 +36,12 @@ public partial class NameplatesManager : MonoBehaviour
             return;
 
         Vector3 playerPos = _playerTransform.position;
-        _overlapRangeSq = _nameplateViewDistance * _nameplateViewDistance;
+        float viewDistance = VisibilityPacketServices.NameplateViewDistanceMeters;
+        _overlapRangeSq = viewDistance * viewDistance;
 
         int hitCount = Physics.OverlapSphereNonAlloc(
             playerPos,
-            _nameplateViewDistance,
+            viewDistance,
             OverlapBuffer,
             _entityMask);
 
@@ -74,7 +75,7 @@ public partial class NameplatesManager : MonoBehaviour
             _entryStore.UpsertEntry(DomainPacketServices.LocalPlayer, _defaultNameColor);
         }
 
-        _entryStore.RefreshVisibility(_playerTransform, _nameplateViewDistance, _pixelSnap);
+        _entryStore.RefreshVisibility(_playerTransform, viewDistance, _pixelSnap);
     }
 
     void UpsertUserInRange(Entity user)

@@ -52,8 +52,14 @@ public static class AudioWorldGate
     public static bool IsWithinHearRange(Vector3 worldPosition) =>
         DistanceToListener(worldPosition) <= AudioWorldConstants.HearMaxMeters;
 
-    public static bool ShouldPlayWorldSound(Vector3 worldPosition)
+    public static bool ShouldPlayWorldSound(Vector3 worldPosition) =>
+        ShouldPlayWorldSound(entityId: 0, worldPosition);
+
+    public static bool ShouldPlayWorldSound(int entityId, Vector3 worldPosition)
     {
+        if (VisibilityPacketServices.Manager != null)
+            return VisibilityPacketServices.ShouldPlayWorldAudio(entityId, worldPosition);
+
         if (!TryGetListenerPosition(out _))
             return true;
 
