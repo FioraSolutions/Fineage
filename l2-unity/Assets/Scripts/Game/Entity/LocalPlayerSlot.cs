@@ -40,4 +40,16 @@ public sealed class LocalPlayerSlot : ILocalPlayerSlot
 
         _player.Running = running;
     }
+
+    public bool TryGetPosition(out Vector3 position)
+    {
+        if (_player == null)
+        {
+            position = default;
+            return false;
+        }
+
+        position = _player.transform.position;
+        return true;
+    }
 }

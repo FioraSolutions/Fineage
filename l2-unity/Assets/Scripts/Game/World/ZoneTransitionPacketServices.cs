@@ -13,5 +13,5 @@ public static class ZoneTransitionPacketServices
     }
 
     public static ZoneTransitionService Service => _service;
-    public static ZoneNameBannerOverlay Banner => _banner ?? ZoneNameBannerOverlay.Instance;
+    public static ZoneNameBannerOverlay Banner => _banner;
 }
