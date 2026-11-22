@@ -202,7 +202,7 @@ public static class CharacterCombatAudioDispatch
 
             AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
             service?.LogCombatAudioError(
-                tokenError ?? ("item_sound token unresolved token="" + datToken + """),
+                tokenError ?? ("item_sound token unresolved token=\"" + datToken + "\""),
                 entityId,
                 datToken,
                 "WeaponSwing");

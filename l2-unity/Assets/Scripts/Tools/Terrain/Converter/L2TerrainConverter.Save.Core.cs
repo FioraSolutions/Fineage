@@ -62,19 +62,38 @@ public partial class TerrainConverter
                 + " overlay slices (layers 1.." + maxSplatSlices + "). Extra official layers will not paint until the shader slice count is raised.");
         }
 
+        // The shader only samples 9 overlay slices; do not feed extras (or a trailing
+        // null alphamap on those extras) into the Texture2DArray or the generator
+        // aborts and leaves a stale, oversized asset on disk.
+        int overlayCount = alphaMaps.Length < maxSplatSlices ? alphaMaps.Length : maxSplatSlices;
+        if (overlayCount != alphaMaps.Length) {
+            Texture2D[] cappedAlpha = new Texture2D[overlayCount];
+            Texture2D[] cappedLayers = new Texture2D[overlayCount];
+            System.Array.Copy(alphaMaps, cappedAlpha, overlayCount);
+            System.Array.Copy(layers, cappedLayers, overlayCount);
+            alphaMaps = cappedAlpha;
+            layers = cappedLayers;
+        }
+
         // Build Texture2D array for textures
-        if (terrainInfo.uvLayers.Count - 1 > 0) {
+        if (layers.Length > 0) {
             texture2DArrayGenerator.sourceTextures = layers;
             string saveAlphamapPath = Path.Combine(saveFolder, mapToConvert + "_Layer.asset");
             Texture2DArray alphamaps = texture2DArrayGenerator.GenerateTexture2DArray(saveAlphamapPath);
             terrainMat.SetTexture("_Layers", alphamaps);
         }
 
-        // Build Texture2D array for alphamaps
+        // Build Texture2D array for alphamaps.
+        // Official 1K splat masks with mips in RGBA32 exceed GitHub's 100MB file cap on
+        // tiles that have many official layers (16_25, 20_17, 22_21, 22_23). Skip mips
+        // here; diffuse _Layers arrays stay mipmapped and are much smaller.
         if (alphaMaps.Length > 0) {
+            bool prevMips = texture2DArrayGenerator.generateMipmaps;
+            texture2DArrayGenerator.generateMipmaps = false;
             texture2DArrayGenerator.sourceTextures = alphaMaps;
             string saveAlphamapPath = Path.Combine(saveFolder, mapToConvert + "_Alphamap.asset");
             Texture2DArray alphamaps = texture2DArrayGenerator.GenerateTexture2DArray(saveAlphamapPath);
+            texture2DArrayGenerator.generateMipmaps = prevMips;
             terrainMat.SetTexture("_Splatmaps", alphamaps);
         }
 

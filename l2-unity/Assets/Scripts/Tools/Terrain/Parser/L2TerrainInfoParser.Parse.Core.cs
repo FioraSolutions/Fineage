@@ -59,6 +59,12 @@ public partial class L2TerrainInfoParser
         }
         if (alphaMapInfo != string.Empty) {
             layer.alphaMap = TextureUtils.LoadTexture2DFromInfo(alphaMapInfo, L2TerrainGeneratorTool.UV_LAYER_ALPHAMAP_SIZE);
+            if (layer.alphaMap == null) {
+                string path = TextureUtils.GetTexturePath(alphaMapInfo);
+                Debug.LogError(
+                    "Terrain UV layer alphamap missing: ref=" + alphaMapInfo.Trim()
+                    + " assetPath=" + path);
+            }
         }
 
         // Parse uScale and vScale

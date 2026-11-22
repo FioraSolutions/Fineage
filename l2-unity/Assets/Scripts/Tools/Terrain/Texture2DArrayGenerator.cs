@@ -22,6 +22,16 @@ public class Texture2DArrayGenerator : MonoBehaviour {
     // CPU-side fill: Graphics.CopyTexture is GPU-only, and the following Apply() re-uploaded the
     // uninitialised CPU buffer (0xCD) -> saved array was garbage => white/flat ground.
     public Texture2DArray GenerateTexture2DArray(string path) {
+        if (sourceTextures == null || sourceTextures.Length == 0) {
+            Debug.LogError("[Interlude terrain] Texture2DArrayGenerator: no source textures for " + path);
+            return null;
+        }
+        for (int i = 0; i < sourceTextures.Length; i++) {
+            if (sourceTextures[i] == null) {
+                Debug.LogError("[Interlude terrain] Texture2DArrayGenerator: sourceTextures[" + i + "] is null for " + path);
+                return null;
+            }
+        }
         int width = sourceTextures[0].width;
         int height = sourceTextures[0].height;
         Texture2DArray textureArray = new Texture2DArray(width, height, sourceTextures.Length, TextureFormat.RGBA32, generateMipmaps);
