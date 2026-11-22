@@ -37,17 +37,17 @@ public partial class CharSelectWindow
         LobbyCharacter character = _lobbyCharacters[index];
         if (_deleteArmed && _deleteArmedSlot != character.Slot)
             _deleteArmed = false;
-        _levelLabel.text = character.Level.ToString();
-        _classLabel.text = LobbyCharacterText.ClassLabel(character.ClassId);
+        SetLabel(_levelLabel, character.Level.ToString());
+        SetLabel(_classLabel, LobbyCharacterText.ClassLabel(character.ClassId));
         int maxHp = character.MaxHp > 0 ? character.MaxHp : 0;
         int maxMp = character.MaxMp > 0 ? character.MaxMp : 0;
         int curHp = maxHp > 0 ? Mathf.Clamp(character.CurHp, 0, maxHp) : character.CurHp;
         int curMp = maxMp > 0 ? Mathf.Clamp(character.CurMp, 0, maxMp) : character.CurMp;
-        _hpLabel.text = maxHp > 0 ? $"{curHp}/{maxHp}" : "0/0";
-        _mpLabel.text = maxMp > 0 ? $"{curMp}/{maxMp}" : "0/0";
-        _expLabel.text = LobbyExpPercent(character).ToString("0.00") + "%";
-        _spLabel.text = character.Sp.ToString();
-        _karmaLabel.text = character.Karma.ToString();
+        SetLabel(_hpLabel, maxHp > 0 ? $"{curHp}/{maxHp}" : "0/0");
+        SetLabel(_mpLabel, maxMp > 0 ? $"{curMp}/{maxMp}" : "0/0");
+        SetLabel(_expLabel, LobbyExpPercent(character).ToString("0.00") + "%");
+        SetLabel(_spLabel, character.Sp.ToString());
+        SetLabel(_karmaLabel, character.Karma.ToString());
         StartCoroutine(UpdateLobbyBars(curHp, maxHp, curMp, maxMp, LobbyExpPercent(character) / 100f));
         if (index != _charNameManipulator.Index)
             _charNameManipulator.SelectIndex(index);

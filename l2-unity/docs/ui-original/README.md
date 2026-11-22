@@ -57,6 +57,10 @@ python3 tools/ui-extract/inventory_textures.py \
 - Interlude `TextBox` has an integer `fontType`, not a font name (later chronicles added `fontName`). Almost every text box uses the default `-9999`. The only exception in these windows is `StatusWnd_LevelTextBox` (`fontType` 6, color `#FFB09B79`, centered).
 - `raw` is the full ct0 object (including unnamed `unk*` fields) for anything the flat view omits.
 
+## Not extracted
+
+Login is not in this folder. There is no `LoginWnd`, `AuthWnd`, or `NCLoginFunctionWnd` document in `docs/ui-original`, and the character-select notes from `nwindow.dll` do not include the login form. Do not guess its coordinates, size, textures, or control tree. Leave the current login screen alone until that window is extracted the same way as the lobby.
+
 ## Window notes
 
 - **StatusWnd** is 176×84 at `TOP_LEFT` (0,0). Left / center / right frame slices, level box, CP/HP/MP/Exp bars (`L2UI_CH3.PlayerStatusWnd.ps_*`), `UserName`. The right-edge texture is `ps_sizecontrol1` (the Interlude resize grip). Buff icons are a separate window, **AbnormalStatusWnd** (38×26 at `TOP_LEFT` x=176), which only contains a `StatusIcon` control — icons themselves are created at runtime.

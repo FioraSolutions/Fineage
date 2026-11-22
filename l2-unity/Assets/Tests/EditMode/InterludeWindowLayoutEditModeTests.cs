@@ -93,6 +93,7 @@ public sealed class InterludeWindowLayoutEditModeTests
     [Test]
     public void Lobby_menu_buttons_match_extracted_rects()
     {
+        LogAssert.Expect(LogType.Error, new Regex("NCLobbyFunctionWnd' has no screen placement"));
         VisualElement host = new VisualElement();
         Assert.IsTrue(InterludeWindowLayout.Apply(host, "NCLobbyFunctionWnd"));
         Assert.AreEqual(120f, host.style.width.value.value, 0.01f);

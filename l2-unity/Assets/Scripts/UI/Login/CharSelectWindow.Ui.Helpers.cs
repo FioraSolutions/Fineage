@@ -13,24 +13,48 @@ public partial class CharSelectWindow : L2Window
 
         yield return new WaitForEndOfFrame();
 
-        _startButton = (Button) GetElementById("StartButton");
-        _startButton.AddManipulator(new ButtonClickSoundManipulator(_startButton));
-        _startButton.RegisterCallback<ClickEvent>(evt => StartGamePressed());
+        VisualElement detail = GetElementById("CharSelectDetailWindow");
+        VisualElement start = GetElementById("StartButtonWindow");
+        VisualElement menu = GetElementById("MenuWindow");
+        if (detail == null || start == null || menu == null)
+            Debug.LogError("[CharSelectWindow] character-select hosts are missing from CharSelectWindow.uxml.");
+        else
+        {
+            InterludeWindowLayout.Apply(detail, "NCLobbyWnd_CharInfo");
+            InterludeWindowLayout.Apply(start, "NCLobbyStartWnd");
+            InterludeWindowLayout.Apply(menu, "NCLobbyFunctionWnd");
+        }
 
-        _deleteButton = (Button)GetElementById("DeleteButton");
-        _deleteButton.AddManipulator(new ButtonClickSoundManipulator(_deleteButton));
-        _deleteButton.RegisterCallback<ClickEvent>(evt => DeletePressed());
-        _deleteButtonLabel = _deleteButton.Q<Label>("ButtonLabel");
+        _startButton = RequireButton("btnStart");
+        if (_startButton != null)
+        {
+            _startButton.AddManipulator(new ButtonClickSoundManipulator(_startButton));
+            _startButton.RegisterCallback<ClickEvent>(evt => StartGamePressed());
+        }
 
-        _createButton = (Button)GetElementById("CreateButton");
-        _createButton.AddManipulator(new ButtonClickSoundManipulator(_createButton));
-        _createButton.RegisterCallback<ClickEvent>(evt => CreatePressed());
+        _deleteButton = RequireButton("btnDelete");
+        if (_deleteButton != null)
+        {
+            _deleteButton.AddManipulator(new ButtonClickSoundManipulator(_deleteButton));
+            _deleteButton.RegisterCallback<ClickEvent>(evt => DeletePressed());
+            _deleteButtonLabel = _deleteButton.Q<Label>();
+        }
 
-        Button reloginButton = (Button)GetElementById("ReloginButton");
-        reloginButton.AddManipulator(new ButtonClickSoundManipulator(reloginButton));
-        reloginButton.RegisterCallback<ClickEvent>(evt => ReLoginPressed());
+        _createButton = RequireButton("btnCreate");
+        if (_createButton != null)
+        {
+            _createButton.AddManipulator(new ButtonClickSoundManipulator(_createButton));
+            _createButton.RegisterCallback<ClickEvent>(evt => CreatePressed());
+        }
 
-        VisualElement userNameInputContainer = GetElementById("UserSelectContainer");
+        Button reloginButton = RequireButton("btnReLogin");
+        if (reloginButton != null)
+        {
+            reloginButton.AddManipulator(new ButtonClickSoundManipulator(reloginButton));
+            reloginButton.RegisterCallback<ClickEvent>(evt => ReLoginPressed());
+        }
+
+        VisualElement nameField = GetElementById("NameField");
         VisualElement userNameInput = _arrowInputTemplate.Instantiate()[0];
         _charNameManipulator = new ArrowInputManipulator(userNameInput, "Name", new string[] { }, -1, (index, value) => {
             if (_lobbyCharacters != null)
@@ -38,38 +62,54 @@ public partial class CharSelectWindow : L2Window
             else
                 Characters.SelectInterludeCharacter(index);
         });
-
-        _levelLabel = (Label)GetElementById("LevelLabel");
-        _classLabel = (Label)GetElementById("ClassLabel");
-        _hpLabel = (Label)GetElementById("HPText");
-        _mpLabel = (Label)GetElementById("MPText");
-        _expLabel = (Label)GetElementById("ExpText");
-        _spLabel = (Label)GetElementById("SPLabel");
-        _karmaLabel = (Label)GetElementById("KarmaLabel");
-
-        _HPBar = GetElementById("HPBar");
-        _HPBarBG = GetElementById("HPBarBG");
-        _MPBarBG = GetElementById("MPBarBG");
-        _MPBar = GetElementById("MPBar");
-        _ExpBar = GetElementById("ExpBar");
-        _ExpBarBG = GetElementById("ExpBarBG");
-
         userNameInput.AddManipulator(_charNameManipulator);
-        userNameInputContainer.Add(userNameInput);
+        if (nameField == null)
+        {
+            Debug.LogError("[CharSelectWindow] NameField is missing from NCLobbyWnd_CharInfo.");
+        }
+        else
+        {
+            if (nameField is Label nameLabel)
+                nameLabel.text = "";
+            userNameInput.style.position = Position.Absolute;
+            userNameInput.style.left = 0f;
+            userNameInput.style.top = 0f;
+            userNameInput.style.right = 0f;
+            userNameInput.style.bottom = 0f;
+            nameField.Add(userNameInput);
+        }
 
-        VisualElement detail = GetElementById("CharSelectDetailWindow");
-        _lobbyStatus = new Label(string.Empty);
-        _lobbyStatus.name = "LobbyStatusLabel";
-        _lobbyStatus.style.whiteSpace = WhiteSpace.Normal;
-        _lobbyStatus.style.marginLeft = 16;
-        _lobbyStatus.style.marginRight = 12;
-        _lobbyStatus.style.marginTop = 6;
-        _lobbyStatus.style.fontSize = 12;
-        _lobbyStatus.style.color = new Color(0.9f, 0.75f, 0.45f);
+        _hpLabel = GetElementById("HPBar__text") as Label;
+        _mpLabel = GetElementById("MPBar__text") as Label;
+        _expLabel = GetElementById("EXPBar__text") as Label;
+        _HPBar = GetElementById("HPBar__fill");
+        _HPBarBG = GetElementById("HPBar");
+        _MPBar = GetElementById("MPBar__fill");
+        _MPBarBG = GetElementById("MPBar");
+        _ExpBar = GetElementById("EXPBar__fill");
+        _ExpBarBG = GetElementById("EXPBar");
+        if (_HPBar == null || _MPBar == null || _ExpBar == null)
+            Debug.LogError("[CharSelectWindow] NCLobbyWnd_CharInfo is missing HPBar, MPBar, or EXPBar.");
+
+        // Level, class, SP, and karma are not controls on the extracted card.
+        Debug.LogError(
+            "[CharSelectWindow] NCLobbyWnd_CharInfo has no level, class, SP, or karma controls in the extracted layout.");
+
         if (detail != null)
+        {
+            _lobbyStatus = new Label(string.Empty);
+            _lobbyStatus.name = "LobbyStatusLabel";
+            _lobbyStatus.pickingMode = PickingMode.Ignore;
+            _lobbyStatus.style.position = Position.Absolute;
+            _lobbyStatus.style.left = 13f;
+            _lobbyStatus.style.right = 13f;
+            _lobbyStatus.style.top = 128f;
+            _lobbyStatus.style.whiteSpace = WhiteSpace.Normal;
+            _lobbyStatus.style.fontSize = 12;
+            _lobbyStatus.style.color = new Color(0.9f, 0.75f, 0.45f);
             detail.Add(_lobbyStatus);
+        }
 
-        // Three full-height flex columns; only named chrome must pick so world pawn clicks work.
         ConfigureWorldClickThrough();
 
         SetEmptyData();
@@ -88,21 +128,13 @@ public partial class CharSelectWindow : L2Window
             return;
 
         _windowEle.pickingMode = PickingMode.Ignore;
-        foreach (VisualElement column in _windowEle.Children())
-            column.pickingMode = PickingMode.Ignore;
+    }
 
-        string[] chromeIds =
-        {
-            "CharSelectDetailWindow",
-            "StartButtonWindow",
-            "MenuWindow",
-            "UserSelectContainer",
-        };
-        for (int i = 0; i < chromeIds.Length; i++)
-        {
-            VisualElement chrome = GetElementById(chromeIds[i]);
-            if (chrome != null)
-                chrome.pickingMode = PickingMode.Position;
-        }
+    Button RequireButton(string name)
+    {
+        Button button = GetElementById(name) as Button;
+        if (button == null)
+            Debug.LogError("[CharSelectWindow] extracted control '" + name + "' is missing.");
+        return button;
     }
 }
