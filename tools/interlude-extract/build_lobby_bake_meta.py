@@ -15,6 +15,17 @@ Inputs (committed, no client needed):
   l2-unity/docs/interlude-ref/world/quadvisibility/Lobby.quadvisibility.txt
   l2-unity/docs/interlude-ref/world/env/Lobby.brushes.t3d
 
+Actors flagged bDeleteMe/bPendingDelete are excluded from the generated Meta —
+UE2 destroys them on map load, so the bake must never see them (Lobby.unr has
+29 such StaticMeshActors, one of which stores no StaticMesh= at all and used to
+NRE the Unity bake). They stay in the lossless dump; the exclusion list is
+printed. A LIVE StaticMeshActor without a resolvable StaticMesh ref is a hard
+ERROR naming tile, actor, export index, and the missing property.
+
+Meta/Brushes.json is derived from the brushes t3d (same BrushDump raw read the
+t3d itself comes from): the shared bake pipeline's ImportBrushTextures step
+consumes it exactly like every other tile's.
+
 Known non-blocking gaps (extraction list in Docs/LOBBY_LOGIN_EXTRACTION_AUDIT.md):
   - EdgeTurnBitmap bits are not extracted for any map (only counts).
 
@@ -32,6 +43,7 @@ silently dropped.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -172,6 +184,16 @@ def prop(export: dict, name: str) -> dict | None:
     return next((p for p in export.get("properties") or [] if p.get("name") == name), None)
 
 
+def is_deleted(export: dict) -> bool:
+    """UE2 destroys bDeleteMe/bPendingDelete actors on map load (UnrealEd
+    tombstones). The bake Meta must exclude them; the lossless dump keeps them."""
+    for key in ("bDeleteMe", "bPendingDelete"):
+        p = prop(export, key)
+        if p is not None and p.get("value"):
+            return True
+    return False
+
+
 def vec_line(name: str, v: dict) -> str:
     return f"{name}=(X={fmt_float(v.get('x'))},Y={fmt_float(v.get('y'))},Z={fmt_float(v.get('z'))})"
 
@@ -186,9 +208,16 @@ def rot_str(rot: dict | None) -> str:
     return ",".join(parts) if parts else "Yaw=0"
 
 
-def sma_block(export: dict, imps: dict) -> tuple[str, str | None]:
+def sma_block(export: dict, imps: dict, export_index: int) -> tuple[str, str | None]:
     name = export.get("name") or "StaticMeshActor"
     mesh = full_name(imps, prop(export, "StaticMesh"), "StaticMesh")
+    if not mesh:
+        raise SystemExit(
+            f"ERROR {TILE}: {name} (export_index {export_index}) is a live StaticMeshActor "
+            "without a resolvable StaticMesh= property — the bake has nothing to place. "
+            "Deleted actors (bDeleteMe/bPendingDelete) are excluded before this; a live "
+            "actor missing its mesh ref means the dump or the import chain is incomplete."
+        )
     lines = [f"Begin Actor Class=StaticMeshActor Name={name}"]
     if mesh:
         lines.append(f"    StaticMesh=StaticMesh'{mesh}'")
@@ -284,12 +313,172 @@ def find_case_insensitive(root: Path, name: str) -> Path | None:
     return None
 
 
+# UE2 PolyFlags decode — mirrors L2MetaDataUtils.ParsePolyFlags (C# bake side)
+# exactly, including the duplicate names aliasing one bit.
+_POLYFLAGS: list[tuple[str, int]] = [
+    ("PF_Invisible", 1),
+    ("PF_Masked", 2),
+    ("PF_Translucent", 4),
+    ("PF_NotSolid", 8),
+    ("PF_Environment", 16),
+    ("PF_ForceViewZone", 16),
+    ("PF_Semisolid", 32),
+    ("PF_Modulated", 64),
+    ("PF_FakeBackdrop", 128),
+    ("PF_TwoSided", 256),
+    ("PF_AutoUPan", 512),
+    ("PF_AutoVPan", 1024),
+    ("PF_NoSmooth", 2048),
+    ("PF_BigWavy", 4096),
+    ("PF_SpecialPoly", 4096),
+    ("PF_SmallWavy", 8192),
+    ("PF_Flat", 16384),
+    ("PF_LowShadowDetail", 32768),
+    ("PF_NoMerge", 65536),
+    ("PF_CloudWavy", 131072),
+    ("PF_DirtyShadows", 262144),
+    ("PF_BrightCorners", 524288),
+    ("PF_SpecialLit", 1048576),
+    ("PF_Gouraud", 2097152),
+    ("PF_NoBoundRejection", 2097152),
+    ("PF_Unlit", 4194304),
+    ("PF_HighShadowDetail", 8388608),
+    ("PF_Memorized", 16777216),
+    ("PF_RenderHint", 16777216),
+    ("PF_Selected", 33554432),
+    ("PF_Portal", 67108864),
+    ("PF_Mirrored", 134217728),
+    ("PF_Highlighted", 268435456),
+    ("unused", 536870912),
+    ("PF_FlatShaded", 1073741824),
+    ("PF_EdProcessed", 1073741824),
+    ("PF_RenderFog", 1073741824),
+]
+
+
+def decode_polyflags(value: int) -> list[str]:
+    if value == 0:
+        return ["PF_Default"]
+    return [name for name, bit in _POLYFLAGS if value & bit]
+
+
+_T3D_VEC_RE = re.compile(r"X=(-?[0-9.eE+]+),Y=(-?[0-9.eE+]+),Z=(-?[0-9.eE+]+)")
+
+
+def _t3d_vec(line: str) -> dict:
+    m = _T3D_VEC_RE.search(line)
+    if not m:
+        # Origin/Vertex rows are bare "x,y,z" (no X=/Y=/Z=).
+        parts = [float(p) for p in line.split(",")]
+        return {"x": parts[0], "y": parts[1], "z": parts[2]}
+    return {"x": float(m.group(1)), "y": float(m.group(2)), "z": float(m.group(3))}
+
+
+def parse_brushes_t3d(text: str) -> list[dict]:
+    """Brush actors out of a BrushDump.java t3d (Begin Actor Class=Brush ...
+    Begin Polygon Texture=.. Flags=.. / Origin / Normal / TextureU / TextureV /
+    Vertex* / End Polygon ...)."""
+    brushes: list[dict] = []
+    cur: dict | None = None
+    poly: dict | None = None
+    for raw in text.splitlines():
+        line = raw.strip()
+        if line.startswith("Begin Actor Class=Brush Name="):
+            cur = {
+                "name": line.removeprefix("Begin Actor Class=Brush Name="),
+                "csgOper": None,
+                "polyFlags": 0,
+                "position": None,
+                "prePivot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "model": None,
+                "polys": [],
+            }
+        elif cur is None:
+            continue
+        elif line.startswith("CsgOper="):
+            cur["csgOper"] = line.split("=", 1)[1]
+        elif line.startswith("PolyFlags="):
+            cur["polyFlags"] = int(line.split("=", 1)[1])
+        elif line.startswith("Location="):
+            cur["position"] = _t3d_vec(line)
+        elif line.startswith("PrePivot="):
+            cur["prePivot"] = _t3d_vec(line)
+        elif line.startswith("Begin Brush Name="):
+            cur["model"] = line.removeprefix("Begin Brush Name=")
+        elif line.startswith("Begin Polygon"):
+            m = re.match(r"Begin Polygon(?:\s+Texture=(\S+))?(?:\s+Flags=(\d+))?", line)
+            poly = {
+                "texture": m.group(1) if m and m.group(1) else "",
+                "flags": int(m.group(2)) if m and m.group(2) else 0,
+                "vertices": [],
+            }
+        elif poly is not None and line.startswith("Origin"):
+            poly["origin"] = _t3d_vec(line.split(None, 1)[1])
+        elif poly is not None and line.startswith("Normal"):
+            poly["normal"] = _t3d_vec(line.split(None, 1)[1])
+        elif poly is not None and line.startswith("TextureU"):
+            poly["textureU"] = _t3d_vec(line.split(None, 1)[1])
+        elif poly is not None and line.startswith("TextureV"):
+            poly["textureV"] = _t3d_vec(line.split(None, 1)[1])
+        elif poly is not None and line.startswith("Vertex"):
+            poly["vertices"].append(_t3d_vec(line.split(None, 1)[1]))
+        elif line.startswith("End Polygon"):
+            cur["polys"].append(poly)
+            poly = None
+        elif line.startswith("End Actor"):
+            brushes.append(cur)
+            cur = None
+    return brushes
+
+
+def build_brushes_json(brushes: list[dict], map_package: str, groups: dict[str, str]) -> dict:
+    """The shared Meta/Brushes.json schema (L2JSONBrushImporter / Brush.cs),
+    same shape the world tiles have. Values come from the brushes t3d; scales
+    are identity because BrushDump bakes MainScale*PostScale into the vertices.
+    Model bounding fields (vec1..f1) exist only in the raw .unr and are not
+    consumed by anything, so they are omitted rather than invented."""
+    data = []
+    for b in brushes:
+        poly_data = []
+        for i, p in enumerate(b["polys"]):
+            poly_data.append({
+                "polyIndex": i,
+                "texture": p["texture"],
+                "polyFlags": decode_polyflags(p["flags"]),
+                "origin": p.get("origin"),
+                "normal": p.get("normal"),
+                "textureU": p.get("textureU"),
+                "textureV": p.get("textureV"),
+                "vertexCount": len(p["vertices"]),
+                "vertices": p["vertices"],
+            })
+        data.append({
+            "name": f"{map_package}.{b['name']}",
+            "csgOper": b["csgOper"],
+            "group": groups.get(b["name"], "None"),
+            "polyFlags": decode_polyflags(b["polyFlags"]),
+            "mainScale": {"x": 1.0, "y": 1.0, "z": 1.0},
+            "postScale": {"x": 1.0, "y": 1.0, "z": 1.0},
+            "position": b["position"],
+            "prePivot": b["prePivot"],
+            "model": {
+                "name": f"{map_package}.{b['model']}" if b["model"] else None,
+                "poly": {
+                    "name": "Poly",
+                    "polyCount": len(poly_data),
+                    "polyData": poly_data,
+                },
+            },
+        })
+    return {"data": data}
+
+
 def collect_mesh_refs(doc: dict, imps: dict) -> set[str]:
-    """Every StaticMesh full name the lobby references (StaticMeshActors +
+    """Every StaticMesh full name the lobby references (live StaticMeshActors +
     terrain deco layers), resolved through the raw UE2 ref indices."""
     out: set[str] = set()
     for export in doc.get("exports") or []:
-        if export.get("class") != "StaticMeshActor":
+        if export.get("class") != "StaticMeshActor" or is_deleted(export):
             continue
         mesh = full_name(imps, prop(export, "StaticMesh"), "StaticMesh")
         if mesh:
@@ -341,6 +530,24 @@ def main() -> int:
     if not args.quadvisibility.is_file():
         raise SystemExit(f"ERROR missing {args.quadvisibility} — run extract_login_lobby.sh step 2")
     words = load_words(args.quadvisibility)
+    if not args.brushes.is_file():
+        raise SystemExit(
+            f"ERROR missing {args.brushes} — BSP skybox/walk brushes are required for the "
+            "lobby (the sky IS a BSP box of L2_Skies faces); run extract_login_lobby.sh step 3"
+        )
+    brushes_text = args.brushes.read_text(encoding="utf-8").rstrip("\n")
+    brushes = parse_brushes_t3d(brushes_text)
+    if not brushes:
+        raise SystemExit(f"ERROR no Brush actors parsed from {args.brushes}")
+    # Brush Group values live in the lossless dump, not in the t3d text.
+    brush_groups: dict[str, str] = {}
+    for export in doc.get("exports") or []:
+        if export.get("class") != "Brush":
+            continue
+        g = prop(export, "Group")
+        if g and g.get("value"):
+            brush_groups[export.get("name") or ""] = str(g["value"])
+    map_package = args.dump.name.split(".")[0]
 
     # --- TerrainInfo0.txt ---
     terrain_map = full_name(imps, prop(ti, "TerrainMap"), "Texture")
@@ -374,13 +581,16 @@ def main() -> int:
 
     individuals: list[str] = []
     cameras_default_fov: list[str] = []
-    for export in doc.get("exports") or []:
+    excluded_deleted: list[tuple[int, str, str]] = []
+    for export_index, export in enumerate(doc.get("exports") or []):
         cls = export.get("class")
+        if is_deleted(export):
+            excluded_deleted.append((export_index, export.get("name") or "?", cls or "?"))
+            continue
         if cls == "StaticMeshActor":
-            block, mesh = sma_block(export, imps)
+            block, mesh = sma_block(export, imps, export_index)
             t3d.append(block)
-            if mesh:
-                individuals.append(mesh)
+            individuals.append(mesh)
         elif cls == "Camera":
             block, used_default = camera_block(export, default_fov)
             t3d.append(block)
@@ -391,18 +601,20 @@ def main() -> int:
         elif cls == "AmbientSoundObject":
             t3d.append(ambient_block(export, imps, as_type_names))
 
-    if args.brushes.is_file():
-        t3d.append(args.brushes.read_text(encoding="utf-8").rstrip("\n"))
-    else:
-        print(f"ERROR no {args.brushes} — BSP skybox/walk brushes missing (extract step 3)", file=sys.stderr)
+    t3d.append(brushes_text)
     t3d.append("End Map")
     t3d_text = "\n".join(t3d) + "\n"
+
+    brushes_json = build_brushes_json(brushes, map_package, brush_groups)
 
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "TerrainInfo0.txt").write_text(info0_text, encoding="utf-8")
     (args.out / f"{TILE}.t3d").write_text(t3d_text, encoding="utf-8")
     uniq = sorted(set(individuals))
     (args.out / "StaticMeshActorIndividuals.txt").write_text("\n".join(uniq) + "\n", encoding="utf-8")
+    (args.out / "Brushes.json").write_text(
+        json.dumps(brushes_json, separators=(",", ":")) + "\n", encoding="utf-8"
+    )
 
     # --- verify referenced assets exist ---
     missing: list[str] = []
@@ -450,8 +662,20 @@ def main() -> int:
 
     print(
         f"{TILE}: {len(layer_lines)} layers, {len(deco_lines)} deco layers, "
-        f"{len(individuals)} SMAs ({len(uniq)} unique meshes)"
+        f"{len(individuals)} SMAs ({len(uniq)} unique meshes), "
+        f"{len(brushes)} brushes ({sum(len(b['polys']) for b in brushes)} polys) -> Brushes.json"
     )
+    if excluded_deleted:
+        by_class: dict[str, int] = {}
+        for _, _, cls in excluded_deleted:
+            by_class[cls] = by_class.get(cls, 0) + 1
+        print(
+            f"Excluded {len(excluded_deleted)} deleted actors (bDeleteMe/bPendingDelete — UE2 "
+            f"destroys them on map load; kept in the lossless dump): "
+            + ", ".join(f"{cls} x{n}" for cls, n in sorted(by_class.items()))
+        )
+        for index, name, cls in excluded_deleted:
+            print(f"  export_index {index}: {cls} {name}")
     if cameras_default_fov:
         print(
             f"FOV: {len(cameras_default_fov)} cameras store no FovAngle; emitted the Engine.uc "
