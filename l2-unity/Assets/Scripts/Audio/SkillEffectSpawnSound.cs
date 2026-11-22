@@ -86,8 +86,7 @@ public static class SkillEffectSpawnSound
         }
 
         float volume = cue.Vol <= 0f ? 0f : Mathf.Clamp01(cue.Vol / InterludeVolumeMax);
-        float radius = cue.Rad > 0f ? VectorUtils.ConvertL2UuToMeters(cue.Rad) : 0f;
-        InterludeSfx.PlayAt(clip, worldPosition, volume, false, radius);
+        InterludeSfx.PlayAt(clip, worldPosition, volume, false, cue.Rad);
     }
 
     static void EnsureLoaded()

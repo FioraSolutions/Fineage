@@ -108,5 +108,19 @@ public sealed class AnimNotifyTableEditModeTests
     {
         Assert.AreEqual(1f, AnimNotifySoundResolver.VolumeScale(250f), 0.0001f);
         Assert.AreEqual(0.5f, AnimNotifySoundResolver.VolumeScale(125f), 0.0001f);
+        Assert.AreEqual(0f, AnimNotifySoundResolver.VolumeScale(0f), 0.0001f);
+        Assert.IsFalse(AnimNotifySoundResolver.TryVolumeScale(float.NaN, out _));
+    }
+
+    [Test]
+    public void Empty_radius_and_volume_are_not_replaced_with_defaults()
+    {
+        AnimNotifyTable.LoadFrom(
+            "package\tanimation\tsequence\ttime\tclass\tnotify\tfunction\tvolume\tradius\tsound\tsounds\tsurface_step\tframe_count\trate\n"
+            + "DarkElf\tFDarkElf_anim\tWalk_Missing\t0.1\tAnimNotify_Sound\tAnimNotify_Sound9\t\t\t\timport:Engine:Sound:default_walk_01\t\t0\t19\t24.0\n",
+            "test://missing-radius.tsv");
+        Assert.IsTrue(AnimNotifyTable.TryGetBySequence("Walk_Missing", out var bindings));
+        Assert.IsTrue(float.IsNaN(bindings[0].Volume));
+        Assert.IsTrue(float.IsNaN(bindings[0].Radius));
     }
 }

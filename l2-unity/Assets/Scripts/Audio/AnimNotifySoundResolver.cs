@@ -44,7 +44,17 @@ public static class AnimNotifySoundResolver
         return AudioPathResolver.ResourcesItemSoundRoot + wave;
     }
 
-    public static bool TryPlayWave(AudioService service, string wave, Vector3 position, float volumeScale, out string error, string contextHint = null)
+    public static bool TryPlayWave(
+        AudioService service,
+        string wave,
+        Vector3 position,
+        float volumeScale,
+        float innerRadiusUu,
+        out string error,
+        string contextHint = null,
+        int ownerId = 0,
+        int soundSlot = 0,
+        string idForLog = null)
     {
         error = null;
         if (service == null)
@@ -58,9 +68,12 @@ public static class AnimNotifySoundResolver
             return false;
         }
 
+        string id = string.IsNullOrEmpty(idForLog) ? wave : idForLog;
         if (OfficialWaveTable.TryResolve(wave, out OfficialWaveTable.Entry official, out string resolveError, contextHint: contextHint)
             && official != null
-            && service.PlayClipAtWorld(official.ResourcesPath, position, AudioCategory.Sfx, volumeScale, atListener: false))
+            && service.PlayClipAtWorld(
+                official.ResourcesPath, position, AudioCategory.Sfx, volumeScale, atListener: false,
+                innerRadiusUu, ownerId, soundSlot, id))
             return true;
         if (!string.IsNullOrEmpty(resolveError) && resolveError.StartsWith("OfficialWaveTable: ambiguous", System.StringComparison.Ordinal))
         {
@@ -73,7 +86,9 @@ public static class AnimNotifySoundResolver
             string path = ResourcesRoots[i] + wave;
             if (!AudioClipCache.TryLoad(path, Time.time, out _, out _))
                 continue;
-            if (service.PlayClipAtWorld(path, position, AudioCategory.Sfx, volumeScale, atListener: false))
+            if (service.PlayClipAtWorld(
+                path, position, AudioCategory.Sfx, volumeScale, atListener: false,
+                innerRadiusUu, ownerId, soundSlot, id))
                 return true;
         }
 
@@ -81,11 +96,22 @@ public static class AnimNotifySoundResolver
         return false;
     }
 
+    public static bool TryVolumeScale(float authoredVolume, out float scale)
+    {
+        if (float.IsNaN(authoredVolume) || float.IsInfinity(authoredVolume) || authoredVolume <= 0f)
+        {
+            scale = 0f;
+            return false;
+        }
+
+        scale = authoredVolume / AuthoredVolumeUnit;
+        return true;
+    }
+
     public static float VolumeScale(float authoredVolume)
     {
-        if (authoredVolume <= 0f)
-            return 1f;
-        return authoredVolume / AuthoredVolumeUnit;
+        float scale;
+        return TryVolumeScale(authoredVolume, out scale) ? scale : 0f;
     }
 
     public static void ClearForTests()

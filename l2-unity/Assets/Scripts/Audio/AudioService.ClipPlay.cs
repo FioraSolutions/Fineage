@@ -50,37 +50,60 @@ public partial class AudioService
         return true;
     }
 
-    public void PlayClipAt(
+    public bool PlayClipAt(
         AudioClip clip,
         Vector3 worldPos,
         AudioCategory category,
         float volumeScale,
         bool atListener,
         string idForLog,
-        float maxDistanceMeters = -1f)
+        float innerRadiusUu = float.NaN,
+        int ownerId = 0,
+        int soundSlot = 0)
     {
         if (_disabled || clip == null)
-            return;
+            return false;
 
         if (atListener)
         {
             PlayLoadedClip2D(clip, category, volumeScale, idForLog);
-            return;
+            return true;
         }
 
-        int slot;
-        if (!_pool.TryAcquire(category, out slot))
+        if (!Ue2SoundAudibility.HasRadius(innerRadiusUu))
         {
-            LogAudioError(_pool.FormatPoolExhaustedError(category));
-            return;
+            LogAudioErrorOnce("radius:" + (idForLog ?? ""), Ue2SoundAudibility.FormatMissingRadius(idForLog));
+            return true;
         }
 
-        WorldEmitter emitter = AcquireWorldEmitter();
+        if (!TryDistanceToListener(worldPos, out float distance))
+        {
+            LogAudioErrorOnce("listener", "AudioService: no listener for 3D sound \"" + (idForLog ?? "") + "\".");
+            return true;
+        }
+
+        if (!Ue2SoundAudibility.IsAudible(distance, innerRadiusUu))
+            return true;
+
+        float priority = Ue2SoundAudibility.Priority(volumeScale, distance, innerRadiusUu);
+        if (!_pool.TryClaim(category, priority, ownerId, soundSlot, out int slot, out bool replaced, out _))
+            return true;
+
+        WorldEmitter emitter = replaced ? FindEmitter(category, slot) : null;
+        if (emitter == null)
+            emitter = AcquireWorldEmitter();
+        if (emitter.Source != null && emitter.Source.isPlaying)
+            emitter.Source.Stop();
+
+        float attenuation = Ue2SoundAudibility.Attenuation(distance, innerRadiusUu);
         emitter.Category = category;
+        emitter.VoiceIndex = slot;
+        emitter.Go.SetActive(true);
         emitter.Go.transform.position = worldPos;
-        ApplyWorldFalloff(emitter.Source, maxDistanceMeters);
-        emitter.Source.PlayOneShot(clip, CategoryVolume(category) * volumeScale);
+        ApplyAudibleFalloff(emitter.Source, innerRadiusUu);
+        emitter.Source.PlayOneShot(clip, CategoryVolume(category) * volumeScale * attenuation);
         emitter.ReleaseAt = Time.unscaledTime + clip.length + 0.15f;
+        return true;
     }
 
     public bool PlayClipAtWorld(
@@ -88,7 +111,11 @@ public partial class AudioService
         Vector3 worldPos,
         AudioCategory category,
         float volumeScale,
-        bool atListener)
+        bool atListener,
+        float innerRadiusUu = float.NaN,
+        int ownerId = 0,
+        int soundSlot = 0,
+        string idForLog = null)
     {
         if (_disabled)
             return false;
@@ -100,8 +127,33 @@ public partial class AudioService
             return false;
         }
 
-        PlayClipAt(clip, worldPos, category, volumeScale, atListener, resourcesPath);
+        string id = string.IsNullOrEmpty(idForLog) ? resourcesPath : idForLog;
+        return PlayClipAt(
+            clip, worldPos, category, volumeScale, atListener, id, innerRadiusUu, ownerId, soundSlot);
+    }
+
+    bool TryDistanceToListener(Vector3 worldPos, out float distance)
+    {
+        if (!AudioWorldGate.TryGetListenerPosition(out Vector3 listener))
+        {
+            distance = 0f;
+            return false;
+        }
+
+        distance = Vector3.Distance(worldPos, listener);
         return true;
+    }
+
+    WorldEmitter FindEmitter(AudioCategory category, int voiceIndex)
+    {
+        for (int i = 0; i < _worldEmitters.Count; i++)
+        {
+            WorldEmitter emitter = _worldEmitters[i];
+            if (emitter.VoiceIndex == voiceIndex && emitter.Category == category)
+                return emitter;
+        }
+
+        return null;
     }
 
     WorldEmitter AcquireWorldEmitter()
@@ -109,12 +161,13 @@ public partial class AudioService
         WorldEmitter emitter;
         for (int i = 0; i < _worldEmitters.Count; i++)
         {
-            if (_worldEmitters[i].Source != null && !_worldEmitters[i].Source.isPlaying)
-            {
-                emitter = _worldEmitters[i];
-                emitter.Go.SetActive(true);
-                return emitter;
-            }
+            WorldEmitter candidate = _worldEmitters[i];
+            if (candidate.Source == null || candidate.VoiceIndex >= 0)
+                continue;
+            if (candidate.Source.isPlaying)
+                continue;
+            candidate.Go.SetActive(true);
+            return candidate;
         }
 
         var go = new GameObject("PooledWorldSfx");
@@ -139,9 +192,24 @@ public partial class AudioService
                 e.Source.Stop();
                 e.Go.SetActive(false);
                 e.ReleaseAt = 0f;
-                _pool.Release(e.Category);
+                if (e.VoiceIndex >= 0)
+                {
+                    _pool.ReleaseIndex(e.Category, e.VoiceIndex);
+                    e.VoiceIndex = -1;
+                }
             }
         }
+    }
+
+    static void ApplyAudibleFalloff(AudioSource src, float innerRadiusUu)
+    {
+        float outer = Ue2SoundAudibility.OuterRadiusMeters(innerRadiusUu);
+        src.spatialBlend = 1f;
+        src.dopplerLevel = 0f;
+        src.rolloffMode = AudioRolloffMode.Linear;
+        // Gain already carries the UE2 curve. Keep Unity flat inside the cutoff so it only pans.
+        src.minDistance = outer;
+        src.maxDistance = outer + 0.01f;
     }
 
     internal static void ApplyWorldFalloff(AudioSource src, float maxDistanceMeters = -1f)
