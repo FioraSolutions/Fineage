@@ -261,7 +261,9 @@ public static class OfficialAmbientSoundTable
 
     static void Log(string message)
     {
-        ErrorLogged?.Invoke(message);
-        Debug.LogError(message);
+        if (ErrorLogged != null)
+            ErrorLogged(message);
+        else
+            Debug.LogError(message);
     }
 }

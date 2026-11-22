@@ -40,11 +40,17 @@ def asset_key(effect: str) -> str:
     return object_name(effect).lower()
 
 
-def is_projectile(row: dict, flying: float) -> bool:
-    if flying <= 0 or row["on_target"] or row["phase"] != "shot":
+def is_flying_shot_shape(row: dict) -> bool:
+    if row["on_target"] or row["phase"] != "shot":
         return False
     key = row["asset"]
     return key.endswith("_fl") or key.endswith("_pr") or key.endswith("_fo")
+
+
+def is_projectile(row: dict, flying: float) -> bool:
+    if flying <= 0 or row["on_target"] or row["phase"] != "shot":
+        return False
+    return is_flying_shot_shape(row)
 
 
 def map_phase(row: dict, has_projectile: bool) -> str | None:
@@ -80,7 +86,8 @@ def kind_of(row: dict, has_projectile: bool) -> str:
 
 def build() -> None:
     grp = load_tsv(DOCS / "dats" / "skillgrp.tsv")
-    usk_rows_raw = load_tsv(DOCS / "skill-effects-engine.tsv")
+    # SkillVisualCatalogEditModeTests passes skill-effect-placement.tsv as the usk source.
+    usk_rows_raw = load_tsv(DOCS / "skills" / "skill-effect-placement.tsv")
     desc: dict[int, dict[int, str]] = {}
     for row in grp:
         sid = int(row["skill_id"])
@@ -92,18 +99,20 @@ def build() -> None:
     by_skill: dict[int, list[dict]] = {}
     names_by_skill: dict[int, set[str]] = {}
     for raw in usk_rows_raw:
-        effect = raw["effect"].strip()
-        if not effect:
+        effect = (raw.get("effect_class") or "").strip()
+        visual_key = (raw.get("visual_key") or "").strip()
+        if not visual_key:
             continue
         row = {
             "skill_id": int(raw["skill_id"]),
-            "class_name": raw["class_name"].strip(),
-            "flying": float(raw["flying_time"] or 0),
-            "phase": raw["phase"].strip().lower(),
-            "asset": asset_key(effect),
-            "attach_on": int(raw["attach_on"] or 0),
-            "bone": raw["bone"].strip(),
-            "on_target": raw["on_target"].strip() in ("1", "true"),
+            "class_name": visual_key,
+            "effect_class": effect,
+            "flying": float(raw.get("flying_time") or 0),
+            "phase": (raw.get("phase") or "").strip().lower(),
+            "asset": asset_key(effect) if effect else "",
+            "attach_on": int(raw.get("attach_on_visual") or 0),
+            "bone": (raw.get("attach_bone_name") or "").strip(),
+            "on_target": (raw.get("b_spawn_on_target") or "").strip() in ("1", "true"),
         }
         by_class.setdefault(row["class_name"].lower(), []).append(row)
         obj = object_name(row["class_name"]).lower()
@@ -157,15 +166,45 @@ def build() -> None:
     ready = 0
     missing_ids: set[int] = set()
 
+    def parse_skill_ref(desc_text: str) -> int | None:
+        if not desc_text.lower().startswith("skill."):
+            return None
+        try:
+            sid = int(object_name(desc_text))
+            return sid if sid > 0 else None
+        except ValueError:
+            return None
+
+    def choose_follow_level(follow_id: int, requested: int) -> int:
+        levels_map = desc.get(follow_id)
+        if not levels_map:
+            return requested
+        if requested in levels_map:
+            return requested
+        return sorted(levels_map)[0]
+
     def consider(sid: int, level: int, source: str, visual: str, rows: list[dict] | None, extra: list[str]) -> str:
+        result = evaluate(sid, level, source, visual, rows, extra)
+        record(sid, level, result)
+        return result[0]
+
+    def evaluate(
+        sid: int,
+        level: int,
+        source: str,
+        visual: str,
+        rows: list[dict] | None,
+        extra: list[str],
+    ) -> tuple[str, str, str, list[str]]:
         if extra:
-            for item in extra:
-                missing_lines.append(f"{sid}\t{level}\t{source}\t{visual}\t{item}")
-            return "missing"
+            return "missing", source, visual, list(extra)
         assert rows is not None
         flying = rows[0]["flying"]
-        projectile = any(is_projectile(r, flying) for r in rows)
         problems: list[str] = []
+        for row in rows:
+            if is_flying_shot_shape(row) and row["flying"] <= 0:
+                problems.append("phase:shot missing field=FlyingTime effect=" + row["asset"])
+        projectile = any(is_projectile(r, flying) for r in rows)
         for row in rows:
             phase_err = map_phase(row, projectile)
             if phase_err:
@@ -176,41 +215,123 @@ def build() -> None:
             if attach_err:
                 problems.append(attach_err)
                 continue
+            if not row["effect_class"]:
+                problems.append("phase:" + row["phase"] + " missing field=EffectClass")
+                continue
+            if is_flying_shot_shape(row) and row["flying"] <= 0:
+                continue
             if not has_asset(row["asset"]):
                 problems.append(row["asset"])
         if problems:
-            for item in problems:
-                missing_lines.append(f"{sid}\t{level}\t{source}\t{visual}\t{item}")
-            return "missing"
-        return "ready"
+            return "missing", source, visual, problems
+        return "ready", source, visual, []
+
+    def record(sid: int, level: int, result: tuple[str, str, str, list[str]]) -> None:
+        status, source, visual, problems = result
+        if status != "missing":
+            return
+        for item in problems:
+            missing_lines.append(f"{sid}\t{level}\t{source}\t{visual}\t{item}")
+
+    def resolve_status(sid: int, level: int, visited: set[int] | None, emit: bool = True) -> str:
+        visited = visited or set()
+        levels_map = desc.get(sid)
+        if not levels_map:
+            single = single_usk(sid)
+            names = names_by_skill.get(sid) or set()
+            if single:
+                return consider(sid, level, "skill.usk", single[0], single[1], [])
+            if len(names) > 1:
+                originals = []
+                seen = set()
+                for row in by_skill[sid]:
+                    if row["class_name"].lower() not in seen:
+                        seen.add(row["class_name"].lower())
+                        originals.append(row["class_name"])
+                originals.sort()
+                return consider(sid, level, "skill.usk", "ambiguous", None, originals)
+            return "none"
+        if level not in levels_map:
+            result = evaluate(sid, level, "skillgrp", "skillgrp", None, [f"skillgrp level={level}"])
+            if emit:
+                record(sid, level, result)
+            return result[0]
+        text = levels_map[level].strip()
+        if text.lower().startswith("skill."):
+            matched = match_desc(text)
+            if matched is not None:
+                result = evaluate(sid, level, "skillgrp.desc", matched[0], matched[1], [])
+                if emit:
+                    record(sid, level, result)
+                return result[0]
+            follow = parse_skill_ref(text)
+            if follow and follow != sid:
+                if sid in visited or follow in visited:
+                    result = ("missing", "skillgrp.desc", text, [f"{text} followed skill={follow} cycle"])
+                    if emit:
+                        record(sid, level, result)
+                    return "missing"
+                next_vis = set(visited)
+                next_vis.add(sid)
+                follow_level = choose_follow_level(follow, level)
+                inner = resolve_status(follow, follow_level, next_vis, emit=False)
+                if inner == "ready":
+                    return "ready"
+                if inner == "missing":
+                    follow_text = desc.get(follow, {}).get(follow_level, "").strip()
+                    matched_follow = match_desc(follow_text) if follow_text else None
+                    if matched_follow:
+                        inner_result = evaluate(
+                            sid,
+                            level,
+                            "skillgrp.desc",
+                            matched_follow[0],
+                            matched_follow[1],
+                            [],
+                        )
+                    else:
+                        inner_result = (
+                            "missing",
+                            "skillgrp.desc",
+                            text,
+                            [f"{text} followed skill={follow}"],
+                        )
+                    if emit:
+                        record(sid, level, inner_result)
+                    return "missing"
+                result = (
+                    "missing",
+                    "skillgrp.desc",
+                    text,
+                    [f"{text} followed skill={follow} empty desc"],
+                )
+                if emit:
+                    record(sid, level, result)
+                return "missing"
+            result = evaluate(sid, level, "skillgrp.desc", text, None, [text])
+            if emit:
+                record(sid, level, result)
+            return result[0]
+        single = single_usk(sid)
+        names = names_by_skill.get(sid) or set()
+        if single:
+            return consider(sid, level, "skill.usk", single[0], single[1], [])
+        if len(names) > 1:
+            originals = []
+            seen = set()
+            for row in by_skill[sid]:
+                if row["class_name"].lower() not in seen:
+                    seen.add(row["class_name"].lower())
+                    originals.append(row["class_name"])
+            originals.sort()
+            return consider(sid, level, "skill.usk", "ambiguous", None, originals)
+        return "none"
 
     for sid, levels in desc.items():
         any_ready = False
         any_missing = False
         for level in sorted(levels):
-            text = levels[level]
-            if text.lower().startswith("skill."):
-                matched = match_desc(text)
-                if matched is None:
-                    status = consider(sid, level, "skillgrp.desc", text, None, [text])
-                else:
-                    status = consider(sid, level, "skillgrp.desc", matched[0], matched[1], [])
-            else:
-                single = single_usk(sid)
-                names = names_by_skill.get(sid) or set()
-                if single:
-                    status = consider(sid, level, "skill.usk", single[0], single[1], [])
-                elif len(names) > 1:
-                    originals = []
-                    seen = set()
-                    for row in by_skill[sid]:
-                        if row["class_name"].lower() not in seen:
-                            seen.add(row["class_name"].lower())
-                            originals.append(row["class_name"])
-                    originals.sort()
-                    status = consider(sid, level, "skill.usk", "ambiguous", None, originals)
-                else:
-                    status = "none"
+            status = resolve_status(sid, level, set(), emit=True)
             if status == "ready":
                 any_ready = True
             elif status == "missing":
@@ -249,6 +370,8 @@ def build() -> None:
         "# Skills that have a skillgrp desc path or a skill.usk entry whose effect asset is not imported.",
         "# Source: skillgrp.tsv desc, then Animations/skill.usk (skill-effects-engine.tsv).",
         "# Lists only leftovers: effect classes still without a prefab, unresolved skillgrp desc keys, or empty EffectClass rows.",
+        "# skill.<group>.<id> desc keys that are not themselves a visual class follow that skill's official visual (cycle-checked).",
+        "# 1147 has an empty desc at every level and no usk row, so followers stay listed here.",
         "skill_id\tlevel\tsource\tvisual_key\tmissing_asset",
     ]
     report.extend(missing_lines)
