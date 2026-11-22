@@ -41,6 +41,7 @@ public sealed partial class GameLifetimeScope
         builder.RegisterEntryPoint<AppearFadeService>().AsSelf();
         RegisterIfFound<DeadManager>(builder);
         RegisterMoveRoster(builder);
+        RegisterNameplateRoster(builder);
         RegisterVisibilityRoster(builder);
         RegisterIfFound<NetworkCharacterControllerShare>(builder);
         RegisterIfFound<NetworkTransformReceive>(builder);
@@ -162,6 +163,47 @@ public sealed partial class GameLifetimeScope
 
         throw new InvalidOperationException(
             "[GameLifetimeScope] IMoveRoster is not a MoveAllCharacters — MoveAllCharacters was not registered as IMoveRoster.");
+    }
+
+    /// <summary>
+    /// Register the scene <see cref="NameplatesManager"/> as <see cref="INameplateRoster"/> (#131 S38n).
+    /// </summary>
+    void RegisterNameplateRoster(IContainerBuilder builder)
+    {
+        NameplatesManager found = UnityEngine.Object.FindFirstObjectByType<NameplatesManager>(FindObjectsInactive.Include);
+        if (found == null)
+        {
+            throw new InvalidOperationException(
+                "[GameLifetimeScope] INameplateRoster missing — RegisterNameplateRoster found no NameplatesManager in loaded scenes.");
+        }
+
+        builder.RegisterComponent(found).AsSelf().As<INameplateRoster>();
+    }
+
+    static void RequireNameplateRoster(IObjectResolver container)
+    {
+        INameplateRoster roster;
+        try
+        {
+            roster = container.Resolve<INameplateRoster>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(INameplateRoster))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] INameplateRoster missing — NameplatesManager was not registered as INameplateRoster.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (roster is NameplatesManager)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] INameplateRoster is not a NameplatesManager — NameplatesManager was not registered as INameplateRoster.");
     }
 
     /// <summary>
