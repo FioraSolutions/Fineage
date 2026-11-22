@@ -12,8 +12,10 @@ missing in CI and Unity's asset pipeline does not re-stat symlink targets (a
 symlink's mtime does not change when the file it points to is edited, so Bee
 silently skips the rebuild).
 
-Instead the client keeps real copies and this script synchronises them. Run it
-in two ways:
+Instead the client keeps real copies and this script synchronises them. Backend
+sources may use newer C#; ``prepare_contract_bytes`` lowers them to Unity C# 9
+(see ``net_contract_unity_cs9.py``) and rejects patterns that cannot be lowered.
+Run it in two ways:
 
   * `--check`   exit 1 if the copies differ (what CI does on every client PR)
   * `--write`   copy the backend sources over the client copies
@@ -221,7 +223,7 @@ def compare(
         if not dst.is_file():
             differing.append(rel)
             continue
-        prepared = prepare_contract_bytes(data, lookup_corpus=lookup_corpus)
+        prepared = prepare_contract_bytes(data, lookup_corpus=lookup_corpus, rel=rel)
         if dst.read_bytes() != prepared:
             differing.append(rel)
 
@@ -245,7 +247,7 @@ def write_contract(
         if data is None:
             print(f"skip (no backend source): {rel}", file=sys.stderr)
             continue
-        prepared = prepare_contract_bytes(data, lookup_corpus=lookup_corpus)
+        prepared = prepare_contract_bytes(data, lookup_corpus=lookup_corpus, rel=rel)
         if dst.is_file() and dst.read_bytes() == prepared:
             continue
 

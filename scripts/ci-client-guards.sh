@@ -37,6 +37,10 @@ if [[ ! -d "$backend_contract" ]]; then
   exit 1
 fi
 
+python3 scripts/test_net_contract_unity_cs9.py
+
 FINEAGE_REQUIRE_CONTRACT_SYNC=1 python3 scripts/sync-net-contract.py --check \
   --backend "$backend_contract" \
   --ref ''
+
+python3 scripts/check-net-contract-unity-compile.py
