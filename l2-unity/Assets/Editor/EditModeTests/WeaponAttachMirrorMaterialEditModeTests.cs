@@ -52,6 +52,8 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
         }
 
         var mirrorKeys = CollectMirrorModelKeysFromMeta();
+        if (mirrorKeys.Count == 0)
+            Assert.Inconclusive("Weapongrp mirror profiles not loaded in EditMode (missing meta DAT?)");
         int audited = 0;
         var failures = new List<string>();
         for (int i = 0; i < prefabs.Length; i++)

@@ -69,6 +69,9 @@ public partial class PlayerStateBase : StateMachineBehaviour
 
         if (_audioHandler == null)
         {
+            if (_entity == null)
+                return;
+
             CharacterCombatAudioDispatch.PlayItemSoundToken(swing, _entity.transform.position, entityId);
             CharacterCombatAudioDispatch.PlayItemSoundToken(shing, _entity.transform.position, entityId);
             return;

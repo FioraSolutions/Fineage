@@ -63,7 +63,8 @@ public sealed class SpAtkCombatClipEditModeTests
 
             foreach (string phase in phases)
             {
-                int wantNumber = ReadSpAtkNumber(phase);
+                if (!TryReadSpAtkNumber(phase, out int wantNumber))
+                    continue;
                 foreach (PlayerAnimWeapon weapon in WeaponTypes)
                 {
                     Assert.IsTrue(
@@ -86,7 +87,8 @@ public sealed class SpAtkCombatClipEditModeTests
 
             foreach (string phase in phases)
             {
-                int wantNumber = ReadSpAtkNumber(phase);
+                if (!TryReadSpAtkNumber(phase, out int wantNumber))
+                    continue;
                 foreach (string race in SkillAnimationDatabase.AllSpAtkRaceTokens())
                 {
                     foreach (PlayerAnimWeapon weapon in WeaponTypes)

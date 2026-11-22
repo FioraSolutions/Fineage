@@ -20,6 +20,27 @@ public partial class SkillListWindow : L2PopupWindow
     public static void EditModeResetSingletonForTests()
     {
         _instance = null;
+        SkillLearnPacketServices.EditModeClearForTests();
+        _orphanedSkillList = null;
+    }
+
+    public static void EditModeAdoptSingletonForTests(SkillListWindow owner)
+    {
+        if (owner == null)
+            return;
+
+        SkillListWindow[] existing = UnityEngine.Object.FindObjectsByType<SkillListWindow>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+        for (int i = 0; i < existing.Length; i++)
+        {
+            if (existing[i] != null && existing[i] != owner)
+                UnityEngine.Object.DestroyImmediate(existing[i].gameObject);
+        }
+
+        _instance = owner;
+        owner.EnsureEditModeSingletonInitializedForTests();
+        SkillLearnPacketServices.Bind(skillList: owner);
     }
 
     /// <summary>EditMode: <see cref="Awake"/> is not always invoked immediately on <see cref="AddComponent{T}"/>.</summary>
