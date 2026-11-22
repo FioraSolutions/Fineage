@@ -417,7 +417,7 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [x] **S1** `FxBudgetEffectRelease` → `Fineage.Game/Crowd/`. Cuts the ACS compile of a MonoBehaviour whose only project types (`CrowdDetailTier`, `CrowdTierPacketServices`, `FxBudgetRegistry`) already live in Fineage.Game.
 - [ ] **S2** `L2FlameAnim` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the shared flame texture clock (#1690 neighbor: texture animation sits with `L2Ue2ShaderProps`, clock unchanged).
 - [x] **S3** `L2VillageStatuePanner` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the one-off TexPanner. It stays a statue-specific clock beside `L2Ue2ShaderProps`; this PR does not turn it into the shared UE2 material path (#1690).
-- [ ] **S4** `L2DoorPassage` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the static-mesh doorway submesh drop (#1688 neighbor, policy unchanged).
+- [x] **S4** `L2DoorPassage` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the static-mesh doorway submesh drop (#1688 neighbor, policy unchanged).
 - [x] **S5** `L2TerrainSunIntensity` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the UE2 sun-direction formula so it sits with `L2StaticMeshVertexLight` / sun masks (#1688). Formula unchanged; still not a rebake entry point.
 - [ ] **S6** `L2BrushPortal` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the baked-brush portal cut (#1688 / #1692 neighbor, mesh cut unchanged).
 - [x] **S7** `EntityStunStars` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the stun-star drawer; it already calls `L2FxCompositorLayers` in Fineage.Game.
