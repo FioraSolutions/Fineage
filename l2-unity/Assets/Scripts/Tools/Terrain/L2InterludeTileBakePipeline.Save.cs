@@ -24,8 +24,10 @@ public static partial class L2InterludeTileBakePipeline
         // Break Prefab Variant chains between tiles (same hierarchy name "StaticMeshes").
         if (PrefabUtility.IsPartOfPrefabInstance(root))
             PrefabUtility.UnpackPrefabInstance(root, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
-        if (AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(prefabPath) != null)
-            AssetDatabase.DeleteAsset(prefabPath);
+        // No DeleteAsset before saving: scenes reference these prefabs by guid
+        // (l2_lobby.unity alone holds 84 refs to StaticMeshes.prefab). Saving over the
+        // existing asset replaces its content in place and keeps the guid alive;
+        // delete+recreate would orphan every scene reference on each rebake.
         PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
         UnityEngine.Object.DestroyImmediate(root);
     }

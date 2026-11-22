@@ -37,7 +37,8 @@ public static partial class L2InterludeTileBakePipeline
                 }
                 else
                 {
-                    result.log.Add("Skip brush textures: Brushes.json missing");
+                    result.log.Add("Skip brush textures: no Meta/Brushes.json for " + tileId
+                        + " (the tile's Meta generator did not produce one — no BSP brush texture list)");
                 }
             }
 

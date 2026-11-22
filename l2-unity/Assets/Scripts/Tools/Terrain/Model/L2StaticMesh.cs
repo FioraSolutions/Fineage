@@ -4,6 +4,8 @@ using UnityEngine;
 public class L2StaticMesh {
     public string staticMesh { get; set; }
     public string actorClass { get; set; }
+    // StaticMeshActor Name= from the source t3d/list — carried so bake errors can name the actor.
+    public string actorName { get; set; }
     public float y { get; set; }
     public float x { get; set; }
     public float z { get; set; }

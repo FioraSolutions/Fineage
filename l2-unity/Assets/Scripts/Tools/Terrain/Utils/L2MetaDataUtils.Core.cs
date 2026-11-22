@@ -24,6 +24,11 @@ public partial class L2MetaDataUtils
     }
 
     public static string[] GetFolderAndFileFromInfo(string value) {
+        if (string.IsNullOrEmpty(value)) {
+            throw new System.ArgumentException(
+                "UE2 object reference is null or empty — expected e.g. \"StaticMesh'Package.Group.Name'\". "
+                + "The source actor/line is missing the property; the t3d parser names the actor upstream.");
+        }
         string textureName = value.Contains("=") ? value.Split('=')[1] : value;
 
         textureName = textureName.Replace("Texture'", string.Empty);
@@ -40,7 +45,9 @@ public partial class L2MetaDataUtils
             return new string[2] { result[0], result[2] };
         }
 
-        return result;
+        throw new System.FormatException(
+            "UE2 object reference '" + value + "' has no package/name dot form "
+            + "(expected 'Package.Name' or 'Package.Group.Name').");
     }
 }
 #endif

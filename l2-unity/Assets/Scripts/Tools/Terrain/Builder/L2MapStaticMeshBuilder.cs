@@ -83,7 +83,13 @@ public class L2MapStaticMeshBuilder : MonoBehaviour
 
             instantiated.transform.parent = container.transform;
         } else {
-            // Debug.LogError("Can't find StaticMesh FBX " + staticMesh.staticMesh + " at path " + meshPath);
+            // Never silent: a referenced mesh with no baked FBX must be named (e.g. a
+            // package that was never exported, like the old de_fire gap). The Meta
+            // generator pre-verifies lobby meshes; a miss here means the asset tree
+            // drifted from the Meta — re-export the package and rebake.
+            Debug.LogError("[Interlude bake] missing StaticMesh FBX for actor "
+                + (staticMesh.actorName ?? "?") + ": " + staticMesh.staticMesh
+                + " (expected " + meshPath + ")");
         }
     }
 }
