@@ -29,26 +29,43 @@ public partial class WorldClock
             return;
         }
 
+        if (_mobiusServerClock)
+        {
+            TickMobiusServerClock();
+            CalculateDayNightRatio();
+            CalculateSunPhaseRatio();
+            return;
+        }
+
+        if (Application.isPlaying && _persistentDriver)
+        {
+            LogAwaitingServerGameTimeOnce();
+            if (_holdAtHour)
+                SetWorldHours(_heldHour);
+            CalculateDayNightRatio();
+            CalculateSunPhaseRatio();
+            return;
+        }
+
         if (_holdAtHour)
         {
             SetWorldHours(_heldHour);
             if (Application.isPlaying && !_loggedHold)
             {
                 _loggedHold = true;
-                // Debug.Log("[L2Clock] sun held at " + _heldHour.ToString("0.###") + ":00");
             }
+            CalculateDayNightRatio();
+            CalculateSunPhaseRatio();
             return;
         }
 
         if (Application.isPlaying && !_loggedHold)
         {
             _loggedHold = true;
-            // Debug.Log("[L2Clock] day runs in " + _dayDurationMinutes.ToString("0.###") + " min");
         }
 
-        if(_startClock) {
+        if (_startClock)
             UpdateClock();
-        }
 
         CalculateDayNightRatio();
         CalculateSunPhaseRatio();

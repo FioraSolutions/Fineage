@@ -17,9 +17,8 @@ public partial class WorldClock
         {
             _instance.enabled = true;
             _instance.gameObject.SetActive(true);
-            _instance._startClock = true;
-            _instance._dayDurationMinutes = 2.5f;
-            _instance.PinAtHour(13f);
+            _instance._startClock = false;
+            _instance._dayDurationMinutes = 240f;
             return _instance;
         }
 
@@ -47,14 +46,14 @@ public partial class WorldClock
         DontDestroyOnLoad(go);
         WorldClock driver = go.AddComponent<WorldClock>();
         driver._persistentDriver = true;
-        driver._startClock = true;
-        driver._dayDurationMinutes = 2.5f;
+        driver._startClock = false;
+        driver._holdAtHour = true;
+        driver._heldHour = 12f;
+        driver._dayDurationMinutes = 240f;
         if (existing != null && existing != driver)
         {
             driver._worldTimer = existing._worldTimer;
         }
-
-        driver.PinAtHour(13f);
 
         _instance = driver;
         WorldClockPacketServices.Bind(clock: driver);

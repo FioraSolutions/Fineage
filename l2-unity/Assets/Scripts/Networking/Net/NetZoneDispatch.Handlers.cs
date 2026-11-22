@@ -385,6 +385,9 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.MagicSkillCanceled:
                 _ = (MagicSkillCanceledNetMsg)packet.Body;
                 break;
+            case NetOpcode.ClientSetTime:
+                ClientSetTimeApplyIncomingPacketServices.ApplyClientSetTime((ClientSetTimeNetMsg)packet.Body);
+                break;
             case NetOpcode.PlaySound:
                 NetQuestFxApply.ApplyPlaySound((PlaySoundNetMsg)packet.Body);
                 break;

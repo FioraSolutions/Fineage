@@ -398,6 +398,8 @@ namespace Fineage.Net.Contract
         public const ushort EnchantSkillList = 0x03DF;
         /// <summary>Zone → client: Mobius <c>ExEnchantSkillInfo</c> (wire 0xFE 0x18). ServerPackets.java:242.</summary>
         public const ushort EnchantSkillInfo = 0x03E0;
+        /// <summary>Zone → client: Mobius <c>ClientSetTime</c> (wire 0xEC). Game minute-of-day + clock speed (6).</summary>
+        public const ushort ClientSetTime = 0x03E1;
         /// <summary>Client → zone: <c>RequestExAskJoinMPCC</c> (wire 0xD0 0x0D). ExClientPackets.java:95.</summary>
         public const ushort CommandChannelAskRequest = unchecked((ushort)(NetOpcodeMobius.ExClientBase | 0x0D));
         /// <summary>Client → zone: <c>RequestExAcceptJoinMPCC</c> (wire 0xD0 0x0E). ExClientPackets.java:96.</summary>
