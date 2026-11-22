@@ -72,30 +72,14 @@ public partial class EntityActionSkill
             }
         }
 
-        // Songs/dances (is_magic=3, anim W=SpAtk05) and physical self skills (UD X=SpAtk06):
-        // physical StartRun plays SpAtk*_ CrossFade. Override runner wrongly maps 1-clip to CastEnd.
-        if (SetupDurationHelper.TryGetPlayableCombo(magic, out AnimationCombo castCombo) &&
-            SkillExecutorPacketServices.Executor != null)
-        {
+        // Songs/dances (is_magic=3, anim W=SpAtk05) and physical self skills (Sonic Focus X=SpAtk06)
+        // play the skillgrp SpAtk phases. A one-clip override would map that gesture to CastEnd.
+        AnimationCombo selfCombo = GetCombo(magic);
+        if (selfCombo != null)
             SetupDurationHelper.SetupDurationIfHitTimeNot0(
-                magic, entity.Identity.Id, entity, castCombo);
-            _ = SkillExecutorPacketServices.Executor.ExecuteSkill(
-                entity, castCombo, ResolveEvents(entity));
-            SkillVisualEffectDispatch.PlayIfKnown(entity, magic, castCombo);
-            return;
-        }
-
-        Skillgrp skillgrp = magic.SkillGrp;
-        if (skillgrp != null && SkillExecutorPacketServices.Executor != null)
-        {
-            AnimationCombo combo = new AnimationCombo(
-                "-1", new[] { skillgrp.GetAnimOperationType3() }, "");
-            _ = SkillExecutorPacketServices.Executor.ExecuteSkill(entity, combo, ResolveEvents(entity));
-            SkillVisualEffectDispatch.PlayIfKnown(entity, magic);
-            return;
-        }
-
-        SkillVisualEffectDispatch.PlayIfKnown(entity, magic);
+                magic, entity.Identity.Id, entity, selfCombo);
+        PhysicalSkillPresentation.TryPlay(entity, magic, ResolveEvents(entity));
+        SkillVisualEffectDispatch.PlayIfKnown(entity, magic, selfCombo);
     }
 
     static void PlaySkillEffect(Entity entity, MagicSkillUseDto magic)

@@ -47,6 +47,15 @@ public sealed class SkillAnimationResolverEditModeTests
     }
 
     [Test]
+    public void Duelist_SonicFocus_X_is_not_the_blaster_swing()
+    {
+        AssertMixStems(8, "SpAtk06");
+        string[] blaster = SkillAnimationResolver.GetSpAtkPhaseStems(6, 1);
+        string[] focus = SkillAnimationResolver.GetSpAtkPhaseStems(8, 1);
+        Assert.AreNotEqual(blaster[0], focus[0]);
+    }
+
+    [Test]
     public void Duelist_SonicStorm_Mix07_singlePhase()
     {
         AssertMixStems(7, "SpAtk19");
