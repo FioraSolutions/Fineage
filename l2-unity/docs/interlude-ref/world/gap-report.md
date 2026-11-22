@@ -157,6 +157,18 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 - `skylevel.unr` is dumped under `world/env/` (sun, moons, lens flares, zone fog). Compare those properties to the
   LUT rather than assuming the LUT is complete. Map `ZoneInfo` fog and `NSun` radii are per-tile in `map-actors.tsv`.
 
+### 9. Terrain deco layers
+
+Official `TerrainInfo.DecoLayers` do not store grass instances. `DecorationLayerData` / `DecoSectorInfo` are native and transient. UE2 rebuilds instances from the layer's density map (alpha), `DensityMultiplier`, `MaxPerQuad`, `ScaleMultiplier` (or ScaleMap), `Seed`, and `FadeoutRadius`.
+
+The previous bake did the opposite. `DecoToMesh` scattered meshes with a Perlin field (thresholds that are not in the actor) and `L2InstancedPropBaker` wrote every matrix into `*_DecoInstances.asset` / `*_DecoLayer.prefab`. A full run was 0.6–1.5 GiB of YAML per tile, 14.8 GiB across 41 tiles, and was not committed.
+
+The shipped artifact is now `Maps/<tile>/<tile>_Deco.bytes` (magic `L2DC`, version 1): the official scalars plus the density/scale/color samples, RLE when that is smaller than the raw alpha. `17_25_Deco01` (512², mostly empty alpha) is about 23 KB of runs. A four-layer tile is on the order of 100–250 KB. The writer refuses a tile over 4 MB. `L2DecoGenerator` is the one placement function (bake inputs and runtime). `L2DecoInstancedRenderer` rebuilds 16-quad sectors around the camera and culls each layer at that layer's `FadeoutRadius.Max` (linear fade down to `Min`; hard clip when Max ≤ Min). A missing official field logs the tile and the layer and that layer is left out of the file.
+
+`LitDirectional`, `DisregardTerrainLighting`, and per-instance `ColorMap` tint are stored. The instanced draw does not match terrain lighting, and a ColorMap that is not `None` logs that the shared fade block cannot carry a per-instance tint. `17_25` ColorMaps are `None`.
+
+This change does not run the Mac rebake. Until `<tile>_Deco.bytes` exists, `SceneLoader` still instantiates the old `*_DecoLayer.prefab`. When the bytes are present, that prefab is skipped.
+
 ### Original `.uax` waves missing from Fineage, by package
 
 | Package | Waves | Missing in Fineage |

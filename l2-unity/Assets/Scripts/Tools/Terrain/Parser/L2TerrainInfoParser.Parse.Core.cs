@@ -154,38 +154,90 @@ public partial class L2TerrainInfoParser
             }
         }
 
-        layer.showOnTerrain = L2MetaDataUtils.ParseBoolFromInfo(showOnTerrain);
+        layer.hasShowOnTerrain = showOnTerrain.IndexOf("ShowOnTerrain=", StringComparison.Ordinal) >= 0;
+        layer.showOnTerrain = layer.hasShowOnTerrain && L2MetaDataUtils.ParseBoolFromInfo(showOnTerrain);
+        layer.densityMapRef = densityMap;
+        layer.staticMeshRef = staticMesh;
+        layer.scaleMapRef = DecoRefOrEmpty(valueParts, "ScaleMap=");
+        layer.colorMapRef = DecoRefOrEmpty(valueParts, "ColorMap=");
         layer.densityMapPath = TextureUtils.GetTexturePath(densityMap);
         layer.densityMap = TextureUtils.LoadTexture2DFromInfo(densityMap, L2TerrainGeneratorTool.DECO_LAYER_ALPHAMAP_SIZE);
         layer = UpdateDecoLayerScale(layer, scaleMultiplier);
         layer.staticMesh = StaticMeshUtils.LoadMeshFromInfo(staticMesh);
-        ParseDecoRange(line, "FadeoutRadius", out float fadeMin, out float fadeMax);
+        layer.hasFade = ParseDecoRange(line, "FadeoutRadius", out float fadeMin, out float fadeMax);
         layer.fadeMinUu = fadeMin;
         layer.fadeMaxUu = fadeMax;
-        ParseDecoRange(line, "DensityMultiplier", out float dMin, out float dMax);
+        layer.hasDensity = ParseDecoRange(line, "DensityMultiplier", out float dMin, out float dMax);
         layer.densityMin = dMin;
         layer.densityMax = dMax;
-        layer.maxPerQuad = ParseDecoInt(line, "MaxPerQuad");
-        layer.seed = ParseDecoInt(line, "Seed");
-        layer.alignToTerrain = ParseDecoInt(line, "AlignToTerrain") != 0;
-        layer.randomYaw = ParseDecoInt(line, "RandomYaw", 1) != 0;
-        if (layer.densityMap == null && !string.IsNullOrEmpty(densityMap) && !densityMap.Contains("None"))
+        layer.hasMaxPerQuad = TryParseDecoInt(line, "MaxPerQuad", out int maxPerQuad);
+        layer.maxPerQuad = maxPerQuad;
+        layer.hasSeed = TryParseDecoInt(line, "Seed", out int seed);
+        layer.seed = seed;
+        layer.hasAlign = TryParseDecoInt(line, "AlignToTerrain", out int align);
+        layer.alignToTerrain = layer.hasAlign && align != 0;
+        layer.hasRandomYaw = TryParseDecoInt(line, "RandomYaw", out int randomYaw);
+        layer.randomYaw = layer.hasRandomYaw && randomYaw != 0;
+        layer.hasShowOnInvisible = TryParseDecoInt(line, "ShowOnInvisibleTerrain", out int invisible);
+        layer.showOnInvisibleTerrain = layer.hasShowOnInvisible && invisible != 0;
+        if (TryParseDecoInt(line, "LitDirectional", out int lit))
+            layer.litDirectional = lit != 0;
+        if (TryParseDecoInt(line, "DisregardTerrainLighting", out int disregard))
+            layer.disregardTerrainLighting = disregard != 0;
+        if (TryParseDecoInt(line, "bForceRender", out int force))
+            layer.forceRender = force != 0;
+        layer.hasDrawOrder = TryParseDrawOrder(line, out int drawOrder);
+        layer.drawOrder = drawOrder;
+        if (layer.densityMap == null && !string.IsNullOrEmpty(densityMap) && densityMap.IndexOf("None", StringComparison.Ordinal) < 0)
             Debug.LogError("[Interlude deco] missing density map " + densityMap);
-        if (layer.staticMesh == null && !string.IsNullOrEmpty(staticMesh) && !staticMesh.Contains("None"))
+        if (layer.staticMesh == null && !string.IsNullOrEmpty(staticMesh) && staticMesh.IndexOf("None", StringComparison.Ordinal) < 0)
             Debug.LogError("[Interlude deco] missing StaticMesh " + staticMesh);
         return layer;
     }
 
-    static void ParseDecoRange(string line, string key, out float min, out float max)
+    static string DecoRefOrEmpty(string[] parts, string key)
+    {
+        if (parts == null)
+            return string.Empty;
+        for (int i = 0; i < parts.Length; i++)
+        {
+            string part = parts[i].Trim();
+            if (part.IndexOf(key, StringComparison.Ordinal) < 0)
+                continue;
+            if (part.IndexOf("None", StringComparison.Ordinal) >= 0)
+                return string.Empty;
+            return part;
+        }
+        return string.Empty;
+    }
+
+    static bool TryParseDrawOrder(string line, out int order)
+    {
+        order = 0;
+        var m = System.Text.RegularExpressions.Regex.Match(line, @"DrawOrder=([A-Za-z0-9_]+)");
+        if (!m.Success)
+            return false;
+        string name = m.Groups[1].Value;
+        if (name == "SORT_NoSort" || name == "0")
+            order = 0;
+        else if (name == "SORT_BackToFront" || name == "1")
+            order = 1;
+        else if (name == "SORT_FrontToBack" || name == "2")
+            order = 2;
+        else if (!int.TryParse(name, out order))
+            return false;
+        return true;
+    }
+
+    static bool ParseDecoRange(string line, string key, out float min, out float max)
     {
         min = 0f;
         max = 0f;
         var m = System.Text.RegularExpressions.Regex.Match(line, key + @"=\(Min=([-0-9.]+),Max=([-0-9.]+)\)");
-        if (m.Success)
-        {
-            float.TryParse(m.Groups[1].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out min);
-            float.TryParse(m.Groups[2].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out max);
-        }
+        if (!m.Success)
+            return false;
+        return float.TryParse(m.Groups[1].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out min)
+            && float.TryParse(m.Groups[2].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out max);
     }
 
     /// <summary>
@@ -219,12 +271,11 @@ public partial class L2TerrainInfoParser
         }
     }
 
-    static int ParseDecoInt(string line, string key, int fallback = 0)
+    static bool TryParseDecoInt(string line, string key, out int value)
     {
+        value = 0;
         var m = System.Text.RegularExpressions.Regex.Match(line, key + @"=([-0-9]+)");
-        if (m.Success && int.TryParse(m.Groups[1].Value, out int v))
-            return v;
-        return fallback;
+        return m.Success && int.TryParse(m.Groups[1].Value, out value);
     }
 }
 #endif

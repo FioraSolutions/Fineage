@@ -53,9 +53,32 @@ public partial class SceneLoader
             "Brushes",
             tile + "_AmbientSounds"
         };
+        string decoBytesPath = "Data/Maps/" + tile + "/" + tile + "_Deco";
+        ResourceRequest decoReq = Resources.LoadAsync<TextAsset>(decoBytesPath);
+        yield return decoReq;
+        TextAsset decoArchive = decoReq.asset as TextAsset;
+        bool skipDecoPrefab = decoArchive != null;
         int placed = 0;
+        if (skipDecoPrefab)
+        {
+            var decoGo = new GameObject(tile + "_Deco");
+            decoGo.transform.SetParent(root.transform, false);
+            int decoLayer = LayerMask.NameToLayer("Deco");
+            if (decoLayer < 0)
+            {
+                FineageLog.Error(
+                    FineageLogCategory.World,
+                    "[Interlude deco] " + tile + ": physics layer 'Deco' is missing");
+                decoLayer = 0;
+            }
+            decoGo.layer = decoLayer;
+            decoGo.AddComponent<L2DecoInstancedRenderer>().SetArchive(decoArchive);
+            placed++;
+        }
         for (int i = 0; i < parts.Length; i++)
         {
+            if (skipDecoPrefab && parts[i] == tile + "_DecoLayer")
+                continue;
             string path = "Data/Maps/" + tile + "/" + parts[i];
             ResourceRequest req = Resources.LoadAsync<GameObject>(path);
             yield return req;

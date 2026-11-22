@@ -213,6 +213,25 @@ export FINEAGE_INTERLUDE_TILES=16_25,17_21,17_22,18_14,19_18,19_19,19_21,20_17,2
 ```
 
 
+## Terrain deco layers
+
+UE2 does not store deco instances. The bake writes `Assets/Resources/Data/Maps/<tile>/<tile>_Deco.bytes`: DecoLayer scalars plus RLE density/scale/color maps (`L2DC`). Do not set `convertDecoLayer` onto the old YAML / prefab path. Deco-only does not rebuild terrain meshes and does not need `-nographics` off for a GPU blit (it reads the PNG on the CPU). `FINEAGE_TERRAIN_MESH=1` together with `FINEAGE_DECO_LAYER=1` also writes the heightmap mesh and then does need a GPU.
+
+Close any other Unity Editor first. Run from the Fineage repo, not a second checkout. The 41 shipped tiles:
+
+```bash
+export FINEAGE_DECO_LAYER=1
+export FINEAGE_INTERLUDE_TILES=16_24,16_25,16_26,17_21,17_22,17_24,17_25,17_26,18_13,18_14,18_15,18_25,18_26,19_14,19_15,19_17,19_18,19_19,19_21,20_17,20_18,20_19,20_20,20_22,21_18,21_19,21_20,21_21,21_22,21_23,22_21,22_22,22_23,23_11,23_12,23_13,23_21,23_22,23_23,24_11,24_12
+"/Applications/Unity/Unity.app/Contents/MacOS/Unity" \
+  -batchmode \
+  -projectPath "$(pwd)/l2-unity" \
+  -executeMethod L2TerrainMeshCli.RunCli \
+  -logFile .work/unity-deco-archive.log
+```
+
+A non-zero exit means at least one tile logged a missing official field (tile id and layer index). Those bytes are not a stand-in for the missing layer.
+
+
 ## Terrain layers (#1686)
 
 Rebuild official `TerrainLayer` slots (texture, alphamap, U/VScale, UPan/VPan, `TextureRotation`, `TextureMapAxis`, `bUseAlpha`, layer Scale) from the #1670 map dump:
