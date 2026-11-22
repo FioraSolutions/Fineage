@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
 
-public partial class ClickManager : MonoBehaviour
+public partial class ClickManager : MonoBehaviour, IClickMasks
 {
     void Update()
     {

@@ -77,6 +77,9 @@ public static class ControllerPacketServices
             ? _input
             : ResolveFromGame<InputManager>() ?? LegacyInputManagerInstance();
 
+    /// <summary>The manager <see cref="Bind"/> stored. No container or <c>Instance</c> fallback.</summary>
+    public static IClickMasks BoundClicks => _clicks;
+
     public static ClickManager Clicks =>
         _clicks != null
             ? _clicks
