@@ -9,6 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ENV_ADD_GUID = "a1e9c4d85b2f4c6e9d07a3b8f1e24c60"
 ACTOR_GUID = "c7e2a91b4f6d48e0a1b35d8c90e47a12"
+URP_LIT_SNIPPET = "Universal Render Pipeline/Lit"
+STANDARD_SNIPPET = "m_Shader: {fileID: 46,"
 
 RACE_FOLDERS = [
     "MFighter",
@@ -37,8 +39,13 @@ def main() -> int:
             continue
         for mat in folder.glob("*.mat"):
             text = mat.read_text(encoding="utf-8", errors="replace")
+            rel = str(mat.relative_to(ROOT))
             if ENV_ADD_GUID in text:
-                offenders.append(str(mat.relative_to(ROOT)))
+                offenders.append(rel + " (ActorEnvAdd)")
+            elif ACTOR_GUID not in text and (
+                URP_LIT_SNIPPET in text or STANDARD_SNIPPET in text
+            ):
+                offenders.append(rel + " (not ActorModulate2X)")
     if offenders:
         print(
             "Paperdoll armor must use ActorModulate2X (see L2ActorRaceMaterials); "

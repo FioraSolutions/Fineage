@@ -6,6 +6,13 @@ using UnityEngine;
 
 public sealed class SpAtkCombatClipEditModeTests
 {
+    [OneTimeSetUp]
+    public void LoadInterludeAnimTables()
+    {
+        AnimTweenTable.Instance.Initialize();
+        InterludeAnimResourceTakeTable.EnsureLoaded();
+    }
+
     static readonly PlayerAnimWeapon[] WeaponTypes =
     {
         PlayerAnimWeapon.Hand,
