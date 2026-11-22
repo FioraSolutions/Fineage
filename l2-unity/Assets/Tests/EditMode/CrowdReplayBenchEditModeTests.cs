@@ -3,6 +3,7 @@ using System.Text;
 using NUnit.Framework;
 
 /// <summary>Roadmap step 2: offline pump bench prints p50/p95/p99 for CI logs.</summary>
+[Category("Slow")]
 public sealed class CrowdReplayBenchEditModeTests
 {
     [Test]

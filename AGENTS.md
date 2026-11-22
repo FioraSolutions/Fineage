@@ -54,7 +54,7 @@ Agents must use [`l2-unity/Docs/interlude-ref`](l2-unity/Docs/interlude-ref) bef
 1. **Primary focus:** gameplay debug, graphics/import, Interlude parity. Stabilize A–C bar is **met** — do not block play/assets on LifetimeScope→`Fineage.Di`.
 2. **#131 residual** is opportunistic only (when a concrete change hurts). Do not grind DAT/World seams as a finish-line before features.
 3. **#129 Gremlin smoke** is fine when useful; do not dump large feature layers onto ACS when a thin seam clearly belongs first.
-4. **Merge when `build-and-test` is green** (branch up to date with `dev`). Do **not** wait for `unity-editmode` — it is not a required status check on `dev` (~20–25 min game-ci). See [`Docs/CI_AND_TESTING.md`](Docs/CI_AND_TESTING.md).
+4. **Merge when `build-and-test` and `unity-editmode` are green** (branch up to date with `dev`). PR `unity-editmode` skips `[Category("Slow")]` tests (anim-keyreduce probe loads, crowd bench). **`unity-editmode-slow`** runs those on **push to `main`** and **nightly 01:00 UTC** only. See [`Docs/CI_AND_TESTING.md`](Docs/CI_AND_TESTING.md).
 5. **Small PRs.** Prefer narrow diffs; rebase onto `origin/dev` (client) before review.
 
 ## Where to start
