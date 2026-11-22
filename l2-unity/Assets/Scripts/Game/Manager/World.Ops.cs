@@ -82,26 +82,6 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
 
     static bool _loggedMissingActions;
 
-    static bool _loggedMissingAnimationRoster;
-
-    IAnimationRoster AnimationRoster()
-    {
-        if (_animations != null)
-            return _animations;
-
-        IAnimationRoster bound = WorldPacketServices.BoundAnimations;
-        if (bound != null)
-            return bound;
-
-        if (!_loggedMissingAnimationRoster)
-        {
-            _loggedMissingAnimationRoster = true;
-            Debug.LogError("[World] IAnimationRoster missing — AppLifetimeScope did not register AnimationManager as IAnimationManager, so the animation controller was not unregistered.");
-        }
-
-        return null;
-    }
-
     static IEntityActionRoster Actions()
     {
         IEntityActionRoster actions = EntityActionPacketServices.BoundActions;
