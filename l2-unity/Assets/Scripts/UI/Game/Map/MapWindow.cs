@@ -53,30 +53,55 @@ public class MapWindow : L2PopupWindow
     {
         InitWindow(root);
 
-        var dragArea = GetElementByClass("drag-area");
-        DragManipulator drag = new DragManipulator(dragArea, _windowEle);
-        dragArea.AddManipulator(drag);
+        InterludeWindowLayout.Apply(_windowEle, "MinimapWnd");
+        _windowEle.pickingMode = PickingMode.Position;
 
+        VisualElement minimap = GetElementById("Minimap");
+        VisualElement host = GetElementById("map-host");
+        if (minimap == null || host == null)
+        {
+            Debug.LogError("[MapWindow] Minimap or map-host is missing from the extracted layout.");
+            yield break;
+        }
 
-        VisualElement host = (VisualElement)GetElementById("map-host");
-        if (_mapTemplate != null && host != null)
+        minimap.pickingMode = PickingMode.Position;
+        minimap.Add(host);
+        host.style.position = Position.Absolute;
+        host.style.left = 0f;
+        host.style.top = 0f;
+        host.style.right = 0f;
+        host.style.bottom = 0f;
+        if (_mapTemplate != null)
             host.Add(_mapTemplate.Instantiate());
 
-        Button button = (Button)GetElementById("MyLocation");
         VisualElement viewport = host.Q("viewport");
+        if (viewport != null)
+        {
+            viewport.style.width = Length.Percent(100f);
+            viewport.style.height = Length.Percent(100f);
+        }
+
+        Button button = GetElementById("MyLocButton") as Button;
         VisualElement map = host.Q("map");
         VisualElement marker = host.Q("minimapPos");
-        _mapPanner.SetElements(viewport, map, marker, button);
-        _mapPanner.RegisterCallback();
+        if (viewport == null || map == null || marker == null || button == null)
+        {
+            Debug.LogError("[MapWindow] map viewport, marker, or MyLocButton is missing.");
+        }
+        else
+        {
+            _mapPanner.SetElements(viewport, map, marker, button);
+            _mapPanner.RegisterCallback();
+            _detailedMap = new DetailedMapOverlay(map, host.Q("town-map-layer"));
+            _mapMarkerFollowCamera.SetElement(marker);
+        }
 
-        _detailedMap = new DetailedMapOverlay(map, host.Q("town-map-layer"));
-
-        _mapMarkerFollowCamera.SetElement(marker);
-
-        RegisterCloseWindowEvent("btn-close-frame");
+        VisualElement dragArea = GetElementByClass("drag-area");
+        if (dragArea == null)
+            dragArea = _windowEle;
+        DragManipulator drag = new DragManipulator(dragArea, _windowEle);
+        dragArea.AddManipulator(drag);
         RegisterClickWindowEvent(_windowEle, dragArea);
-        OnCenterScreen(_root);
-        L2InterludeHudSkinPipeline.ApplyMinimapLayout(_windowEle);
         L2InterludeHudSkinPipeline.ValidateTextures(
             InterludeHudWindowCatalog.MinimapWnd,
             nameof(MapWindow));
@@ -111,7 +136,8 @@ public class MapWindow : L2PopupWindow
     public override void HideWindow()
     {
         _mapPanner.SetDisabled(true);
-        _mapPanner.MoveMarkerToOrigin();
+        if (_detailedMap != null)
+            _mapPanner.MoveMarkerToOrigin();
         _detailedMap?.Close();
         base.HideWindow();
     }

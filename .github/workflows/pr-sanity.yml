@@ -1,0 +1,51 @@
+# Fast PR gate into dev (~1–2 min). Unity compile/EditMode is off PRs; see unity-compile.yml.
+
+name: pr-sanity
+
+on:
+  pull_request:
+    branches: [dev]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "l2-unity/docs/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-sanity:
+    name: pr-sanity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse workflow YAML files
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 <<'PY'
+          import sys
+          from pathlib import Path
+          import yaml
+
+          root = Path(".github/workflows")
+          for wf in sorted(root.glob("*.yml")):
+              try:
+                  yaml.safe_load(wf.read_text())
+              except Exception as exc:
+                  print(f"{wf}: {exc}", file=sys.stderr)
+                  sys.exit(1)
+          print(f"Parsed {len(list(root.glob('*.yml')))} workflow files.")
+          PY
+
+      - name: Frozen-path guards
+        run: |
+          python3 scripts/check-frozen-incoming-packet-actions.py
+          python3 scripts/check-frozen-net-domain-maps.py
+          python3 scripts/check-client-asmdef-layout.py
+
+      - name: Playtest helper self-tests
+        run: |
+          python3 scripts/check-release-secrets.py --self-test
+          python3 scripts/bake-playtest-endpoint.py --self-test

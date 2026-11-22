@@ -9,20 +9,13 @@ public partial class ChatWindow : L2Window
 {
 
     private VisualTreeAsset _tabTemplate;
-    private VisualTreeAsset _tabHeaderTemplate;
     private VisualTreeAsset _messageLabelTemplate;
     private TextField _chatInput;
     private VisualElement _chatInputContainer;
-    private VisualElement _chatTabView;
     private ChatTab _activeTab;
 
-    [SerializeField] private float _chatWindowMinWidth = 280.0f;
-    [SerializeField] private float _chatWindowMaxWidth = 500.0f;
-    [SerializeField] private float _chatWindowMinHeight = 175.0f;
-    [SerializeField] private float _chatWindowMaxHeight = 600.0f;
     [SerializeField] public List<ChatTab> _tabs;
     [SerializeField] private bool _chatOpened = false;
-    [SerializeField] private int _chatInputCharacterLimit = 64;
 
     public bool ChatOpened { get { return _chatOpened; } }
 

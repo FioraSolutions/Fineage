@@ -76,45 +76,7 @@ public static class L2InterludeHudSkinPipeline
             return;
 
         chatWindowRoot.style.backgroundColor = Color.clear;
-
-        InterludeHudControlRect bar = InterludeHudWindowCatalog.ChatInputBar;
-        VisualElement chatBar = chatWindowRoot.Q<VisualElement>("ChatBar");
-        if (chatBar != null)
-        {
-            chatBar.style.position = Position.Absolute;
-            if (!float.IsNaN(bar.Left))
-                chatBar.style.left = bar.Left;
-            if (!float.IsNaN(bar.Right))
-                chatBar.style.right = bar.Right;
-            if (!float.IsNaN(bar.Bottom))
-                chatBar.style.bottom = bar.Bottom;
-            if (!float.IsNaN(bar.Height))
-                chatBar.style.height = bar.Height;
-            chatBar.style.alignItems = Align.Center;
-        }
-
-        InterludeHudControlRect options = InterludeHudWindowCatalog.ChatOptions;
-        VisualElement chatOptions = chatWindowRoot.Q<VisualElement>("ChatOptions");
-        if (chatOptions != null)
-        {
-            chatOptions.style.position = Position.Absolute;
-            if (!float.IsNaN(options.Left))
-                chatOptions.style.left = options.Left;
-            if (!float.IsNaN(options.Bottom))
-                chatOptions.style.bottom = options.Bottom;
-            if (!float.IsNaN(options.Width))
-                chatOptions.style.width = options.Width;
-            if (!float.IsNaN(options.Height))
-                chatOptions.style.height = options.Height;
-        }
-
-        VisualElement tabLine = chatWindowRoot.Q<VisualElement>("TabLine");
-        if (tabLine != null)
-            tabLine.style.bottom = 44f;
-
-        VisualElement innerBar = chatWindowRoot.Q<VisualElement>("InnerBar");
-        if (innerBar != null)
-            PaintChatInputStrip(innerBar, InterludeHudWindowCatalog.ChatWnd.XdatName);
+        InterludeWindowLayout.Apply(chatWindowRoot, InterludeHudWindowCatalog.ChatWnd.XdatName);
     }
 
     public static void ApplyMinimapLayout(VisualElement minimapRoot)
@@ -122,27 +84,7 @@ public static class L2InterludeHudSkinPipeline
         if (minimapRoot == null)
             return;
 
-        InterludeHudControlRect viewport = InterludeHudWindowCatalog.MapViewport;
-        VisualElement mapHost = minimapRoot.Q<VisualElement>("map-host");
-        if (mapHost != null)
-        {
-            mapHost.style.position = Position.Absolute;
-            mapHost.style.left = viewport.Left;
-            mapHost.style.top = viewport.Top;
-            mapHost.style.width = viewport.Width;
-            mapHost.style.height = viewport.Height;
-        }
-
-        VisualElement townLayer = minimapRoot.Q<VisualElement>("town-map-layer");
-        if (townLayer != null)
-        {
-            InterludeHudControlRect town = InterludeHudWindowCatalog.TownMapLayer;
-            townLayer.style.position = Position.Absolute;
-            townLayer.style.left = town.Left;
-            townLayer.style.top = town.Top;
-            townLayer.style.width = town.Width;
-            townLayer.style.height = town.Height;
-        }
+        InterludeWindowLayout.Apply(minimapRoot, InterludeHudWindowCatalog.MinimapWnd.XdatName);
     }
 
     public static void PaintSmallWndCenterFill(VisualElement panel, string context)

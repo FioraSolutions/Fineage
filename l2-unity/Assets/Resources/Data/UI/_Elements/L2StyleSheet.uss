@@ -811,43 +811,46 @@
 }
 
 .chat-window .unity-tab__header {
-    background-image: resource('Data/UI/Assets/Chat/chatting_tab1');
+    background-image: resource('Data/UI/Assets/Chat/chatting_tab2');
     background-color: transparent;
     -unity-background-scale-mode: stretch-to-fill;
     width: 64px;
-    min-width: 48px;
+    min-width: 64px;
     max-width: 64px;
-    height: 22px;
+    height: 23px;
     padding: 0;
     margin: 0;
     flex-grow: 0;
-    flex-shrink: 1;
+    flex-shrink: 0;
     overflow: hidden;
     justify-content: center;
 }
 
 .chat-window .tab-header {
-    background-image: resource('Data/UI/Assets/Chat/chatting_tab1');
+    background-image: resource('Data/UI/Assets/Chat/chatting_tab2');
     background-color: transparent;
     -unity-background-scale-mode: stretch-to-fill;
     width: 64px;
-    min-width: 48px;
+    min-width: 64px;
     max-width: 64px;
-    height: 22px;
+    height: 23px;
+    color: rgb(214, 204, 160);
+    font-size: 10px;
+    -unity-text-align: middle-center;
     padding: 0;
     margin: 0;
     flex-grow: 0;
-    flex-shrink: 1;
+    flex-shrink: 0;
     overflow: hidden;
     justify-content: center;
 }
 
 .chat-window .unity-tab__header:checked {
-    background-image: resource('Data/UI/Assets/Chat/chatting_tab2');
+    background-image: resource('Data/UI/Assets/Chat/chatting_tab1');
 }
 
 .chat-window .tab-header.active {
-    background-image: resource('Data/UI/Assets/Chat/chatting_tab2');
+    background-image: resource('Data/UI/Assets/Chat/chatting_tab1');
 }
 
 .chat-window .unity-tab__header:checked:hover,

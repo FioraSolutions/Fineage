@@ -12,6 +12,7 @@ Do not push to `main`/`dev` directly — land via PR into **`dev`** (client) / *
 4. **Use the extracted reference catalog first** (`l2-unity/Docs/interlude-ref/`, `l2-unity/Docs/ui-original/` when present). Do not re-extract or guess what is already catalogued; if something is missing, add it to the catalog with the extraction script.
 5. **Interlude only.** Nothing from later chronicles (data, animations, effects, skills).
 6. Every PR description states the root cause and which shared mechanism was changed. PRs that patch a single case of a general problem will be rejected.
+7. **Lossless extraction from originals.** When extracting anything from the original Interlude client or server data (xdat, .usk/.ukx/.utx, .dat, nwindow.dll, Mobius data), dump EVERY property of EVERY object into docs/interlude-ref (or the backend equivalent) as a full lossless dump. Never keep only the fields you currently need. Derived tables are views over the full dump. Every extraction also updates a gap report listing original fields and features Fineage doesn't use or support yet, with affected counts. Don't commit original binaries.
 
 ## Parity with originals (hard rule)
 
@@ -53,7 +54,7 @@ Agents must use [`l2-unity/Docs/interlude-ref`](l2-unity/Docs/interlude-ref) bef
 1. **Primary focus:** gameplay debug, graphics/import, Interlude parity. Stabilize A–C bar is **met** — do not block play/assets on LifetimeScope→`Fineage.Di`.
 2. **#131 residual** is opportunistic only (when a concrete change hurts). Do not grind DAT/World seams as a finish-line before features.
 3. **#129 Gremlin smoke** is fine when useful; do not dump large feature layers onto ACS when a thin seam clearly belongs first.
-4. **Merge when `build-and-test` is green** (branch up to date with `dev`). Do **not** wait for `unity-editmode` — it is not a required status check on `dev` (~20–25 min game-ci). See [`Docs/CI_AND_TESTING.md`](Docs/CI_AND_TESTING.md).
+4. **PR → `dev`:** merge when **`pr-sanity`** is green (~1–2 min). **No Unity gate on PRs** while shared runners are backed up — `unity-editmode` runs on **push to `main`**, **nightly 01:00 UTC**, and **`workflow_dispatch`** only; fix compile/test breakages from nightly/main, not from PR blocks. **`build-and-test`** still runs on **push to `dev`/`main`**. Set branch protection on `dev` to require **`pr-sanity`** (drop `unity-editmode` / `build-and-test` as PR requirements). See [`Docs/CI_AND_TESTING.md`](Docs/CI_AND_TESTING.md).
 5. **Small PRs.** Prefer narrow diffs; rebase onto `origin/dev` (client) before review.
 
 ## Where to start
