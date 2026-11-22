@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -47,8 +48,13 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         GameManager local = GetComponent<GameManager>();
         if (local == null)
             local = Object.FindFirstObjectByType<GameManager>(FindObjectsInactive.Include);
-        if (local != null)
-            builder.RegisterComponent(local).AsSelf().As<IGameManager>();
+        if (local == null)
+        {
+            throw new InvalidOperationException(
+                "[AppLifetimeScope] IGameManager missing — RegisterGameManager found no GameManager on the host or in loaded scenes.");
+        }
+
+        builder.RegisterComponent(local).AsSelf().As<IGameManager>();
     }
 
     /// <summary>

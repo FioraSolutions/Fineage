@@ -26,6 +26,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
             AnimationManager animations = RequireAnimationRoster(container);
             RequireAnimationManager(container);
             RequireEventQueue(container);
+            RequireGameManager(container);
             AudioSessionBootstrap.EnsureSession();
             App.Container = container;
             AnimationManager.Bind(animations);
@@ -148,5 +149,31 @@ public sealed partial class AppLifetimeScope : LifetimeScope
 
         throw new InvalidOperationException(
             "[AppLifetimeScope] IEventQueue is not an EventProcessor — EventProcessor was not registered as IEventQueue.");
+    }
+
+    static void RequireGameManager(IObjectResolver container)
+    {
+        IGameManager manager;
+        try
+        {
+            manager = container.Resolve<IGameManager>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IGameManager))
+            {
+                throw new InvalidOperationException(
+                    "[AppLifetimeScope] IGameManager missing — GameManager was not registered as IGameManager.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (manager is GameManager)
+            return;
+
+        throw new InvalidOperationException(
+            "[AppLifetimeScope] IGameManager is not a GameManager — GameManager was not registered as IGameManager.");
     }
 }

@@ -174,8 +174,6 @@ public partial class World
 
     private bool IsWorldSpawnReady()
     {
-        GameManager manager = _gameManager != null ? _gameManager : WorldPacketServices.Manager;
-        WorldPacketApply apply = WorldPacketServices.WorldApply;
-        return manager != null && manager.WorldSpawnReady && apply != null;
+        return _gameManager != null && _gameManager.WorldSpawnReady && _worldApply != null;
     }
 }
