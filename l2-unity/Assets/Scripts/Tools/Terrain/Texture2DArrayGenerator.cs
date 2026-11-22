@@ -34,11 +34,23 @@ public class Texture2DArrayGenerator : MonoBehaviour {
         }
         int width = sourceTextures[0].width;
         int height = sourceTextures[0].height;
-        Texture2DArray textureArray = new Texture2DArray(width, height, sourceTextures.Length, TextureFormat.RGBA32, generateMipmaps);
+        TextureFormat fmt = format;
+        if (fmt == 0) fmt = TextureFormat.RGBA32;
+        Texture2DArray textureArray = new Texture2DArray(width, height, sourceTextures.Length, fmt, generateMipmaps);
 
         for(int i = 0; i < sourceTextures.Length; i++) {
             Texture2D newTex = Resize(sourceTextures[i], width, height);
-            textureArray.SetPixels32(newTex.GetPixels32(0), i, 0);
+            if (fmt == TextureFormat.R8 || fmt == TextureFormat.Alpha8 || fmt == TextureFormat.BC4) {
+                Color[] src = newTex.GetPixels(0);
+                var g = new Color[src.Length];
+                for (int p = 0; p < src.Length; p++) {
+                    float r = src[p].r;
+                    g[p] = new Color(r, r, r, r);
+                }
+                textureArray.SetPixels(g, i, 0);
+            } else {
+                textureArray.SetPixels32(newTex.GetPixels32(0), i, 0);
+            }
             Object.DestroyImmediate(newTex);
         }
 
