@@ -12,7 +12,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<GameClient>(this, builder);
         LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<LoginClient>(this, builder);
 
-        builder.Register<TableInitializer>(Lifetime.Singleton);
+        builder.Register<TableInitializer>(Lifetime.Singleton).AsSelf().As<ITableInitializer>();
         builder.Register<IconManager>(Lifetime.Singleton);
         builder.Register<LobbyFlowController>(Lifetime.Singleton).AsSelf().As<ILobbySession>();
 
