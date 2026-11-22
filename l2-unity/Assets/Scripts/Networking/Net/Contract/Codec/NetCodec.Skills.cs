@@ -237,7 +237,7 @@ namespace Fineage.Net.Contract
 
         public static byte[] EncodeEnchantSkillList(EnchantSkillListNetMsg m) => Write(w =>
         {
-            var rows = m.Skills ?? System.Array.Empty<EnchantSkillListEntryNet>();
+            var rows = m.Skills ?? System.Array.Empty<SkillListEntryNet>();
             w.WriteInt32(rows.Length);
             foreach (var row in rows)
             {
@@ -274,7 +274,7 @@ namespace Fineage.Net.Contract
             w.WriteInt32(m.SpCost);
             w.WriteInt64(m.ExpCost);
             w.WriteInt32(m.Rate);
-            var reqs = m.Requirements ?? System.Array.Empty<EnchantSkillRequirementNet>();
+            var reqs = m.Requirements ?? System.Array.Empty<AcquireSkillRequirementNet>();
             w.WriteInt32(reqs.Length);
             foreach (var req in reqs)
             {

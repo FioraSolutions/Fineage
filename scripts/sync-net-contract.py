@@ -44,7 +44,7 @@ from pathlib import Path
 _SCRIPT_DIR = Path(__file__).resolve().parent
 if str(_SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_DIR))
-from net_contract_unity_cs9 import prepare_contract_bytes  # noqa: E402
+from net_contract_unity_cs9 import build_contract_lookup_corpus, prepare_contract_bytes  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CLIENT = REPO_ROOT / "l2-unity/Assets/Scripts/Networking/Net/Contract"
@@ -219,6 +219,7 @@ def compare(
     """Return (missing, differing) relative paths."""
     missing: list[str] = []
     differing: list[str] = []
+    lookup_corpus = build_contract_lookup_corpus(source, FILES)
 
     for rel in FILES:
         data = read_source(source, rel, ref, backend_repo)
@@ -229,7 +230,7 @@ def compare(
         if not dst.is_file():
             differing.append(rel)
             continue
-        prepared = prepare_contract_bytes(data)
+        prepared = prepare_contract_bytes(data, lookup_corpus=lookup_corpus)
         if dst.read_bytes() != prepared:
             differing.append(rel)
 
@@ -244,6 +245,7 @@ def write_contract(
 ) -> int:
     """Copy the backend sources over the client copies, preserving .meta files."""
     changed = 0
+    lookup_corpus = build_contract_lookup_corpus(source, FILES)
 
     for rel in FILES:
         data = read_source(source, rel, ref, backend_repo)
@@ -251,7 +253,7 @@ def write_contract(
         if data is None:
             print(f"skip (no backend source): {rel}", file=sys.stderr)
             continue
-        prepared = prepare_contract_bytes(data)
+        prepared = prepare_contract_bytes(data, lookup_corpus=lookup_corpus)
         if dst.is_file() and dst.read_bytes() == prepared:
             continue
 

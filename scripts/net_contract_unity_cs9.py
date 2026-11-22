@@ -65,15 +65,19 @@ def fix_empty_collection_expression_defaults(text: str) -> str:
 
 
 COALESCE_Member_PROP = re.compile(r"m\.(\w+)\s*\?\?\s*\[\]")
+ARRAY_PROP_DECL = re.compile(r"public\s+([\w.]+)\[\]\s+(\w+)\s")
 
 
-def fix_null_coalesce_empty_collection(text: str) -> str:
+def _elem_type_for_prop(prop: str, lookup: str) -> str | None:
+    pat = re.compile(rf"public\s+([\w.]+)\[\]\s+{re.escape(prop)}\s")
+    match = pat.search(lookup)
+    return match.group(1) if match else None
+
+
+def fix_null_coalesce_empty_collection(text: str, *, lookup_corpus: str = "") -> str:
     """`m.SomeArrayProp ?? []` → `m.SomeArrayProp ?? System.Array.Empty<T>()`."""
 
-    def elem_type_for_prop(prop: str) -> str | None:
-        pat = re.compile(rf"public\s+([\w.]+)\[\]\s+{re.escape(prop)}\s")
-        match = pat.search(text)
-        return match.group(1) if match else None
+    lookup = lookup_corpus if lookup_corpus else text
 
     def repl_line(line: str) -> str:
         if "?? []" not in line:
@@ -81,7 +85,7 @@ def fix_null_coalesce_empty_collection(text: str) -> str:
         out = line
         for prop_match in COALESCE_Member_PROP.finditer(line):
             prop = prop_match.group(1)
-            elem = elem_type_for_prop(prop)
+            elem = _elem_type_for_prop(prop, lookup)
             if elem:
                 out = out.replace(f"m.{prop} ?? []", f"m.{prop} ?? System.Array.Empty<{elem}>()")
         return out
@@ -89,17 +93,29 @@ def fix_null_coalesce_empty_collection(text: str) -> str:
     return "\n".join(repl_line(line) for line in text.split("\n"))
 
 
-def transform_for_unity_cs9(text: str) -> str:
+def transform_for_unity_cs9(text: str, *, lookup_corpus: str = "") -> str:
     text = normalize_newlines(text)
     text = expand_file_scoped_namespace(text)
     text = fix_empty_collection_expression_defaults(text)
-    text = fix_null_coalesce_empty_collection(text)
+    text = fix_null_coalesce_empty_collection(text, lookup_corpus=lookup_corpus)
     return text
 
 
-def prepare_contract_bytes(data: bytes) -> bytes:
+def build_contract_lookup_corpus(source: Path, rel_paths: tuple[str, ...]) -> str:
+    chunks: list[str] = []
+    for rel in rel_paths:
+        path = source / rel
+        if path.is_file():
+            try:
+                chunks.append(path.read_text(encoding="utf-8-sig", errors="replace"))
+            except OSError:
+                continue
+    return "\n".join(chunks)
+
+
+def prepare_contract_bytes(data: bytes, *, lookup_corpus: str = "") -> bytes:
     text = data.decode("utf-8-sig")
-    return transform_for_unity_cs9(text).encode("utf-8")
+    return transform_for_unity_cs9(text, lookup_corpus=lookup_corpus).encode("utf-8")
 
 
 def scan_assets_cs10_plus(assets_root: Path, *, repo_root: Path | None = None) -> list[str]:
