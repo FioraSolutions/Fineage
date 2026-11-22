@@ -56,7 +56,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
 
     public IAnimationManager Animations
     {
-        get { return _animations != null ? _animations : WorldPacketServices.Animations; }
+        get { return _animations; }
     }
 
     public Transform UsersContainer
