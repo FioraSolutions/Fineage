@@ -15,8 +15,9 @@ public partial class EventProcessor : MonoBehaviour
 
     private void Start()
     {
-        World world = GameWorld;
-        NetworkingPacketServices.Bind(world: world, worldApply: _worldApply);
+        IWorldSpawnContext world = NetworkingPacketServices.GameWorld;
+        NetworkingPacketServices.BindSpawnContext(world);
+        NetworkingPacketServices.Bind(worldApply: _worldApply);
         if (world != null && world.OfflineMode)
         {
             this.enabled = false;

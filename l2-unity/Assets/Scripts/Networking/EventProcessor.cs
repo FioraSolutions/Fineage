@@ -36,8 +36,6 @@ public partial class EventProcessor : MonoBehaviour
 
 
 
-    private World GameWorld => NetworkingPacketServices.GameWorld;
-
     private WorldPacketApply WorldApply => NetworkingPacketServices.WorldApply;
 
 

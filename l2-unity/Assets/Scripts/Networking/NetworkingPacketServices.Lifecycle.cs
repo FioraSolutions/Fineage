@@ -1,6 +1,7 @@
 using System;
-using VContainer;
 using System.Collections.Generic;
+using UnityEngine;
+using VContainer;
 
 public static partial class NetworkingPacketServices
 {
@@ -33,6 +34,23 @@ public static partial class NetworkingPacketServices
             _events = events;
         if (session != null)
             _session = session;
+    }
+
+    /// <summary>
+    /// Cache the bound world when the caller only has <see cref="IWorldSpawnContext"/>.
+    /// A null context is a no-op. Anything else than <see cref="World"/> logs and is not stored.
+    /// </summary>
+    public static void BindSpawnContext(IWorldSpawnContext world)
+    {
+        if (world == null)
+            return;
+        if (world is World concrete)
+        {
+            _world = concrete;
+            return;
+        }
+
+        Debug.LogError("[NetworkingPacketServices] IWorldSpawnContext is not a World — GameLifetimeScope.RegisterWorld registered a different type, so the world host was not stored.");
     }
 
     /// <summary>
