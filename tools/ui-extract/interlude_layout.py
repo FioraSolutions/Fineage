@@ -116,6 +116,13 @@ def _clean(value: Any) -> str:
     return text
 
 
+def _max_length(value: Any) -> int:
+    if value is None or value == "" or value == UNSPECIFIED:
+        return 0
+    length = int(value)
+    return length if length > 0 else 0
+
+
 def _num(value: Any, fallback: float = UNSPECIFIED) -> float:
     if value is None or value == "":
         return fallback
@@ -376,6 +383,7 @@ def _emit_control(
         "textAlign": _clean(control.get("textAlign")),
         "fontColor": _clean(control.get("fontColor")),
         "fontType": int(_num(control.get("fontType"), UNSPECIFIED)),
+        "maxLength": _max_length(control.get("maxLength")),
     }
 
 
@@ -537,6 +545,9 @@ def self_test(docs_dir: Path, texture_map_path: Path) -> None:
 
     expect("ChatWnd", "ChatWnd", 0, 0, 348, 187)
     expect("ChatWnd", "ChatEditBox", 39, 165, 303, 16)
+    edit = next(c for c in by_name["ChatWnd"]["controls"] if c["name"] == "ChatEditBox")
+    if edit["maxLength"] != 100:
+        raise SystemExit(f"ChatEditBox maxLength {edit['maxLength']}")
     expect("ChatWnd", "ChatTabCtrl", 23, 141, 320, 23)
     expect("ChatWnd", "ChatTabCtrl_NormalChat", 0, 0, 64, 23)
     expect("ChatWnd", "ChatTabCtrl_TradeChat", 64, 0, 64, 23)
