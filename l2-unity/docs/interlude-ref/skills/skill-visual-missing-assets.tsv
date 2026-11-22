@@ -1,13 +1,8 @@
 # Skills that have a skillgrp desc path or a skill.usk entry whose effect asset is not imported.
 # Source: skillgrp.tsv desc, then Animations/skill.usk (skill-effects-engine.tsv).
 # Lists only leftovers: effect classes still without a prefab, unresolved skillgrp desc keys, or empty EffectClass rows.
+# skill.<group>.<id> desc keys that are not themselves a visual class follow that skill's official visual (cycle-checked).
+# 1147 has an empty desc at every level and no usk row, so followers stay listed here.
 skill_id	level	source	visual_key	missing_asset
-2036	2	skillgrp.desc	skill.it.2178	skill.it.2178
-4028	1	skillgrp.desc	skill.mo.87	skill.mo.87
-4028	2	skillgrp.desc	skill.mo.87	skill.mo.87
-4028	3	skillgrp.desc	skill.mo.87	skill.mo.87
-4029	1	skillgrp.desc	skill.mo.87	skill.mo.87
-4029	2	skillgrp.desc	skill.mo.87	skill.mo.87
-4029	3	skillgrp.desc	skill.mo.87	skill.mo.87
-4999	1	skillgrp.desc	skill.bl.1147	skill.bl.1147
-5001	1	skillgrp.desc	skill.bl.1147	skill.bl.1147
+4999	1	skillgrp.desc	skill.bl.1147	skill.bl.1147 followed skill=1147 empty desc
+5001	1	skillgrp.desc	skill.bl.1147	skill.bl.1147 followed skill=1147 empty desc

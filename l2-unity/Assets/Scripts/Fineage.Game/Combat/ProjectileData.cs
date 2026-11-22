@@ -38,4 +38,8 @@ public partial class ProjectileData
     public float castServerHitSnapshot;
     public float projectileLaunchGlobalFromCast;
     public int attackerEntityId;
+    public float acceleration;
+    public Vector3 rotPerSecondEuler;
+    public Vector3 spinEuler;
 }
+

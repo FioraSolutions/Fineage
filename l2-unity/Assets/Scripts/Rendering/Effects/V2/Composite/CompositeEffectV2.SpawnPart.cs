@@ -101,6 +101,7 @@ public partial class CompositeEffectV2
         instance.Setup(partSettings, _castData, setupOwner);
         PrepareV2Playback(instance);
         part.OnAfterSpawn(instance, _context);
+        OfficialSkillVisualMotion.Attach(instance, part);
         HomeFlightPart spawnedHome = part as HomeFlightPart;
         if (spawnedHome != null)
         {

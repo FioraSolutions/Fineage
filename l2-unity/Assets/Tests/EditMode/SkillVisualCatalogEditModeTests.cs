@@ -198,6 +198,64 @@ public sealed class SkillVisualCatalogEditModeTests
         }
     }
 
+    [Test]
+    public void Desc_path_follows_referenced_skill_visual_with_cycle_and_empty_desc_logged()
+    {
+        SkillVisualCatalog catalog = LoadCatalog(DocsRoot());
+
+        SkillVisualResolution escape = catalog.Resolve(2177, 1, Present);
+        Assert.AreEqual(SkillVisualStatus.Ready, escape.Status);
+        Assert.AreEqual("it_scroll_of_escape_ta", escape.Actions[0].AssetKey);
+
+        SkillVisualResolution scrollLv2 = catalog.Resolve(2036, 2, Present);
+        Assert.AreEqual(SkillVisualStatus.Ready, scrollLv2.Status);
+        Assert.AreEqual(escape.VisualKey, scrollLv2.VisualKey);
+        Assert.AreEqual(escape.Actions.Count, scrollLv2.Actions.Count);
+        Assert.AreEqual("it_scroll_of_escape_ta", scrollLv2.Actions[0].AssetKey);
+
+        SkillVisualResolution warCry = catalog.Resolve(78, 1, Present);
+        Assert.AreEqual(SkillVisualStatus.Ready, warCry.Status);
+        Assert.AreEqual("mo_war_cry_ca", warCry.Actions[0].AssetKey);
+
+        SkillVisualResolution followWar = catalog.Resolve(4028, 3, Present);
+        Assert.AreEqual(SkillVisualStatus.Ready, followWar.Status);
+        Assert.AreEqual(warCry.VisualKey, followWar.VisualKey);
+        Assert.AreEqual("mo_war_cry_ca", followWar.Actions[0].AssetKey);
+        Assert.AreEqual("mo_war_cry_ta", followWar.Actions[1].AssetKey);
+
+        SkillVisualResolution followWar4029 = catalog.Resolve(4029, 1, Present);
+        Assert.AreEqual(SkillVisualStatus.Ready, followWar4029.Status);
+        Assert.AreEqual("mo_war_cry_ca", followWar4029.Actions[0].AssetKey);
+
+        SkillVisualResolution vampiric = catalog.Resolve(4999, 1, Present);
+        Assert.AreEqual(SkillVisualStatus.Missing, vampiric.Status);
+        Assert.AreEqual(SkillVisualCatalog.SourceDesc, vampiric.Source);
+        Assert.AreEqual("skill.bl.1147", vampiric.VisualKey);
+        CollectionAssert.Contains(
+            vampiric.MissingAssets,
+            "skill.bl.1147 followed skill=1147 empty desc");
+
+        SkillVisualResolution vampiric5001 = catalog.Resolve(5001, 1, Present);
+        Assert.AreEqual(SkillVisualStatus.Missing, vampiric5001.Status);
+        CollectionAssert.Contains(
+            vampiric5001.MissingAssets,
+            "skill.bl.1147 followed skill=1147 empty desc");
+    }
+
+    [Test]
+    public void AccSpeed_1000_uu_is_slower_than_default_anprojectile_3000()
+    {
+        float distance = 10f;
+        float accel1000 = VectorUtils.ConvertPosToUnity(new Vector3(1000f, 0f, 0f)).magnitude;
+        float official = ProjectileFlightTimeCalculator.CalculateL2AccelFlightTimeSeconds(distance, accel1000);
+        float def = ProjectileFlightTimeCalculator.CalculateL2AccelFlightTimeSeconds(distance);
+        Assert.Greater(official, def);
+        Assert.AreEqual(
+            ProjectileFlightTimeCalculator.CalculateL2AccelFlightTimeSeconds(distance, 0f),
+            def,
+            0.0001f);
+    }
+
     static bool Present(string assetKey)
     {
         return true;

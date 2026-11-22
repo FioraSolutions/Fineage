@@ -68,9 +68,42 @@ public static class SkillVisualPlayback
         composite.AssignResolvedParts(parts.ToArray());
 
         EffectParticle settings = ScriptableObject.CreateInstance<EffectParticle>();
-        settings.defaultLifeTime = 3f;
+        settings.defaultLifeTime = ResolveDefaultLifeTime(resolution, cast);
         settings.hideTime = 0.5f;
         effects.PlayResolvedVisual(composite, settings, cast, entity.transform);
+    }
+
+    static float ResolveDefaultLifeTime(SkillVisualResolution resolution, MagicCastData cast)
+    {
+        if (cast != null && cast.HitTime > 0f)
+            return cast.HitTime;
+
+        if (HasChanneling(resolution))
+        {
+            Debug.LogError(
+                "[SkillVisual] skill=" + resolution.SkillId +
+                " level=" + resolution.Level +
+                " phase=channeling missing field=HitTime");
+        }
+
+        return 3f;
+    }
+
+    static bool HasChanneling(SkillVisualResolution resolution)
+    {
+        if (resolution == null)
+            return false;
+        for (int i = 0; i < resolution.Actions.Count; i++)
+        {
+            string phase = resolution.Actions[i].Phase;
+            if (string.Equals(phase, "channeling", System.StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(phase, "channel", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     static CompositePart BuildPart(
@@ -89,7 +122,8 @@ public static class SkillVisualPlayback
                 launchMode = ProjectileLaunchMode.OnAnimationShoot,
                 showBeforeAnimationShoot = false,
                 impactType = ProjectileImpactType.EffectOnly,
-                speed = speed
+                speed = speed,
+                acceleration = ProjectileAcceleration(action)
             };
         }
         else if (action.Kind == SkillVisualPartKind.Impact)
@@ -117,7 +151,19 @@ public static class SkillVisualPlayback
         part.inheritRotation = action.UseCharacterRotation;
         part.spawnEuler = VectorUtils.ConvertRotToUnity(
             new Vector3(action.RotationPitch, action.RotationYaw, action.RotationRoll));
+        part.rotPerSecondEuler = VectorUtils.ConvertRotToUnity(
+            new Vector3(action.RotPerSecondPitch, action.RotPerSecondYaw, action.RotPerSecondRoll));
+        part.rotEmitter = action.RotEmitter;
+        part.selfRotation = action.SelfRotation;
+        part.directional = action.Directional;
         return part;
+    }
+
+    static float ProjectileAcceleration(SkillVisualAction action)
+    {
+        if (action == null || action.AccSpeed <= 0f)
+            return 0f;
+        return VectorUtils.ConvertPosToUnity(new Vector3(action.AccSpeed, 0f, 0f)).magnitude;
     }
 
     static Vector3 ResolveOffset(SkillVisualAction action, Entity attachEntity, int skillId)

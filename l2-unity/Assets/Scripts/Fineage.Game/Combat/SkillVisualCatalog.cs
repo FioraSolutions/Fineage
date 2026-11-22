@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using UnityEngine;
 
 /// <summary>
 /// One skill-visual resolution for every cast.
@@ -67,6 +68,15 @@ public sealed class SkillVisualCatalog
 
     public SkillVisualResolution Resolve(int skillId, int level, Func<string, bool> hasAsset)
     {
+        return Resolve(skillId, level, hasAsset, null);
+    }
+
+    SkillVisualResolution Resolve(
+        int skillId,
+        int level,
+        Func<string, bool> hasAsset,
+        HashSet<int> visited)
+    {
         var result = new SkillVisualResolution
         {
             SkillId = skillId,
@@ -110,6 +120,10 @@ public sealed class SkillVisualCatalog
             string className;
             if (!TryMatchDesc(desc, out className, out rows))
             {
+                int followId;
+                if (TryParseSkillIdRef(desc, out followId) && followId != skillId)
+                    return FollowSkillDesc(skillId, level, desc, followId, hasAsset, visited);
+
                 result.Status = SkillVisualStatus.Missing;
                 result.Source = SourceDesc;
                 result.VisualKey = desc;
@@ -452,6 +466,101 @@ public sealed class SkillVisualCatalog
                 error = "attach_on=" + row.AttachOn.ToString(CultureInfo.InvariantCulture);
                 return false;
         }
+    }
+
+
+    SkillVisualResolution FollowSkillDesc(
+        int skillId,
+        int level,
+        string desc,
+        int followId,
+        Func<string, bool> hasAsset,
+        HashSet<int> visited)
+    {
+        if (visited == null)
+            visited = new HashSet<int>();
+        if (!visited.Add(skillId) || visited.Contains(followId))
+        {
+            Debug.LogError(
+                "[SkillVisual] skill=" + skillId.ToString(CultureInfo.InvariantCulture) +
+                " desc=" + desc +
+                " followed skill=" + followId.ToString(CultureInfo.InvariantCulture) +
+                " cycle");
+            var cycle = new SkillVisualResolution
+            {
+                SkillId = skillId,
+                Level = level,
+                Status = SkillVisualStatus.Missing,
+                Source = SourceDesc,
+                VisualKey = desc
+            };
+            cycle.MissingAssets.Add(
+                desc + " followed skill=" + followId.ToString(CultureInfo.InvariantCulture) + " cycle");
+            return cycle;
+        }
+
+        SkillVisualResolution followed = Resolve(
+            followId,
+            ChooseFollowLevel(followId, level),
+            hasAsset,
+            visited);
+        followed.SkillId = skillId;
+        followed.Level = level;
+        if (followed.Status == SkillVisualStatus.Ready ||
+            followed.Status == SkillVisualStatus.Missing)
+        {
+            if (followed.Status == SkillVisualStatus.Missing && followed.MissingAssets.Count == 0)
+            {
+                followed.Source = SourceDesc;
+                followed.VisualKey = desc;
+                followed.MissingAssets.Add(
+                    desc + " followed skill=" + followId.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return followed;
+        }
+
+        Debug.LogError(
+            "[SkillVisual] skill=" + skillId.ToString(CultureInfo.InvariantCulture) +
+            " desc=" + desc +
+            " followed skill=" + followId.ToString(CultureInfo.InvariantCulture) +
+            " empty desc");
+        var missing = new SkillVisualResolution
+        {
+            SkillId = skillId,
+            Level = level,
+            Status = SkillVisualStatus.Missing,
+            Source = SourceDesc,
+            VisualKey = desc
+        };
+        missing.MissingAssets.Add(
+            desc + " followed skill=" + followId.ToString(CultureInfo.InvariantCulture) +
+            " empty desc");
+        return missing;
+    }
+
+    int ChooseFollowLevel(int followId, int requested)
+    {
+        Dictionary<int, string> levels;
+        if (!_descBySkillLevel.TryGetValue(followId, out levels) || levels.Count == 0)
+            return requested;
+        if (levels.ContainsKey(requested))
+            return requested;
+        var ordered = new List<int>(levels.Keys);
+        ordered.Sort();
+        return ordered[0];
+    }
+
+    static bool TryParseSkillIdRef(string desc, out int skillId)
+    {
+        skillId = 0;
+        if (!IsDescPath(desc))
+            return false;
+        return int.TryParse(
+            ObjectName(desc),
+            NumberStyles.Integer,
+            CultureInfo.InvariantCulture,
+            out skillId) && skillId > 0;
     }
 
     bool TryMatchDesc(string desc, out string className, out List<UskAction> rows)

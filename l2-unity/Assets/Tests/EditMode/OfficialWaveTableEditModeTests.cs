@@ -133,4 +133,28 @@ public class OfficialWaveTableEditModeTests
         Assert.IsTrue(error.Contains("package=\"chrsound\""), error);
         Assert.IsTrue(error.Contains("FDElf_Yawn"), error);
     }
+
+    [Test]
+    public void SkillCastSound_resolves_item_and_etc_cues_from_official_wave_table()
+    {
+        OfficialWaveTable.LoadFrom(
+            "package\tgroup\tname\tresources_path\n"
+            + "itemsound\titemdrop_etc_02\titemdrop_wood\tData/Sounds/ItemSound/itemdrop_wood\n"
+            + "ItemSound2\tbroken_key\tbroken_key\tData/Sounds/ItemSound/broken_key\n"
+            + "EtcSound\tProject_M\tbattle\tData/Sounds/ItemSound/battle\n"
+            + "ItemSound2\tChronicle3_Firework\tC3_Firework_explosion\tData/Sounds/ItemSound/C3_Firework_explosion\n",
+            "test://official-waves-skill-cues.tsv");
+
+        string path;
+        string error;
+        Assert.IsTrue(SkillCastSound.TryResolveEffectClip("ItemSound", "itemdrop_wood", "itemdrop_wood", out path, out error));
+        Assert.AreEqual("Data/Sounds/ItemSound/itemdrop_wood", path);
+        Assert.IsTrue(SkillCastSound.TryResolveEffectClip("EtcSound", "battle", "battle", out path, out error));
+        Assert.AreEqual("Data/Sounds/ItemSound/battle", path);
+        Assert.IsTrue(SkillCastSound.TryResolveEffectClip("ItemSound2", "C3_Firework_explosion", "C3_Firework_explosion", out path, out error));
+        Assert.AreEqual("Data/Sounds/ItemSound/C3_Firework_explosion", path);
+        Assert.IsFalse(SkillCastSound.TryResolveEffectClip("SkillSound2", "antaras_creak", "antaras_creak", out path, out error));
+        Assert.IsTrue(error.Contains("antaras_creak"), error);
+    }
+
 }
