@@ -42,3 +42,8 @@ Decoding: `Lineage2Ver111/121` packages are a 28-byte header followed by a body 
   `it_soul_shot_d_ca` / `it_spirit_shot_d_ca` must be generated first.
 - MMagic and FMagic have no Interlude SpAtk01 1HS/2HS/Bow takes; those override entries are cleared and
   the states play the template clip (see `removed.tsv`, category `animator-controller`).
+- Only player animations are whitelisted. NPC/monster meshes and their `AnimTween.txt` rows were not
+  checked against Interlude `.ukx` packages.
+- GlobalEffect rows added by #1623 through `player_vfx_manifest.json` aliases keep their composites
+  (all built from Interlude classes); manifest entries whose classes are not in `lineageeffect.u`
+  were removed from the manifest.
