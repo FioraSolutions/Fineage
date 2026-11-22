@@ -313,6 +313,32 @@ def check_cs9_syntax() -> list[str]:
     return errors
 
 
+def check_anim_keyreduce_probe_registration() -> list[str]:
+    """Every anim-keyreduce-*-probes.json fixture must appear in AnimKeyReducePilotEditModeTests.ProbeFiles."""
+    test = EDITMODE_TESTS / "AnimKeyReducePilotEditModeTests.cs"
+    fixtures = EDITMODE_TESTS / "Fixtures"
+    if not test.is_file():
+        return []
+    text = test.read_text(encoding="utf-8-sig", errors="replace")
+    listed = set(
+        re.findall(
+            r"Tests/EditMode/Fixtures/(anim-keyreduce-[^\"]+\.json)",
+            text,
+        )
+    )
+    on_disk = {p.name for p in fixtures.glob("anim-keyreduce-*-probes.json")}
+    errors: list[str] = []
+    for name in sorted(on_disk - listed):
+        errors.append(
+            f"anim-keyreduce fixture not listed in ProbeFiles: Assets/Tests/EditMode/Fixtures/{name}"
+        )
+    for name in sorted(listed - on_disk):
+        errors.append(
+            f"ProbeFiles references missing anim-keyreduce fixture: Assets/Tests/EditMode/Fixtures/{name}"
+        )
+    return errors
+
+
 def main() -> int:
     errors = (
         check_editmode_asmdef_types()
@@ -320,6 +346,7 @@ def main() -> int:
         + check_asmdef_references_editor_scripts()
         + check_asmdef_missing_unityengine_usings()
         + check_cs9_syntax()
+        + check_anim_keyreduce_probe_registration()
     )
     if errors:
         print("Unity EditMode guard failed:", file=sys.stderr)
