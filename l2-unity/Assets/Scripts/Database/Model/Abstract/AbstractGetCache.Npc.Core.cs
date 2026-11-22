@@ -34,7 +34,9 @@ public abstract partial class AbstractGetCache
     public GameObject GetFace(CharacterRaceAnimation raceId, byte face) {
         GameObject go = _faces[(byte)raceId, face];
         if (go == null) {
-            // Debug.LogError($"Can't find face {face} for race {raceId} at index {raceId},{face}");
+            Debug.LogError(
+                "[ModelTable] missing face mesh raceId=" + raceId + " faceIndex=" + face
+                + " (Resources Faces/" + raceId + "_f_" + face + ")");
         }
 
         return go;
@@ -55,7 +57,9 @@ public abstract partial class AbstractGetCache
 
         GameObject go = _hair[(byte)raceId, index];
         if (go == null) {
-            // Debug.LogError($"Can't find hairstyle {hairStyle} haircolor {hairColor} for race {raceId} at index {raceId},{index}");
+            Debug.LogError(
+                "[ModelTable] missing hair mesh raceId=" + raceId + " style=" + hairStyle + " color=" + hairColor
+                + " back=" + bh + " tableIndex=" + index);
         }
 
         return go;

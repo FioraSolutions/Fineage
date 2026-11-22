@@ -443,7 +443,7 @@ public partial class SkinnedMeshSync : MonoBehaviour
         Transform faceHead = null;
         for (int i = 0; i < srcBones.Length; i++)
         {
-            if (IsSkullBone(srcBones[i]))
+            if (IsSkullBone(srcBones[i], renderer))
             {
                 faceHead = srcBones[i];
                 break;
@@ -472,14 +472,19 @@ public partial class SkinnedMeshSync : MonoBehaviour
         return true;
     }
 
-    static bool IsSkullBone(Transform bone)
+    static bool IsSkullBone(Transform bone, SkinnedMeshRenderer renderer)
     {
         if (bone == null || string.IsNullOrEmpty(bone.name))
             return false;
         string n = bone.name;
-        return n.Equals("Bip01_head", StringComparison.OrdinalIgnoreCase)
+        if (n.Equals("Bip01_head", StringComparison.OrdinalIgnoreCase)
             || n.Equals("Bip01 Head", StringComparison.OrdinalIgnoreCase)
-            || n.Equals("Bip01_Head", StringComparison.OrdinalIgnoreCase);
+            || n.Equals("Bip01_Head", StringComparison.OrdinalIgnoreCase))
+            return true;
+        // FElf / FDarkElf face pieces often list hair01 as the head joint alias (#933).
+        if (!IsHairRenderer(renderer) && n.Equals("hair01", StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 
     static bool TryBoneBindLocal(SkinnedMeshRenderer smr, Transform bone, out Matrix4x4 local)
