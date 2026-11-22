@@ -247,6 +247,15 @@ public sealed class SkillVisualCatalog
         result.Source = source;
         result.VisualKey = className;
         result.FlyingTime = rows[0].FlyingTime;
+        for (int i = 0; i < rows.Count; i++)
+        {
+            UskAction flying = rows[i];
+            if (!IsFlyingShotShape(flying) || flying.FlyingTime > 0f)
+                continue;
+            result.MissingAssets.Add(
+                "phase:shot missing field=FlyingTime effect=" + (flying.AssetKey ?? string.Empty));
+        }
+
         bool projectile = false;
         for (int i = 0; i < rows.Count; i++)
         {
@@ -283,6 +292,9 @@ public sealed class SkillVisualCatalog
                     "phase:" + (row.Phase ?? string.Empty) + " missing field=EffectClass");
                 continue;
             }
+
+            if (IsFlyingShotShape(row) && row.FlyingTime <= 0f)
+                continue;
 
             bool present = hasAsset != null && hasAsset(row.AssetKey);
             if (!present)
@@ -333,6 +345,36 @@ public sealed class SkillVisualCatalog
         result.Status = result.MissingAssets.Count > 0
             ? SkillVisualStatus.Missing
             : SkillVisualStatus.Ready;
+    }
+
+    /// <summary>
+    /// True when skill.usk has a shot that is a flying part (_fl / _pr / _fo, not on the target),
+    /// whether or not FlyingTime was authored. NPC skill 4573 is not player skill 6.
+    /// </summary>
+    public bool HasOfficialFlyingPart(int skillId)
+    {
+        List<UskAction> rows;
+        if (!_bySkillId.TryGetValue(skillId, out rows))
+            return false;
+        for (int i = 0; i < rows.Count; i++)
+        {
+            if (IsFlyingShotShape(rows[i]))
+                return true;
+        }
+
+        return false;
+    }
+
+    static bool IsFlyingShotShape(UskAction row)
+    {
+        if (row == null || row.OnTarget)
+            return false;
+        if (!string.Equals(row.Phase, "shot", StringComparison.Ordinal))
+            return false;
+        string key = row.AssetKey ?? string.Empty;
+        return key.EndsWith("_fl", StringComparison.Ordinal) ||
+               key.EndsWith("_pr", StringComparison.Ordinal) ||
+               key.EndsWith("_fo", StringComparison.Ordinal);
     }
 
     static bool IsProjectile(UskAction row, float flyingTime)

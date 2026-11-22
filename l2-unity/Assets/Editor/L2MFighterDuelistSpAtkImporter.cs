@@ -5,9 +5,20 @@ using UnityEngine;
 
 /// <summary>
 /// Imports MFighter dual-sword SpAtk takes required by Duelist Mix skills (Triple Slash, Sonic line).
-/// Stage PSA conversion at <c>Assets/L2ImportTmp/MFighter_anim.fbx</c> then:
-/// Unity -batchmode -nographics -quit -projectPath l2-unity -executeMethod L2MFighterDuelistSpAtkImporter.RunCli
+/// Original files stay on the Mac. Export, convert, stage, then import:
+/// <code>
+/// umodel -game=l2 -export -out=$HOME/l2-export/Fighter \
+///   "$HOME/Downloads/L2_Interlude_Client/Lineage II/Animations/Fighter.ukx"
+/// blender -b -P l2-unity/Assets/Editor/L2EffectGenerator/Blender/psk_psa_to_fbx.py -- \
+///   $HOME/l2-export/Fighter/MFighter_m000_b.psk \
+///   $HOME/l2-export/Fighter/MFighter_anim.psa \
+///   l2-unity/Assets/L2ImportTmp/MFighter_anim.fbx \
+///   l2-unity/Assets/Editor/L2EffectGenerator/Blender/io_import_scene_unreal_psa_psk_280.py
+/// Unity -batchmode -nographics -quit -projectPath l2-unity \
+///   -executeMethod L2MFighterDuelistSpAtkImporter.RunCli
+/// </code>
 /// See <see cref="L2MFighterSpAtk06Importer"/> for remapping/calibration mechanics.
+/// <c>RunCli</c> exits 1 until that FBX is wired the same way; it does not invent a take.
 /// </summary>
 public static class L2MFighterDuelistSpAtkImporter
 {

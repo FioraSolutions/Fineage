@@ -19,7 +19,6 @@ public partial class SkillAnimationDatabase
         new Dictionary<string, AnimationClip>(StringComparer.Ordinal);
 
     static readonly HashSet<string> SpAtkProfileMissLogged = new HashSet<string>(StringComparer.Ordinal);
-    static readonly HashSet<string> SpAtkClipMissLogged = new HashSet<string>(StringComparer.Ordinal);
 
     public static IReadOnlyList<string> AllSpAtkRaceTokens() => AllRaceTokens;
 
@@ -165,7 +164,8 @@ public partial class SkillAnimationDatabase
             raceName,
             spAtkNumber,
             weaponToken,
-            normalizedState);
+            normalizedState,
+            logMissing: false);
 
         if (loaded == null)
         {
@@ -179,22 +179,36 @@ public partial class SkillAnimationDatabase
             }
         }
 
-        if (loaded == null && SpAtkClipMissLogged.Add(cacheKey))
-        {
-            string query = InterludeAnimationClipResolver.BuildPlayerSpAtkQuery(
-                spAtkNumber,
-                weaponToken,
-                profile.Race);
-            Debug.LogError(
-                "[SkillAnimation] SpAtk clip missing race=" + profile.Race
-                + " state=" + normalizedState
-                + " animTweenQuery=" + query
-                + " folder=" + profile.Folder
-                + " meshStem=" + profile.MeshStem
-                + " (re-bake missing takes on Mac; MFighter dual list in Docs/MISSING_MFighter_DUAL_SPATK.md).");
-        }
-
         SpAtkClipCache[cacheKey] = loaded;
         return loaded;
+    }
+
+    /// <summary>
+    /// AttackShot time in seconds from the lossless notify table
+    /// (normalized time × the loaded clip length). 0 when the sequence has no AttackShot.
+    /// </summary>
+    public static float OfficialAttackShotSeconds(string stateName, string raceName, float clipLength)
+    {
+        if (clipLength <= 0f)
+            return 0f;
+        if (!TrySplitSpAtkState(stateName, out string spatkStem, out string weaponToken))
+            return 0f;
+
+        RaceClipProfile profile = ResolveRaceProfile(raceName);
+        if (profile == null)
+            return 0f;
+
+        string sequence = spatkStem + "_" + CanonicalClipWeaponStem(weaponToken) + "_" + profile.Race;
+        string mesh = profile.Race + "_anim";
+        if (!AnimNotifyTable.TryGetByMeshSequence(mesh, sequence, out IReadOnlyList<AnimNotifyBinding> bindings))
+            return 0f;
+
+        for (int i = 0; i < bindings.Count; i++)
+        {
+            if (string.Equals(bindings[i].ClassName, "AnimNotify_AttackShot", StringComparison.Ordinal))
+                return bindings[i].Time * clipLength;
+        }
+
+        return 0f;
     }
 }

@@ -94,7 +94,7 @@ public partial class AnimationManager
         {
             for(int i=0; i< cycle.Length; i++)
             {
-                AnimationClip clip = SkillAnimationDatabase.GetOverrideClip(cycle[i], controller.GetAnimatorName());
+                AnimationClip clip = ResolveTimingClip(objectId, controller, cycle[i], out _);
                 if(clip != null)
                 {
                     durations[i] = clip.length;
@@ -108,18 +108,68 @@ public partial class AnimationManager
     public float GetOverrideEventTimeByName(int objectId, string[] cycle, string eventName)
     {
         IAnimationController controller = GetRegisteredController(objectId);
-        if (controller == null)
+        if (controller == null || cycle == null)
             return 0;
 
+        // The pin is the last phase that actually has a shot notify (MagicShot, or the
+        // last SpAtk of a Mix). An earlier swing's AttackShot must not steal that time.
+        float found = 0f;
         for (int i = 0; i < cycle.Length; i++)
         {
-            AnimationClip clip = SkillAnimationDatabase.GetOverrideClip(cycle[i], controller.GetAnimatorName());
-            if (clip != null)
-            {
-                float timeStartEvent = controller.GetEventTimeByName(clip, eventName);
-                if (timeStartEvent != 0) return timeStartEvent;
-            }
+            AnimationClip clip = ResolveTimingClip(objectId, controller, cycle[i], out string stateName);
+            if (clip == null)
+                continue;
+
+            float time = controller.GetEventTimeByName(clip, eventName);
+            if (time == 0f && IsShotEventName(eventName))
+                time = controller.GetEventTimeByName(clip, "AttackShot");
+            if (time == 0f && IsShotEventName(eventName))
+                time = SkillAnimationDatabase.OfficialAttackShotSeconds(stateName, controller.GetAnimatorName(), clip.length);
+            if (time != 0f)
+                found = time;
         }
-        return 0;
+
+        return found;
+    }
+
+    AnimationClip ResolveTimingClip(
+        int objectId,
+        IAnimationController controller,
+        string token,
+        out string stateName)
+    {
+        stateName = token;
+        if (controller == null || string.IsNullOrEmpty(token))
+            return null;
+
+        string race = controller.GetAnimatorName();
+        bool spatk = token.IndexOf("SpAtk", StringComparison.OrdinalIgnoreCase) >= 0;
+        if (!spatk)
+            return SkillAnimationDatabase.GetOverrideClip(token, race);
+
+        if (!PlayerSpAtkAnim.TryParse(token, out _, out _, out stateName))
+        {
+            string weapon = GetEquipAnimName(objectId);
+            if (string.IsNullOrEmpty(weapon))
+            {
+                Debug.LogError(
+                    "[CastSync] SpAtk clip duration missing weapon suffix state=" + token +
+                    " objectId=" + objectId +
+                    " race=" + race +
+                    " — equipped weapon anim is empty, no default suffix");
+                return null;
+            }
+
+            stateName = token.EndsWith("_", StringComparison.Ordinal) ? token + weapon : token + "_" + weapon;
+        }
+
+        return SkillAnimationDatabase.GetSpAtkCombatClip(stateName, race);
+    }
+
+    static bool IsShotEventName(string eventName)
+    {
+        return string.Equals(eventName, "OnAnimationShoot", StringComparison.Ordinal)
+            || string.Equals(eventName, "AttackShot", StringComparison.Ordinal)
+            || string.Equals(eventName, "OnAnimationAttackShot", StringComparison.Ordinal);
     }
 }

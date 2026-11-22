@@ -59,7 +59,12 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         DesableLastPlayerAnimationElseTrue(objectId, controller);
 
         // Basic melee (jatk*) and SpAtk* → CrossFade; MagicShot/Cast stay on Trigger.
+        // A missing combat clip is already logged. Do not fall through to the trigger:
+        // Player_Basic's default transition is SpAtk01_1HS (the dagger swing).
         if (TryPlayCombatCrossFade(objectId, controller, entity, triggerName))
+            return;
+
+        if (SkillAnimationResolver.IsCombatBodyState(triggerName))
             return;
 
         controller.ToggleAnimationTrigger(triggerName);
@@ -86,36 +91,22 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
             ? entity.GetMagicCastData().SkillId
             : 0;
 
-        // Official race takes first. Player_Basic still has only SpAtk01/02/06
-        // template states; do not play those when the Interlude take is absent
-        // (MMagic/FMagic have no SpAtk01 1HS/2HS/Bow).
-        if (TryPlaySpAtkOverrideClip(objectId, controller, entity, requestedState))
-            return true;
-
+        // Resolve before the miss log so SpAtk06 can map onto the shared hand gesture
+        // instead of reporting the weapon take as missing and then playing it.
         stateName = SkillAnimationResolver.ResolvePlayableCombatState(
             controller,
             requestedState,
             raceName,
             skillId,
             s => HasCombatState(controller, s));
-        if (!string.Equals(stateName, requestedState, StringComparison.Ordinal) &&
-            TryPlaySpAtkOverrideClip(objectId, controller, entity, stateName))
-        {
+        if (TryPlaySpAtkOverrideClip(objectId, controller, entity, stateName))
             return true;
-        }
 
         bool isSpAtk = stateName != null &&
                        stateName.IndexOf("SpAtk", StringComparison.Ordinal) == 0;
         if (isSpAtk &&
             SkillAnimationDatabase.GetSpAtkCombatClip(stateName, raceName) == null)
         {
-            Debug.LogError(
-                "[AnimationManager] SpAtk combat unresolved objectId=" + objectId
-                + " race=" + (raceName ?? "")
-                + " state=" + stateName
-                + " weaponSuffix=" + ExtractWeaponSuffix(stateName)
-                + " (no official race clip; template Player_Basic state is not a substitute).");
-            SkillAnimationResolver.LogMissingCombatClip(skillId, raceName, stateName);
             return false;
         }
 
@@ -158,12 +149,6 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
 
         SetRecentName(objectId, phaseStateName);
         return true;
-    }
-
-    static string ExtractWeaponSuffix(string stateName)
-    {
-        int split = stateName != null ? stateName.LastIndexOf('_') : -1;
-        return split > 0 ? stateName.Substring(split + 1) : "";
     }
 
     /// <summary>

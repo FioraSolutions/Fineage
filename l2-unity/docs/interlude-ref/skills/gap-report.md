@@ -179,6 +179,45 @@ Vortex 1339-1343 have their own skillsoundgrp rows
 (`SkillSound5.clear_vision_cast` / `_shot`), not Dryad Root's sounds,
 even though they reuse the skill.sp.1201 visual.
 
+## Sonic Blaster (skill 6) — no player flying blade in this client
+
+Player skill 6 (Sonic Blaster, animation `Mix06` → `SpAtk18`) is `skillgrp_ani_only`:
+every level has an empty skillgrp `desc` and there is no SkillVisualEffect whose
+object name is `6`. `MFighter_anim` / `SpAtk18_Dual_MFighter` notifies are
+`AnimNotify_AttackShot` at normalized time `0.550000012` plus two
+`AnimNotify_Sound` rows. There is no `AnimNotify_Effect` on that take
+(Dual, 1HS, or 2HS).
+
+`at_sonic_blast_fl` / `at_sonic_blast_ta` belong to NPC skill **4573**
+(`skill.py.4573`, FlyingTime 0.4). `at_sonic_blast_ta` is also the impact on
+4641. Those rows are not player skill 6 and are not wired onto it.
+`SkillVisualCatalog.HasOfficialFlyingPart(6)` is false, so status `None` does
+not log a missing flight. A skill whose own skill.usk row is a flying shot
+(`_fl` / `_pr` / `_fo`, not on the target) with status `None` or `FlyingTime` 0
+does log, and the zero-time shot is not spawned as a stationary substitute.
+
+Re-dump on a Mac that has the Interlude client, if a different install contains
+a skill 6 visual this tree does not:
+
+```bash
+CRUMA_CLIENT="$HOME/Downloads/L2_Interlude_Client/Lineage II" \
+  tools/interlude-extract/export_package_properties.sh
+python3 tools/interlude-extract/build_skill_effect_placement.py
+CRUMA_CLIENT="$HOME/Downloads/L2_Interlude_Client/Lineage II" \
+  tools/interlude-extract/export_client_packages.sh animations/Fighter.ukx
+```
+
+`CRUMA_JAR` must point at Cruma 1.2.0 or later when it is not in `~/Tools/Cruma`.
+
+## skillsoundgrp columns
+
+`spelleffect_sound_1/2/3` are cast / shot / explosion. That matches
+`tools/interlude-extract/ddf/Interlude/skillsoundgrp.ddf` and the dumped rows.
+Skill 6 is `SkillSound4.fatal_strike_cast`, `SkillSound.wind_strike_shot`,
+`SkillSound.wind_strike_explotion`. Skills 1, 5, 8, 261, and 1177 use the same
+columns. Those shared cues are the Interlude row, not a shifted parse.
+The cast cue is a one-shot; it is not looped out to HitTime.
+
 ## How to regenerate
 
 ```bash

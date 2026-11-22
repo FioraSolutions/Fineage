@@ -30,16 +30,37 @@ public partial class SetupDurationHelper
         stateMachine.NotifyEvent(Event.WAIT_RETURN);
     }
 
+    /// <summary>
+    /// One InitSkillProcess setup for every skill with a hit time: self casts and targeted
+    /// PHYS Mix combos. Clip lengths are override slots or SpAtk combat takes. Flight comes
+    /// from the skill visual catalog (0 when the cast target is the caster).
+    /// </summary>
     public static void SetupDurationIfHitTimeNot0(MagicSkillUseDto useSkill, int objectId, Entity entity, AnimationCombo selfCombo)
     {
+        if (useSkill == null || entity == null || selfCombo == null || useSkill.HitTime <= 0)
+            return;
 
-        if (useSkill.HitTime > 0)
+        string[] orderedSelfCycle = BuildOrderedCycleForOverrideTiming(selfCombo.GetAnimCycle());
+        float[] durations = System.Array.Empty<float>();
+        float shotEventTime = 0f;
+        if (ControllerPacketServices.Animations != null && orderedSelfCycle.Length > 0)
         {
-            string[] orderedSelfCycle = BuildOrderedCycleForOverrideTiming(selfCombo.GetAnimCycle());
-            float[] durations_self = ControllerPacketServices.Animations.GetOverrideClipsDurations(objectId, orderedSelfCycle);
-            float shotEventTime_self = ResolveShotEventTime(objectId, orderedSelfCycle);
-            entity.SetupTotalCastDuration(useSkill.HitTime, 0f, durations_self, shotEventTime_self, useSkill.TargetId, CastStyleOf(useSkill), MixComboOf(useSkill));
+            durations = ControllerPacketServices.Animations.GetOverrideClipsDurations(objectId, orderedSelfCycle);
+            shotEventTime = ResolveShotEventTime(objectId, orderedSelfCycle);
         }
+
+        bool selfCast = entity.Identity == null || useSkill.TargetId == entity.Identity.Id;
+        Transform flightTarget = selfCast ? entity.transform : null;
+        float flightMs = ResolveMagicFlightTimeMs(entity, useSkill.SkillId, useSkill.SkillLvl, flightTarget);
+        entity.SetupTotalCastDuration(
+            useSkill.HitTime,
+            flightMs,
+            durations,
+            shotEventTime,
+            useSkill.TargetId,
+            CastStyleOf(useSkill),
+            MixComboOf(useSkill),
+            useSkill.SkillId);
     }
 
     public static string[] BuildOrderedCycleForOverrideTiming(string[] rawCycle)
