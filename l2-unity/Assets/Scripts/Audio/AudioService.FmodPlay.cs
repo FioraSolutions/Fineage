@@ -40,8 +40,27 @@ public partial class AudioService
 
     public void PlayUiSound(string soundName)
     {
-        string path = AudioPathResolver.FmodInterfaceSound(soundName);
-        PlayFmodEvent(path, AudioCategory.Ui);
+        if (string.IsNullOrEmpty(soundName))
+        {
+            LogAudioError(OfficialWaveTable.FormatMissingWaveError(null, soundName, "empty UI sound"));
+            return;
+        }
+
+        string resourcesPath = null;
+        string error = null;
+        if (soundName.IndexOf('.') >= 0)
+        {
+            OfficialWaveTable.TryResolveDatToken(soundName, out resourcesPath, out error);
+        }
+        else if (OfficialWaveTable.TryResolve(soundName, out OfficialWaveTable.Entry entry, out error))
+        {
+            resourcesPath = entry.ResourcesPath;
+        }
+
+        if (!string.IsNullOrEmpty(resourcesPath) && PlayClip2D(resourcesPath, AudioCategory.Ui))
+            return;
+
+        LogAudioError(error ?? OfficialWaveTable.FormatMissingWaveError(null, soundName, "UI sound"));
     }
 
     public void PlayStepSound(string surfaceTag, Vector3 position, bool running)

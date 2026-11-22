@@ -23,9 +23,9 @@ Skill-visual leftovers stay in [skills/gap-report.md](../skills/gap-report.md) a
 
 | Fineage status | Original `.uax` waves |
 |---|---:|
-| `resources_clip` | 4688 |
-| `fmod_bank` | 214 |
-| `missing` | 228 |
+| `resources_clip` | 4703 |
+| `fmod_bank` | 209 |
+| `missing` | 218 |
 | **total** | 5130 |
 
 Status is discovered, not assumed: a wave counts as present if a Resources/StreamingAssets
@@ -141,7 +141,7 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 - MeshAnimation sequences also carry `shot_time` / `pre_shot_time` / `channel_times` (dump: `sounds/anim-sequences.tsv`).
 
 ### 5. UI sounds
-- `interfacesound.uax` + `messengersound.uax` waves: **15**, Fineage-missing: **10**.
+- `interfacesound.uax` + `messengersound.uax` waves: **15**, Fineage-missing: **0**. Official clips are under `Data/Sounds/InterfaceSound/` and `Data/Sounds/MessengerSound/`. System-message `item_sound` tokens come from Interlude `systemmsg-e.tsv` (545 references).
 - `systemmsg-e.dat` item_sound references: **545**.
 - Fineage `InterfaceSound.bank` is 411904 bytes — far smaller than the original wave set.
 
@@ -168,8 +168,8 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 |---|---:|---:|
 | `ambsound` | 393 | 184 |
 | `AmbSound2` | 34 | 34 |
-| `interfacesound` | 11 | 6 |
-| `messengersound` | 4 | 4 |
+| `interfacesound` | 11 | 0 |
+| `messengersound` | 4 | 0 |
 | `monsound` | 1499 | 0 |
 | `chrsound` | 1029 | 0 |
 | `monsound5` | 406 | 0 |

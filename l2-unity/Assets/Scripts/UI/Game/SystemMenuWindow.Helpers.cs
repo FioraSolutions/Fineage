@@ -65,14 +65,12 @@ public partial class SystemMenuWindow : L2PopupWindow
     public override void ShowWindow()
     {
         base.ShowWindow();
-        SystemUIPacketServices.Audio.PlayUISound("window_open");
         SystemUIPacketServices.Ui.WindowOpened(this);
     }
 
     public override void HideWindow()
     {
         base.HideWindow();
-        SystemUIPacketServices.Audio.PlayUISound("window_close");
         SystemUIPacketServices.Ui.WindowClosed(this);
     }
 }
