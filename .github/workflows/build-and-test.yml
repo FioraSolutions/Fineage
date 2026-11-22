@@ -51,68 +51,11 @@ jobs:
           ref: dev
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check character clips have no redundant Euler rotation curves
-        run: python3 scripts/check-anim-rotation-hygiene.py
-
-      - name: Check IncomingPacketActions stays deleted (#142)
-        run: python3 scripts/check-frozen-incoming-packet-actions.py
-
-      - name: Check frozen Net domain maps stay deleted (C1)
-        run: python3 scripts/check-frozen-net-domain-maps.py
-
-      - name: Check Zone→client opcodes have NetZoneDispatch cases
-        run: python3 scripts/check-net-zone-inbound-opcodes.py
-
-      - name: Check playtest release helpers
-        run: |
-          python3 scripts/check-release-secrets.py --self-test
-          python3 scripts/bake-playtest-endpoint.py --self-test
-          python3 scripts/release-notes.py --self-test
-          python3 scripts/pack-client.py --self-test
-
-      - name: Check client asmdef layout (#139)
-        run: python3 scripts/check-client-asmdef-layout.py
-
-      - name: Check DecoLayer archive fixture size
-        run: python3 scripts/check-deco-archive-fixture.py
-
-      - name: Check Unity .meta guid format and uniqueness
-        run: python3 scripts/check-unity-meta-guids.py
-
-      - name: Check Interlude window layout matches extracted docs
-        run: python3 scripts/check-interlude-window-layout.py
-
-      - name: Unity EditMode / C#9 static guards
-        run: python3 scripts/check-unity-editmode-guards.py
-
       - name: Install ffprobe for audio import policy duration checks
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Check texture and audio import policy (.meta)
-        run: |
-          python3 scripts/test_asset_import_policy_meta.py
-          python3 scripts/check-asset-import-policy.py
-
-      - name: Check NPC/monster meter scale contract (#1473)
-        run: python3 scripts/check-npc-monster-meter-contract.py
-
-      - name: Check LineageWeapons mesh topology (no cardboard sheets)
-        run: python3 scripts/check-weapon-mesh-topology.py
-
-      - name: Check Elven Village BSP CSG fixtures
-        run: python3 scripts/check-elven-bsp-csg-fixtures.py
-
-      - name: Audit actor alpha-tested materials (no opaque t01/bh)
-        run: python3 scripts/audit-actor-alpha-materials.py
-
-      - name: Check paperdoll armor uses ActorModulate2X (not ActorEnvAdd)
-        run: python3 scripts/check-paperdoll-armor-shader.py
-
-      - name: Check Net contract is in sync with the backend
-        run: |
-          FINEAGE_REQUIRE_CONTRACT_SYNC=1 python3 scripts/sync-net-contract.py --check \
-            --backend "$GITHUB_WORKSPACE/Fineage-Backend/src/Fineage.Net.Contract" \
-            --ref ''
+      - name: Client guards (shared with pr-sanity)
+        run: bash scripts/ci-client-guards.sh
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
