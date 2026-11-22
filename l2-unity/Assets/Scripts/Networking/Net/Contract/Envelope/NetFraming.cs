@@ -207,7 +207,7 @@ namespace Fineage.Net.Contract
 
         public static async Task WriteAsync(Stream stream, PacketEnvelope envelope, CancellationToken ct)
         {
-            await WriteManyAsync(stream, [envelope], ct).ConfigureAwait(false);
+            await WriteManyAsync(stream, new[] { envelope }, ct).ConfigureAwait(false);
         }
 
         public static async Task WriteManyAsync(Stream stream, IReadOnlyList<PacketEnvelope> envelopes, CancellationToken ct)

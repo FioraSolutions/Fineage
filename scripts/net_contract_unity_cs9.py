@@ -17,6 +17,11 @@ ARRAY_PROP_EMPTY_COLLECTION = re.compile(
     re.MULTILINE,
 )
 
+# C# 12 collection expression used as a call argument, e.g. `Foo(stream, [item], ct)`.
+CALL_ARG_COLLECTION = re.compile(
+    r"([,(]\s*)\[(?P<inner>[^\[\]]+)\](?=\s*[,)])"
+)
+
 
 def normalize_newlines(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
@@ -48,6 +53,18 @@ def expand_file_scoped_namespace(text: str) -> str:
     if body:
         return f"{before}namespace {ns}\n{{\n{body}\n}}\n"
     return f"{before}namespace {ns}\n{{\n}}\n"
+
+
+def fix_call_collection_expressions(text: str) -> str:
+    """`Method(x, [item], y)` → `Method(x, new[] { item }, y)`."""
+
+    def repl(match: re.Match[str]) -> str:
+        inner = match.group("inner").strip()
+        if not inner:
+            return match.group(0)
+        return f"{match.group(1)}new[] {{ {inner} }}"
+
+    return CALL_ARG_COLLECTION.sub(repl, text)
 
 
 def fix_null_coalesce_empty_brackets(text: str) -> str:
@@ -160,6 +177,7 @@ def transform_for_unity_cs9(text: str, *, lookup_corpus: str = "") -> str:
     text = fix_empty_collection_expression_defaults(text)
     text = fix_null_coalesce_empty_collection(text, lookup_corpus=lookup_corpus)
     text = fix_null_coalesce_empty_brackets(text)
+    text = fix_call_collection_expressions(text)
     return text
 
 
@@ -173,9 +191,48 @@ def build_contract_lookup_corpus(texts) -> str:
     return "\n".join(text for text in texts if text)
 
 
-def prepare_contract_bytes(data: bytes, *, lookup_corpus: str = "") -> bytes:
+def scan_source_cs10_plus_lines(text: str, rel: str) -> list[str]:
+    """Violations that remain after ``transform_for_unity_cs9`` (sync must fail loudly)."""
+    errors: list[str] = []
+    for line_no, line in enumerate(normalize_newlines(text).split("\n"), start=1):
+        stripped = line.strip()
+        if stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("///"):
+            continue
+        if re.match(r"^\s*namespace\s+[^;{]+;\s*$", line):
+            errors.append(f"{rel}:{line_no}: file-scoped namespace (C# 10+)")
+        if re.search(r"\{\s*get;\s*set;\s*\}\s*=\s*\[\]\s*;", line):
+            errors.append(f"{rel}:{line_no}: collection expression `= []` (C# 12+)")
+        if re.search(r"\?\?\s*\[\]", line):
+            errors.append(f"{rel}:{line_no}: collection expression `?? []` (C# 12+)")
+        if CALL_ARG_COLLECTION.search(line) and "new[]" not in line:
+            errors.append(f"{rel}:{line_no}: collection expression call argument `[...]` (C# 12+)")
+        if re.search(
+            r"(?<![.\w])required\s+(?:public\s+|private\s+|protected\s+|internal\s+)?"
+            r"[\w.<>,\[\]?]+\s+\w+\s*\{",
+            line,
+        ):
+            errors.append(f"{rel}:{line_no}: required member (C# 11+)")
+        if re.search(r"(=\s*|return\s+)\"\"\"", line):
+            errors.append(f"{rel}:{line_no}: raw string literal (C# 11+)")
+        if re.match(
+            r"^\s*public\s+(?:sealed\s+|abstract\s+|partial\s+)?class\s+\w+\([^)]+\)\s*[:{]",
+            line,
+        ):
+            errors.append(f"{rel}:{line_no}: primary constructor on class (C# 12+)")
+    return errors
+
+
+def prepare_contract_bytes(data: bytes, *, lookup_corpus: str = "", rel: str = "") -> bytes:
     text = data.decode("utf-8-sig")
-    return transform_for_unity_cs9(text, lookup_corpus=lookup_corpus).encode("utf-8")
+    text = transform_for_unity_cs9(text, lookup_corpus=lookup_corpus)
+    label = rel or "<contract>"
+    violations = scan_source_cs10_plus_lines(text, label)
+    if violations:
+        raise ValueError(
+            "backend Net contract cannot be lowered to Unity C# 9 "
+            f"({label}):\n  " + "\n  ".join(violations)
+        )
+    return text.encode("utf-8")
 
 
 def scan_assets_cs10_plus(assets_root: Path, *, repo_root: Path | None = None) -> list[str]:
