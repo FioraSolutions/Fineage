@@ -24,6 +24,26 @@ public partial class CharInfoDto : IWireDto
         Appearance = new PlayerAppearance();
     }
 
+    /// <summary>
+    /// Same identity, status, stats, and appearance instances the packet parsed.
+    /// Knownlist apply rebuilds the wire DTO from those domain parts.
+    /// </summary>
+    public static CharInfoDto FromKnownlist(
+        EntityIdentity identity,
+        PlayerStatus status,
+        PlayerStats stats,
+        PlayerAppearance appearance,
+        bool alikeDead)
+    {
+        var dto = new CharInfoDto();
+        dto.Identity = identity;
+        dto.Status = status;
+        dto.Stats = stats;
+        dto.Appearance = appearance;
+        dto.AlikeDead = alikeDead;
+        return dto;
+    }
+
     public void ReadFrom(PacketReader reader)
     {
         ReadIdentity(reader);

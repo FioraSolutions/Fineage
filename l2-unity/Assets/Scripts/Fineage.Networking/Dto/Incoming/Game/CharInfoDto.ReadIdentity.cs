@@ -17,7 +17,7 @@ public partial class CharInfoDto
 
         int race = reader.ReadI();
         PacketRace = race;
-        Appearance.Race = (int)MapClassId.GetRace(race);
+        Appearance.Race = InterludeCharAppearance.RaceFromPacket(race);
         Appearance.Sex = reader.ReadI();
 
         int classId = reader.ReadI();

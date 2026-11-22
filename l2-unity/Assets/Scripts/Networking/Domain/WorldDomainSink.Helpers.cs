@@ -7,10 +7,19 @@ public sealed partial class WorldDomainSink : IWorldDomainSink
         if (add == null || _worldApply == null)
             return;
 
-        if (add.Kind == KnownlistKind.User && add.InterludeChar != null)
-            _worldApply.UpdateUser(add.InterludeChar);
-        else if (add.Kind == KnownlistKind.Npc && add.InterludeNpc != null)
-            _worldApply.UpdateNpc(add.InterludeNpc);
+        if (add.Kind == KnownlistKind.User && add.UserIdentity != null)
+            _worldApply.UpdateUser(CharInfoDto.FromKnownlist(
+                add.UserIdentity,
+                add.UserStatus,
+                add.UserStats,
+                add.UserAppearance,
+                add.UserAlikeDead));
+        else if (add.Kind == KnownlistKind.Npc && add.NpcIdentity != null)
+            _worldApply.UpdateNpc(NpcInfoDto.FromKnownlist(
+                add.NpcIdentity,
+                add.NpcStatus,
+                add.NpcStats,
+                add.NpcAppearance));
     }
 
     public void ApplyPlayerSpawned(DomainPlayerSpawned spawned)
@@ -25,10 +34,10 @@ public sealed partial class WorldDomainSink : IWorldDomainSink
 
     public void ApplyStatsChanged(DomainStatsChanged changed)
     {
-        if (changed == null || changed.InterludeUserInfo == null || _world == null)
+        if (changed == null || changed.Player.Identity == null || _world == null)
             return;
 
-        UserInfoDto userInfo = changed.InterludeUserInfo;
+        UserInfoDto userInfo = UserInfoDto.FromStats(changed.Player, changed.MountType, changed.MountNpcId);
         ActionAvailabilityPacketServices.Availability.NoteMount(userInfo.MountType, userInfo.MountNpcId);
         _world.UserInfoUpdateCharacter(userInfo);
         PlayerEntity local = DomainPacketServices.LocalPlayer;

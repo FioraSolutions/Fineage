@@ -4,5 +4,7 @@
 public sealed class DomainStatsChanged
 {
     public int ObjectId;
-    public UserInfoDto InterludeUserInfo;
+    public PlayerInfoInterlude Player;
+    public byte MountType;
+    public int MountNpcId;
 }

@@ -8,7 +8,6 @@ public partial class NpcInfoDto : IWireDto
         Identity.Id = reader.ReadI();
         Identity.NpcId = reader.ReadI() - 1000000;
         Identity.Owned = true;
-        Identity.SetHideHp(Identity.NpcId);
         reader.ReadI();
 
         int x = reader.ReadI();
