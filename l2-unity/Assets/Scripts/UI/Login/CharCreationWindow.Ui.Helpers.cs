@@ -117,11 +117,6 @@ public partial class CharCreationWindow : L2Window
                 return;
             }
 
-            Camera cam = LoginCamera.SelectGenderCamera(raceManipulator.Value, classManipulator.Value, value);
-            if (cam != null) {
-                LoginCamera.SwitchCamera(cam);
-            }
-
             int sex = value == "Female" ? LobbyCharacterCreate.SexFemale : LobbyCharacterCreate.SexMale;
             hairstyleManipulator.UpdateValues(LobbyCharacterCreate.HairLabels(sex));
             hairstyleManipulator.ResetInput();
@@ -131,8 +126,13 @@ public partial class CharCreationWindow : L2Window
             faceManipulator.ResetInput();
 
             ShowRotatePawnWindow();
-            Creator.ResetPawnSelection();
-            Creator.SelectPawn(raceManipulator.Value, classManipulator.Value, value);
+            LobbyCharCreatePresentation.Apply(
+                LobbyCharCreateStageCatalog.Stage.Sex,
+                Creator,
+                LoginCamera,
+                raceManipulator.Value,
+                classManipulator.Value,
+                value);
             
         });
         genderInput.AddManipulator(genderManipulator);
@@ -142,18 +142,19 @@ public partial class CharCreationWindow : L2Window
             if(raceManipulator.Value == "Dwarf" && value == "Mystic") {
                 classManipulator.ResetInput();
                 // Stay on race gallery (Fighter M/F only) — Dwarf has no Mystic (#933).
-                Creator.ShowRaceGallery("Dwarf");
+                LobbyCharCreatePresentation.Apply(
+                    LobbyCharCreateStageCatalog.Stage.Race,
+                    Creator,
+                    LoginCamera,
+                    "Dwarf",
+                    null,
+                    null);
                 return;
             }
 
             if (raceManipulator.Value == "") {
                 classManipulator.ClearInput();
                 return;
-            }
-
-            Camera cam = LoginCamera.SelectClassCamera(raceManipulator.Value, value);
-            if (cam != null) {
-                LoginCamera.SwitchCamera(cam);
             }
 
             genderManipulator.UpdateValues(new string[] { "Male", "Female" });
@@ -166,13 +167,17 @@ public partial class CharCreationWindow : L2Window
             faceManipulator.ClearInput();
 
             HideRotatePawnWindow();
-            Creator.ResetPawnSelection();
-            Creator.ShowClassGallery(raceManipulator.Value, value);
+            LobbyCharCreatePresentation.Apply(
+                LobbyCharCreateStageCatalog.Stage.Class,
+                Creator,
+                LoginCamera,
+                raceManipulator.Value,
+                value,
+                null);
         });
         classInput.AddManipulator(classManipulator);
 
         raceManipulator = new ArrowInputManipulator(raceInput, "Race", LobbyRaceCatalog.RaceNames, -1, (index, value) => {
-            LoginCamera.SwitchCamera(value);
             classManipulator.UpdateValues(LobbyRaceCatalog.ClassNames(value));
             genderManipulator.ClearInput();
             hairstyleManipulator.UpdateValues(System.Array.Empty<string>());
@@ -183,8 +188,13 @@ public partial class CharCreationWindow : L2Window
             faceManipulator.ClearInput();
 
             HideRotatePawnWindow();
-            Creator.ResetPawnSelection();
-            Creator.ShowRaceGallery(value);
+            LobbyCharCreatePresentation.Apply(
+                LobbyCharCreateStageCatalog.Stage.Race,
+                Creator,
+                LoginCamera,
+                value,
+                null,
+                null);
             SetlabelError("");
         });
         raceInput.AddManipulator(raceManipulator);
