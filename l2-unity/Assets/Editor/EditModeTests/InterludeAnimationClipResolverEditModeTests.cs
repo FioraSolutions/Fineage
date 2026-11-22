@@ -33,18 +33,20 @@ public sealed class InterludeAnimationClipResolverEditModeTests
     }
 
     [Test]
-    public void MFighter_spatk03_dual_clip_missing_has_concrete_resources_path()
+    public void MFighter_spatk03_dual_loads_from_the_catalog_take()
     {
         string query = InterludeAnimationClipResolver.BuildPlayerSpAtkQuery(3, "_dual", "MFighter");
         Assert.IsTrue(
             AnimTweenTable.Instance.TryResolveExactSequence("MFighter_anim", query, out string seq));
         string take = InterludeAnimResourceTakeTable.ResourcesTakeName("MFighter_anim", seq);
+        Assert.AreEqual("SpAtk03_Dual_MFighter", take);
         const string meshStem = "MFighter_m000_b";
         string path = InterludeAnimationClipResolver.BuildResourcesPath(
             "Data/Animations/Fighter/MFighter/Clips/",
             meshStem,
             take);
-        Assert.That(path, Does.Contain(meshStem + ".ao_"));
-        Assert.IsNull(InterludeAnimationClipResolver.LoadExact(path));
+        AnimationClip clip = InterludeAnimationClipResolver.LoadExact(path);
+        Assert.IsNotNull(clip, path);
+        Assert.That(clip.name, Does.Contain(take));
     }
 }

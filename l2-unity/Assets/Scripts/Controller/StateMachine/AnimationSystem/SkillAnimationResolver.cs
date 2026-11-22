@@ -167,7 +167,7 @@ public static class SkillAnimationResolver
             " expectedClipStem=" + clipStem +
             " path=" + path +
             " animatorState=" + stateName +
-            " (run L2MFighterDuelistSpAtkImporter after staging MFighter_anim.fbx).");
+            " (InterludeAnimResourceTake.tsv → Resources; no substitute swing).");
     }
 
     static readonly HashSet<string> SpAtk06HandLogged = new HashSet<string>(StringComparer.Ordinal);

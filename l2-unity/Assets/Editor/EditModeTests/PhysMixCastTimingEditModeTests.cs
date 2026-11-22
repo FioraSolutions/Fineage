@@ -11,6 +11,13 @@ using UnityEngine.TestTools;
 /// </summary>
 public sealed class PhysMixCastTimingEditModeTests
 {
+    [OneTimeSetUp]
+    public void LoadAnimCatalog()
+    {
+        AnimTweenTable.Instance.Initialize();
+        InterludeAnimResourceTakeTable.EnsureLoaded();
+    }
+
     [Test]
     public void Sonic_blaster_mix_pins_shot_to_server_hit()
     {
@@ -44,6 +51,48 @@ public sealed class PhysMixCastTimingEditModeTests
         Assert.AreEqual(cast.SpeedEnd, cast.SpeedForSpAtkPhase(1), 0.0001f);
         Assert.AreEqual(cast.SpeedShot, cast.SpeedForSpAtkPhase(2), 0.0001f);
         Assert.AreNotEqual(cast.SpeedMid, cast.SpeedShot);
+    }
+
+    [Test]
+    public void Catalog_loads_skill6_SpAtk18_and_skill5_phases_for_MFighter_dual()
+    {
+        var table = new SkillgrpTable();
+        table.Initialize();
+        SkillgrpTable.Bind(table);
+
+        AssertCatalogClip(6, "SpAtk18_Dual_MFighter");
+        AssertCatalogClip(5, "SpAtk07_Dual_MFighter", "SpAtk12_Dual_MFighter", "SpAtk21_Dual_MFighter");
+    }
+
+    static void AssertCatalogClip(int skillId, params string[] takes)
+    {
+        string[] stems = SkillAnimationResolver.GetSpAtkPhaseStems(skillId, 1);
+        Assert.IsNotNull(stems, "skillId=" + skillId);
+        Assert.AreEqual(takes.Length, stems.Length, "skillId=" + skillId);
+
+        for (int i = 0; i < takes.Length; i++)
+        {
+            string state = stems[i] + "_dual";
+            Assert.IsTrue(
+                SkillAnimationDatabase.TryGetSpAtkCombatResourcePath(state, "MFighter", out string resourcesPath),
+                state);
+            Assert.That(resourcesPath, Does.Contain("MFighter_m000_b.ao_" + takes[i]));
+
+            string query = InterludeAnimationClipResolver.BuildPlayerSpAtkQuery(
+                int.Parse(stems[i].Substring(5), System.Globalization.CultureInfo.InvariantCulture),
+                "dual",
+                "MFighter");
+            Assert.IsTrue(
+                AnimTweenTable.Instance.TryResolveExactSequence("MFighter_anim", query, out string sequence),
+                query);
+            string catalogTake = InterludeAnimResourceTakeTable.ResourcesTakeName("MFighter_anim", sequence);
+            Assert.AreEqual(takes[i], catalogTake, "skillId=" + skillId + " " + query);
+
+            AnimationClip clip = SkillAnimationDatabase.GetSpAtkCombatClip(state, "MFighter");
+            Assert.IsNotNull(clip, resourcesPath);
+            Assert.That(clip.name, Does.Contain(takes[i]));
+            Assert.IsFalse(clip.name.IndexOf("SpAtk01", StringComparison.OrdinalIgnoreCase) >= 0, clip.name);
+        }
     }
 
     [Test]

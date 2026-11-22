@@ -160,6 +160,8 @@ public partial class SkillAnimationDatabase
         if (SpAtkClipCache.TryGetValue(cacheKey, out AnimationClip cached))
             return cached;
 
+        // Catalog only: AnimTween sequence → InterludeAnimResourceTake.tsv → Resources.
+        // A miss stays uncached so a later call after the tables load can still resolve.
         AnimationClip loaded = InterludeAnimationClipResolver.TryLoadPlayerSpAtkCombat(
             raceName,
             spAtkNumber,
@@ -167,19 +169,8 @@ public partial class SkillAnimationDatabase
             normalizedState,
             logMissing: false);
 
-        if (loaded == null)
-        {
-            string[] meshStems = MeshStemsForRaceProfile(profile);
-            for (int i = 0; i < meshStems.Length; i++)
-            {
-                string legacyPath = profile.Folder + meshStems[i] + ".ao_" + clipStateStem + "_" + profile.Race;
-                loaded = InterludeAnimationClipResolver.LoadExact(legacyPath);
-                if (loaded != null)
-                    break;
-            }
-        }
-
-        SpAtkClipCache[cacheKey] = loaded;
+        if (loaded != null)
+            SpAtkClipCache[cacheKey] = loaded;
         return loaded;
     }
 

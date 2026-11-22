@@ -40,6 +40,12 @@ public partial class SetupDurationHelper
         if (useSkill == null || entity == null || selfCombo == null || useSkill.HitTime <= 0)
             return;
 
+        // Stamp the skill before the clip lookup. A catalog miss logs this id,
+        // not 0, and the same MagicCastData is what Setup fills next.
+        MagicCastData cast = entity.GetMagicCastData();
+        if (cast != null && useSkill.SkillId > 0)
+            cast.SkillId = useSkill.SkillId;
+
         string[] orderedSelfCycle = BuildOrderedCycleForOverrideTiming(selfCombo.GetAnimCycle());
         float[] durations = System.Array.Empty<float>();
         float shotEventTime = 0f;

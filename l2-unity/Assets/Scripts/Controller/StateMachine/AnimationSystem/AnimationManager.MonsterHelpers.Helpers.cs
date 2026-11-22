@@ -163,7 +163,17 @@ public partial class AnimationManager
             stateName = token.EndsWith("_", StringComparison.Ordinal) ? token + weapon : token + "_" + weapon;
         }
 
-        return SkillAnimationDatabase.GetSpAtkCombatClip(stateName, race);
+        AnimationClip clip = SkillAnimationDatabase.GetSpAtkCombatClip(stateName, race);
+        if (clip == null)
+        {
+            Entity entity = GetEntity(objectId);
+            int skillId = entity != null && entity.GetMagicCastData() != null
+                ? entity.GetMagicCastData().SkillId
+                : 0;
+            SkillAnimationResolver.LogMissingCombatClip(skillId, race, stateName);
+        }
+
+        return clip;
     }
 
     static bool IsShotEventName(string eventName)
