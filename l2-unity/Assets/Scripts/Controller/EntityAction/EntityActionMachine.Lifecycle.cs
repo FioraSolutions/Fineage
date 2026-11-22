@@ -116,9 +116,21 @@ public sealed partial class EntityActionMachine
         Set(entity, EntityActionKind.Idle, null);
     }
 
-    public void Remove(Entity entity)
+    public void Remove(IWorldEntity worldEntity)
     {
-        if (entity == null || entity.Identity == null)
+        Entity entity = worldEntity as Entity;
+        if (entity == null)
+        {
+            if (worldEntity != null)
+            {
+                Debug.LogError(
+                    "[EntityActionMachine] IWorldEntity is not an Entity — World.UnregisterObject passed a different type, so the action was not removed.");
+            }
+
+            return;
+        }
+
+        if (entity.Identity == null)
             return;
 
         L2PawnRange.ClearIgnoredPawn(entity);

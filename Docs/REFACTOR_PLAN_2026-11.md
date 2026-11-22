@@ -464,8 +464,9 @@ Hosts that `[Inject]` move to `Fineage.Di` (the only asmdef that references VCon
 - [x] **S38b** `INameplateRoster` in `Fineage.Game`: `Remove` and `SetMask`. `World` uses `NameplatePacketServices.BoundNameplates`. A missing bind logs `[World] INameplateRoster missing — NameplatesManager.Awake did not bind` once and skips the update. That path does not read `NameplatesManager.Instance`.
 - [x] **S38c** `IClickMasks` in `Fineage.Game`: `SetMasks`. `World.UpdateMasks` uses `ControllerPacketServices.BoundClicks`. A missing bind logs `[World] IClickMasks missing — ClickManager.Awake did not bind` once and skips the update. That path does not read `ClickManager.Instance`.
 - [x] **S38d** `IMoveRoster` in `Fineage.Game`: `Forget` and `IsMoving`. `World` uses `MoveAllCharactersPacketServices.BoundMoves`. A missing bind logs `[World] IMoveRoster missing — MoveAllCharacters.Awake did not bind` once and skips the update. That path does not read `MoveAllCharacters.Instance`. `GetMove` stays on `IMoveAllCharacters` because it returns `MovementData`.
-- [ ] **S38e** The next packet-service locator `World` calls gets an interface in `Fineage.Game`.
-- [ ] **S39** `World` → `Fineage.Di`. Only after S35b and S38e. It still `[Inject]`s.
+- [x] **S38e** `IEntityActionRoster` in `Fineage.Game`: `Remove(IWorldEntity)`. `World.UnregisterObject` uses `EntityActionPacketServices.BoundActions`. A missing bind logs `[World] IEntityActionRoster missing — EntityActionMachine constructor did not bind` once and skips the remove. That path does not read `EntityActionMachine.Instance`. A different implementer logs `[EntityActionMachine] IWorldEntity is not an Entity`.
+- [ ] **S38f** The next packet-service locator `World` calls gets an interface in `Fineage.Game`.
+- [ ] **S39** `World` → `Fineage.Di`. Only after S35b and S38f. It still `[Inject]`s.
 - [ ] **S40** `IPlayerPawn` in `Fineage.Game` for the movement and heading members other types use on `PlayerController`.
 - [ ] **S41** `PlayerController` talks to `Entity`, `WorldPlacement`, and `PlayerStateMachine` through interfaces from S37 and new seams in `Fineage.Game`. One dependency per PR.
 - [ ] **S42** `PlayerController` → `Fineage.Di`. It uses UnityEngine and those interfaces. The two `[Inject]` sites stay.
