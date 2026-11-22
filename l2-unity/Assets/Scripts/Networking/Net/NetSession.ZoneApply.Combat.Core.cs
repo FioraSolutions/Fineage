@@ -22,10 +22,27 @@ public sealed partial class NetSession
 
     internal void ApplyAttackState(AttackStateMsg attack)
     {
+        AttackHitNet[] extraSrc = attack.ExtraHits;
+        int extraCount = extraSrc != null ? extraSrc.Length : 0;
+        int[] extraDamage = null;
+        int[] extraFlags = null;
+        if (extraCount > 0)
+        {
+            extraDamage = new int[extraCount];
+            extraFlags = new int[extraCount];
+            for (int i = 0; i < extraCount; i++)
+            {
+                AttackHitNet row = extraSrc[i];
+                extraDamage[i] = row != null ? row.Damage : 0;
+                extraFlags[i] = row != null ? row.Flags : 0;
+            }
+        }
+
+        int targetId = (int)attack.TargetValue;
         var dto = new AttackDto();
         dto.InitFromNet(
             (int)attack.AttackerValue,
-            (int)attack.TargetValue,
+            targetId,
             attack.Damage,
             attack.Flags,
             attack.AttackerX,
@@ -34,6 +51,15 @@ public sealed partial class NetSession
             attack.TargetX,
             attack.TargetY,
             attack.TargetZ);
+        if (extraCount > 0)
+        {
+            dto.SetHitList(AttackHitPresentation.BuildHitList(
+                targetId,
+                attack.Damage,
+                attack.Flags,
+                extraDamage,
+                extraFlags));
+        }
         if (_combatAttack != null) _combatAttack.Apply(dto);
         else AttackApplyIncomingPacketServices.ApplyAttack(dto);
     }

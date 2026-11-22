@@ -110,29 +110,7 @@ public partial class HitManager
         int hitIndex = pending.NextHitIndex;
         pending.NextHitIndex++;
 
-        Hit hit = AttackHitPresentation.ResolveHit(packet, hitIndex);
-        if (hit == null || hit.isMiss())
-            return true;
-
-        Entity target = ResolveAttackHitTarget(pending.Target, hit);
-
-        if (target == null)
-            target = ResolveEntityFromWorld(packet != null ? packet.TargetId : 0);
-
-        if (target == null || target == attacker)
-            return true;
-
-        if (hit.hasSoulshot())
-        {
-            attacker.IsSoulshotCharged = true;
-            WeaponChargePresentation.PlayMeleeSoulshotConsume(attacker);
-        }
-        else
-            attacker.IsSoulshotCharged = false;
-        CombatAudioHitContext.Set(attacker, hit.isCrit(), hit.isShielded());
-        Vector3 hitPoint = ResolveTargetImpactCenter(target);
-        HandleHitCollider(attacker, attacker.transform, target, hitPoint, Vector3.zero);
-        target.PlayHitReaction(hit.isCrit());
-        return true;
+        Entity target = ResolveAttackHitTarget(pending.Target, AttackHitPresentation.ResolveHit(packet, hitIndex));
+        return TryPresentMeleeHitFromAttackPacket(attacker, target, packet, hitIndex, playColliderImpactFx: true);
     }
 }

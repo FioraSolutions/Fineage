@@ -66,6 +66,15 @@ public class AttackDto : IWireDto
         _targetPos = VectorUtils.ConvertPosToUnity(new Vector3(tx, ty, tz));
     }
 
+    /// <summary>Interlude dual/fist: first hit + ExtraHits rows from the Attack packet.</summary>
+    public void SetHitList(Hit[] hits)
+    {
+        if (hits == null || hits.Length == 0)
+            return;
+        array = hits;
+        _firstHit = hits[0];
+    }
+
     public void ReadFrom(PacketReader reader)
     {
         _attackerObjId = reader.ReadI();
