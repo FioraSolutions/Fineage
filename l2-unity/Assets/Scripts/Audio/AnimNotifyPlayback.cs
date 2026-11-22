@@ -17,8 +17,13 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
     string _sequenceError;
     float _lastNormalized;
     bool _hasLast;
+    Renderer[] _renderers;
     readonly HashSet<string> _logged = new HashSet<string>();
     readonly HashSet<string> _firedThisLoop = new HashSet<string>();
+    static Plane[] _frustum = new Plane[6];
+    static int _frustumFrame = -1;
+    static Camera _frameCamera;
+    static bool _loggedNoCamera;
     public string AnimationHint
     {
         get => _animationHint;
@@ -35,12 +40,32 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
             _animator = GetComponentInChildren<Animator>();
         if (_surfaceDetector == null)
             _surfaceDetector = GetComponent<SurfaceDetector>();
+        CacheRenderers();
+    }
+
+    void OnEnable()
+    {
+        CacheRenderers();
+    }
+
+    void CacheRenderers()
+    {
+        _renderers = GetComponentsInChildren<Renderer>(true);
     }
 
     void LateUpdate()
     {
         if (_animator == null || !_animator.enabled)
             return;
+
+        // Animator.cullingMode does not stop this MonoBehaviour. AlwaysAnimate and
+        // CullUpdateTransforms keep advancing off-screen, so LateUpdate would otherwise
+        // fire every notify in the world. Audio follows the camera frustum, not the cull mode.
+        if (!IsRenderedForAudio())
+        {
+            _hasLast = false;
+            return;
+        }
 
         AnimNotifyTable.Load();
         AnimatorClipInfo[] infos = _animator.GetCurrentAnimatorClipInfo(0);
@@ -63,29 +88,41 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
         if (string.IsNullOrEmpty(_sequence))
             return;
 
-        if (!_hasLast)
+        if (!AnimNotifyTable.TryGetByMeshSequence(_animationHint, _sequence, out var bindings)
+            && !AnimNotifyTable.TryGetBySequence(_sequence, out bindings))
         {
-            _lastNormalized = cycle;
-            _hasLast = true;
-            // Entering mid-cycle must not fire already-passed notifies.
-            // Time-0 (or very early) notifies still fire when the clip starts at the beginning.
-            if (cycle <= 0.0001f)
-                FireRange(-0.0001f, cycle, wrap: false);
+            if (_logged.Add("empty:" + _sequence))
+                Log("AnimNotifyPlayback: sequence=\"" + _sequence + "\" has no notify bindings clip=\"" + _clipName + "\".");
             return;
         }
 
-        if (cycle + 0.0001f < _lastNormalized)
+        float rate = bindings.Count > 0 ? bindings[0].Rate : 0f;
+        int frames = bindings.Count > 0 ? bindings[0].FrameCount : 0;
+        AnimNotifyPlaybackWindow.Result step = AnimNotifyPlaybackWindow.Step(
+            _hasLast, _lastNormalized, cycle, Time.deltaTime, rate, frames);
+        _lastNormalized = step.Cursor;
+        _hasLast = true;
+        if (!string.IsNullOrEmpty(step.Error) && _logged.Add("rate:" + _sequence))
+            Log(step.Error + " sequence=\"" + _sequence + "\" clip=\"" + _clipName + "\".");
+        if (!step.Emit)
+            return;
+
+        bool latestOnly = AnimNotifyPlaybackWindow.ShouldPlayOnlyLatest(step.Span, step.OneFrame);
+        AnimNotifyBinding chosen = null;
+        float chosenKey = float.NegativeInfinity;
+        if (step.Wrapped)
         {
-            FireRange(_lastNormalized, 1f, wrap: false);
+            FireRange(bindings, step.FromExclusive, 1f, latestOnly, 0f, ref chosen, ref chosenKey);
             _firedThisLoop.Clear();
-            FireRange(0f, cycle, wrap: false);
+            FireRange(bindings, 0f, step.ToInclusive, latestOnly, 1f, ref chosen, ref chosenKey);
         }
         else
         {
-            FireRange(_lastNormalized, cycle, wrap: false);
+            FireRange(bindings, step.FromExclusive, step.ToInclusive, latestOnly, 0f, ref chosen, ref chosenKey);
         }
 
-        _lastNormalized = cycle;
+        if (latestOnly && chosen != null)
+            Play(chosen);
     }
 
     void BindSequence(string clipName)
@@ -103,16 +140,15 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
             Log(error);
     }
 
-    void FireRange(float fromExclusive, float toInclusive, bool wrap)
+    void FireRange(
+        System.Collections.Generic.IReadOnlyList<AnimNotifyBinding> bindings,
+        float fromExclusive,
+        float toInclusive,
+        bool latestOnly,
+        float keyBias,
+        ref AnimNotifyBinding chosen,
+        ref float chosenKey)
     {
-        if (!AnimNotifyTable.TryGetByMeshSequence(_animationHint, _sequence, out var bindings)
-            && !AnimNotifyTable.TryGetBySequence(_sequence, out bindings))
-        {
-            if (_logged.Add("empty:" + _sequence))
-                Log("AnimNotifyPlayback: sequence=\"" + _sequence + "\" has no notify bindings clip=\"" + _clipName + "\".");
-            return;
-        }
-
         for (int i = 0; i < bindings.Count; i++)
         {
             AnimNotifyBinding n = bindings[i];
@@ -129,8 +165,80 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
                 continue;
             if (!_firedThisLoop.Add(n.Id))
                 continue;
-            Play(n);
+            if (!latestOnly)
+            {
+                Play(n);
+                continue;
+            }
+
+            if (!IsSoundNotify(n))
+                continue;
+            float key = n.Time + keyBias;
+            if (key < chosenKey)
+                continue;
+            chosenKey = key;
+            chosen = n;
         }
+    }
+
+    static bool IsSoundNotify(AnimNotifyBinding binding) =>
+        binding.ClassName == "AnimNotify_Sound"
+        || binding.ClassName == "AnimNotify_SwimSound"
+        || binding.ClassName == "AnimNotify_AttackVoice";
+
+    bool IsRenderedForAudio()
+    {
+        if (_renderers == null)
+            CacheRenderers();
+        if (_renderers == null || _renderers.Length == 0)
+        {
+            if (_logged.Add("norenderer"))
+                Log("AnimNotifyPlayback: no Renderer on \"" + name + "\", anim notifies will not play audio.");
+            return false;
+        }
+
+        bool anyVisible = false;
+        for (int i = 0; i < _renderers.Length; i++)
+        {
+            Renderer renderer = _renderers[i];
+            if (renderer != null && renderer.enabled && renderer.isVisible)
+            {
+                anyVisible = true;
+                break;
+            }
+        }
+
+        if (!anyVisible)
+            return false;
+
+        if (_frustumFrame != Time.frameCount)
+        {
+            _frustumFrame = Time.frameCount;
+            _frameCamera = Camera.main;
+            if (_frameCamera != null)
+                GeometryUtility.CalculateFrustumPlanes(_frameCamera, _frustum);
+        }
+
+        if (_frameCamera == null)
+        {
+            if (!_loggedNoCamera)
+            {
+                _loggedNoCamera = true;
+                Log("AnimNotifyPlayback: no Camera.main, anim-notify audio skipped.");
+            }
+            return false;
+        }
+
+        for (int i = 0; i < _renderers.Length; i++)
+        {
+            Renderer renderer = _renderers[i];
+            if (renderer == null || !renderer.enabled || !renderer.isVisible)
+                continue;
+            if (GeometryUtility.TestPlanesAABB(_frustum, renderer.bounds))
+                return true;
+        }
+
+        return false;
     }
 
     void Play(AnimNotifyBinding binding)
@@ -142,9 +250,7 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
             return;
         }
 
-        if (binding.ClassName == "AnimNotify_Sound"
-            || binding.ClassName == "AnimNotify_SwimSound"
-            || binding.ClassName == "AnimNotify_AttackVoice")
+        if (IsSoundNotify(binding))
         {
             PlaySound(binding);
             return;
@@ -166,7 +272,16 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
         {
             if (!string.IsNullOrEmpty(resolveLog))
                 return;
-            Log(AnimNotifySoundResolver.FormatMissingSoundError(binding.Id));
+            if (_logged.Add("nosound:" + binding.Id))
+                Log(AnimNotifySoundResolver.FormatMissingSoundError(binding.Id));
+            return;
+        }
+
+        if (!AnimNotifySoundResolver.TryVolumeScale(binding.Volume, out float volume))
+        {
+            if (_logged.Add("vol:" + binding.Id))
+                Log("AnimNotifyPlayback: missing Volume notify=" + binding.Id
+                    + " sound=\"" + binding.Sound + "\".");
             return;
         }
 
@@ -174,9 +289,11 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
         if (service == null)
             return;
 
-        float volume = AnimNotifySoundResolver.VolumeScale(binding.Volume);
         string contextHint = binding.Package + " " + binding.Animation + " " + binding.Sequence;
-        if (!AnimNotifySoundResolver.TryPlayWave(service, wave, transform.position, volume, out string playError, contextHint))
+        string id = contextHint + " wave=\"" + wave + "\" notify=" + binding.Id;
+        if (!AnimNotifySoundResolver.TryPlayWave(
+            service, wave, transform.position, volume, binding.Radius, out string playError, contextHint,
+            GetInstanceID(), Ue2SoundAudibility.SlotForNotifyClass(binding.ClassName), id))
         {
             if (_logged.Add("wave:" + wave))
                 Log(playError ?? AnimNotifySoundResolver.FormatMissingWaveError(wave, binding.Id));
@@ -185,7 +302,10 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
 
     void Log(string message)
     {
-        AnimNotifyTable.ErrorLogged?.Invoke(message);
+        if (AnimNotifyTable.ErrorLogged != null)
+            AnimNotifyTable.ErrorLogged.Invoke(message);
+        if (!AudioErrorThrottle.TryEmit("anim:" + message, Time.unscaledTime, once: true, out _))
+            return;
         Debug.LogError(message);
     }
 }

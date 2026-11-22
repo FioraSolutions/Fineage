@@ -178,13 +178,12 @@ public static partial class SkillCastSound
         }
 
         float volume = overrideVolume >= 0f ? overrideVolume : VolumeFromTable(cue.Vol);
-        float radius = RadiusMetersFromTable(cue.Rad);
         if (asCast)
             InterludeSfx.PlayCast(clip, volume);
         else if (listener)
             InterludeSfx.Play(clip, volume);
         else
-            InterludeSfx.PlayAt(clip, pos, volume, false, radius);
+            InterludeSfx.PlayAt(clip, pos, volume, false, cue.Rad);
         return true;
     }
 

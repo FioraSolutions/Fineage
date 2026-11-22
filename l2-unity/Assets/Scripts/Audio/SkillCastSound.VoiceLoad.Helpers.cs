@@ -66,13 +66,6 @@ public static partial class SkillCastSound
         return Mathf.Clamp01(vol255 / InterludeVolumeMax);
     }
 
-    static float RadiusMetersFromTable(float radiusUu)
-    {
-        if (radiusUu <= 0f)
-            return 0f;
-        return VectorUtils.ConvertL2UuToMeters(radiusUu);
-    }
-
     static bool TryGetRow(int skillId, int level, out SkillSoundRow row)
     {
         row = default;

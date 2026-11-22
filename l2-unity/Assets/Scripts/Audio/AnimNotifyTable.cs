@@ -174,8 +174,8 @@ public static class AnimNotifyTable
         string soundRef = cols[9];
         string sound = SoundStem(soundRef);
         bool surfaceStep = cols[11] == "1";
-        float volume = ParseOptionalFloat(cols[7], 250f);
-        float radius = ParseOptionalFloat(cols[8], 30f);
+        float volume = ParseAuthoredFloat(cols[7], path, lineNo, "volume", cols[2]);
+        float radius = ParseAuthoredFloat(cols[8], path, lineNo, "radius", cols[2]);
         Dictionary<string, string[]> arrays = surfaceStep ? ParseSurfaceArrays(cols[10]) : null;
         int frameCount = 0;
         float rate = 0f;
@@ -233,13 +233,14 @@ public static class AnimNotifyTable
         return arrays;
     }
 
-    static float ParseOptionalFloat(string raw, float authoredDefault)
+    static float ParseAuthoredFloat(string raw, string path, int lineNo, string column, string sequence)
     {
         if (string.IsNullOrEmpty(raw))
-            return authoredDefault;
-        return float.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out float v)
-            ? v
-            : authoredDefault;
+            return float.NaN;
+        if (float.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out float v))
+            return v;
+        Log(FormatParseError(path, lineNo, "invalid " + column + "=\"" + raw + "\" sequence=\"" + sequence + "\""));
+        return float.NaN;
     }
 
     static string DefaultPath() =>
