@@ -11,6 +11,7 @@ Lossless property dumps of the official Interlude client, for
 - `../sounds/packages/` — every `sounds/*.uax` (Sound names and byte lengths; wave payloads omitted).
 - `package-dump-index.json` — inventory of the dump itself.
 - Derived tables and `gap-report.md` in this folder and in `../sounds/`.
+- `render-parity.md` plus `render-parity-tiles.tsv`, `render-perf.tsv`, and `render-parity-holes.tsv` — world render parity and static perf audit for [#1673](https://github.com/FioraSolutions/Fineage/issues/1673).
 
 ## How to regenerate
 
@@ -23,3 +24,16 @@ python3 tools/interlude-extract/build_world_sound_gap.py
 ```
 
 JSON over 256 KiB is stored gzipped. Do not commit original `.unr` / `.uax` / `.ukx` binaries.
+
+Render parity (no Unity required for the static audit):
+
+```bash
+# Official hole bitmaps (Cruma typed TerrainInfo; needs the official client):
+# javac --release 25 -cp "$CRUMA_JAR:tools/interlude-extract" tools/interlude-extract/DumpTerrainHoles.java
+# java -cp ".:$CRUMA_JAR:tools/interlude-extract" DumpTerrainHoles "$CLIENT_ROOT" l2-unity/docs/interlude-ref/world/render-parity-holes.tsv
+
+python3 tools/interlude-extract/build_render_parity.py
+```
+
+Do not run Unity batchmode for this audit if the editor may already be open on another checkout.
+Frame-time steps (not run here) are in `render-parity.md`.
