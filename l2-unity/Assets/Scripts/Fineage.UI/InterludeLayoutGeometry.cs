@@ -255,4 +255,5 @@ public class InterludeLayoutControl
     public string textAlign;
     public string fontColor;
     public int fontType;
+    public int maxLength;
 }
