@@ -205,3 +205,11 @@ UScriptDump `.uc` files drop the `Emitters` arrays (`/* Array type was not detec
 Sound rows are a second derived view: `skills/skill-effect-sounds.tsv`. Each row is one official cue — `skillsoundgrp` `spelleffect_sound_*` (cast / launch / impact), `shoteffect_*`, `expeffect_*`, hero voice (`*_sub` / `*_throw`), and every `Emitter.SpawnSound` (or other Sound object) reached from a skill visual's EffectClass. Columns include the sound package, cue name, the phase it plays in, `fineage_plays` / `fineage_play_path` (whether SkillCastSound or SkillEffectSpawnSound has a code path), and whether a clip exists under `Resources/Data/Sounds`. World, ambient and footstep audio is issue #1670 and is not listed here.
  The resolver may place, orient and time an effect only from this table, through one shared path. A missing required field logs the skill id, phase and field name. See `skills/gap-report.md`.
 
+
+## World, ambient, and sound dump
+
+Lossless Interlude map / animation / sound property dumps and the gap report
+for Fineage issue #1670 live in [`world/`](world/) and [`sounds/`](sounds/).
+Start with [`world/gap-report.md`](world/gap-report.md). Regenerate with
+`tools/interlude-extract/export_client_packages.sh` and
+`tools/interlude-extract/build_world_sound_gap.py`. Original binaries are not committed.
