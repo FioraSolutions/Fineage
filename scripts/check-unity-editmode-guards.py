@@ -107,7 +107,8 @@ def _type_defined_in_file(text: str, name: str) -> bool:
 
 
 def _uses_type_name(fragment: str, name: str) -> bool:
-    if not re.search(rf"\b{re.escape(name)}\b", fragment):
+    # `Outer.Poly(` is the nested type, not Assembly-CSharp `Poly`.
+    if not re.search(rf"(?<!\.)\b{re.escape(name)}\b", fragment):
         return False
     if re.search(rf"\bNetOpcode\.{re.escape(name)}\b", fragment):
         return False

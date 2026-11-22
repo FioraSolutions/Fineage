@@ -429,6 +429,7 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [ ] **S13** `LobbyAccountRenderSettings` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the lobby fog/sky apply. Depends on S11 and S12. Still lobby-only; not ZoneInfo (#1691).
 - [x] **S14** `NetGameHost` → `Fineage.Game/Manager/`. Cuts ACS ownership of the `IGameManager` composition host (the port already lives in Fineage.Game). Bind/TryGet behavior unchanged.
 - [x] **S15** `GameClient` and `LoginClient` → `Fineage.Networking/`. Drops the unused `using VContainer` so the protocol shells can sit beside `IZoneTransport`. Awake singleton behavior unchanged.
+- [x] **S16** EditMode guard is green. `AnimNotifyTableEditModeTests` and `NameplateOcclusionEditModeTests` moved to `Assets/Editor/EditModeTests/` because they call Assembly-CSharp types (`AnimNotifyTable` / `AudioClipCache`, `L2NameplateOcclusionDecision` / `L2NameplateOcclusionMask`). Those implementations stay put (audio and nameplates). The guard now ignores a type name when it is the member after a dot, so `OfficialBrushSolid.Poly` is not Assembly-CSharp `Poly`. Anim-notify script GUID unchanged.
 - [x] **S17** `DomainMoveTo` and `DomainStopMove` → `Fineage.Domain/World/`. Drops the Interlude DTO fields. `InterludeDomainMap` is the adapter. `WorldDomainSink` rebuilds `CharMoveToLocationDto` / `StopMoveDto` at apply time so `NewMoveToIntention` still receives a wire payload. Object id, positions, and heading are unchanged.
 
 **Still blocked (do not force in this wave):**
