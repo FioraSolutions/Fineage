@@ -11,6 +11,13 @@ public sealed partial class FineageZoneTransport : IZoneTransport
         NotifyDisconnected();
     }
 
+    public void ReleaseSessionHost()
+    {
+        NetSession session = NetworkingPacketServices.BoundSession;
+        if (session != null)
+            UnityEngine.Object.Destroy(session.gameObject);
+    }
+
     public void NotifyDisconnected()
     {
         if (_disconnectNotified)

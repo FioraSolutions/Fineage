@@ -38,6 +38,12 @@ public interface IZoneTransport
     void Disconnect();
 
     /// <summary>
+    /// Destroy the bound session host. Does not fall back to a singleton and does not raise <see cref="OnDisconnected"/>.
+    /// No-op when nothing was bound.
+    /// </summary>
+    void ReleaseSessionHost();
+
+    /// <summary>
     /// Raise <see cref="OnDisconnected"/> once (remote close or intentional disconnect).
     /// Idempotent until the next successful zone connect.
     /// </summary>
