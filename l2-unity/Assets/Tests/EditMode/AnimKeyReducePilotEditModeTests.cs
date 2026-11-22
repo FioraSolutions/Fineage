@@ -16,6 +16,7 @@ public sealed class AnimKeyReducePilotEditModeTests
     {
         "Tests/EditMode/Fixtures/anim-keyreduce-pilot-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagemonsters-probes.json",
+        "Tests/EditMode/Fixtures/anim-keyreduce-lineagemonsters2-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagenpcs-batch1-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagenpcs-batch2-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagenpcs-batch3-probes.json",
