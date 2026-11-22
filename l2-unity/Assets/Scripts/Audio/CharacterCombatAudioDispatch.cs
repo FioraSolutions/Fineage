@@ -226,7 +226,16 @@ public static class CharacterCombatAudioDispatch
 
         string resourcesPath = InterludeSoundTokenPath.ResourcesPathFromFmodEvent(fmodEventPath);
         if (!string.IsNullOrEmpty(resourcesPath))
-            return service.PlayClipAtWorld(resourcesPath, position, AudioCategory.Sfx, volumeScale, atListener: false);
+        {
+            if (service.PlayClipAtWorld(resourcesPath, position, AudioCategory.Sfx, volumeScale, atListener: false))
+                return true;
+            if (InterludeSoundResourcesAlias.TryResolveItemResourcesPath(resourcesPath, out string aliasPath)
+                && service.PlayClipAtWorld(aliasPath, position, AudioCategory.Sfx, volumeScale, atListener: false))
+                return true;
+            if (InterludeSoundResourcesAlias.TryResolveMonsterResourcesPath(resourcesPath, out string monAlias)
+                && service.PlayClipAtWorld(monAlias, position, AudioCategory.Sfx, volumeScale, atListener: false))
+                return true;
+        }
 
         service.LogCombatAudioError(
             "FMOD and Resources clip missing",
