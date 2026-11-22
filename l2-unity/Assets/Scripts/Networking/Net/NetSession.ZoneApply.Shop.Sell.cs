@@ -107,6 +107,18 @@ public sealed partial class NetSession
             AcquireSkillInfoDto.FromNet(info.SkillId, info.Level, info.SpCost, info.SkillType, types, itemIds, counts, unks));
     }
 
+    internal void ApplyEnchantSkillList(EnchantSkillListNetMsg list)
+    {
+        // Mobius ExEnchantSkillList trainer UI not wired yet; absorb packets so zone sessions stay in sync.
+        _ = list;
+    }
+
+    internal void ApplyEnchantSkillInfo(EnchantSkillInfoNetMsg info)
+    {
+        // Mobius ExEnchantSkillInfo confirmation UI not wired yet.
+        _ = info;
+    }
+
     internal void ApplyEnchantResult(EnchantResultNetMsg result)
     {
         NetNpcWindows.ApplyEnchantResult(new NetEnchantResult
