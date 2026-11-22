@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
 
 /// <summary>
 /// Regression guard for #1578: local <see cref="PlayerEntity"/> must use the body catalog path and
@@ -16,26 +15,9 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
         LocomotionGait.ClearMissingClipLogForTests();
     }
 
-    static void ExpectMFighterStrideFallbackLogs()
-    {
-        LogAssert.Expect(
-            LogType.Error,
-            "[World] [PlayerLocomotionBody] profile=MFighter unmeasurable run stride race=MFighter clip=\"MFighter_m000_b.ao_run_Hand_MFighter\" (feet/root travel below 0.05m)");
-        LogAssert.Expect(
-            LogType.Error,
-            "[World] [PlayerLocomotionBody] profile=MFighter unmeasurable walk stride race=MFighter clip=\"MFighter_m000_b.ao_walk_Hand_MFighter\" (feet/root travel below 0.05m)");
-        LogAssert.Expect(
-            LogType.Error,
-            "[World] [PlayerLocomotionBody] profile=MFighter using FallbackStrideMeters=1.5 for run (measured=0.000m)");
-        LogAssert.Expect(
-            LogType.Error,
-            "[World] [PlayerLocomotionBody] profile=MFighter using FallbackStrideMeters=1.5 for walk (measured=0.000m)");
-    }
-
     [Test]
     public void PlayerEntity_resolves_run_rate_from_body_catalog()
     {
-        ExpectMFighterStrideFallbackLogs();
         var go = new GameObject("locomotion-test-player");
         PlayerEntity entity = go.AddComponent<PlayerEntity>();
         entity.RaceId = CharacterRaceAnimation.MFighter;
@@ -62,8 +44,6 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
     [Test]
     public void UserEntity_and_PlayerEntity_yield_same_catalog_run_rate_for_same_profile()
     {
-        ExpectMFighterStrideFallbackLogs();
-        ExpectMFighterStrideFallbackLogs();
         CharacterRaceAnimation profile = CharacterRaceAnimation.MFighter;
         float unityRun = NumberUtils.ScaleToUnity(120f);
 

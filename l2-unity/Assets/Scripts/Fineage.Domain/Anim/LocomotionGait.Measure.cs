@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Animations;
+using UnityEngine.Playables;
 
 public static partial class LocomotionGait
 {
@@ -41,9 +43,6 @@ public static partial class LocomotionGait
         }
 
         Animator animator = skeleton.GetComponentInChildren<Animator>();
-        bool animatorWasEnabled = animator != null && animator.enabled;
-        if (animator != null)
-            animator.enabled = false;
 
         try
         {
@@ -77,9 +76,6 @@ public static partial class LocomotionGait
                 all[i].localRotation = rot[i];
                 all[i].localScale = scale[i];
             }
-
-            if (animator != null)
-                animator.enabled = animatorWasEnabled;
         }
     }
 
@@ -129,34 +125,40 @@ public static partial class LocomotionGait
         return max;
     }
 
+    static bool UseTransformSampling(AnimationClip clip, Animator animator)
+    {
+        if (clip.legacy || animator == null)
+            return true;
+        Avatar avatar = animator.avatar;
+        return avatar == null || !avatar.isValid;
+    }
+
     static void EvaluateClip(GameObject go, AnimationClip clip, float time, Animator animator)
     {
-        if (clip == null)
-            return;
-
-        if (clip.legacy)
+        if (UseTransformSampling(clip, animator))
         {
             clip.SampleAnimation(go, time);
             return;
         }
 
-        Animation anim = go.GetComponent<Animation>();
-        if (anim == null)
-            anim = go.AddComponent<Animation>();
-        string name = clip.name;
-        if (anim.GetClip(name) == null)
-            anim.AddClip(clip, name);
-        anim.clip = clip;
-        var state = anim[name];
-        if (state != null)
+        PlayableGraph graph = PlayableGraph.Create("LocomotionGait.Measure");
+        graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
+        bool wasEnabled = animator.enabled;
+        animator.enabled = true;
+        try
         {
-            state.enabled = true;
-            state.time = time;
-            state.weight = 1f;
-            anim.Sample();
-            return;
+            AnimationClipPlayable playable = AnimationClipPlayable.Create(graph, clip);
+            playable.SetApplyFootIK(false);
+            AnimationPlayableOutput output = AnimationPlayableOutput.Create(graph, "gait", animator);
+            output.SetSourcePlayable(playable);
+            playable.SetTime(time);
+            graph.Evaluate();
         }
-
-        clip.SampleAnimation(go, time);
+        finally
+        {
+            if (graph.IsValid())
+                graph.Destroy();
+            animator.enabled = wasEnabled;
+        }
     }
 }
