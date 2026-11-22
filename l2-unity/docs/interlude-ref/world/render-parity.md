@@ -180,6 +180,7 @@ When the Mac is free, measure p50/p95 frame time, draw calls, SetPass, tris, bat
 Opened from this audit and linked from [#1673](https://github.com/FioraSolutions/Fineage/issues/1673):
 
 - [#1685](https://github.com/FioraSolutions/Fineage/issues/1685) — terrain holes (`QuadVisibilityBitmap`) not applied; Meta truncated outside TI
+- #1685 follow-up: official 2048-word bitmaps are in Meta/t3d and `quadvisibility/`; the mesh converter cuts hidden quads. Shipped meshes still need the Unity re-bake in `Docs/INTERLUDE_TILE_BAKE.md`.
 - [#1686](https://github.com/FioraSolutions/Fineage/issues/1686) — terrain layers: Meta drops splat textures; parser drops axis/rotation
 - [#1687](https://github.com/FioraSolutions/Fineage/issues/1687) — DecoLayers fade, density, and MaxPerQuad ignored; Meta missing outside TI
 - [#1688](https://github.com/FioraSolutions/Fineage/issues/1688) — StaticMeshActor counts, transforms, vertex lighting, and L2 LOD

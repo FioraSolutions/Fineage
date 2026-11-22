@@ -179,3 +179,35 @@ export FINEAGE_INTERLUDE_TILES=16_26,17_26,18_25,18_26
 ```
 
 `RunTerrainExitCli` matches the `17_24` shoreline shape (terrain + brushes + mesh + deco + scene) and skips the global material / static-mesh import (these tiles have no SMA). After prefabs exist, Shnok 0.4 can build water surfaces from `Maps/<tile>/Meta/watervolumes.json`, and Shnok 9.1 can build ambient prefabs from `*_AmbientSounds.json`.
+
+
+## Terrain holes (`QuadVisibilityBitmap`) (#1685)
+
+Official Interlude tiles have a 256×256 visibility mask. Phase A now stores the
+full 2048-word bitmap in `Meta/TerrainInfo0.txt` and in the TerrainInfo actor of
+`Meta/<tile>.t3d` (do not use the old 64-word all-visible truncation). Official
+words live in `l2-unity/docs/interlude-ref/world/quadvisibility/`.
+
+The bake parser reads the bitmap and `ConvertTerrainToMesh` skips hidden quads
+on the heightmap mesh (not the safenet). Use 256 mesh subdivisions so the cut
+matches the official grid 1:1. `16_24` / `16_25` / `17_24` have no t3d;
+`LoadMetadata` falls back to `TerrainInfo0.txt`.
+
+Shipped meshes stay continuous until Unity re-bakes. Close any other Unity
+Editor first (`pgrep Unity`), do **not** use `-nographics`, and run against
+this worktree — never `~/Projects/Fineage`. Tiles with hidden quads:
+
+`16_25` (7), `17_21` (36), `17_22` (2390), `18_14` (108), `19_18` (49),
+`19_19` (25), `19_21` (1191), `20_17` (33), `20_18` (4172), `20_20` (28),
+`20_22` (261), `21_21` (49), `21_22` (118), `21_23` (49), `22_22` (3814),
+`23_12` (29), `23_13` (10), `23_21` (3), `23_22` (294), `23_23` (49),
+`24_12` (21).
+
+```bash
+export FINEAGE_INTERLUDE_TILES=16_25,17_21,17_22,18_14,19_18,19_19,19_21,20_17,20_18,20_20,20_22,21_21,21_22,21_23,22_22,23_12,23_13,23_21,23_22,23_23,24_12
+/Applications/Unity/Hub/Editor/6000.3.27f1/Unity.app/Contents/MacOS/Unity \
+  -batchmode -quit \
+  -projectPath "$(pwd)/l2-unity" \
+  -executeMethod L2TerrainMeshCli.RunCli \
+  -logFile .work/unity-terrain-holes-1685.log
+```

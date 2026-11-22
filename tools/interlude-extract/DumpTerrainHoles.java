@@ -15,6 +15,7 @@ import java.util.Locale;
  * The #1670 JSON dump only stores QuadVisibilityBitmap array_size, not the bits.
  *
  * Usage: DumpTerrainHoles &lt;client-root&gt; &lt;out.tsv&gt; [tile...]
+ * Also writes sibling quadvisibility/&lt;tile&gt;.quadvisibility.txt (2048 signed words).
  */
 public final class DumpTerrainHoles {
     static final String[] DEFAULT_TILES = {
@@ -30,9 +31,11 @@ public final class DumpTerrainHoles {
         }
         Path root = Path.of(args[0]).toAbsolutePath();
         Path out = Path.of(args[1]).toAbsolutePath();
+        Path wordsDir = out.getParent().resolve("quadvisibility");
         List<String> tiles = new ArrayList<>();
         for (int i = 2; i < args.length; i++) tiles.add(args[i]);
         if (tiles.isEmpty()) tiles.addAll(List.of(DEFAULT_TILES));
+        Files.createDirectories(wordsDir);
 
         var entries = ClientSearchPaths.read(root);
         if (entries == null || entries.isEmpty()) entries = ClientSearchPaths.DEFAULT;
@@ -81,6 +84,11 @@ public final class DumpTerrainHoles {
                 edge == null ? 0 : edge.size(), edgeTrue,
                 layers == null ? 0 : layers.size(),
                 deco == null ? 0 : deco.size()));
+            if (q != null) {
+                writeWords(wordsDir.resolve(tile + ".quadvisibility.txt"), q);
+            } else {
+                System.err.println("ERROR no QuadVisibilityBitmap for " + tile);
+            }
             System.err.printf(Locale.ROOT, "%s hidden=%d/%d edgeTrue=%d layers=%d deco=%d%n",
                 tile, hidden, q == null ? 0 : q.size(), edgeTrue,
                 layers == null ? 0 : layers.size(), deco == null ? 0 : deco.size());
@@ -88,6 +96,25 @@ public final class DumpTerrainHoles {
         Files.createDirectories(out.getParent());
         Files.writeString(out, sb.toString());
         System.err.println("wrote " + out);
+    }
+
+    /** Pack UBitSet into 2048 signed 32-bit words (bit 0 of word 0 is quad 0). */
+    static void writeWords(Path out, UBitSet q) throws Exception {
+        int size = q.size();
+        if (size != 65536) {
+            System.err.println("ERROR " + out.getFileName() + " QuadVisibilityBitmap size=" + size + " (need 65536)");
+        }
+        int words = (size + 31) / 32;
+        StringBuilder sb = new StringBuilder(words * 8);
+        for (int w = 0; w < words; w++) {
+            int word = 0;
+            for (int b = 0; b < 32; b++) {
+                int i = w * 32 + b;
+                if (i < size && q.get(i)) word |= (1 << b);
+            }
+            sb.append(word).append('\n');
+        }
+        Files.writeString(out, sb.toString());
     }
 
     static int count(UBitSet b, boolean wantTrue) {

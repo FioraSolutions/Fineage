@@ -10,15 +10,36 @@ public partial class L2T3DInfoParser {
 
     public static L2TerrainInfo LoadMetadata(string mapName) {
         t3dPath = StaticMeshUtils.GetT3DPath(mapName);
-        if (!File.Exists(t3dPath)) {
-            // Debug.Log("No t3d for map " + mapName + " at path " + t3dPath);
-            return null;
+        terrainInfo = new L2TerrainInfo();
+        bool hasT3d = File.Exists(t3dPath);
+
+        if (hasT3d) {
+            ParseStaticMeshInfo(null);
+            ParseTerrainInfo(mapName);
+        } else {
+            terrainInfo.staticMeshes = new List<L2StaticMesh>();
         }
 
-        terrainInfo = new L2TerrainInfo();
-
-        ParseStaticMeshInfo(null);
-        ParseTerrainInfo(mapName);
+        if (!hasT3d || terrainInfo.quadVisibilityBitmap == null) {
+            string info0 = L2InterludeMapPaths.TerrainInfo0AbsolutePath(mapName);
+            if (File.Exists(info0)) {
+                L2TerrainInfo fromTxt = L2TerrainInfoParser.ParseTerrainInfo0(mapName);
+                if (fromTxt != null) {
+                    if (!hasT3d) {
+                        terrainInfo = fromTxt;
+                        if (terrainInfo.staticMeshes == null) {
+                            terrainInfo.staticMeshes = new List<L2StaticMesh>();
+                        }
+                    } else if (fromTxt.quadVisibilityBitmap != null) {
+                        terrainInfo.quadVisibilityBitmap = fromTxt.quadVisibilityBitmap;
+                    }
+                }
+            } else if (!hasT3d) {
+                Debug.LogError("[Interlude terrain] no t3d or TerrainInfo0.txt for " + mapName
+                    + " at " + t3dPath + " / " + info0);
+                return null;
+            }
+        }
 
         return terrainInfo;
     }

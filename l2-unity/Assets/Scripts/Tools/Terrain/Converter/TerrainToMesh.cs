@@ -7,6 +7,9 @@ public partial class TerrainToMesh : MonoBehaviour
     public Terrain terrain;
     public GameObject dest;
     public int meshSubdivisions = 255;
+    public int[] quadVisibilityBitmap;
+    public bool applyQuadVisibilityHoles;
+
 
     // Start is called before the first frame update
 

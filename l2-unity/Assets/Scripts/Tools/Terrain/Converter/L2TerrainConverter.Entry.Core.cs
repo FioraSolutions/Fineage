@@ -27,11 +27,6 @@ public partial class TerrainConverter
     }
 
     public static bool ConvertTerrainToMeshForMap(string mapName) {
-        string t3dAbs = L2InterludeMapPaths.T3dAbsolutePath(mapName);
-        if (!File.Exists(t3dAbs)) {
-            return false;
-        }
-
         mapToConvert = mapName;
         convertTerrain = true;
         convertDecoLayer = false;

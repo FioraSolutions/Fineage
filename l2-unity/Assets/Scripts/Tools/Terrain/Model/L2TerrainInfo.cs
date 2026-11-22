@@ -16,5 +16,8 @@ public class L2TerrainInfo {
     public List<Brush> brushes { get; set; }
     public List<L2InterpolationPoint> interpolationPoints { get; set; }
     public List<AmbientSound> ambientSounds { get; set; }
+    /// <summary>Official QuadVisibilityBitmap: 2048 signed words, 256×256 bits. Null if missing or truncated.</summary>
+    public int[] quadVisibilityBitmap { get; set; }
 }
+
 #endif
