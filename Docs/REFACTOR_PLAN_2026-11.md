@@ -430,11 +430,12 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [x] **S14** `NetGameHost` → `Fineage.Game/Manager/`. Cuts ACS ownership of the `IGameManager` composition host (the port already lives in Fineage.Game). Bind/TryGet behavior unchanged.
 - [x] **S15** `GameClient` and `LoginClient` → `Fineage.Networking/`. Drops the unused `using VContainer` so the protocol shells can sit beside `IZoneTransport`. Awake singleton behavior unchanged.
 - [x] **S17** `DomainMoveTo` and `DomainStopMove` → `Fineage.Domain/World/`. Drops the Interlude DTO fields. `InterludeDomainMap` is the adapter. `WorldDomainSink` rebuilds `CharMoveToLocationDto` / `StopMoveDto` at apply time so `NewMoveToIntention` still receives a wire payload. Object id, positions, and heading are unchanged.
+- [x] **S19** `Stats`, `PlayerStats`, `Status`, `PlayerStatus`, `Appearance`, `PlayerAppearance`, `LevelServer`, and `PaperDollSelection` → `Fineage.Domain/Character/`. These are field bags. `ExpPercent` still uses the same `LevelServer` table. `NpcStatus` / `StatsConverter` stay in Fineage.Game. Script GUIDs unchanged.
 
 **Still blocked (do not force in this wave):**
 
 - `AppLifetimeScope` / `GameLifetimeScope` / `LoginLifetimeScope` / `GameRuntime` / `LoginRuntime` / `DiBootstrap` — they register the ACS host graph. Fineage.Di cannot name those MonoBehaviours until the hosts themselves move.
-- `IWorldDomainSink` stays in Assembly-CSharp. Move and stop payloads are domain types (S17). `DomainKnownlistAdd` / `DomainPlayerSpawned` / `DomainStatsChanged` still carry `CharInfoDto`, `NpcInfoDto`, `UserInfoDto`, `EntityIdentity` (ACS) and `PlayerStats` / `PlayerStatus` / `PlayerAppearance` (Fineage.Game). Domain cannot reference Game, and Networking cannot reference Game, so those families stay ACS until each one has a domain model and one adapter. One family per PR.
+- `IWorldDomainSink` stays in Assembly-CSharp. Move and stop payloads are domain types (S17). `PlayerStats` / `PlayerStatus` / `PlayerAppearance` are Fineage.Domain (S19). `CharInfoDto`, `NpcInfoDto`, and `UserInfoDto` stay Assembly-CSharp until `EntityIdentity` is in Fineage.Networking (S18); they can then move beside it. One family per PR.
 - `DoorCatalog` — `Newtonsoft.Json` is not a `Fineage.Game` asmdef reference (layout check pins the reference list).
 - Sky MonoBehaviours that `[Inject]` via VContainer (`WorldClock`, `L2HazeRing`, `L2StarDome`, `L2CloudMyst`, `L2CloudSimple`) — Fineage.Game cannot reference VContainer.
 - DAT table ScriptableObjects (`SkillNameTable`, `QuestNameTable`, …) — many are cycle-safe and explicitly out of this wave (no DAT grind).

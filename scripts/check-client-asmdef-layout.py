@@ -92,13 +92,25 @@ def check_domain_asmdef_boundary() -> list[str]:
                 continue
             if not re.search(word_re_template.format(re.escape(type_name)), text):
                 continue
-            # Allow mentions only in comments (rough guard: skip lines that are // comments)
+            # Allow mentions only in comments (rough guard: skip lines that are // comments).
+            # A field whose name matches a Game type (`public int BaseClass`) is not a reference.
+            word_re = word_re_template.format(re.escape(type_name))
+            member_name = re.compile(
+                rf"(?:public|private|protected|internal)\s+"
+                rf"(?:(?:static|readonly|const|volatile|new)\s+)*"
+                rf"(?!{re.escape(type_name)}\b)"
+                rf"(?:[\w.]+(?:\s*<[^;>]*>)?(?:\s*\[\s*\])?\s+)+"
+                rf"{re.escape(type_name)}\b"
+            )
             hit = False
             for line in text.splitlines():
                 stripped = line.strip()
                 if stripped.startswith("//"):
                     continue
-                if re.search(word_re_template.format(re.escape(type_name)), line):
+                if not re.search(word_re, line):
+                    continue
+                remainder = member_name.sub("", line, count=1)
+                if re.search(word_re, remainder):
                     hit = True
                     break
             if hit:
