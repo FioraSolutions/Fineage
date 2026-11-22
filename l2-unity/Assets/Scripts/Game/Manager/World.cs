@@ -49,15 +49,10 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     [Inject] private NpcgrpTable _npcGrps;
     [Inject] private NpcNameTable _npcNames;
     [Inject] private ModelTable _models;
-    [Inject] private CharacterInfoWindow _characterInfo;
+    [Inject] private ICharacterInfoValues _characterInfo;
     [Inject] private IGameManager _gameManager;
     [Inject] private WorldPacketApply _worldApply;
     [Inject] private PacketApplyQueue _applyQueue;
-
-    private CharacterInfoWindow CharacterInfo
-    {
-        get { return _characterInfo != null ? _characterInfo : HudCorePacketServices.CharacterInfo; }
-    }
 
     public IAnimationManager Animations
     {
