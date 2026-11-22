@@ -422,7 +422,7 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [ ] **S6** `L2BrushPortal` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the baked-brush portal cut (#1688 / #1692 neighbor, mesh cut unchanged).
 - [ ] **S7** `EntityStunStars` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the stun-star drawer; it already calls `L2FxCompositorLayers` in Fineage.Game.
 - [ ] **S8** `ItemEnchantGlowView` → `Fineage.Game/Combat/`. Cuts ACS ownership of the enchant-glow view; placement and style already live on `EnchantGlow` in Fineage.Domain.
-- [ ] **S9** `LoginJungleFillPass` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the login far-plane fill. Uses only Unity rendering types.
+- [x] **S9** `LoginJungleFillPass` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the login far-plane fill. Uses only Unity rendering types.
 - [ ] **S10** `L2StarDomeMesh` → `Fineage.Game/Rendering/Sky/`. Cuts ACS ownership of the star-dome mesh builder. The `L2StarDome` MonoBehaviour stays ACS (VContainer).
 - [ ] **S11** `L2DayNightLut` (all partials) → `Fineage.Game/Rendering/Lut/`. Cuts ACS ownership of the day/night color table (#1691 neighbor). Sampling unchanged; no per-tile ZoneInfo.
 - [ ] **S12** `LobbyAccountEnvironmentProfile` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the lobby fog/ambient ScriptableObject (fog start/end/color fields unchanged).
