@@ -13,20 +13,20 @@ public partial class CharSelectWindow : L2Window
 
         yield return new WaitForEndOfFrame();
 
-        _startButton = (Button) GetElementById("StartButton");
+        _startButton = (Button) GetElementById("btnStart");
         _startButton.AddManipulator(new ButtonClickSoundManipulator(_startButton));
         _startButton.RegisterCallback<ClickEvent>(evt => StartGamePressed());
 
-        _deleteButton = (Button)GetElementById("DeleteButton");
+        _deleteButton = (Button)GetElementById("btnDelete");
         _deleteButton.AddManipulator(new ButtonClickSoundManipulator(_deleteButton));
         _deleteButton.RegisterCallback<ClickEvent>(evt => DeletePressed());
         _deleteButtonLabel = _deleteButton.Q<Label>("ButtonLabel");
 
-        _createButton = (Button)GetElementById("CreateButton");
+        _createButton = (Button)GetElementById("btnCreate");
         _createButton.AddManipulator(new ButtonClickSoundManipulator(_createButton));
         _createButton.RegisterCallback<ClickEvent>(evt => CreatePressed());
 
-        Button reloginButton = (Button)GetElementById("ReloginButton");
+        Button reloginButton = (Button)GetElementById("btnReLogin");
         reloginButton.AddManipulator(new ButtonClickSoundManipulator(reloginButton));
         reloginButton.RegisterCallback<ClickEvent>(evt => ReLoginPressed());
 
@@ -47,10 +47,10 @@ public partial class CharSelectWindow : L2Window
         _spLabel = (Label)GetElementById("SPLabel");
         _karmaLabel = (Label)GetElementById("KarmaLabel");
 
-        _HPBar = GetElementById("HPBar");
+        _HPBar = GetElementById("LobbyHPBar");
         _HPBarBG = GetElementById("HPBarBG");
         _MPBarBG = GetElementById("MPBarBG");
-        _MPBar = GetElementById("MPBar");
+        _MPBar = GetElementById("LobbyMPBar");
         _ExpBar = GetElementById("ExpBar");
         _ExpBarBG = GetElementById("ExpBarBG");
 
@@ -69,6 +69,8 @@ public partial class CharSelectWindow : L2Window
         if (detail != null)
             detail.Add(_lobbyStatus);
 
+        ApplyLobbyScreenAnchors();
+
         // Three full-height flex columns; only named chrome must pick so world pawn clicks work.
         ConfigureWorldClickThrough();
 
@@ -80,6 +82,41 @@ public partial class CharSelectWindow : L2Window
             if (selected >= 0)
                 SelectLobbySlot(selected);
         }
+    }
+
+    void ApplyLobbyScreenAnchors()
+    {
+        ApplyPlacedWindow("CharSelectDetailWindow", "NCLobbyWnd_CharInfo", true);
+        ApplyPlacedWindow("StartButtonWindow", "NCLobbyStartWnd", false);
+        ApplyPlacedWindow("MenuWindow", "NCLobbyFunctionWnd", false);
+    }
+
+    void ApplyPlacedWindow(string elementName, string windowName, bool keepExistingChildren)
+    {
+        VisualElement host = GetElementById(elementName);
+        if (host == null)
+            return;
+
+        List<string> present = new List<string>();
+        host.Query<VisualElement>().ForEach(element =>
+        {
+            if (!string.IsNullOrEmpty(element.name))
+                present.Add(element.name);
+        });
+        InterludeWindowLayout.Apply(host, windowName);
+        if (!keepExistingChildren)
+            return;
+
+        List<VisualElement> created = new List<VisualElement>();
+        host.Query<VisualElement>().ForEach(element =>
+        {
+            if (element.parent != host || string.IsNullOrEmpty(element.name))
+                return;
+            if (!present.Contains(element.name))
+                created.Add(element);
+        });
+        for (int i = 0; i < created.Count; i++)
+            created[i].RemoveFromHierarchy();
     }
 
     void ConfigureWorldClickThrough()

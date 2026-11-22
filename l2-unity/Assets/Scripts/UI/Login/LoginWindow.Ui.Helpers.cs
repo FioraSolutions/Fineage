@@ -68,23 +68,19 @@ public partial class LoginWindow
         }
 
         _rememberToggle = root.Q<Toggle>("RememberToggle");
-        bool remember = PlayerPrefs.GetInt(RememberKey, 0) == 1;
         if (_rememberToggle != null)
         {
             L10nUiBinder.SetText(_rememberToggle, "ui.login.remember");
-            _rememberToggle.SetValueWithoutNotify(remember);
             _rememberToggle.RegisterValueChangedCallback(evt =>
             {
                 if (!evt.newValue)
                     StoreRemembered(false, null, null);
             });
         }
-        if (remember)
-        {
-            _userInput.SetValueWithoutNotify(PlayerPrefs.GetString(RememberAccountKey, ""));
-            _passwordInput.SetValueWithoutNotify(PlayerPrefs.GetString(RememberPasswordKey, ""));
-        }
 
+        LoadRemembered();
+
+        ApplyExtractedLoginLayout(root);
         WireLoginMenu(root);
 
         // Inline styles beat Unity's default TextField chrome and any password-only padding.
@@ -96,6 +92,30 @@ public partial class LoginWindow
         });
 
         _userInput.Focus();
+    }
+
+    void ApplyExtractedLoginLayout(VisualElement root)
+    {
+        VisualElement logo = root.Q<VisualElement>("L2Logo");
+        VisualElement frame = root.Q<VisualElement>("LoginFrame");
+        VisualElement menu = root.Q<VisualElement>("LoginMenu");
+        if (logo != null)
+            InterludeWindowLayout.Apply(logo, "LoginLogoWnd");
+        if (frame != null)
+            InterludeWindowLayout.Apply(frame, "NCAuthWnd");
+        if (menu != null)
+            InterludeWindowLayout.Apply(menu, "NCLoginFunctionWnd");
+        if (_rememberToggle != null)
+        {
+            // Password edit is (84, 42, 128, 17), so the next free row is y=59.
+            // The buttons start at y=72. Option-tab checkboxes are 12px tall.
+            _rememberToggle.style.position = Position.Absolute;
+            _rememberToggle.style.left = 84f;
+            _rememberToggle.style.top = 59f;
+            _rememberToggle.style.marginLeft = 0f;
+            _rememberToggle.style.marginTop = 0f;
+            _rememberToggle.style.marginBottom = 0f;
+        }
     }
 
     private void OnKeyPressed(KeyDownEvent evt, TextField input) {
@@ -144,9 +164,9 @@ public partial class LoginWindow
             label.style.display = DisplayStyle.None;
         });
 
-        field.style.width = 176;
-        field.style.minWidth = 176;
-        field.style.maxWidth = 176;
+        field.style.width = 128;
+        field.style.minWidth = 128;
+        field.style.maxWidth = 128;
         field.style.height = 17;
         field.style.minHeight = 0;
         field.style.maxHeight = 17;

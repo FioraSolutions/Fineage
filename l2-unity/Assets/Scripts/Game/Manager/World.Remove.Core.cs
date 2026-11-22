@@ -79,7 +79,7 @@ public partial class World
         if (entity != null && entity.transform != null)
             L2ActorPointLights.UnregisterActorRoot(entity.transform);
 
-        CrowdTierPacketServices.System?.Unregister(id);
+        VisibilityPacketServices.Manager?.Unregister(id);
 
         if (MoveAllCharactersPacketServices.Moves != null)
             MoveAllCharactersPacketServices.Moves.Forget(id);

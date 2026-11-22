@@ -18,10 +18,13 @@ public partial class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
             return;
         }
 
-        if (!AudioWorldGate.ShouldPlayWorldSound(transform.position))
+        int entityId = ResolveEntityId();
+
+        if (!AudioWorldGate.ShouldPlayWorldSound(entityId, transform.position))
             return;
 
-        int entityId = ResolveEntityId();
+        if (TryGateNpcVoice(soundEvent, entityId))
+            return;
         if (!TryBindChrSoundBank())
             TryBindChrSoundBankFromEntity();
 
@@ -46,6 +49,34 @@ public partial class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
     {
         Entity entity = GetComponent<Entity>();
         return entity != null && entity.Identity != null ? entity.Identity.Id : 0;
+    }
+
+    bool TryGateNpcVoice(CharacterSoundEvent soundEvent, int entityId)
+    {
+        if (entityId == 0 || !IsNpcAmbientVoice(soundEvent))
+            return false;
+
+        NpcVoicePriority priority = soundEvent switch
+        {
+            CharacterSoundEvent.Admiration => NpcVoicePriority.SocialIdle,
+            CharacterSoundEvent.Yawn => NpcVoicePriority.SocialIdle,
+            CharacterSoundEvent.Agree => NpcVoicePriority.Targeted,
+            _ => NpcVoicePriority.IdleAmbient,
+        };
+
+        if (VisibilityPacketServices.ShouldPlayNpcVoice(entityId, priority))
+            return false;
+
+        return true;
+    }
+
+    static bool IsNpcAmbientVoice(CharacterSoundEvent soundEvent)
+    {
+        return soundEvent == CharacterSoundEvent.Yawn
+            || soundEvent == CharacterSoundEvent.Admiration
+            || soundEvent == CharacterSoundEvent.Agree
+            || soundEvent == CharacterSoundEvent.Wait
+            || soundEvent == CharacterSoundEvent.Breath;
     }
 
     public void PlaySoundFromAnimationClip(int type) {

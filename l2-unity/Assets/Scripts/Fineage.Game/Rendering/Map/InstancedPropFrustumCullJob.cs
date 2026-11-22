@@ -18,28 +18,12 @@ public struct InstancedPropFrustumCullJob : IJobParallelFor
 
   public void Execute(int index)
   {
-    float3 center = WorldCenters[index];
-    float radius = Radii[index];
-
-    float limit = MaxDrawDistance + radius;
-    if (math.distancesq(center, CameraPosition) > limit * limit)
-    {
-      Visible[index] = 0;
-      return;
-    }
-
-    for (int p = 0; p < FrustumPlanes.Length; p++)
-    {
-      float4 plane = FrustumPlanes[p];
-      float3 normal = plane.xyz;
-      float dist = math.dot(normal, center) + plane.w;
-      if (dist < -radius)
-      {
-        Visible[index] = 0;
-        return;
-      }
-    }
-
-    Visible[index] = 1;
+    bool visible = VisibilitySphereFrustumCull.IsVisible(
+        WorldCenters[index],
+        Radii[index],
+        CameraPosition,
+        MaxDrawDistance,
+        FrustumPlanes);
+    Visible[index] = (byte)(visible ? 1 : 0);
   }
 }

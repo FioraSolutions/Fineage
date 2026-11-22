@@ -584,12 +584,37 @@ def self_test(docs_dir: Path, texture_map_path: Path) -> None:
     expect("NCLobbyWnd_CharInfo", "MPBar", 35, 69, 85, 12)
     expect("NCLobbyWnd_CharInfo", "EXPBar", 35, 83, 206, 12)
     card = by_name["NCLobbyWnd_CharInfo"]
-    if card["controls"][0]["width"] != 256 or card["controls"][0]["height"] != 128:
+    if card["controls"][0]["width"] != 256 or card["controls"][0]["height"] != 108:
         raise SystemExit(
             f"char card size {card['controls'][0]['width']}x{card['controls'][0]['height']}"
         )
-    if card["placementKnown"] != 0 or by_name["NCLobbyFunctionWnd"]["placementKnown"] != 0:
-        raise SystemExit("lobby screen placement was invented; the extract does not include it")
+    if card["placementKnown"] != 1 or card["alignment"] != "TOP_LEFT" or card["placeX"] != 24 or card["placeY"] != 27:
+        raise SystemExit(f"char card placement {card['alignment']} {card['placeX']},{card['placeY']}")
+    menu = by_name["NCLobbyFunctionWnd"]
+    if menu["placementKnown"] != 1 or menu["alignment"] != "BOTTOM_RIGHT" or menu["placeX"] != -34 or menu["placeY"] != -10:
+        raise SystemExit(f"lobby menu placement {menu['alignment']} {menu['placeX']},{menu['placeY']}")
+    start = by_name["NCLobbyStartWnd"]
+    if start["placementKnown"] != 1 or start["alignment"] != "BOTTOM_CENTER" or start["placeX"] != 0 or start["placeY"] != -10:
+        raise SystemExit(f"lobby start placement {start['alignment']} {start['placeX']},{start['placeY']}")
+
+    auth = by_name["NCAuthWnd"]
+    if auth["alignment"] != "CENTER" or auth["placeX"] != 0 or auth["placeY"] != 0:
+        raise SystemExit(f"NCAuthWnd placement {auth['alignment']} {auth['placeX']},{auth['placeY']}")
+    expect("NCAuthWnd", "NCAuthWnd", 0, 0, 256, 108)
+    expect("NCAuthWnd", "IDInput", 84, 20, 128, 17)
+    expect("NCAuthWnd", "PasswordInput", 84, 42, 128, 17)
+    expect("NCAuthWnd", "LoginButton", 31, 72, 96, 23)
+    expect("NCAuthWnd", "ExitButton", 131, 72, 96, 23)
+    logo = by_name["LoginLogoWnd"]
+    if logo["alignment"] != "TOP_CENTER" or logo["placeX"] != 0 or logo["placeY"] != 50:
+        raise SystemExit(f"logo placement {logo['alignment']} {logo['placeX']},{logo['placeY']}")
+    expect("NCLoginFunctionWnd", "NewAccountButton", 13, 8, 96, 23)
+    expect("NCLoginFunctionWnd", "ReplayButton", 13, 107, 96, 23)
+    login_menu = by_name["NCLoginFunctionWnd"]
+    if login_menu["alignment"] != "BOTTOM_RIGHT" or login_menu["placeX"] != -34 or login_menu["placeY"] != -62:
+        raise SystemExit(
+            f"login menu placement {login_menu['alignment']} {login_menu['placeX']},{login_menu['placeY']}"
+        )
 
     menu_back = next(c for c in by_name["NCLobbyFunctionWnd"]["controls"] if c["name"] == "NCLobbyFunctionWnd")
     if not menu_back["texture"].endswith("lobby_menuback"):
