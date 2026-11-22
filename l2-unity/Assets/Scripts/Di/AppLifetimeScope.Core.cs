@@ -9,15 +9,13 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         RegisterAppEventProcessor(builder);
         RegisterGameManager(builder);
         RegisterSceneLoader(builder);
-        LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<GameClient>(this, builder);
-        LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<LoginClient>(this, builder);
+        AppScopeCycleSafeRegistration.Register(this, builder);
 
         builder.Register<TableInitializer>(Lifetime.Singleton).AsSelf().As<ITableInitializer>();
         builder.Register<IconManager>(Lifetime.Singleton);
         builder.Register<LobbyFlowController>(Lifetime.Singleton).AsSelf().As<ILobbySession>();
 
         builder.Register<EventProcessorApplyPump>(Lifetime.Singleton).As<IMainThreadApplyPump>();
-        builder.Register<PacketApplyQueue>(Lifetime.Singleton).As<IPacketApplyQueue>().AsSelf();
         builder.Register<FineageZoneTransport>(Lifetime.Singleton).As<IZoneTransport>();
         builder.Register<AnimationManager>(Lifetime.Singleton).As<IAnimationManager>().AsSelf();
         RegisterDatTables(builder);
