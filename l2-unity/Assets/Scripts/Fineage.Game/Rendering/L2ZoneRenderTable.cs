@@ -8,6 +8,13 @@ using System.Globalization;
 /// </summary>
 public sealed class L2ZoneRenderTable
 {
+    /// <summary>
+    /// Engine.ZoneInfo defaultproperties DistanceFogStart. The map dump omits a property
+    /// that still has the class default, so the catalog cell stays empty. The runtime
+    /// applies this value; it is not a per-tile guess.
+    /// </summary>
+    public const float EngineZoneInfoDistanceFogStartUu = 3000f;
+
     public struct Actor
     {
         public string Map;
@@ -117,9 +124,8 @@ public sealed class L2ZoneRenderTable
         }
         fog.Actor = selected.Name;
         if (!TryFloat(selected.FogStart, out fog.StartUu))
-            errors?.Add("[ZoneFog] map " + map + " actor " + selected.Name + " DistanceFogStart missing");
-        else
-            fog.HasStart = true;
+            fog.StartUu = EngineZoneInfoDistanceFogStartUu;
+        fog.HasStart = true;
         if (!TryFloat(selected.FogEnd, out fog.EndUu))
             errors?.Add("[ZoneFog] map " + map + " actor " + selected.Name + " DistanceFogEnd missing");
         else

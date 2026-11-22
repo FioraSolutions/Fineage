@@ -46,12 +46,15 @@ public class L2ZoneRenderEditModeTests
         var errors = new List<string>();
         Assert.IsTrue(table.TryDistanceFog("22_22", out L2ZoneRenderTable.DistanceFog fog, errors));
         Assert.AreEqual("ZoneInfo3", fog.Actor);
-        Assert.IsFalse(fog.HasStart);
+        Assert.IsTrue(fog.HasStart);
+        Assert.AreEqual(L2ZoneRenderTable.EngineZoneInfoDistanceFogStartUu, fog.StartUu, 1e-3f);
         Assert.AreEqual(15000f, fog.EndUu, 1e-3f);
-        Assert.AreEqual(1, errors.Count);
-        Assert.IsTrue(errors[0].Contains("22_22"));
-        Assert.IsTrue(errors[0].Contains("ZoneInfo3"));
-        Assert.IsTrue(errors[0].Contains("DistanceFogStart"));
+        Assert.AreEqual(0, errors.Count);
+        L2ZoneRenderTable.DistanceFogGlobals(fog, Uu, out float endMeters, out float scale, out bool enable);
+        Assert.IsTrue(enable);
+        float range = 15000f - L2ZoneRenderTable.EngineZoneInfoDistanceFogStartUu;
+        Assert.AreEqual(15000f * Uu, endMeters, 1e-4f);
+        Assert.AreEqual(1f / (range * Uu), scale, 1e-4f);
 
         bool holy = false;
         for (int i = 0; i < table.Actors.Count; i++)
@@ -90,7 +93,10 @@ public class L2ZoneRenderEditModeTests
         Assert.AreEqual(174, ti.R);
         Assert.AreEqual(172, ti.G);
         Assert.AreEqual(164, ti.B);
-        Assert.IsTrue(errors[0].Contains("DistanceFogStart"));
+        Assert.IsTrue(ti.HasStart);
+        Assert.AreEqual(L2ZoneRenderTable.EngineZoneInfoDistanceFogStartUu, ti.StartUu, 1e-3f);
+        for (int i = 0; i < errors.Count; i++)
+            StringAssert.DoesNotContain("DistanceFogStart", errors[i]);
     }
 
     [Test]
@@ -142,7 +148,10 @@ public class L2ZoneRenderEditModeTests
         Assert.IsTrue(table.TryDistanceFog("a", out L2ZoneRenderTable.DistanceFog fog, errors));
         Assert.AreEqual("ground", fog.Actor);
         Assert.AreEqual(9000f, fog.EndUu, 1e-3f);
-        Assert.IsTrue(errors[0].Contains("DistanceFogStart"));
+        Assert.IsTrue(fog.HasStart);
+        Assert.AreEqual(L2ZoneRenderTable.EngineZoneInfoDistanceFogStartUu, fog.StartUu, 1e-3f);
+        for (int i = 0; i < errors.Count; i++)
+            StringAssert.DoesNotContain("DistanceFogStart", errors[i]);
 
         errors.Clear();
         Assert.IsFalse(table.TryDistanceFog("b", out _, errors));

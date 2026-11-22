@@ -26,6 +26,7 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
     readonly Dictionary<int, Material> _instances = new Dictionary<int, Material>();
     readonly Dictionary<string, L2Ue2MaterialChain.Eval> _evalByName =
         new Dictionary<string, L2Ue2MaterialChain.Eval>(StringComparer.OrdinalIgnoreCase);
+    readonly HashSet<string> _logged = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     Dictionary<string, string> _props;
     string _resolvingMaterial;
     Driven[] _driven = Array.Empty<Driven>();
@@ -73,6 +74,9 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
                 if (source == null)
                     continue;
                 string name = BaseName(source.name);
+                string shaderName = source.shader != null ? source.shader.name : null;
+                if (!L2Ue2MaterialChain.CanUpgradeShader(shaderName))
+                    continue;
                 if (_props == null || !_props.ContainsKey(name))
                     continue;
                 if (!_evalByName.TryGetValue(name, out L2Ue2MaterialChain.Eval eval))
@@ -82,6 +86,17 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
                 }
                 if (!L2Ue2MaterialChain.NeedsChainShader(eval))
                     continue;
+                if (!L2Ue2MaterialApply.TexturePackageAgrees(
+                        CurrentTextureName(source),
+                        eval.DiffuseTexture,
+                        _names,
+                        _packages,
+                        out string packageDetail))
+                {
+                    if (_logged.Add(name))
+                        Debug.LogError("[Ue2Material] material " + name + " " + packageDetail);
+                    continue;
+                }
                 int sourceId = source.GetInstanceID();
                 bool fresh = !_instances.TryGetValue(sourceId, out Material existing) || existing == null;
                 Material inst = Instance(source);
@@ -120,7 +135,9 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
             {
                 if (!string.Equals(existing, asset.text, StringComparison.OrdinalIgnoreCase))
                 {
-                    Debug.LogError("[Ue2Material] material " + key + " props ambiguous");
+                    Debug.LogError(
+                        "[Ue2Material] material " + key + " props ambiguous "
+                        + DiffuseLine(existing) + " vs " + DiffuseLine(asset.text));
                     _props.Remove(key);
                     rejected.Add(key);
                 }
@@ -176,6 +193,30 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
         var inst = new Material(source) { name = BaseName(source.name) };
         _instances[id] = inst;
         return inst;
+    }
+
+    static string CurrentTextureName(Material source)
+    {
+        if (source == null)
+            return null;
+        Texture tex = source.mainTexture;
+        if (tex == null && source.HasProperty("_MainTex"))
+            tex = source.GetTexture("_MainTex");
+        if (tex == null && source.HasProperty("_BaseMap"))
+            tex = source.GetTexture("_BaseMap");
+        return tex != null ? tex.name : null;
+    }
+
+    static string DiffuseLine(string body)
+    {
+        if (string.IsNullOrEmpty(body))
+            return "Diffuse missing";
+        int i = body.IndexOf("Diffuse", StringComparison.OrdinalIgnoreCase);
+        if (i < 0)
+            return "Diffuse missing";
+        int end = body.IndexOf('\n', i);
+        string line = end > i ? body.Substring(i, end - i) : body.Substring(i);
+        return line.Trim();
     }
 
     static string BaseName(string name)
