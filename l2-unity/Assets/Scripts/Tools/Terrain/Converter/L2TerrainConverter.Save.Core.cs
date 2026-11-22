@@ -84,16 +84,19 @@ public partial class TerrainConverter
         }
 
         // Build Texture2D array for alphamaps.
-        // Official 1K splat masks with mips in RGBA32 exceed GitHub's 100MB file cap on
-        // tiles that have many official layers (16_25, 20_17, 22_21, 22_23). Skip mips
-        // here; diffuse _Layers arrays stay mipmapped and are much smaller.
+        // Official 1K splat masks are grayscale (R=G=B). Stored as R8 without mips so
+        // many official layers stay well under GitHub's 100MB file cap. Diffuse _Layers
+        // arrays stay RGBA32 and mipmapped.
         if (alphaMaps.Length > 0) {
             bool prevMips = texture2DArrayGenerator.generateMipmaps;
+            TextureFormat prevFmt = texture2DArrayGenerator.format;
             texture2DArrayGenerator.generateMipmaps = false;
+            texture2DArrayGenerator.format = TextureFormat.R8;
             texture2DArrayGenerator.sourceTextures = alphaMaps;
             string saveAlphamapPath = Path.Combine(saveFolder, mapToConvert + "_Alphamap.asset");
             Texture2DArray alphamaps = texture2DArrayGenerator.GenerateTexture2DArray(saveAlphamapPath);
             texture2DArrayGenerator.generateMipmaps = prevMips;
+            texture2DArrayGenerator.format = prevFmt;
             terrainMat.SetTexture("_Splatmaps", alphamaps);
         }
 
