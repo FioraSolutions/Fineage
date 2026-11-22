@@ -36,6 +36,7 @@ Single committed files are split if they would exceed ~20 MB.
 | `skill-effects-engine.tsv` | SkillID → cast/shot/hit actions from `Animations/skill.usk` (Cruma `listVisuals`) |
 | `skills/skill-effects-coverage.json` | Union of skillgrp `desc` paths + this table vs 2630 skill IDs |
 | `skills/skills-without-unique-effect.tsv` | Skill IDs with no `desc` path and no skill.usk entry |
+| `skills/skill-visual-missing-assets.tsv` | Catalog skills whose desc or usk effect class is not an imported prefab |
 | `scripts/` | Decompiled UnrealScript from `Interface.u` and other `.u` with scripts (if produced) |
 
 ## How it is produced
@@ -142,6 +143,15 @@ Coverage (unique skill IDs in Interlude `skillgrp` / `skillname`):
 
 Cruma does not unpack Themida-packed `engine.dll`. For Interlude that is unnecessary: the
 viewer already loads this table from `skill.usk`. The leftover packed map is a C1/C2 issue.
+
+The client resolver (`SkillVisualCatalog`) uses this table after the skillgrp `desc` path.
+Runtime copies live in `Assets/StreamingAssets/Data/Meta/SkillVisual/` and are rebuilt by
+`tools/interlude-extract/build_skill_visual_runtime.py`. A skill in the 928 whose effect
+prefab is not under `Assets/Resources/Data/Effects` is listed in
+`skills/skill-visual-missing-assets.tsv` (skill id, level, source, visual key, asset).
+The 1702 IDs in `skills-without-unique-effect.tsv` resolve to no effect. Regenerating the
+missing report needs the official client packages and the Unity effect importer; this
+workspace does not have them, so those classes were not imported.
 
 ## Notes
 

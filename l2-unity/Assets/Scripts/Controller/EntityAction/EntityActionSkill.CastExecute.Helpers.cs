@@ -44,7 +44,7 @@ public partial class EntityActionSkill
             ? SetupDurationHelper.ResolveShotEventTime(objectId, orderedCycle)
             : 0f;
         Transform targetTransform = target != null ? target.transform : entity.AttackTarget;
-        float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(entity, magic.SkillId, targetTransform);
+        float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(entity, magic.SkillId, magic.SkillLvl, targetTransform);
         entity.SetupTotalCastDuration(magic.HitTime, flightTimeMs, durations, shotEventTime, magic.TargetId, SetupDurationHelper.CastStyleOf(magic), SetupDurationHelper.MixComboOf(magic));
 
         _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(magic.SkillGrp, entity, combo, ResolveEvents(entity));
@@ -101,13 +101,12 @@ public partial class EntityActionSkill
     static void PlaySkillEffect(Entity entity, MagicSkillUseDto magic)
     {
         bool windstrike = magic != null && SkillPresentationCatalog.IsWindStrike(magic.SkillId);
-        EffectManager effects = ControllerPacketServices.Effects;
-        if (effects == null || entity == null || magic == null)
+        if (entity == null || magic == null)
         {
             if (windstrike)
             {
                 Debug.Log(
-                    "[WINDSTRIKE] PlaySkillEffect abort effects=" + (effects != null) +
+                    "[WINDSTRIKE] PlaySkillEffect abort" +
                     " entity=" + (entity != null) +
                     " magic=" + (magic != null));
             }
@@ -122,7 +121,7 @@ public partial class EntityActionSkill
                 " immediate=" + (cast != null && cast.SpawnShotVisualsImmediately) +
                 " targetId=" + (cast != null ? cast.TargetObjectId : 0));
         }
-        effects.PlayEffect(magic.SkillId, entity.transform, cast);
+        SkillVisualEffectDispatch.PlayIfKnown(entity, magic);
         if (windstrike)
             Debug.Log("[WINDSTRIKE] PlaySkillEffect returned");
     }
@@ -146,6 +145,7 @@ public partial class EntityActionSkill
         float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(
             entity,
             magic.SkillId,
+            magic.SkillLvl,
             target != null ? target.transform : entity.AttackTarget);
         entity.SetupTotalCastDuration(
             magic.HitTime,

@@ -55,7 +55,7 @@ public static partial class SkillCastSound
         bool selfCast = caster.Identity != null && dto.TargetId > 0 && dto.TargetId == caster.Identity.Id;
         float flightMs = selfCast
             ? 0f
-            : SetupDurationHelper.ResolveMagicFlightTimeMs(caster, dto.SkillId, targetTf);
+            : SetupDurationHelper.ResolveMagicFlightTimeMs(caster, dto.SkillId, dto.SkillLvl, targetTf);
         float shotDelay = Mathf.Max(0f, (dto.HitTime - flightMs) / 1000f);
 
         float castLen = ClipLengthSec(SfxRoot, castClip);
