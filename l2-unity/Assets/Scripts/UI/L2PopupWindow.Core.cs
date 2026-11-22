@@ -73,13 +73,17 @@ public abstract partial class L2PopupWindow : L2Window
         base.ShowWindow();
         BringToFront();
         if (wasHidden)
+        {
             AudioPacketServices.Audio.PlayUISound(InterfaceWindowSounds.OpenToken(GetType().Name));
+            SystemUIPacketServices.Ui?.RegisterWorldInputBlocker(this);
+        }
     }
 
     public override void HideWindow()
     {
         bool wasVisible = !_isWindowHidden;
         base.HideWindow();
+        SystemUIPacketServices.Ui?.UnregisterWorldInputBlocker(this);
         if (wasVisible)
             AudioPacketServices.Audio.PlayUISound(InterfaceWindowSounds.CloseToken(GetType().Name));
     }

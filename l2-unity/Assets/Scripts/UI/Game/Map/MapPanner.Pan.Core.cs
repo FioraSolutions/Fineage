@@ -14,15 +14,13 @@ public partial class MapPanner
 
         if (!L2MapLocalPlayer.TryMapPlaneFromLocalPlayer(out Vector2 l2XY))
         {
-            PlayerController player = ControllerPacketServices.Player;
-            l2XY = player != null
-                ? L2MapCoordinates.MapPlaneFromUnity(player.GetPlayerPosition())
-                : Vector2.zero;
+            Debug.LogError("[MapPanner] Local player Identity missing; cannot project world-map marker.");
+            return;
         }
 
         Vector2 mapPx = DetailedMapProjection.ProjectWorldMapPixel(l2XY.x, l2XY.y);
 
-        MapUtils.PlaceMarkerOnMap(ref offset, _map, _marker, mapPx, mapSizeD);
+        MapUtils.PlaceMarkerOnMap(ref offset, _map, _marker, mapPx, MapPixelSize);
     }
 
     private void OnMarkerGeometryChanged(GeometryChangedEvent evt)

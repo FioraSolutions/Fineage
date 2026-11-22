@@ -10,6 +10,7 @@ public partial class L2GameUI : L2UI
     [SerializeField] private bool _mouseEnabled = true;
 
     private List<L2PopupWindow> _openedWindows;
+    private readonly List<L2PopupWindow> _worldInputBlockers = new List<L2PopupWindow>();
 
     private static L2GameUI _instance;
     [Obsolete("Use [Inject] / PacketServices instead")]

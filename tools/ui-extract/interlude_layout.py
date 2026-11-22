@@ -352,6 +352,8 @@ def _emit_control(
     text = _clean(control.get("buttonText")) or _clean(control.get("sysstringText"))
     if not text:
         text = _clean(control.get("text"))
+    if not text:
+        text = _clean(control.get("titleText"))
     if not text and not isinstance(control.get("title"), (int, float)):
         text = _clean(control.get("title"))
 

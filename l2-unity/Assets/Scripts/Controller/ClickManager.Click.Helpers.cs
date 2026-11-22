@@ -20,7 +20,7 @@ public partial class ClickManager : MonoBehaviour
         if (_hoverObjectData != null && _hoverObjectData.ObjectTransform != null)
             stickyDrop = _hoverObjectData.ObjectTransform.GetComponent<ItemEntity>();
 
-        bool overUi = SystemUIPacketServices.Ui != null && SystemUIPacketServices.Ui.IsPointerOverPanel();
+        bool overUi = SystemUIPacketServices.Ui != null && SystemUIPacketServices.Ui.BlocksWorldPointerInput();
         if (!overUi && _dropPicker != null &&
             _dropPicker.TryPick(ray, MousePickDistance, stickyDrop, out ItemEntity dropItem, out _))
         {
@@ -38,8 +38,7 @@ public partial class ClickManager : MonoBehaviour
             return;
         }
 
-        if (SystemUIPacketServices.Ui != null &&
-            (SystemUIPacketServices.Ui.MouseOverUI || SystemUIPacketServices.Ui.IsPointerOverPanel()))
+        if (SystemUIPacketServices.Ui != null && SystemUIPacketServices.Ui.BlocksWorldPointerInput())
         {
             _hoverObjectData = null;
             return;
