@@ -20,6 +20,7 @@ public partial class GameManager : MonoBehaviour, IGameManager
 
     [Inject] ITableInitializer _tableInitializer;
     [Inject] ISceneLoader _sceneLoader;
+    [Inject] IZoneTransport _zoneTransport;
 
     ILobbySession _lobbyFlow;
     IUiLoading _gameUi;

@@ -1,42 +1,28 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using VContainer;
 
 public partial class GameManager : MonoBehaviour, IGameManager
 {
     private IEnumerator AutoLoginFromArgs(string account, string password)
     {
-        for (int i = 0; i < 30 && !App.HasContainer; i++)
-            yield return null;
-
-        // Net owns the login, so an auto-login from launch args always has somewhere to go.
         Debug.Log("[Fineage] auto-login account=" + account);
-        IZoneTransport transport = null;
-        if (App.HasContainer)
+        if (_zoneTransport == null)
         {
-            try
-            {
-                transport = App.Resolve<IZoneTransport>();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning("[Fineage] IZoneTransport resolve failed: " + ex.Message);
-            }
+            Debug.LogError("[GameManager] IZoneTransport missing — AppLifetimeScope did not register FineageZoneTransport, so auto-login cannot begin a session.");
+            yield break;
         }
 
-        if (transport != null)
-            transport.BeginSession(account, password);
-        else
-            Debug.LogError("[Fineage] auto-login: no IZoneTransport resolved — cannot begin a session "
-                + "(Fineage Net transport missing).");
+        _zoneTransport.BeginSession(account, password);
     }
 
     public static void DisconnectZoneSession()
     {
-        NetSession net = NetworkingPacketServices.Session;
-        if (net != null)
-            UnityEngine.Object.Destroy(net.gameObject);
+        if (_instance == null || _instance._zoneTransport == null)
+        {
+            Debug.LogError("[GameManager] IZoneTransport missing — AppLifetimeScope did not register FineageZoneTransport, so the session host was not destroyed.");
+            return;
+        }
+
+        _instance._zoneTransport.ReleaseSessionHost();
     }
 }
