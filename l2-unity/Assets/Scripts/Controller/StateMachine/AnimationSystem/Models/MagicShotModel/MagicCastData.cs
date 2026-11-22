@@ -106,6 +106,7 @@ public partial class MagicCastData
 
     int _clipCount;
     int _fillerIndex;
+    int _spatkPhase;
     float _dur0;
     float _dur1;
     float _dur2;

@@ -81,14 +81,10 @@ public partial class World
 
         _visibility.Unregister(id);
 
-        IMoveRoster moves = Moves();
-        if (moves != null)
-            moves.Forget(id);
+        _moveRoster.Forget(id);
         _entities.Unregister(id);
         _entityWait.Fail(id);
-        IEntityActionRoster actions = Actions();
-        if (actions != null)
-            actions.Remove(entity);
+        _entityActions.Remove(entity);
 
         if (_gravityNpc != null)
             _gravityNpc.DeleteGravity(id);

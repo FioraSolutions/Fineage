@@ -24,15 +24,14 @@ public sealed partial class CastClipPlayable
         _finalShot = false;
         _oneShot = false;
         _spAtkCombat = true;
-        _stateIndex = 1;
-        _castData = null;
-        _speed = ResolveSpAtkPlaybackSpeed(_objectId, clip, phaseStateName);
+        _events = clip.events;
+        _eventFired = _events != null && _events.Length > 0 ? new bool[_events.Length] : null;
+        bool castTimed = TryPeekCastPhaseSpeed(out float castSpeed);
+        _speed = castTimed ? castSpeed : MissingCastTimingSpeed(_objectId, phaseStateName);
         _clipLength = clip.length;
         _enterTime = Time.time;
         _lastSample = 0f;
         _finished = false;
-        _events = clip.events;
-        _eventFired = _events != null && _events.Length > 0 ? new bool[_events.Length] : null;
 
         if (_clipPlayable.IsValid())
         {
@@ -51,6 +50,9 @@ public sealed partial class CastClipPlayable
         if (Animations != null)
             Animations.SetPAtkSpeed(_objectId, _speed);
 
+        if (castTimed && _castData != null)
+            _castData.CommitSpAtkPhase();
+
         MagicGaitTrace.EventId(_objectId, "CastClip.TryPlaySpAtkCombat",
             "phase=" + phaseStateName +
             " clip=" + clip.name +
@@ -59,56 +61,30 @@ public sealed partial class CastClipPlayable
         return true;
     }
 
-    float ResolveSpAtkPlaybackSpeed(int objectId, AnimationClip clip, string phaseStateName)
+    bool TryPeekCastPhaseSpeed(out float speed)
     {
-        float hitCenter = 0.35f;
-        if (_events != null)
-        {
-            float startHit = 0f;
-            float endHit = 0f;
-            for (int i = 0; i < _events.Length; i++)
-            {
-                if (_events[i].functionName == "OnAnimationHit")
-                    startHit = _events[i].time;
-                else if (_events[i].functionName == "OnAnimationAttackHitEnd")
-                    endHit = _events[i].time;
-            }
-
-            if (startHit > 0.01f || endHit > 0.01f)
-                hitCenter = (startHit + endHit) * 0.5f;
-        }
-
+        speed = 0f;
         World world = WorldApplyPacketServices.GameWorld;
-        Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
+        if (world == null)
+            world = ControllerPacketServices.GameWorld;
+        Entity entity = world != null ? world.GetEntityNoLockSync(_objectId) : null;
+        MagicCastData cast = entity != null ? entity.GetMagicCastData() : null;
+        if (cast == null || cast.SkillId <= 0 || cast.HitTime <= 0.01f)
+            return false;
 
-        int serverTimeMs = _animator != null ? _animator.GetInteger("sptimeatk") : 0;
-        if (serverTimeMs <= 0)
-        {
-            MagicCastData cast = entity != null ? entity.GetMagicCastData() : null;
-            if (cast != null && cast.HitTime > 0f)
-                serverTimeMs = Mathf.RoundToInt(cast.HitTime * 1000f);
-        }
+        int phase = cast.PeekSpAtkPhase();
+        _stateIndex = phase;
+        _castData = cast;
+        speed = cast.SpeedForSpAtkPhase(phase);
+        return speed > 0.0001f;
+    }
 
-        if (PlayerStateSpAtk.IsSpAtk06Gesture(phaseStateName) && serverTimeMs > 0)
-        {
-            float gestureSeconds = (serverTimeMs / 1000f) - PlayerStateSpAtk.HitTimeCompensationSeconds;
-            if (gestureSeconds >= PlayerStateSpAtk.MinServerHitSeconds)
-            {
-                float targetLength = clip.length * PlayerStateSpAtk.SwitchToIdleNormalizedTime;
-                return targetLength / gestureSeconds;
-            }
-        }
-        else if (serverTimeMs > 0 && hitCenter > 0.01f)
-        {
-            float serverHit = (serverTimeMs / 1000f) - PlayerStateSpAtk.HitTimeCompensationSeconds;
-            if (serverHit < PlayerStateSpAtk.MinServerHitSeconds)
-                serverHit = PlayerStateSpAtk.MinServerHitSeconds;
-            return hitCenter / serverHit;
-        }
-
-        if (Animations != null && entity != null)
-            return Animations.ApplyLinearMeleePAtkSpeed(objectId, phaseStateName, clip.length);
-
+    float MissingCastTimingSpeed(int objectId, string phaseStateName)
+    {
+        Debug.LogError(
+            "[CastSync] SpAtk playback missing cast timing objectId=" + objectId +
+            " phase=" + phaseStateName +
+            " skillId=0 — SetupDuration was not run for this cast");
         return AnimPlayback.AuthoredRate;
     }
 

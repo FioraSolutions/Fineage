@@ -64,6 +64,53 @@ public static partial class EntitySpawnShared
         }
     }
 
+    public static void ReapplyGroundForItem(ItemEntity item)
+    {
+        if (item == null || item.Identity == null)
+            return;
+
+        TryResnapGroundItem(item);
+
+        MonoBehaviour host = WorldApplyPacketServices.GameWorld;
+        if (host != null)
+            host.StartCoroutine(RetryGroundItemSnap(item));
+    }
+
+    static bool TryResnapGroundItem(ItemEntity item)
+    {
+        if (item == null || item.Identity == null)
+            return false;
+
+        Vector3 from = item.transform.position;
+        Vector3 reference = new Vector3(from.x, item.Identity.ServerPosition.y, from.z);
+        var ctx = new WorldPlacement.PlacementFailContext(item.Identity.Id, item.ItemId);
+        Vector3 snapped = WorldPlacement.Resolve(
+            WorldPlacement.PlacementKind.ItemDrop,
+            reference,
+            null,
+            ctx);
+        if ((snapped - from).sqrMagnitude < 0.0001f)
+            return false;
+
+        item.Identity.Position = snapped;
+        item.transform.position = snapped;
+        return true;
+    }
+
+    static IEnumerator RetryGroundItemSnap(ItemEntity item)
+    {
+        float[] at = { 0.25f, 1f, 2f, 5f };
+        float elapsed = 0f;
+        for (int i = 0; i < at.Length; i++)
+        {
+            yield return new WaitForSeconds(at[i] - elapsed);
+            elapsed = at[i];
+            if (item == null)
+                yield break;
+            TryResnapGroundItem(item);
+        }
+    }
+
     public static void DisableLegacyPositionSync(GameObject root)
     {
         if (root == null)

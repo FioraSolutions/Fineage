@@ -68,6 +68,16 @@ public static class SkillAnimationResolver
         return true;
     }
 
+    /// <summary>
+    /// Body motion that must play from its own clip. A miss must not fall through
+    /// to the animator trigger (Player_Basic SpAtk01).
+    /// </summary>
+    public static bool IsCombatBodyState(string triggerName)
+    {
+        return PlayerSpAtkAnim.TryResolve(triggerName, out _)
+            || PlayerBasicAttackAnim.TryResolve(triggerName, out _);
+    }
+
     static int SpAtkIndex(string stateName)
     {
         if (string.IsNullOrEmpty(stateName) ||
@@ -108,7 +118,10 @@ public static class SkillAnimationResolver
 
         if (stateName.IndexOf("SpAtk06_", StringComparison.Ordinal) == 0 &&
             SkillAnimationDatabase.GetSpAtkCombatClip(AnimationManager.SpAtk06HandState, raceName) != null)
+        {
+            LogSpAtk06Hand(skillId, raceName, stateName, AnimationManager.SpAtk06HandState);
             return AnimationManager.SpAtk06HandState;
+        }
 
         int spatk = SpAtkIndex(stateName);
         if (spatk > 0)
@@ -140,13 +153,36 @@ public static class SkillAnimationResolver
         if (!MixMissLogged.Add(key))
             return;
 
+        string path = "(unresolved)";
+        if (SkillAnimationDatabase.TryGetSpAtkCombatResourcePath(stateName, raceName, out string resourcesPath)
+            && !string.IsNullOrEmpty(resourcesPath))
+        {
+            path = "Resources/" + resourcesPath;
+        }
+
         Debug.LogError(
             "[SkillAnimation] clip missing skillId=" + skillId +
             " race=" + raceName +
             " weapon=" + weapon +
             " expectedClipStem=" + clipStem +
+            " path=" + path +
             " animatorState=" + stateName +
-            " (run L2MFighterDuelistSpAtkImporter after staging MFighter_anim.fbx).");
+            " (InterludeAnimResourceTake.tsv → Resources; no substitute swing).");
+    }
+
+    static readonly HashSet<string> SpAtk06HandLogged = new HashSet<string>(StringComparer.Ordinal);
+
+    static void LogSpAtk06Hand(int skillId, string raceName, string from, string to)
+    {
+        string key = skillId + "|" + raceName + "|" + from;
+        if (!SpAtk06HandLogged.Add(key))
+            return;
+
+        Debug.Log(
+            "[SkillAnimation] SpAtk06 maps to the shared hand gesture skillId=" + skillId +
+            " race=" + raceName +
+            " from=" + from +
+            " to=" + to);
     }
 
     public static void LogMissingMixCombo(int skillId, int skillLevel, string animTag)

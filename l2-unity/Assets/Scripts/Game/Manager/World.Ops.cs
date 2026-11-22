@@ -78,34 +78,6 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
 
     static bool _loggedMissingClicks;
 
-    static bool _loggedMissingMoves;
-
-    static bool _loggedMissingActions;
-
-    static IEntityActionRoster Actions()
-    {
-        IEntityActionRoster actions = EntityActionPacketServices.BoundActions;
-        if (actions == null && !_loggedMissingActions)
-        {
-            _loggedMissingActions = true;
-            Debug.LogError("[World] IEntityActionRoster missing — EntityActionMachine constructor did not bind, so the action was not removed.");
-        }
-
-        return actions;
-    }
-
-    static IMoveRoster Moves()
-    {
-        IMoveRoster moves = MoveAllCharactersPacketServices.BoundMoves;
-        if (moves == null && !_loggedMissingMoves)
-        {
-            _loggedMissingMoves = true;
-            Debug.LogError("[World] IMoveRoster missing — MoveAllCharacters.Awake did not bind, so character moves were not updated.");
-        }
-
-        return moves;
-    }
-
     static IClickMasks Clicks()
     {
         IClickMasks clicks = ControllerPacketServices.BoundClicks;
