@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// HF268 LineageSkillEffect launch table (skill-effects.tsv).
+/// Interlude skill visual launch table (skill-effects.tsv, generated from Interlude skill.usk).
 /// skill_id is skill_visual_effect, not always the server skill id.
 /// </summary>
 public static class L2EffectSkillLaunchTable

@@ -93,7 +93,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba33dbd423646cd44b616a0185f53095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  motionName: FDarkElf_m000_b.ao_SpAtk002_1HS_FDarkElf
+  motionName: FDarkElf_m000_b.ao_SpAtk02_1HS_FDarkElf
   eventStartHitName: OnAnimationHit
   eventEndHitName: OnAnimationAttackHitEnd
   postHitSpeed: 1.2
@@ -611,7 +611,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: b70d349893792634e80bbf43d2693252, type: 2}
+  m_Motion: {fileID: 7400000, guid: 5213ec6de5ce849ca83f8d7f13a49483, type: 2}
   m_Tag: 
   m_SpeedParameter: patkspd
   m_MirrorParameter: 
@@ -638,7 +638,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 4ceb416a36ec4164f871a10ebb586129, type: 2}
+  m_Motion: {fileID: 7400000, guid: 1eacd83dbf73f49a08b05b5e4e84c76c, type: 2}
   m_Tag: 
   m_SpeedParameter: patkspd
   m_MirrorParameter: 
@@ -1129,7 +1129,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 6e9b7d1f69b372f41b07f4b798a0c211, type: 2}
+  m_Motion: {fileID: 7400000, guid: 2d13f400635e34d87b3b9f84a48da27c, type: 2}
   m_Tag: 
   m_SpeedParameter: patkspd
   m_MirrorParameter: 
@@ -1236,7 +1236,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: adeb2c0d0d5498741befcbb690f0d871, type: 2}
+  m_Motion: {fileID: 7400000, guid: c67ba3566eb6f4d2a925cffe5ba0f8d7, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -1283,32 +1283,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentPhase: 0
   parameterName: CastMidLong
---- !u!1102 &-767486580112573286
-AnimatorState:
-  serializedVersion: 6
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: spatk_loop1
-  m_Speed: 1
-  m_CycleOffset: 0
-  m_Transitions: []
-  m_StateMachineBehaviours: []
-  m_Position: {x: 50, y: 50, z: 0}
-  m_IKOnFeet: 0
-  m_WriteDefaultValues: 1
-  m_Mirror: 0
-  m_SpeedParameterActive: 0
-  m_MirrorParameterActive: 0
-  m_CycleOffsetParameterActive: 0
-  m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 8a88551fe8d6f3646a1614ba2c42156b, type: 2}
-  m_Tag: 
-  m_SpeedParameter: 
-  m_MirrorParameter: 
-  m_CycleOffsetParameter: 
-  m_TimeParameter: 
 --- !u!1102 &-632110641085126201
 AnimatorState:
   serializedVersion: 6
@@ -1423,9 +1397,6 @@ AnimatorStateMachine:
     m_State: {fileID: 1701810685821752499}
     m_Position: {x: 560, y: -140, z: 0}
   - serializedVersion: 1
-    m_State: {fileID: 801424905681970209}
-    m_Position: {x: 490, y: -310, z: 0}
-  - serializedVersion: 1
     m_State: {fileID: 4449740963674483829}
     m_Position: {x: -470, y: -1300, z: 0}
   - serializedVersion: 1
@@ -1455,9 +1426,6 @@ AnimatorStateMachine:
   - serializedVersion: 1
     m_State: {fileID: 3991116733948377179}
     m_Position: {x: 720, y: 680, z: 0}
-  - serializedVersion: 1
-    m_State: {fileID: -767486580112573286}
-    m_Position: {x: 720, y: 740, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -6374972864266442709}
     m_Position: {x: 330, y: -1440, z: 0}
@@ -1562,7 +1530,6 @@ AnimatorStateMachine:
     m_Position: {x: 560, y: 120, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
-  - {fileID: 455976464208914810}
   - {fileID: -4339497211536082158}
   - {fileID: -5743441440485125603}
   - {fileID: -4908271974948834823}
@@ -1822,7 +1789,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba33dbd423646cd44b616a0185f53095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  motionName: FDarkElf_m000_b.ao_SpAtk001_2HS_FDarkElf
+  motionName: FDarkElf_m000_b.ao_SpAtk01_2HS_FDarkElf
   eventStartHitName: OnAnimationHit
   eventEndHitName: OnAnimationAttackHitEnd
   postHitSpeed: 1.2
@@ -1853,31 +1820,6 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
---- !u!1101 &455976464208914810
-AnimatorStateTransition:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_Conditions:
-  - m_ConditionMode: 1
-    m_ConditionEvent: wait_hit
-    m_EventTreshold: 0
-  m_DstStateMachine: {fileID: 0}
-  m_DstState: {fileID: 801424905681970209}
-  m_Solo: 0
-  m_Mute: 0
-  m_IsExit: 0
-  serializedVersion: 3
-  m_TransitionDuration: 0.1
-  m_TransitionOffset: 0
-  m_ExitTime: 0.75
-  m_HasExitTime: 0
-  m_HasFixedDuration: 1
-  m_InterruptionSource: 0
-  m_OrderedInterruption: 1
-  m_CanTransitionToSelf: 0
 --- !u!114 &476403002816493561
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1893,32 +1835,6 @@ MonoBehaviour:
   parameterName: CastEnd
   isFinalShotState: 0
   stateIndex: 1
---- !u!1102 &801424905681970209
-AnimatorState:
-  serializedVersion: 6
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: wait_hit
-  m_Speed: 1
-  m_CycleOffset: 0
-  m_Transitions: []
-  m_StateMachineBehaviours: []
-  m_Position: {x: 50, y: 50, z: 0}
-  m_IKOnFeet: 0
-  m_WriteDefaultValues: 1
-  m_Mirror: 0
-  m_SpeedParameterActive: 0
-  m_MirrorParameterActive: 0
-  m_CycleOffsetParameterActive: 0
-  m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 232e55781e572b642b76c0a5f5e076da, type: 2}
-  m_Tag: 
-  m_SpeedParameter: speed
-  m_MirrorParameter: 
-  m_CycleOffsetParameter: 
-  m_TimeParameter: 
 --- !u!1102 &860521771744879880
 AnimatorState:
   serializedVersion: 6
@@ -2174,7 +2090,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parameterName: SpAtk01_bow
-  motionName: FDarkElf_m000_b.ao_SpAtk001_Bow_FDarkElf
+  motionName: FDarkElf_m000_b.ao_SpAtk01_Bow_FDarkElf
   eventShootName: OnAnimationShoot
 --- !u!114 &2678866627845112190
 MonoBehaviour:
@@ -2474,7 +2390,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: adeb2c0d0d5498741befcbb690f0d871, type: 2}
+  m_Motion: {fileID: 7400000, guid: c67ba3566eb6f4d2a925cffe5ba0f8d7, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -2514,7 +2430,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: adeb2c0d0d5498741befcbb690f0d871, type: 2}
+  m_Motion: {fileID: 7400000, guid: c67ba3566eb6f4d2a925cffe5ba0f8d7, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -2629,7 +2545,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 102ce9f13a62f074b806512a21d74be0, type: 2}
+  m_Motion: {fileID: 7400000, guid: eabc8b7dc36a44e7eb57677cac287dcc, type: 2}
   m_Tag: 
   m_SpeedParameter: patkspd
   m_MirrorParameter: 
@@ -2743,7 +2659,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba33dbd423646cd44b616a0185f53095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  motionName: FDarkElf_m000_b.ao_SpAtk001_Pole_FDarkElf
+  motionName: FFighter_m000_b.ao_SpAtk01_Pole_FFighter
   eventStartHitName: OnAnimationHit
   eventEndHitName: OnAnimationAttackHitEnd
   postHitSpeed: 1.2
@@ -2980,7 +2896,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 263523b35633adf489c12c74410b0e81, type: 2}
+  m_Motion: {fileID: 7400000, guid: cc40915eb22c6457f8ab346c862746c8, type: 2}
   m_Tag: 
   m_SpeedParameter: patkspd
   m_MirrorParameter: 
@@ -3108,7 +3024,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba33dbd423646cd44b616a0185f53095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  motionName: FDarkElf_m000_b.ao_spatk001_1hs_FDarkElf
+  motionName: FDarkElf_m000_b.ao_SpAtk01_1HS_FDarkElf
   eventStartHitName: OnAnimationHit
   eventEndHitName: OnAnimationAttackHitEnd
   postHitSpeed: 1.2

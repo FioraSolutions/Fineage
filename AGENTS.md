@@ -15,6 +15,19 @@ Fineage **server business logic**, **client behavior**, and **client look** must
 
 Before changing HUD, MenuWnd, SystemMsgWnd, skillbar, chat, combat formulas, spawns, etc.: **open the matching original** (Interface / Mobius Java / datapack) and match it. That covers art, how it is drawn, and the business rule. If the local source does not have it or the draw path is unclear, search the web before inventing a screen or a formula. See [`ref/README.md`](ref/README.md), [`Docs/DOC_CANON.md`](Docs/DOC_CANON.md), and `.cursor/rules/interlude-sources-first.mdc`.
 
+## UI: original layout, original textures, pixel-perfect (hard rule)
+
+Every client UI element (lobby / char select, login, HUD, status, target, chat, radar/compass, world map, buffs, skillbar, menus, dialogs, tooltips) is built **only from the Interlude original**:
+
+1. **Layout** comes from the original window definitions (Interface.u scripts + window XML/xdat, unpacked from `ref/l2-interlude-client/`): position, size, anchors, child order, fonts, font colors, text alignment, tab geometry. Copy the numbers; do not eyeball or "make it look similar".
+2. **Art** is only the original textures (L2UI*.utx and friends, imported through the bake pipeline), with the original slicing/frame pieces. No hand-drawn, recolored, generated, or stand-in sprites, no CSS-like gradients replacing a texture.
+3. **Pixel-perfect:** at the original reference resolution the Unity element must match an original-client screenshot pixel for pixel (same frame, same offsets, same text baseline/centering). Every UI PR attaches an original-vs-Fineage side-by-side screenshot of each touched window.
+4. Do not add elements that do not exist in the original (e.g. no map inside the radar) and do not drop ones that do.
+5. Missing layout data or texture → log a concrete error naming the window/control/texture and stop; never substitute a default look. If the agent cannot access the originals (cloud VM without `ref/`), use the committed extracted layout specs/screenshots; if those are missing, extract them first (on the Mac) instead of guessing.
+
+Agents must use [`l2-unity/Docs/interlude-ref`](l2-unity/Docs/interlude-ref) before re-extracting anything from the official client.
+
+
 ## Model selection
 
 | Work | Model |

@@ -14,6 +14,8 @@ public partial class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
             return;
 
         StepMoves();
+        StepRegisteredMoveNpcs();
+        PawnYawDriveRegistry.StepAll(Time.deltaTime);
 
         IGravity gravity = GravityNpcPacketServices.Gravity;
         gravity?.StepGravity();

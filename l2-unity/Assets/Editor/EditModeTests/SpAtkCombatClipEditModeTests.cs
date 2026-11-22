@@ -225,7 +225,7 @@ public sealed class SpAtkCombatClipEditModeTests
 
     static IEnumerable<AnimationComboRow> LoadAnimationComboClassic()
     {
-        string dataPath = Path.Combine(Application.streamingAssetsPath, "Data/Meta/AnimationCombo_Classic.txt");
+        string dataPath = Path.Combine(Application.streamingAssetsPath, "Data/Meta/AnimationCombo_Interlude.txt");
         Assert.IsTrue(File.Exists(dataPath), dataPath);
 
         var rows = new List<AnimationComboRow>();

@@ -1,0 +1,615 @@
+{
+  "description": "Map of every Unreal texture referenced by l2-unity/docs/ui-original window layouts to the Unity asset path under l2-unity/Assets. Newly imported textures (imported=true) are the exact USize×VSize of the Interlude .utx export, not cropped to a widget. Non-map UI uses point filter, no mipmaps, and the ImportPolicy 'ui' Standalone BC7 / mobile ASTC settings (same as Status/Interlude siblings). Assets under UI/Map use the 'ui-map' rule: bilinear, no mipmaps, uncompressed RGBA32 on Standalone.",
+  "count": 68,
+  "importedThisChange": 38,
+  "alreadyPresent": 30,
+  "textures": [
+    {
+      "unreal": "L2UI_CH3.LobbyWnd.lobby_menuback",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/lobby_menuback.png"
+      ],
+      "width": 128,
+      "height": 256,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.Button.BigButton",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/bigbutton.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.Button.BigButton_down",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/bigbutton_down.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.LobbyWnd.lobby_startbtnback",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/lobby_startbtnback.png"
+      ],
+      "width": 256,
+      "height": 64,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.Button.BigButton2",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/bigbutton2.png"
+      ],
+      "width": 128,
+      "height": 32,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.Button.BigButton2_down",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/bigbutton2_down.png"
+      ],
+      "width": 128,
+      "height": 32,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.LobbyWnd.select1_back",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/select1_back.png"
+      ],
+      "width": 256,
+      "height": 128,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_ch3.playerstatuswnd.ps_hpbar",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_ch3.PlayerStatusWnd.ps_mpbar",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_ch3.PlayerStatusWnd.ps_expbar",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.Chatting_Back2",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_back2.png",
+        "l2-unity/Assets/Resources/Data/UI/Assets/Chat/chatting_back2.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.Chatting_Back3",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_back3.png",
+        "l2-unity/Assets/Resources/Data/UI/Assets/Chat/chatting_back3.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.Chatting_Back4",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_back4.png",
+        "l2-unity/Assets/Resources/Data/UI/Assets/Chat/chatting_back4.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.Chatting_Back1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_back1.png",
+        "l2-unity/Assets/Resources/Data/UI/Assets/Chat/chatting_back1.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.Chatting_IMEkr",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_imekr.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.Chatting_Option1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_option1.png",
+        "l2-unity/Assets/Resources/Data/UI/Assets/Chat/chatting_option1.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.Chatting_Option2",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_option2.png",
+        "l2-unity/Assets/Resources/Data/UI/Assets/Chat/chatting_option2.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.PartyMatchButton",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/partymatchbutton.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.PartyMatchButton_Down",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/partymatchbutton_down.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.Chatting_Msn4",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_msn4.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui",
+      "note": "xdat path is ChatWnd.Chatting_Msn4; the Texture export lives in L2UI_CH3.Msn.chatting_msn4"
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.Chatting_Msn4_down",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_msn4_down.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui",
+      "note": "xdat path is ChatWnd.Chatting_Msn4_down; the Texture export lives in L2UI_CH3.Msn.chatting_msn4_down"
+    },
+    {
+      "unreal": "L2UI_CH3.Minimap.MapWnd_back_max",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/mapwnd_back_max.png"
+      ],
+      "width": 4,
+      "height": 4,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.Chatting_Tab2",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_tab2.png",
+        "l2-unity/Assets/Resources/Data/UI/Assets/Chat/chatting_tab2.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.ChatWnd.Chatting_Tab1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_tab1.png",
+        "l2-unity/Assets/Resources/Data/UI/Assets/Chat/chatting_tab1.png",
+        "l2-unity/Assets/Resources/Data/UI/Window/Inventory/tab/chatting_tab1.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.Minimap.MapBack",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/MapBack.png"
+      ],
+      "width": 512,
+      "height": 512,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.FrameCtrl.Bar_Shadow",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Frame/Interlude/Bar_Shadow.png"
+      ],
+      "width": 32,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.Minimap.MapShadow",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/MapShadow.png"
+      ],
+      "width": 512,
+      "height": 32,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.Minimap.Map_Sun",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/map_sun.png"
+      ],
+      "width": 32,
+      "height": 32,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.Minimap.Map_Moon",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/map_moon.png"
+      ],
+      "width": 32,
+      "height": 32,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.Minimap.MapButton_ZoomOut1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/mapbutton_zoomout1.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.Minimap.MapButton_ZoomOut2",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/mapbutton_zoomout2.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.Button.Btn1_Normal",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/btn1_normal.png"
+      ],
+      "width": 128,
+      "height": 32,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.Button.Btn1_NormalOn",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/btn1_normalon.png"
+      ],
+      "width": 128,
+      "height": 32,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.Button.SmallButton1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/smallbutton1.png"
+      ],
+      "width": 128,
+      "height": 32,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.Button.SmallButton1_down",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/smallbutton1_down.png"
+      ],
+      "width": 128,
+      "height": 32,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.Radar.icon1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon1.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.Radar.icon2",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon2.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.Radar.icon3",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon3.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.Radar.icon4",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon4.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.Radar.icon5",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon5.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.Radar.icon6",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon6.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.Radar.icon7",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon7.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.Radar.icon8",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon8.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.Radar.icon9",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon9.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.SmallWnd.Smallwindow2_back1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Smallwindow2_Back1.png"
+      ],
+      "width": 16,
+      "height": 128,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.SmallWnd.Smallwindow2_back2",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Smallwindow2_Back2.png"
+      ],
+      "width": 16,
+      "height": 128,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.PlayerStatusWnd.ps_sizecontrol1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Assets/Frame/Frame_DF_Ver/ps_sizecontrol1.png",
+        "l2-unity/Assets/Resources/Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol1.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.PlayerStatusWnd.ps_levelback",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/ps_levelback.png",
+        "l2-unity/Assets/Resources/Data/UI/Assets/Status/ps_levelback.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.PlayerStatusWnd.ps_cpbar",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_CpBar.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.PlayerStatusWnd.ps_cpbar_back",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_CpBar_Back.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.PlayerStatusWnd.ps_hpbar_back",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar_Back.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.PlayerStatusWnd.ps_hpbarwarn1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_HpBarWarn1.png"
+      ],
+      "width": 8,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.PlayerStatusWnd.ps_hpbarfill",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_HpBarFill.png"
+      ],
+      "width": 8,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.PlayerStatusWnd.ps_mpbar_back",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar_Back.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.PlayerStatusWnd.ps_expbar_back",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar_Back.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.SmallWnd.SmallWindow_Back1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back1.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.SmallWnd.SmallWindow_Back2",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back2.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.SmallWnd.SmallWindow_Back3_ex",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Target/Interlude/Target_Interlude_SmallWindow_Back3_ex.png"
+      ],
+      "width": 32,
+      "height": 64,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.SmallWnd.SmallWindow2_Back3_ex",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Target/Interlude/Target_Interlude_SmallWindow2_Back3_ex.png"
+      ],
+      "width": 32,
+      "height": 128,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI_CH3.FrameCtrl.FrameCloseBtn",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Frame/Interlude/FrameCloseBtn.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.FrameCtrl.FrameCloseOnBtn",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Frame/Interlude/FrameCloseOnBtn.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.SmallWnd.HpBar",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Target/Interlude/Target_Interlude_SmallWnd_HpBar.png",
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.SmallWnd.HpBar_back",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Target/Interlude/Target_Interlude_SmallWnd_HpBar_Back.png",
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar_Back.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.SmallWnd.MpBar",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Target/Interlude/Target_Interlude_SmallWnd_MpBar.png",
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI_CH3.SmallWnd.MpBar_back",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Target/Interlude/Target_Interlude_SmallWnd_MpBar_Back.png",
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar_Back.png"
+      ],
+      "imported": false
+    },
+    {
+      "unreal": "L2UI.MinimapWnd.MinimapBack",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Town/MinimapBack.png"
+      ],
+      "width": 512,
+      "height": 512,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "Default.BlackTexture",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/BlackTexture.png"
+      ],
+      "width": 32,
+      "height": 32,
+      "imported": true,
+      "importRule": "ui-map"
+    },
+    {
+      "unreal": "town_map.icon_i00",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Town/icon_i00.png"
+      ],
+      "width": 32,
+      "height": 32,
+      "imported": true,
+      "importRule": "ui-map"
+    }
+  ]
+}

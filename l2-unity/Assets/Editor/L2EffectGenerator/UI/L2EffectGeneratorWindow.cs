@@ -614,29 +614,22 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
     /// <summary>
     /// NPC deco: one Emitter class → one L2Particle under Resources/Data/Effects/deco.
     /// Unity.exe -batchmode -nographics -quit -executeMethod L2EffectGeneratorWindow.GenerateNpcDecoCli
-    /// Optional: -decoName u_npc_id_buff
+    /// Required: -decoName &lt;Interlude LineageEffect deco class&gt;
     /// </summary>
     public static void GenerateNpcDecoCli()
     {
         string effectName = ReadNamedArg("-decoName");
         if (string.IsNullOrWhiteSpace(effectName))
         {
-            effectName = "u_npc_id_buff";
+            Debug.LogError("[L2EffectGenerator] GenerateNpcDecoCli requires -decoName <Interlude LineageEffect deco class>.");
+            EditorApplication.Exit(1);
+            return;
         }
 
         if (!GenerateDeco("Assets/Resources/Data/Effects/deco", effectName))
         {
             EditorApplication.Exit(1);
         }
-    }
-
-    public static void GenerateNpcDecoBuffMenu()
-    {
-        bool ok = GenerateDeco("Assets/Resources/Data/Effects/deco", "u_npc_id_buff");
-        EditorUtility.DisplayDialog(
-            "L2 Effect Generator",
-            ok ? "Generated u_npc_id_buff under Data/Effects/deco." : "Failed. See Console.",
-            "OK");
     }
 
     static bool GenerateDeco(string decoRoot, string effectName)

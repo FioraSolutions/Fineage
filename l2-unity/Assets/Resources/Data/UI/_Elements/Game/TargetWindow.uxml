@@ -48,6 +48,6 @@
         <!-- Target abnormal strip: monsters/NPCs only. It is painted UNDER the plate as an
              overlay, exactly like BuffWnd hangs below its own window: as a flex sibling it
              added its 24px row to the GroupBox and the plate looked like a tall empty box. -->
-        <ui:VisualElement name="EffectsRow" class="target-effects-row" picking-mode="Ignore" style="display: none; margin: 0; padding: 0;" />
+        <ui:VisualElement name="EffectsRow" class="target-effects-row" style="display: none; margin: 0; padding: 0;" />
     </ui:GroupBox>
 </ui:UXML>

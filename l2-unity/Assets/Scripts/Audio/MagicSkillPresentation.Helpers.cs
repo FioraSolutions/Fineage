@@ -27,6 +27,14 @@ public static partial class MagicSkillPresentation
         if (SkillToggleRules.IsToggle(dto.SkillId, dto.SkillLvl, dto.SkillGrp))
             return;
 
+        if (PlayerStatePacketServices.PlayerState == null)
+        {
+            Debug.LogWarning(
+                "[MagicSkills] PresentLocal no PlayerStateMachine skill=" + dto.SkillId +
+                " lv=" + dto.SkillLvl + " hit=" + dto.HitTime);
+            return;
+        }
+
         AnimChannel.Begin(AnimChannel.Kind.Cast);
 
         CastMoveLock.Begin(dto.HitTime);
@@ -38,14 +46,6 @@ public static partial class MagicSkillPresentation
         {
             try { CastBarOverlay.Begin(dto.HitTime, dto.SkillId); }
             catch (System.Exception bar) { Debug.LogWarning("[CastBar] " + bar.Message); }
-        }
-
-        if (PlayerStatePacketServices.PlayerState == null)
-        {
-            Debug.LogWarning(
-                "[MagicSkills] PresentLocal no PlayerStateMachine skill=" + dto.SkillId +
-                " lv=" + dto.SkillLvl + " hit=" + dto.HitTime);
-            return;
         }
 
         Skillgrp grp = dto.SkillGrp;

@@ -174,7 +174,7 @@ def main() -> int:
         REPO / "l2-unity/Assets/Scripts/Database/Effects/GlobalEffect.asset"
     )
     visual = parse_skillgrp_visual(
-        REPO / "l2-unity/Assets/StreamingAssets/Data/Meta/Skillgrp_Classic.txt"
+        REPO / "l2-unity/Assets/StreamingAssets/Data/Meta/Skillgrp_Interlude.txt"
     )
     tsv = parse_tsv_classes(
         REPO / "l2-unity/Assets/Editor/L2EffectGenerator/Data/skill-effects.tsv"
