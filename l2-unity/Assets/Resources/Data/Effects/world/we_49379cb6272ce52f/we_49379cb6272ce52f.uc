@@ -1,0 +1,55 @@
+class we_49379cb6272ce52f extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_0
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=102,G=102,R=102,A=255),RelativeTime=0.107143)
+         ColorScale(2)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.257143)
+         ColorScale(3)=(Color=(B=110,G=110,R=110,A=255),RelativeTime=0.425000)
+         ColorScale(4)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.571429)
+         ColorScale(5)=(Color=(B=117,G=117,R=117,A=255),RelativeTime=0.725000)
+         ColorScale(6)=(Color=(B=242,G=242,R=242,A=255),RelativeTime=0.857143)
+         ColorScale(7)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorScale(8)=(Color=(B=121,G=121,R=121,A=255),RelativeTime=1.000000)
+         ColorScaleRepeats=2.000000
+         ColorMultiplierRange=(X=(Min=0.500000,Max=0.500000),Y=(Min=0.600000,Max=0.600000),Z=(Min=0.700000,Max=0.800000))
+         Opacity=0.270000
+         FadeOutStartTime=9.480000
+         FadeOut=True
+         FadeInEndTime=2.040000
+         FadeIn=True
+         MaxParticles=15
+         WeatherSoundCheck=True
+         Name="SpriteEmitter7"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=-70.000000)
+         StartLocationRange=(X=(Min=-300.000000,Max=300.000000),Y=(Min=-300.000000,Max=300.000000),Z=(Min=0.000000,Max=0.000000))
+         StartLocationShape=PTLS_Sphere
+         SphereRadiusRange=(Min=0.000000,Max=120.000000)
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=0.500000,Z=0.500000)
+         SpinsPerSecondRange=(X=(Min=0.100000,Max=0.400000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=0.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=0.500000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=1.300000,RelativeTime=0.230000)
+         SizeScale(2)=(RelativeSize=0.500000,RelativeTime=0.400000)
+         SizeScale(3)=(RelativeSize=1.000000,RelativeTime=0.720000)
+         SizeScale(4)=(RelativeSize=0.500000,RelativeTime=1.000000)
+         SizeScaleRepeats=3.000000
+         StartSizeRange=(X=(Min=4.000000,Max=7.000000),Y=(Min=4.000000,Max=7.000000),Z=(Min=4.000000,Max=7.000000))
+         UniformSize=True
+         InitialParticlesPerSecond=1.000000
+         AutomaticInitialSpawning=False
+         Texture=Texture'FX_E_T.particles_etc.elf_particleA_03'
+         BlendBetweenSubdivisions=True
+         UseRandomSubdivision=True
+         LifetimeRange=(Min=12.000000,Max=12.000000)
+         StartVelocityRange=(X=(Min=-30.000000,Max=30.000000),Y=(Min=-30.000000,Max=30.000000),Z=(Min=-20.000000,Max=-5.000000))
+         WarmupTicksPerSecond=2.000000
+         RelativeWarmupTime=12.000000
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter_0'
+}

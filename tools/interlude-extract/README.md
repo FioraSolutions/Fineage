@@ -37,3 +37,20 @@ Committed output is text only (`l2-unity/Docs/interlude-ref`). Decrypted package
 | `export_client_packages.sh` | Lossless JSON dump of named packages (maps `.unr`, sounds `.uax`, animations `.ukx`, env/UI `.u`). Uses Cruma `UObjectLoader.exportProperties` so map actors (Emitter, Light, MusicVolume, ZoneInfo, …) keep every property. Model/Polys exports and volume actors (MusicVolume, WaterVolume, PhysicsVolume, BlockingVolume, AmbientVolume, Volume, DefaultPhysicsVolume) also dump official brush bounds, polys/vertices, PrePivot, and scale. Lightmap payloads are omitted. |
 | `build_world_sound_gap.py` | Derived world/sound tables and `docs/interlude-ref/world/gap-report.md` from those dumps vs the Fineage tree. |
 
+## World map emitters (#1677)
+
+`write_official_world_emitters.py` reads official `.unr` dumps and writes:
+
+- `l2-unity/Assets/StreamingAssets/Data/Meta/Effects/official-world-emitters.json.gz`
+- `l2-unity/Assets/Resources/Data/Effects/world/we_<hash>/we_<hash>.uc`
+
+Generate prefabs (when the Unity Editor is not already running):
+
+```
+Unity -batchmode -nographics -quit -projectPath l2-unity \
+  -executeMethod L2EffectGeneratorWindow.GenerateWorldMapEmittersCli \
+  -logFile /tmp/world-emitters-1677.log
+```
+
+Prefabs are written next to each `.uc`. `OfficialWorldEmitterPlayback` instances them at official Location/Rotation/DrawScale. Missing prefabs or `SpawnSound` waves are logged and not replaced.
+

@@ -1,0 +1,73 @@
+class we_71c07395edc411de extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_0
+         Acceleration=(X=0.000000,Y=5.000000,Z=-20.000000)
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorMultiplierRange=(X=(Min=0.900000,Max=0.900000),Y=(Min=1.000000,Max=1.000000),Z=(Min=1.000000,Max=1.000000))
+         Opacity=0.550000
+         FadeOutStartTime=2.400000
+         FadeOut=True
+         FadeInEndTime=1.950000
+         FadeIn=True
+         MaxParticles=20
+         WeatherSoundCheck=True
+         Name="SpriteEmitter48"
+         StartLocationRange=(X=(Min=-40.000000,Max=40.000000),Y=(Min=-40.000000,Max=40.000000),Z=(Min=0.000000,Max=0.000000))
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=0.500000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=1.000000,RelativeTime=0.540000)
+         SizeScale(2)=(RelativeSize=0.500000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=80.000000,Max=120.000000),Y=(Min=80.000000,Max=120.000000),Z=(Min=80.000000,Max=120.000000))
+         UniformSize=True
+         DrawStyle=PTDS_Brighten
+         Texture=Texture'FX_E_T.smoke.anghel_fog'
+         LifetimeRange=(Min=3.000000,Max=3.000000)
+         StartVelocityRange=(X=(Min=-20.000000,Max=20.000000),Y=(Min=-20.000000,Max=20.000000),Z=(Min=30.000000,Max=30.000000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=3.000000
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter_0'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_1
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=91,G=91,R=91,A=255),RelativeTime=0.214286)
+         ColorScale(2)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.482143)
+         ColorScale(3)=(Color=(B=93,G=93,R=93,A=255),RelativeTime=0.732143)
+         ColorScale(4)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorScaleRepeats=5.000000
+         ColorMultiplierRange=(X=(Min=0.500000,Max=1.000000),Y=(Min=0.500000,Max=1.000000),Z=(Min=0.500000,Max=1.000000))
+         Opacity=0.390000
+         FadeOutStartTime=3.000000
+         FadeOut=True
+         FadeInEndTime=0.880000
+         FadeIn=True
+         MaxParticles=15
+         Name="SpriteEmitter51"
+         StartLocationRange=(X=(Min=-30.000000,Max=30.000000),Y=(Min=-30.000000,Max=30.000000),Z=(Min=0.000000,Max=0.000000))
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=0.500000,Z=0.500000)
+         SpinsPerSecondRange=(X=(Min=0.050000,Max=0.070000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=0.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=0.500000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=1.200000,RelativeTime=0.500000)
+         SizeScale(2)=(RelativeSize=0.500000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=13.000000,Max=22.000000),Y=(Min=13.000000,Max=22.000000),Z=(Min=13.000000,Max=22.000000))
+         UniformSize=True
+         Texture=Texture'FX_E_T.Etc.star01'
+         TextureUSubdivisions=2
+         TextureVSubdivisions=4
+         BlendBetweenSubdivisions=True
+         SubdivisionStart=5
+         SubdivisionEnd=7
+         UseRandomSubdivision=True
+         StartVelocityRange=(X=(Min=-30.000000,Max=30.000000),Y=(Min=-30.000000,Max=30.000000),Z=(Min=20.000000,Max=30.000000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter_1'
+}

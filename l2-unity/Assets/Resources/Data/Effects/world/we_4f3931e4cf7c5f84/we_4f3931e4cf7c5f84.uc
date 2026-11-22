@@ -1,0 +1,114 @@
+class we_4f3931e4cf7c5f84 extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_0
+         UseDirectionAs=PTDU_Normal
+         ProjectionNormal=(X=1.000000,Y=0.000000,Z=0.000000)
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         Opacity=0.240000
+         FadeOutStartTime=2.520000
+         FadeOut=True
+         FadeInEndTime=0.800000
+         FadeIn=True
+         MaxParticles=3
+         WeatherSoundCheck=True
+         Name="SpriteEmitter6"
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=1.000000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=1.400000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=350.000000,Max=350.000000),Y=(Min=350.000000,Max=350.000000),Z=(Min=350.000000,Max=350.000000))
+         UniformSize=True
+         Texture=Texture'FX_E_T.broadcasting_middletower_t.broadcasting_middletower_t004'
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter_0'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_1
+         UseDirectionAs=PTDU_Normal
+         ProjectionNormal=(X=1.000000,Y=0.000000,Z=0.000000)
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         Opacity=0.350000
+         FadeOutStartTime=1.600000
+         FadeOut=True
+         FadeInEndTime=1.000000
+         FadeIn=True
+         MaxParticles=2
+         Name="SpriteEmitter11"
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=0.500000,Z=0.500000)
+         SpinsPerSecondRange=(X=(Min=0.050000,Max=0.050000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=1.000000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=1.200000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=400.000000,Max=400.000000),Y=(Min=400.000000,Max=400.000000),Z=(Min=400.000000,Max=400.000000))
+         UniformSize=True
+         Texture=Texture'FX_E_T.broadcasting_middletower_t.broadcasting_middletower_t005'
+         BlendBetweenSubdivisions=True
+         SubdivisionEnd=1
+         UseRandomSubdivision=True
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter_1'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_2
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorMultiplierRange=(X=(Min=0.500000,Max=0.500000),Y=(Min=0.500000,Max=0.500000),Z=(Min=1.000000,Max=1.000000))
+         Opacity=0.400000
+         FadeOutStartTime=2.720000
+         FadeOut=True
+         FadeInEndTime=1.240000
+         FadeIn=True
+         MaxParticles=2
+         Name="SpriteEmitter12"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=30.000000)
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=0.500000,Z=0.500000)
+         SpinsPerSecondRange=(X=(Min=0.040000,Max=0.040000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=1.000000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=1.400000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=400.000000,Max=400.000000),Y=(Min=400.000000,Max=400.000000),Z=(Min=400.000000,Max=400.000000))
+         UniformSize=True
+         DrawStyle=PTDS_AlphaBlend
+         Texture=Texture'FX_E_T.Fx_argos_eye.Fx_argos_eye_t01'
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(2)=SpriteEmitter'SpriteEmitter_2'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_3
+         UseDirectionAs=PTDU_Normal
+         ProjectionNormal=(X=1.000000,Y=0.000000,Z=0.000000)
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         Opacity=0.250000
+         FadeOutStartTime=4.000000
+         MaxParticles=1
+         Name="SpriteEmitter22"
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=0.500000,Z=0.500000)
+         SpinsPerSecondRange=(X=(Min=0.010000,Max=0.010000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=1.000000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=1.000000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=350.000000,Max=350.000000),Y=(Min=350.000000,Max=350.000000),Z=(Min=350.000000,Max=350.000000))
+         UniformSize=True
+         Texture=Texture'FX_E_T.Etc.fx_e_t001_34'
+         TextureUSubdivisions=1
+         TextureVSubdivisions=2
+         BlendBetweenSubdivisions=True
+         SubdivisionEnd=1
+         UseRandomSubdivision=True
+         LifetimeRange=(Min=50.000000,Max=50.000000)
+         WarmupTicksPerSecond=2.000000
+         RelativeWarmupTime=50.000000
+     End Object
+     Emitters(3)=SpriteEmitter'SpriteEmitter_3'
+}
