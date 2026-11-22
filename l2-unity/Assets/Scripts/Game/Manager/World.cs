@@ -33,6 +33,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     [Inject] private CameraController _camera;
     [Inject] private IAnimationManager _animations;
     [Inject] private IAnimationRoster _animationRoster;
+    [Inject] private IVisibilityRoster _visibility;
     [Inject] private PlayerSpawner _playerSpawner;
     [Inject] private UserSpawner _userSpawner;
     [Inject] private NpcSpawner _npcSpawner;

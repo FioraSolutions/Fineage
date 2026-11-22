@@ -92,6 +92,7 @@ public sealed partial class GameLifetimeScope
 
         builder.RegisterBuildCallback(container =>
         {
+            RequireVisibilityRoster(container);
             App.GameContainer = container;
             try
             {
