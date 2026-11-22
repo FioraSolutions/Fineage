@@ -94,6 +94,8 @@ public partial class SkillAnimationDatabase
                 continue;
             if (token.IndexOf("SpAtk", StringComparison.OrdinalIgnoreCase) < 0)
                 continue;
+            if (!PlayerSpAtkAnim.TryParse(token + "_1HS", out _, out _, out _))
+                continue;
             phases.Add(token);
         }
 

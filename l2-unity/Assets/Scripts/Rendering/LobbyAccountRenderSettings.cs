@@ -24,6 +24,9 @@ public static class LobbyAccountRenderSettings
 #if UNITY_EDITOR
     /// <summary>EditMode batchmode may not echo <see cref="RenderSettings.ambientMode"/>; tests assert this instead.</summary>
     public static AmbientMode LastAppliedAmbientModeForTests { get; private set; }
+
+    /// <summary>EditMode batchmode may not echo <see cref="RenderSettings.ambientIntensity"/>; tests assert this instead.</summary>
+    public static float LastAppliedAmbientIntensityForTests { get; private set; }
 #endif
 
     public static bool IsApplied => _applied;
@@ -72,6 +75,7 @@ public static class LobbyAccountRenderSettings
         RenderSettings.ambientMode = profile.ambientMode;
 #if UNITY_EDITOR
         LastAppliedAmbientModeForTests = profile.ambientMode;
+        LastAppliedAmbientIntensityForTests = profile.ambientIntensity;
 #endif
         RenderSettings.ambientIntensity = profile.ambientIntensity;
         RenderSettings.ambientSkyColor = profile.ambientSky;

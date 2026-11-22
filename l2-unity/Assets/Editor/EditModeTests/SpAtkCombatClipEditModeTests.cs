@@ -115,7 +115,7 @@ public sealed class SpAtkCombatClipEditModeTests
                                 + " must not load generic SpAtk01 clip; got " + clip.name);
                         }
 
-                        AssertSpAtkIndex(clip.name, wantNumber);
+                        AssertSpAtkIndex(state, wantNumber);
                     }
                 }
             }
