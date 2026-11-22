@@ -31,8 +31,16 @@ public final class ExportPackageProperties {
         final StringBuilder sb = new StringBuilder();
         int indent;
         boolean pendingComma;
+        final boolean compact;
 
-        void nl() { sb.append('\n'); for (int i = 0; i < indent; i++) sb.append("  "); }
+        Json() { this(false); }
+        Json(boolean compact) { this.compact = compact; }
+
+        void nl() {
+            if (compact) return;
+            sb.append('\n');
+            for (int i = 0; i < indent; i++) sb.append("  ");
+        }
 
         void startObj() {
             comma();
@@ -308,6 +316,18 @@ public final class ExportPackageProperties {
             sourceOut[0] = "class_defaults_empty";
             return List.of();
         }
+        // Map/actor exports start with a native Unreal header; raw tagged
+        // extraction hits a name-index error. Cruma's object loader skips it.
+        try {
+            var loader = a.getObjectLoader();
+            if (loader != null) {
+                List<UProperty> props = loader.exportProperties(exp);
+                sourceOut[0] = "object_loader_export_properties";
+                return props == null ? List.of() : new ArrayList<>(props);
+            }
+        } catch (Throwable t) {
+            sourceOut[0] = "object_loader_error:" + t.getClass().getSimpleName();
+        }
         sourceOut[0] = "tagged_properties";
         return extract(a, exp);
     }
@@ -327,7 +347,73 @@ public final class ExportPackageProperties {
         if (source != null) j.keyVal("properties_source", source);
         j.key("properties");
         writeProps(j, a, props);
+        attachNativeExtras(j, a, exp);
         j.endObj();
+    }
+
+    static void attachNativeExtras(Json j, UArchive a, UObjectExport exp) {
+        String cls = exp.getClassName();
+        if (cls == null) return;
+        if ("Sound".equalsIgnoreCase(cls)) {
+            j.keyVal("wave_serial_size", exp.getSerialSize());
+            try {
+                var obj = a.getObjectLoader().exportObject(exp);
+                if (obj instanceof com.rost.cruma.core.unreal.USound snd) {
+                    byte[] data = snd.getData();
+                    if (data != null) j.keyVal("wave_bytes", data.length);
+                    // payload intentionally omitted
+                }
+            } catch (Throwable ignored) {
+            }
+            return;
+        }
+        if ("MeshAnimation".equalsIgnoreCase(cls)) {
+            try {
+                var obj = a.getObjectLoader().exportObject(exp);
+                if (obj instanceof com.rost.cruma.core.unreal.UMeshAnimation anim) {
+                    j.keyVal("mesh_animation_version", anim.getVersion());
+                    var seqs = anim.getSequences();
+                    var bones = anim.getBones();
+                    j.keyVal("sequence_count", seqs == null ? 0 : seqs.length);
+                    j.keyVal("bone_count", bones == null ? 0 : bones.length);
+                    j.key("sequences");
+                    j.startArr();
+                    if (seqs != null) {
+                        for (var seq : seqs) {
+                            j.comma();
+                            j.nl();
+                            j.startObj();
+                            j.keyVal("name", seq.name());
+                            j.keyVal("start_frame", seq.startFrame());
+                            j.keyVal("frame_count", seq.frameCount());
+                            j.keyVal("rate", seq.rate());
+                            j.keyVal("shot_time", seq.shotTime());
+                            j.keyVal("pre_shot_time", seq.preShotTime());
+                            writeFloatList(j, "shot_times", seq.shotTimes());
+                            writeFloatList(j, "pre_shot_times", seq.preShotTimes());
+                            writeFloatList(j, "channel_times", seq.channelTimes());
+                            // Keyframe tracks omitted (binary motion, not properties).
+                            j.endObj();
+                        }
+                    }
+                    j.endArr();
+                }
+            } catch (Throwable t) {
+                j.keyVal("mesh_animation_error", String.valueOf(t));
+            }
+        }
+    }
+
+    static void writeFloatList(Json j, String key, org.eclipse.collections.api.list.primitive.ImmutableFloatList list) {
+        if (list == null || list.isEmpty()) return;
+        j.key(key);
+        j.startArr();
+        for (int i = 0; i < list.size(); i++) {
+            j.comma();
+            j.nl();
+            j.val((double) list.get(i));
+        }
+        j.endArr();
     }
 
     static void writeImport(Json j, UArchive a, int i, UObjectImport imp) {
@@ -402,8 +488,12 @@ public final class ExportPackageProperties {
     }
 
     static void dumpArchive(Path out, String logicalName, String sourceHint, UArchive a) throws IOException {
+        dumpArchive(out, logicalName, sourceHint, a, false);
+    }
+
+    static void dumpArchive(Path out, String logicalName, String sourceHint, UArchive a, boolean compact) throws IOException {
         Files.createDirectories(out.getParent());
-        Json j = new Json();
+        Json j = new Json(compact);
         j.startObj();
         j.keyVal("package", a.getName() == null ? logicalName : a.getName());
         j.keyVal("source", sourceHint);
