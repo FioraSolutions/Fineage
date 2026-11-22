@@ -8,6 +8,8 @@ public static class AudioPathResolver
     public const string ResourcesItemSoundRoot = "Data/Sounds/ItemSound/";
     public const string ResourcesMusicRoot = "Data/Sounds/Music/";
     public const string ResourcesMonSoundRoot = "Data/Sounds/MonSound/";
+    public const string ResourcesInterfaceSoundRoot = "Data/Sounds/InterfaceSound/";
+    public const string ResourcesMessengerSoundRoot = "Data/Sounds/MessengerSound/";
 
     public static string FmodChrSound(CharacterRaceSound race, CharacterSoundEvent soundEvent) =>
         FmodChrSoundBank(race.ToString(), soundEvent);
@@ -99,6 +101,10 @@ public static class AudioPathResolver
 
         if (resourcesPath.StartsWith(ResourcesMonSoundRoot))
             return new AudioPlaySpec(AudioCategory.Sfx, AudioSourceKind.ResourcesClip, resourcesPath);
+
+        if (resourcesPath.StartsWith(ResourcesInterfaceSoundRoot)
+            || resourcesPath.StartsWith(ResourcesMessengerSoundRoot))
+            return new AudioPlaySpec(AudioCategory.Ui, AudioSourceKind.ResourcesClip, resourcesPath);
 
         return new AudioPlaySpec(AudioCategory.Sfx, AudioSourceKind.ResourcesClip, resourcesPath);
     }

@@ -21,13 +21,13 @@ public abstract partial class L2PopupWindow : L2Window
 
     public void ShowWindowToCenter()
     {
-        base.ShowWindow();
+        ShowWindow();
         OnCenterScreen(_root);
     }
 
     public void ShowWindowToCenterAndBringToFront()
     {
-        base.ShowWindow();
+        ShowWindow();
         OnCenterScreen(_root);
         _windowEle.BringToFront();
     }

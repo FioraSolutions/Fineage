@@ -8,10 +8,7 @@ public partial class SystemMessageTable
     private void ReadDatFile() {
         _systemMessages = new Dictionary<int, SystemMessageDat>();
         string dataPath = Path.Combine(Application.streamingAssetsPath, "Data/Meta/SystemMsg_Classic-eu.txt");
-        if (!File.Exists(dataPath)) {
-            // Debug.LogWarning("File not found: " + dataPath);
-            return;
-        }
+        if (File.Exists(dataPath)) {
 
         using (StreamReader reader = new StreamReader(dataPath)) {
             string line;
@@ -56,6 +53,65 @@ public partial class SystemMessageTable
             }
 
             // Debug.Log($"Successfully imported {_systemMessages.Count} system message(s)");
+        }
+        }
+
+        ReadInterludeItemSounds();
+    }
+
+    public const string InterludeSystemMsgRelativePath = "Data/Meta/systemmsg-e.tsv";
+
+    void ReadInterludeItemSounds()
+    {
+        string dataPath = Path.Combine(Application.streamingAssetsPath, InterludeSystemMsgRelativePath);
+        if (!File.Exists(dataPath))
+        {
+            Debug.LogError("SystemMessageTable: missing Interlude systemmsg table path=\"" + dataPath + "\"");
+            return;
+        }
+
+        using (var reader = new StreamReader(dataPath))
+        {
+            string header = reader.ReadLine();
+            if (header == null)
+            {
+                Debug.LogError("SystemMessageTable: empty Interlude systemmsg table path=\"" + dataPath + "\"");
+                return;
+            }
+
+            string[] cols = header.Split('\t');
+            int idIdx = -1, soundIdx = -1;
+            for (int i = 0; i < cols.Length; i++)
+            {
+                if (cols[i] == "id") idIdx = i;
+                else if (cols[i] == "item_sound") soundIdx = i;
+            }
+            if (idIdx < 0 || soundIdx < 0)
+            {
+                Debug.LogError("SystemMessageTable: Interlude systemmsg table missing id/item_sound columns path=\"" + dataPath + "\"");
+                return;
+            }
+
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+                string[] cells = line.Split('\t');
+                if (cells.Length <= Math.Max(idIdx, soundIdx))
+                    continue;
+                if (!int.TryParse(cells[idIdx], out int id))
+                    continue;
+                string sound = cells[soundIdx];
+                if (string.IsNullOrEmpty(sound))
+                    continue;
+                if (!_systemMessages.TryGetValue(id, out SystemMessageDat message) || message == null)
+                {
+                    message = new SystemMessageDat { Id = id };
+                    _systemMessages[id] = message;
+                }
+                message.ItemSound = sound;
+            }
         }
     }
 

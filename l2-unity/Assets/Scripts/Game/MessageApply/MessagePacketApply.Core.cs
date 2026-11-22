@@ -27,7 +27,11 @@ public sealed partial class MessagePacketApply
         OpenMessageWindow(messageId, messageData, smParams);
 
         if (messageData != null)
+        {
+            if (!string.IsNullOrEmpty(messageData.ItemSound))
+                UiAudio.Play(messageData.ItemSound);
             ReceiveSystem(new SystemMessage(smParams, messageData));
+        }
         else
             ReceiveSystem(new UnhandledMessage());
     }

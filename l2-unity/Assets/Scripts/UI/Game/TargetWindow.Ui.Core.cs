@@ -84,9 +84,6 @@ public partial class TargetWindow : L2Window
             TickEffectTimers();
             BindProperties(targetData);
         } else {
-            if (!_isWindowHidden) {
-                AudioPacketServices.Audio.PlayUISound("window_close");
-            }
             ClearEffects();
             ClearProperties();
             HideWindow();

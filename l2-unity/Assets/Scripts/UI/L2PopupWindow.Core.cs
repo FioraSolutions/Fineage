@@ -21,7 +21,6 @@ public abstract partial class L2PopupWindow : L2Window
         closeButton.AddManipulator(new ButtonClickSoundManipulator(closeButton));
         closeButton.clicked += () =>
         {
-            AudioPacketServices.Audio.PlayUISound("window_close");
             HideWindow();
         };
     }
@@ -70,12 +69,18 @@ public abstract partial class L2PopupWindow : L2Window
 
     public override void ShowWindow()
     {
+        bool wasHidden = _isWindowHidden;
         base.ShowWindow();
         BringToFront();
+        if (wasHidden)
+            AudioPacketServices.Audio.PlayUISound(InterfaceWindowSounds.OpenToken(GetType().Name));
     }
 
     public override void HideWindow()
     {
+        bool wasVisible = !_isWindowHidden;
         base.HideWindow();
+        if (wasVisible)
+            AudioPacketServices.Audio.PlayUISound(InterfaceWindowSounds.CloseToken(GetType().Name));
     }
 }

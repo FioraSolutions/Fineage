@@ -15,6 +15,7 @@ public class SystemMessageDat
     public string OriginalMessage { get { return _original; } set { _original = value; } }
     public int Group { get { return _group; } set { _group = value; } }
     public string Color { get { return _color; } set { _color = value; } }
+    public string ItemSound { get; set; }
 
     public string AddSkillName(string skilName)
     {
