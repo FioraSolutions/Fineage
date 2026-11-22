@@ -373,7 +373,248 @@ public final class ExportPackageProperties {
             } catch (Throwable t) {
                 j.keyVal("mesh_animation_error", String.valueOf(t));
             }
+            return;
         }
+        if (isModelClass(cls) || isPolysClass(cls) || isVolumeActorClass(cls) || "Brush".equalsIgnoreCase(cls)) {
+            try {
+                writeGeometryExtras(j, a, exp);
+            } catch (Throwable t) {
+                j.keyVal("geometry_error", String.valueOf(t));
+            }
+        }
+    }
+
+    static boolean isModelClass(String cls) {
+        return cls != null && "Model".equalsIgnoreCase(cls);
+    }
+
+    static boolean isPolysClass(String cls) {
+        return cls != null && "Polys".equalsIgnoreCase(cls);
+    }
+
+    /** Volume actor types whose official bounds come from a Brush/Model (not point location). */
+    static boolean isVolumeActorClass(String cls) {
+        if (cls == null) return false;
+        return "MusicVolume".equalsIgnoreCase(cls)
+            || "WaterVolume".equalsIgnoreCase(cls)
+            || "PhysicsVolume".equalsIgnoreCase(cls)
+            || "DefaultPhysicsVolume".equalsIgnoreCase(cls)
+            || "BlockingVolume".equalsIgnoreCase(cls)
+            || "AmbientVolume".equalsIgnoreCase(cls)
+            || "Volume".equalsIgnoreCase(cls);
+    }
+
+    static void writeGeometryExtras(Json j, UArchive a, UObjectExport exp) {
+        String cls = exp.getClassName();
+        var loader = a.getObjectLoader();
+        if (loader == null) {
+            j.keyVal("geometry_error", "object loader is null");
+            return;
+        }
+        var obj = loader.exportObject(exp);
+        if (isModelClass(cls)) {
+            if (obj instanceof com.rost.cruma.core.unreal.Bsp.UModel model) {
+                writeModelGeometry(j, a, model);
+            } else {
+                j.keyVal("geometry_error", "expected Bsp.UModel, got "
+                    + (obj == null ? "null" : obj.getClass().getName()));
+            }
+            return;
+        }
+        if (isPolysClass(cls)) {
+            if (obj instanceof com.rost.cruma.core.unreal.UPolys polys) {
+                writePolys(j, a, "polys", polys);
+            } else {
+                j.keyVal("geometry_error", "expected UPolys, got "
+                    + (obj == null ? "null" : obj.getClass().getName()));
+            }
+            return;
+        }
+        if (obj instanceof com.rost.cruma.core.unreal.UActor actor) {
+            writeVolumeActorGeometry(j, a, actor);
+            return;
+        }
+        // DefaultPhysicsVolume is not loaded as UActor in Cruma; tagged properties still ship.
+        if (isVolumeActorClass(cls) || "Brush".equalsIgnoreCase(cls)) {
+            writeVolumeFromTaggedProperties(j, a, loader.exportProperties(exp));
+            return;
+        }
+        j.keyVal("geometry_error", "expected volume UActor, got "
+            + (obj == null ? "null" : obj.getClass().getName()));
+    }
+
+    static void writeVolumeFromTaggedProperties(Json j, UArchive a, java.util.List<UProperty> props) {
+        if (props == null) return;
+        UProperty loc = null, pivot = null, brush = null;
+        for (UProperty p : props) {
+            String n = p.getName();
+            if ("Location".equals(n)) loc = p;
+            else if ("PrePivot".equals(n)) pivot = p;
+            else if ("Brush".equals(n)) brush = p;
+        }
+        j.key("volume");
+        j.startObj();
+        if (loc != null && loc.getVectorValue() != null) writeVec(j, "location", loc.getVectorValue());
+        if (pivot != null && pivot.getVectorValue() != null) writeVec(j, "prepivot", pivot.getVectorValue());
+        if (brush != null) {
+            j.keyVal("brush_index", brush.getIndexValue());
+            j.keyVal("brush_ref", resolve(a, brush.getIndexValue()));
+        }
+        j.endObj();
+    }
+
+    static void writeModelGeometry(Json j, UArchive a, com.rost.cruma.core.unreal.Bsp.UModel model) {
+        j.key("model");
+        j.startObj();
+        writeBox(j, "bounding_box", model.getBoundingBox());
+        writeSphere(j, "bounding_sphere", model.getBoundingSphere());
+        writeVecArray(j, "points", model.getPoints());
+        writeVecArray(j, "vectors", model.getVectors());
+        if (model.getBounds() != null) {
+            j.key("bounds");
+            j.startArr();
+            for (var box : model.getBounds()) {
+                j.comma();
+                j.nl();
+                writeBoxValue(j, box);
+            }
+            j.endArr();
+        }
+        var pref = model.getPolys();
+        if (pref != null && !pref.isNull()) {
+            j.keyVal("polys_index", pref.getIndex());
+            j.keyVal("polys_ref", resolve(a, pref.getIndex()));
+            try {
+                var polys = pref.get();
+                if (polys != null) writePolys(j, a, "polys", polys);
+            } catch (Throwable t) {
+                j.keyVal("polys_error", String.valueOf(t));
+            }
+        }
+        j.endObj();
+    }
+
+    static void writeVolumeActorGeometry(Json j, UArchive a, com.rost.cruma.core.unreal.UActor actor) {
+        j.key("volume");
+        j.startObj();
+        writeVec(j, "location", actor.getLocation());
+        writeVec(j, "prepivot", actor.getPrePivot());
+        writeVec(j, "scale", actor.getScale());
+        writeVec(j, "draw_scale_3d", actor.getDrawScale3d());
+        writeRot(j, "rotation", actor.getRotation());
+        if (actor instanceof com.rost.cruma.core.unreal.UActor.BrushActor brushActor) {
+            var bref = brushActor.getBrush();
+            if (bref != null && !bref.isNull()) {
+                j.keyVal("brush_index", bref.getIndex());
+                j.keyVal("brush_ref", resolve(a, bref.getIndex()));
+                try {
+                    var model = bref.get();
+                    if (model != null) writeModelGeometry(j, a, model);
+                } catch (Throwable t) {
+                    j.keyVal("brush_error", String.valueOf(t));
+                }
+            }
+        }
+        if (actor instanceof com.rost.cruma.core.unreal.UActor.MusicVolumeActor music) {
+            j.keyVal("music_id", music.getMusicId());
+            j.keyVal("has_night_music", music.isHasNightMusic());
+            j.keyVal("night_music_id", music.getNightMusicId());
+            j.keyVal("loop_music", music.isLoopMusic());
+            j.keyVal("force_play_music", music.isForcePlayMusic());
+            var states = music.getZoneMusicStates();
+            if (states != null && !states.isEmpty()) {
+                j.key("zone_music_states");
+                j.startArr();
+                for (var st : states) {
+                    j.comma();
+                    j.nl();
+                    j.startObj();
+                    j.keyVal("state", st.state());
+                    j.keyVal("music_id", st.musicId());
+                    j.endObj();
+                }
+                j.endArr();
+            }
+        }
+        j.endObj();
+    }
+
+    static void writePolys(Json j, UArchive a, String key, com.rost.cruma.core.unreal.UPolys polys) {
+        var list = polys.getPolygons();
+        j.key(key);
+        j.startArr();
+        if (list != null) {
+            for (var poly : list) {
+                j.comma();
+                j.nl();
+                j.startObj();
+                writeVec(j, "base", poly.base());
+                writeVec(j, "normal", poly.normal());
+                writeVec(j, "texture_u", poly.textureU());
+                writeVec(j, "texture_v", poly.textureV());
+                if (poly.vertices() != null) {
+                    j.key("vertices");
+                    j.startArr();
+                    for (var v : poly.vertices()) {
+                        j.comma();
+                        j.nl();
+                        writeVecValue(j, v);
+                    }
+                    j.endArr();
+                }
+                j.keyVal("flags", poly.flags());
+                if (poly.itemName() != null && !poly.itemName().isEmpty())
+                    j.keyVal("item_name", poly.itemName());
+                j.keyVal("link", poly.link());
+                j.keyVal("brush_polygon_index", poly.brushPolygonIndex());
+                j.endObj();
+            }
+        }
+        j.endArr();
+    }
+
+    static void writeBox(Json j, String key, com.rost.cruma.core.unreal.primitives.UBox box) {
+        j.key(key);
+        writeBoxValue(j, box);
+    }
+
+    static void writeBoxValue(Json j, com.rost.cruma.core.unreal.primitives.UBox box) {
+        if (box == null) { j.valNull(); return; }
+        j.startObj();
+        writeVec(j, "min", box.min());
+        writeVec(j, "max", box.max());
+        j.keyVal("valid", box.isValid());
+        j.endObj();
+    }
+
+    static void writeSphere(Json j, String key, com.rost.cruma.core.unreal.primitives.USphere sphere) {
+        j.key(key);
+        if (sphere == null) { j.valNull(); return; }
+        j.startObj();
+        writeVec(j, "location", sphere.location());
+        j.keyVal("radius", sphere.radius());
+        j.endObj();
+    }
+
+    static void writeVecArray(Json j, String key, glm_.vec3.Vec3[] arr) {
+        if (arr == null) return;
+        j.key(key);
+        j.startArr();
+        for (var v : arr) {
+            j.comma();
+            j.nl();
+            writeVecValue(j, v);
+        }
+        j.endArr();
+    }
+
+    static void writeVecValue(Json j, glm_.vec3.Vec3 v) {
+        if (v == null) { j.valNull(); return; }
+        j.startObj();
+        j.keyVal("x", v.getX());
+        j.keyVal("y", v.getY());
+        j.keyVal("z", v.getZ());
+        j.endObj();
     }
 
 

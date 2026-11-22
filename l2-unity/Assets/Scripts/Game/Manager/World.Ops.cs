@@ -22,8 +22,8 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
             gameObject.AddComponent<L2DoorPassage>();
         if (GetComponent<L2BrushPortal>() == null)
             gameObject.AddComponent<L2BrushPortal>();
-        if (GetComponent<L2TownMusic>() == null)
-            gameObject.AddComponent<L2TownMusic>();
+        if (GetComponent<OfficialMusicVolumePlayback>() == null)
+            gameObject.AddComponent<OfficialMusicVolumePlayback>();
         if (GetComponent<OfficialAmbientSoundPlayback>() == null)
             gameObject.AddComponent<OfficialAmbientSoundPlayback>();
         if (GetComponent<L2FlameAnim>() == null)

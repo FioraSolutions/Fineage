@@ -15,3 +15,5 @@ Window open/close tokens are in `StreamingAssets/Data/Meta/Sounds/interface-wind
 
 `ambsound` and `AmbSound2` waves are in the same `official-waves.tsv` under `Data/Sounds/AmbSound/` and `Data/Sounds/AmbSound2/`.
 AmbientSoundObject placement for every official map (185277 actors, including Lobby) is `StreamingAssets/Data/Meta/Sounds/official-ambient-objects.tsv.gz`, played by `OfficialAmbientSoundPlayback`.
+
+MusicVolume placement (410 official brushes) is `StreamingAssets/Data/Meta/Sounds/official-music-volumes.json.gz`, played by `OfficialMusicVolumePlayback` through `musicinfo-tracks.tsv` and confirmed `official-music-bank-events.tsv` paths in `Music.bank`. A track with no bank event is logged and is not replaced.

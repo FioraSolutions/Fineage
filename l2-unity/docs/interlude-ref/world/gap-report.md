@@ -7,6 +7,7 @@ Fineage tree (map tiles, ambient prefabs/JSON, audio clips, FMOD banks, and
 runtime scripts). No guessed asset lists.
 
 Source issue: [#1670](https://github.com/FioraSolutions/Fineage/issues/1670).
+`.unr` dumps now include Brush/Model bounding boxes and polys/vertices, plus volume-actor location, PrePivot, scale, and (for MusicVolume) official music id / night / loop flags. Lightmap payloads stay omitted. Original `.unr` binaries are not committed.
 Skill-visual leftovers stay in [skills/gap-report.md](../skills/gap-report.md) and #1674.
 
 ## Headline counts
@@ -121,11 +122,10 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 - Official `ambsound` (393) and `AmbSound2` (34) waves are Resources clips. A missing wave logs package + name and is not replaced by an FMOD event.
 
 ### 3. Music (MusicVolume + musicinfo)
-- Original `MusicVolume` actors: **410** using **356** distinct `nMusicID` values.
-- `musicinfo` defines **205** unique track names.
-- Fineage `MusicArea.prefab` exists only on: ['16_25', '17_25'].
-- Talking Island village volumes use `nMusicID=172501` → `NT_Speaking`. That mapping is in `sounds/musicinfo-tracks.tsv`.
-- No official loose `.ogg` music was present in this client tree; `Music.bank` (11 MB) is the only Fineage music container.
+- Original `MusicVolume` actors: **410** using **357** distinct `nMusicID` values. Brush bounds live in the regenerated `.unr` dumps and in `official-music-volumes.json.gz`. `OfficialMusicVolumePlayback` does a point-in-brush test and resolves `nMusicID` through `musicinfo`.
+- `musicinfo` defines **205** unique track names. Confirmed `Music.bank` event paths are in `official-music-bank-events.tsv`. Tracks with no bank event are logged and not replaced. There is still no official loose `.ogg` folder.
+- `L2TownMusic` hardcoded town rings and baked `MusicAreaTrigger` events yield when the official table is present.
+- Talking Island village volumes use `nMusicID=172501` → `NT_Speaking` → `event:/Music/l2_lobby/nt_speaking`.
 
 ### 4. Footsteps and weapon-swing / hit notifies (`*.ukx`)
 - `AnimNotify_Sound` (footsteps / draw / swing beds with per-surface arrays): **17906**.
