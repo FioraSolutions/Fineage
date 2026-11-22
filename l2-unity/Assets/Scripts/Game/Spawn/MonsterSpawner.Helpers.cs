@@ -15,7 +15,7 @@ public sealed partial class MonsterSpawner
         // CharInfoSpeedLog.LogNpcPacket(monster, "OnNpcInfo update");
     }
 
-    private static void InitMonster(Entity npc, GameObject npcGo, IWorldSpawnContext world, IGravity gravity)
+    private static void InitMonster(Entity npc, GameObject npcGo, IWorldSpawnRegistration world, IGravity gravity)
     {
         NetworkAnimationController animationController =
             EntitySpawnShared.FindOnPrefab<NetworkAnimationController>(npcGo);

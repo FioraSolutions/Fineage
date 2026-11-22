@@ -168,7 +168,7 @@ public static partial class EntitySpawnShared
         }
     }
 
-    public static void RegisterAnimation(IWorldSpawnContext world, int objectId, IAnimationController controller, Entity entity)
+    public static void RegisterAnimation(IWorldSpawnRegistration world, int objectId, IAnimationController controller, Entity entity)
     {
         if (world != null && world.Animations != null && controller != null)
             world.Animations.RegisterController(objectId, controller, entity);

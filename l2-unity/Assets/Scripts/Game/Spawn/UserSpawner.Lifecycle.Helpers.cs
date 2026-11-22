@@ -3,7 +3,7 @@ using UnityEngine;
 
 public sealed partial class UserSpawner
 {
-    public UserEntity Spawn(CharInfoDto info, IWorldSpawnContext world)
+    public UserEntity Spawn(CharInfoDto info, IWorldSpawnRegistration world)
     {
         if (info == null || info.Identity == null || world == null)
             return null;

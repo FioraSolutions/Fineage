@@ -10,7 +10,7 @@ using UnityEngine.InputSystem.XR;
 using UnityEngine.UIElements.Experimental;
 using VContainer;
 
-public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLookup
+public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntityLookup
 {
     [SerializeField] private GameObject _player;
     [SerializeField] private GameObject _playerPlaceholder;
