@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Derived ZoneInfo / SkyZoneInfo / NSun view over the lossless map dumps.
 
-Reads l2-unity/docs/interlude-ref/world/maps/*.unr.json.gz.
-Does not read .unr. An empty cell means the property was not authored.
+Reads l2-unity/docs/interlude-ref/world/maps/*.unr.json.gz (tiles) and
+l2-unity/docs/interlude-ref/world/env/*.unr.json.gz (Lobby, entry, skylevel,
+ship_position). Does not read .unr. An empty cell means the property was not
+authored.
 """
 from __future__ import annotations
 
@@ -11,7 +13,9 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-MAPS = ROOT / "l2-unity" / "docs" / "interlude-ref" / "world" / "maps"
+WORLD = ROOT / "l2-unity" / "docs" / "interlude-ref" / "world"
+MAPS = WORLD / "maps"
+ENV = WORLD / "env"
 DOCS = ROOT / "l2-unity" / "docs" / "interlude-ref" / "world" / "zone-render.tsv"
 RUNTIME = ROOT / "l2-unity" / "Assets" / "StreamingAssets" / "Data" / "Meta" / "World" / "zone-render.tsv"
 NOTE = ROOT / "l2-unity" / "docs" / "interlude-ref" / "world" / "zone-render.md"
@@ -135,14 +139,15 @@ def row_for(map_name: str, export: dict) -> list[str]:
 
 def main() -> None:
     rows = []
-    for path in sorted(MAPS.glob("*.unr.json.gz")):
-        map_name = path.name[: -len(".unr.json.gz")]
-        with gzip.open(path, "rt", encoding="utf-8") as handle:
-            data = json.load(handle, parse_float=str)
-        for export in data.get("exports") or []:
-            if export.get("class") not in CLASSES:
-                continue
-            rows.append(row_for(map_name, export))
+    for folder in (MAPS, ENV):
+        for path in sorted(folder.glob("*.unr.json.gz")):
+            map_name = path.name[: -len(".unr.json.gz")]
+            with gzip.open(path, "rt", encoding="utf-8") as handle:
+                data = json.load(handle, parse_float=str)
+            for export in data.get("exports") or []:
+                if export.get("class") not in CLASSES:
+                    continue
+                rows.append(row_for(map_name, export))
     rows.sort(key=lambda r: (r[0], r[1], r[2]))
     body = "\t".join(HEADER) + "\n" + "".join("\t".join(r) + "\n" for r in rows)
     DOCS.parent.mkdir(parents=True, exist_ok=True)
@@ -153,7 +158,8 @@ def main() -> None:
         "\n".join([
             "# Zone render catalog",
             "",
-            "Derived from `world/maps/*.unr.json.gz`. The gzip dumps stay the lossless source.",
+            "Derived from `world/maps/*.unr.json.gz` and `world/env/*.unr.json.gz`.",
+            "The gzip dumps stay the lossless source.",
             "An empty cell means the property was not authored on that actor.",
             "Engine.u `ZoneInfo` class defaults are not in this catalog, so a missing",
             "`DistanceFogStart` is empty rather than a guessed 3000.",
