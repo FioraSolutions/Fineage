@@ -32,11 +32,7 @@ public partial class World
         if (!_moveRoster.IsMoving(pickerCharObjId))
             yield break;
 
-        MovementData move = MoveAllCharactersPacketServices.Moves.GetMove(pickerCharObjId);
-        if (move == null || move.GetEntity() == null)
-            yield break;
-
-        move.ForceReplayUserGait();
+        _moveRoster.ReplayUserGait(pickerCharObjId);
     }
 
     public void SpawnPlayer(EntityIdentity identity, PlayerStatus status, PlayerStats stats, PlayerAppearance appearance)
