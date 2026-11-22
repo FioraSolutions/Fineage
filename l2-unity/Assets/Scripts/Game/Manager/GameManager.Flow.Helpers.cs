@@ -15,11 +15,7 @@ public partial class GameManager : MonoBehaviour, IGameManager
     {
         Debug.Log("[Fineage] exit game");
         DisconnectZoneSession();
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+        PlayModeExit.Stop();
     }
 
     IEnumerator RestartRoutine()
