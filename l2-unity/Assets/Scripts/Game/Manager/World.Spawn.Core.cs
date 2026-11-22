@@ -54,8 +54,7 @@ public partial class World
             return;
         }
 
-        PlayerEntity local = DomainPacketServices.LocalPlayer;
-        if (local != null && local.Identity != null && local.Identity.Id == id)
+        if (_localPlayer.IsLocalId(id))
         {
             // GearFlowLog.Info("SpawnUser SKIP local PlayerEntity id=" + id);
             return;

@@ -99,6 +99,7 @@ public sealed partial class GameLifetimeScope
             RequireClickMasks(container);
             RequireCharacterInfo(container);
             RequirePlayerRebirth(container);
+            RequireLocalPlayer(container);
             App.GameContainer = container;
             try
             {
