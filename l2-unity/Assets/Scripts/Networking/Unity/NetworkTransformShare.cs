@@ -4,9 +4,7 @@ using VContainer;
 
 public partial class NetworkTransformShare : MonoBehaviour
 {
-    [Inject] World _world;
-
-    private World GameWorld => NetworkingPacketServices.GameWorld;
+    [Inject] IWorldSpawnContext _world;
     private CharacterController _characterController;
     private Vector3 _lastPos, _lastRot;
     private float _lastSharedPosTime;

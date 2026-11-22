@@ -62,12 +62,12 @@ public sealed partial class GameLifetimeScope
     }
 
     /// <summary>
-    /// Register scene <see cref="World"/> as itself and <see cref="IWorldEntityLookup"/> (#131).
+    /// Register scene <see cref="World"/> as itself, <see cref="IWorldEntityLookup"/>, and <see cref="IWorldSpawnContext"/> (#131).
     /// </summary>
     void RegisterWorld(IContainerBuilder builder)
     {
         World local = UnityEngine.Object.FindFirstObjectByType<World>(FindObjectsInactive.Include);
         if (local != null)
-            builder.RegisterComponent(local).AsSelf().As<IWorldEntityLookup>();
+            builder.RegisterComponent(local).AsSelf().As<IWorldEntityLookup>().As<IWorldSpawnContext>();
     }
 }
