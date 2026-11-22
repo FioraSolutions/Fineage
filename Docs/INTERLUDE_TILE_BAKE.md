@@ -252,3 +252,25 @@ export FINEAGE_INTERLUDE_TILES=19_19,20_22,21_21,21_22,21_23,22_23,23_22,23_23
 ```
 
 Tiles without `StaticMeshes.prefab` (the TI shoreline set) must run `L2InterludeTileBatchCli.RunTerrainExitCli` first.
+
+
+## Deco layers (#1687)
+
+Rebuild official `DecoLayers` (StaticMesh, DensityMap, FadeoutRadius, DensityMultiplier, MaxPerQuad, Seed, AlignToTerrain, RandomYaw, lighting flags) from the #1670 map dump:
+
+```bash
+python3 tools/interlude-extract/rebuild_deco_layers.py \
+  --export-dir .work/deco-export
+```
+
+Density maps are official PNGs from `L2DecoLayer.utx` / `L2DecoLayer_aden.utx` / `Primitive_FieldOBJ_T.utx`. The bake parser reads fade/density/MaxPerQuad. `GenerateDecoLayers` and `DecoToMesh` remap the density-map sample through DensityMultiplier and cap at MaxPerQuad (no raw 0-255, no uncapped scatter). Missing density maps or StaticMeshes log an error. Per-layer fade is stored in UU; Unity terrain details still share one global draw distance.
+
+Shipped `*_DecoLayer.prefab` / `*_DecoInstances.asset` still need a Unity tile bake (no `-nographics`, editor closed, this worktree not `~/Projects/Fineage`):
+
+```bash
+# included in the terrain mesh / tile-exit bake for each in-repo tile that has DecoLayers
+export FINEAGE_INTERLUDE_TILES=17_21,17_22,18_14,19_14,19_15,19_18,19_19,19_21,20_17,20_18,20_19,20_20,20_22,21_18,21_19,21_20,21_21,21_22,21_23,22_21,22_22,22_23,23_11,23_12,23_13,23_21,23_22,23_23,24_11,24_12
+# Unity 6000.3.27f1 -batchmode -quit -projectPath <worktree>/l2-unity
+# -executeMethod L2TerrainMeshCli.RunCli
+# -logFile .work/unity-deco-layers-1687.log
+```

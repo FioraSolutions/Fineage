@@ -184,6 +184,7 @@ Opened from this audit and linked from [#1673](https://github.com/FioraSolutions
 - [#1686](https://github.com/FioraSolutions/Fineage/issues/1686) — terrain layers: Meta drops splat textures; parser drops axis/rotation
 - #1686 follow-up: official layer slots are rebuilt in Meta/t3d (axis/rotation included); missing splat PNGs imported from official `.utx`. Shipped materials still need a Unity mesh re-bake.
 - [#1687](https://github.com/FioraSolutions/Fineage/issues/1687) — DecoLayers fade, density, and MaxPerQuad ignored; Meta missing outside TI
+- #1687 follow-up: official DecoLayers (fade, DensityMultiplier, MaxPerQuad) are in Meta/t3d for every in-repo tile; density maps imported from official .utx. Shipped prefabs/instances still need a Unity deco re-bake.
 - [#1688](https://github.com/FioraSolutions/Fineage/issues/1688) — StaticMeshActor counts, transforms, vertex lighting, and L2 LOD
 - [#1689](https://github.com/FioraSolutions/Fineage/issues/1689) — water is a flat shared quad and missing on the harbour and several towns
 - #1689 follow-up: official WaterVolume bounds and shader names are in Meta `watervolumes.json` for every in-repo tile that has volumes (including harbour `21_23` and `22_23`). Shipped meshes/prefab children still need a Unity water bake.
