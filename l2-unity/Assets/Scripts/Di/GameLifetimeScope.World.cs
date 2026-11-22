@@ -30,7 +30,7 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<SkillExecutor>(builder);
         RegisterIfFound<CombatFacingService>(builder);
         RegisterLiveMono<EventBus>(builder);
-        builder.Register<GameEventBus>(Lifetime.Singleton).As<IGameEventBus>();
+        GameScopeCycleSafeRegistration.Register(builder);
         builder.Register<TargetClearOnEntityDiedListener>(Lifetime.Singleton);
         builder.Register<PlayerAttackClearOnEntityDiedListener>(Lifetime.Singleton);
         builder.Register<L2ActorFade>(Lifetime.Singleton);
