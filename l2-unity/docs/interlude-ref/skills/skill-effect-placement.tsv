@@ -1,0 +1,523 @@
+skill_id	package	object_name	visual_key	desc	flying_time	phase	action_index	specific_stage	action_object	effect_class	attach_on_raw	attach_on_name	attach_on_visual	attach_on_visual_name	attach_bone_name	offset_x	offset_y	offset_z	spawn_delay	b_absolute	b_absolute_serialized	b_on_multi_target	b_relative_to_cylinder	b_relative_to_cylinder_serialized	b_size_scale	b_spawn_on_target	b_use_character_rotation	draw_scale	rotation_pitch	rotation_yaw	rotation_roll	rot_per_second_pitch	rot_per_second_yaw	rot_per_second_roll	b_rot_emitter	b_self_rotation	b_directional	speed	acc_speed	effect_defaults_present
+4	Mo	4	skill.Mo.4	대시	0	casting	0	0	SkillAction_LocateEffect4	mo_dash_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2									1			1
+4	Mo	4	skill.Mo.4	대시	0	shot	0	0	SkillAction_LocateEffect7	mo_dash_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.2									1			1
+8	Mo	8	skill.Mo.8	포커스 소닉	0	casting	0	0	SkillAction_LocateEffect2	mo_focus_sonic_ca	5	trail	9	trail		0	0	0.2	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+8	Mo	8	skill.Mo.8	포커스 소닉	0	shot	0	0	SkillAction_LocateEffect3	mo_focus_sonic_ta	5	trail	9	trail		0	0	0.2	0	0	0	0	1	0	0	1	0	0.2							1		1			1
+28	pH	28	skill.pH.28	헤이트	0	casting	0	0	SkillAction_LocateEffect7	ph_hate_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.05												1
+28	pH	28	skill.pH.28	헤이트	0	shot	0	0	SkillAction_LocateEffect8	ph_hate_ta	4	alias	8	alias	e_bone	0	0	0	0	1	1	1	1	0	0	1	0										1			1
+69	recovery	69	skill.recovery.69	세크리파이스	0	casting	0	0	SkillAction_LocateEffect0	mo_battle_roar_ca	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+69	recovery	69	skill.recovery.69	세크리파이스	0	shot	0	0	SkillAction_LocateEffect1	wh_greater_heal_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25				0	5000	0			1			1
+69	recovery	69	skill.recovery.69	세크리파이스	0	shot	1	0	SkillAction_LocateEffect2	at_fatal_strike_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.02									1			1
+72	moment	72	skill.moment.72	아이언 윌	0	casting	0	0	SkillAction_LocateEffect1	mo_iron_will_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2									1			1
+72	moment	72	skill.moment.72	아이언 윌	0	shot	0	0	SkillAction_LocateEffect3	mo_iron_will_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.2									1			1
+78	Mo	78	skill.Mo.78	워 크라이	0	casting	0	0	SkillAction_LocateEffect8	mo_war_cry_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+78	Mo	78	skill.Mo.78	워 크라이	0	shot	0	0	SkillAction_LocateEffect13	mo_war_cry_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	1	1	0	0.05												1
+81	oa	81	skill.oa.81	펀치 오브 둠	0	casting	0	0	SkillAction_LocateEffect0	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2							1		1			1
+81	oa	81	skill.oa.81	펀치 오브 둠	0	shot	0	0	SkillAction_LocateEffect1	el_flame_strike_ta	0	none	0	none		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+82	Mo	82	skill.Mo.82	마제스티	0	casting	0	0	SkillAction_LocateEffect9	mo_majesty_ca	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+82	Mo	82	skill.Mo.82	마제스티	0	shot	0	0	SkillAction_LocateEffect10	mo_majesty_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+86	Mo	86	skill.Mo.86	리플렉트 데미지	0	casting	0	0	SkillAction_LocateEffect0	mo_reflect_damage_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2	0	-1559496225	0	0	-131072	0	1		1			1
+86	Mo	86	skill.Mo.86	리플렉트 데미지	0	shot	0	0	SkillAction_LocateEffect1	mo_reflect_damage_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.2	0	-1559020305	0	0	-131072	0	1		1			1
+92	at	92	skill.at.92	실드 스턴	0	casting	0	0	SkillAction_LocateEffect7	at_shield_stun_ca	2	lh	3	lh		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+92	at	92	skill.at.92	실드 스턴	0	shot	0	0	SkillAction_LocateEffect9	at_shield_stun_ta	0	none	0	none		-1	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+92	at	92	skill.at.92	실드 스턴	0	shot	1	0	SkillAction_LocateEffect0	at_shield_stun_cs	2	lh	3	lh		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+99	Mo	99	skill.Mo.99	레피드 샷	0	casting	0	0	SkillAction_LocateEffect5	mo_rapid_shot_ca	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+99	Mo	99	skill.Mo.99	레피드 샷	0	shot	0	0	SkillAction_LocateEffect6	mo_rapid_shot_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+100	at	100	skill.at.100	스턴 어택	0	casting	0	0	SkillAction_LocateEffect13	at_stun_attack_ca	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+100	at	100	skill.at.100	스턴 어택	0	shot	0	0	SkillAction_LocateEffect15	at_stun_attack_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+100	at	100	skill.at.100	스턴 어택	0	shot	1	0	SkillAction_LocateEffect10	at_shield_stun_cs	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+102	phenomenon	102	skill.phenomenon.102	인탱글	0	casting	0	0	SkillAction_LocateEffect10	sp_decay_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1	0	467630164	0	0	32768	0	1		1			1
+102	phenomenon	102	skill.phenomenon.102	인탱글	0	shot	0	0	SkillAction_LocateEffect11	ph_zero_g_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+105	pm	105	skill.pm.105	프리징 스트라이크	0	casting	0	0	SkillAction_LocateEffect0	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+105	pm	105	skill.pm.105	프리징 스트라이크	0	shot	0	0	SkillAction_LocateEffect1	el_ice_bolt_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.05									1			1
+110	moment	110	skill.moment.110	얼터미트 디펜스	0	casting	0	0	SkillAction_LocateEffect2	mo_ultimate_defence_cs	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.25									1			1
+110	moment	110	skill.moment.110	얼터미트 디펜스	0	shot	0	0	SkillAction_LocateEffect4	mo_ultimate_defence_ca	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25	168	0	264						1			1
+110	moment	110	skill.moment.110	얼터미트 디펜스	0	shot	1	0	SkillAction_LocateEffect6	mo_ultimate_defence_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25									1			1
+116	pH	116	skill.pH.116	하울	0	casting	0	0	SkillAction_LocateEffect0	ph_howl_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1									1			1
+116	pH	116	skill.pH.116	하울	0	shot	0	0	SkillAction_LocateEffect1	ph_howl_ta	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+121	Mo	121	skill.Mo.121	배틀 로어	0	casting	0	0	SkillAction_LocateEffect11	mo_battle_roar_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2									1			1
+121	Mo	121	skill.Mo.121	배틀 로어	0	shot	0	0	SkillAction_LocateEffect12	mo_battle_roar_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.2									1			1
+190	at	190	skill.at.190	페이탈 스트라이크	0	casting	0	0	SkillAction_LocateEffect17	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2							1		1			1
+190	at	190	skill.at.190	페이탈 스트라이크	0	casting	1	0	SkillAction_LocateEffect18	at_fatal_strike_cs	1	rh	2	rh		0	0	0	0	0	0	0	1	0	1	0	0	0.05												1
+190	at	190	skill.at.190	페이탈 스트라이크	0	shot	0	0	SkillAction_LocateEffect19	at_fatal_strike_ta	0	none	0	none		-1	0	0	0	0	0	1	1	0	0	1	0	0.02									1			1
+223	at	223	skill.at.223	스팅	0	casting	0	0	SkillAction_LocateEffect2	at_sting_ca	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+223	at	223	skill.at.223	스팅	0	shot	0	0	SkillAction_LocateEffect4	at_sting_ta	0	none	0	none		-1	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+223	at	223	skill.at.223	스팅	0	shot	1	0	SkillAction_LocateEffect8	at_sting_cs	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+254	dwarfmagic	254	skill.dwarfmagic.254	스포일	0	casting	0	0	SkillAction_LocateEffect0	dw_spoil_ca	1	rh	2	rh		0	0	0	0	0	0	0	1	0	1	0	0	0.05	0	73400809	0						1			1
+254	dwarfmagic	254	skill.dwarfmagic.254	스포일	0	shot	0	0	SkillAction_LocateEffect1	dw_spoil_ta	4	alias	8	alias	e_bone	0	0	0	0	1	1	0	1	0	0	1	0	0.2	0	73400341	0						1			1
+260	at	260	skill.at.260	햄머 크러시	0	casting	0	0	SkillAction_LocateEffect1	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+260	at	260	skill.at.260	햄머 크러시	0	casting	1	0	SkillAction_LocateEffect3	at_stun_attack_ca	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+260	at	260	skill.at.260	햄머 크러시	0	shot	0	0	SkillAction_LocateEffect5	at_stun_attack_ta	0	none	0	none		-1	0	0	0	0	0	1	1	0	0	1	0	0.2									1			1
+260	at	260	skill.at.260	햄머 크러시	0	shot	1	0	SkillAction_LocateEffect6	at_shield_stun_cs	1	rh	2	rh		0	0	0	0	0	0	1	1	0	0	0	0	0.2									1			1
+263	at	263	skill.at.263	데들리 블로우	0	casting	0	0	SkillAction_LocateEffect11	at_mortal_blow_ca	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.05												1
+263	at	263	skill.at.263	데들리 블로우	0	casting	1	0	SkillAction_LocateEffect16	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+263	at	263	skill.at.263	데들리 블로우	0	shot	0	0	SkillAction_LocateEffect12	at_mortal_blow_cs	5	trail	9	trail		0.2	0	0	0	0	0	0	1	0	0	0	0	0.05									1			1
+263	at	263	skill.at.263	데들리 블로우	0	shot	1	0	SkillAction_LocateEffect14	at_fatal_strike_ta	0	none	0	none		-1	0	0	0	0	0	0	1	0	0	1	0	0.02									1			1
+264	phenomenon	264	skill.phenomenon.264	송 오브 어스	0	casting	0	0	SkillAction_LocateEffect23	ph_song_of_earth_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+265	phenomenon	265	skill.phenomenon.265	송 오브 라이프	0	casting	0	0	SkillAction_LocateEffect3	ph_song_of_life_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+267	phenomenon	267	skill.phenomenon.267	송 오브 와딩	0	casting	0	0	SkillAction_LocateEffect2	ph_song_of_warding_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+268	phenomenon	268	skill.phenomenon.268	송 오브 윈드	0	casting	0	0	SkillAction_LocateEffect1	ph_song_of_wind_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+269	phenomenon	269	skill.phenomenon.269	송 오브 헌터	0	casting	0	0	SkillAction_LocateEffect0	ph_song_of_hunter_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+270	phenomenon	270	skill.phenomenon.270	송 오브 인보케이션	0	casting	0	0	SkillAction_LocateEffect4	ph_song_of_invocation_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+271	phenomenon	271	skill.phenomenon.271	댄스 오브 워리어	0	casting	0	0	SkillAction_LocateEffect24	ph_dance_of_warrior_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+272	phenomenon	272	skill.phenomenon.272	댄스 오브 인스퍼레이션	0	casting	0	0	SkillAction_LocateEffect6	ph_dance_of_inspiration_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+273	phenomenon	273	skill.phenomenon.273	댄스 오브 미스틱	0	casting	0	0	SkillAction_LocateEffect12	ph_dance_of_mystic_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+274	phenomenon	274	skill.phenomenon.274	댄스 오브 파이어	0	casting	0	0	SkillAction_LocateEffect5	ph_dance_of_fire_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+275	phenomenon	275	skill.phenomenon.275	댄스 오브 퓨리	0	casting	0	0	SkillAction_LocateEffect7	ph_dance_of_fury_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+276	phenomenon	276	skill.phenomenon.276	댄스 오브 콘센트레이션	0	casting	0	0	SkillAction_LocateEffect9	ph_dance_of_concentration_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+277	phenomenon	277	skill.phenomenon.277	댄스 오브 라이트	0	casting	0	0	SkillAction_LocateEffect8	ph_dance_of_light_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+279	pm	279	skill.pm.279	라이트닝 스트라이크	0	casting	0	0	SkillAction_LocateEffect2	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2							1		1			1
+279	pm	279	skill.pm.279	라이트닝 스트라이크	0	shot	0	0	SkillAction_LocateEffect3	pm_lightening_strike_ta	0	none	0	none		0	0	0	0	0	0	1	1	0	0	1	0	0.4				0	-10000	0	1		1			1
+323	it	323	skill.it.323	퀴버 오브 애로우스	0	casting	0	0	SkillAction_LocateEffect12	su_summon_a_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.25												1
+325	no	325	skill.no.325	스트라이더 시즈 어썰트	0	casting	0	0	SkillAction_LocateEffect0	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+325	no	325	skill.no.325	스트라이더 시즈 어썰트	0	shot	0	0	SkillAction_LocateEffect1	at_fatal_strike_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.02									1			1
+327	no	327	skill.no.327	와이번 이지스	0	casting	0	0	SkillAction_LocateEffect3	su_empower_ta	4	alias	8	alias	soulshot1	0	0	0	0	1	1	0	1	0	0	0	0	0.05	0	1161466817	0	0	80000	0	1		1			1
+342	bl	342	skill.bl.342	터치 오브 데스	0	casting	0	0	SkillAction_LocateEffect29	bl_berserker_spirit_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.05												1
+342	bl	342	skill.bl.342	터치 오브 데스	0	shot	0	0	SkillAction_LocateEffect30	at_shock_blast_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0										1			1
+344	at	344	skill.at.344	리썰 블로우	0	casting	0	0	SkillAction_LocateEffect26	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+344	at	344	skill.at.344	리썰 블로우	0	casting	1	0	SkillAction_LocateEffect27	at_fatal_strike_cs	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.05												1
+344	at	344	skill.at.344	리썰 블로우	0	shot	0	0	SkillAction_LocateEffect28	at_mortal_blow_cs	0	none	0	none		2	0	0	0	0	0	0	1	0	0	0	0	0.05									1			1
+344	at	344	skill.at.344	리썰 블로우	0	shot	1	0	SkillAction_LocateEffect31	at_fatal_strike_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.02									1			1
+345	at	345	skill.at.345	소닉 레이지	0.4	casting	0	0	SkillAction_LocateEffect58	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+345	at	345	skill.at.345	소닉 레이지	0.4	shot	0	0	SkillAction_LocateEffect59	at_sonic_rage_fl	0	none	0	none		1	0	0	0	0	0	0	1	0	0	0	0	0.1				0	0	20000	1	1	1	1000	3000	1
+345	at	345	skill.at.345	소닉 레이지	0.4	explosion	0	0	SkillAction_LocateEffect60	at_sonic_rage_ta	5	trail	9	trail		-1	0	0	0	0	0	1	1	0	0	1	0					0	0	5000	1		1			1
+346	oa	346	skill.oa.346	포스 레이지	0.4	casting	0	0	SkillAction_LocateEffect3	oa_force_rage_ca	5	trail	9	trail		1	0	0	0	0	0	0	1	0	0	0	0	0.05									1			1
+346	oa	346	skill.oa.346	포스 레이지	0.4	shot	0	0	SkillAction_LocateEffect4	oa_force_rage_fl	0	none	0	none		1	0	0	0	0	0	0	1	0	0	0	0	0.05									1	1000	3000	1
+346	oa	346	skill.oa.346	포스 레이지	0.4	shot	1	0	SkillAction_LocateEffect2	mo_battle_roar_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2									1			1
+346	oa	346	skill.oa.346	포스 레이지	0.4	explosion	0	0	SkillAction_LocateEffect5	oa_force_rage_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+348	da	348	skill.da.348	스포일 크러쉬	0	casting	0	0	SkillAction_LocateEffect0	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+348	da	348	skill.da.348	스포일 크러쉬	0	casting	1	0	SkillAction_LocateEffect1	at_fatal_strike_cs	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.05												1
+348	da	348	skill.da.348	스포일 크러쉬	0	shot	0	0	SkillAction_LocateEffect2	at_fatal_strike_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.02									1			1
+348	da	348	skill.da.348	스포일 크러쉬	0	shot	1	0	SkillAction_LocateEffect3	dw_spoil_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.2	0	73400341	0						1			1
+353	at	353	skill.at.353	실드 슬램	0	casting	0	0	SkillAction_LocateEffect22	at_shield_slam_ca	2	lh	3	lh		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+353	at	353	skill.at.353	실드 슬램	0	shot	0	0	SkillAction_LocateEffect23	at_shield_stun_cs	2	lh	3	lh		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+353	at	353	skill.at.353	실드 슬램	0	shot	1	0	SkillAction_LocateEffect24	at_shield_slam_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+358	at	358	skill.at.358	블러프	0	casting	0	0	SkillAction_LocateEffect62	at_bluff_ca	5	trail	9	trail		1	0	0	0	0	0	0	1	0	0	0	0										1			1
+358	at	358	skill.at.358	블러프	0	shot	0	0	SkillAction_LocateEffect63	at_bluff_cs	5	trail	9	trail		1	0	0	0	0	0	0	1	0	0	0	0										1			1
+358	at	358	skill.at.358	블러프	0	shot	1	0	SkillAction_LocateEffect64	at_bluff_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0										1			1
+361	at	361	skill.at.361	쇼크 블라스트	0	casting	0	0	SkillAction_LocateEffect52	at_shock_blast_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0										1			1
+361	at	361	skill.at.361	쇼크 블라스트	0	shot	0	0	SkillAction_LocateEffect53	at_shock_blast_ra	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0										1			1
+361	at	361	skill.at.361	쇼크 블라스트	0	shot	1	0	SkillAction_LocateEffect54	at_shock_blast_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0										1			1
+363	pH	363	skill.pH.363	송 오브 메디테이션	0	casting	0	0	SkillAction_LocateEffect65	ph_song_of_meditation_ta	5	trail	9	trail		0	0	-1	1	0	0	0	1	0	0	0	0	0.1									1			1
+367	pH	367	skill.pH.367	댄스 오브 메두사	0	casting	0	0	SkillAction_LocateEffect66	ph_dance_of_medusa_ta	5	trail	9	trail		0	0	-1	1	0	0	0	1	0	0	0	0								1		1			1
+368	Mo	368	skill.Mo.368	벤젼스	0	casting	0	0	SkillAction_LocateEffect55	mo_vengence_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0										1			1
+368	Mo	368	skill.Mo.368	벤젼스	0	shot	0	0	SkillAction_LocateEffect56	mo_vengence_ra	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0										1			1
+368	Mo	368	skill.Mo.368	벤젼스	0	shot	1	0	SkillAction_LocateEffect57	ph_hate_ta	3	bone	7	bone	e_bone	0	0	0	0	0	0	1	1	0	0	1	0										1			1
+395	Hero	395	skill.Hero.395	히로익 미라클	0	casting	0	0	SkillAction_LocateEffect0	su_empower_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2												1
+395	Hero	395	skill.Hero.395	히로익 미라클	0	shot	0	0	SkillAction_LocateEffect2	su_empower_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.05	0	1161466817	0	0	80000	0	1		1			1
+396	Hero	396	skill.Hero.396	히로익 버저커	0	casting	0	0	SkillAction_LocateEffect4	mo_dash_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2									1			1
+396	Hero	396	skill.Hero.396	히로익 버저커	0	shot	0	0	SkillAction_LocateEffect5	bl_berserker_spirit_ta	5	trail	9	trail		0	0	1	0	0	0	0	1	0	0	1	1	0.05									1			1
+401	attack	401	skill.attack.401	저지먼트	0	casting	0	0	SkillAction_LocateEffect0	at_sting_ca	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+401	attack	401	skill.attack.401	저지먼트	0	casting	1	0	SkillAction_LocateEffect1	at_sting_cs	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+401	attack	401	skill.attack.401	저지먼트	0	casting	2	0	SkillAction_LocateEffect2	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+401	attack	401	skill.attack.401	저지먼트	0	shot	0	0	SkillAction_LocateEffect3	at_sting_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+426	White	426	skill.White.426	배틀 스탠스	0	casting	0	0	SkillAction_LocateEffect27	s_u806_ca	5	trail	9	trail		0	0	-0.85	0	0	0	0	1	0	0	0	0	0.1	32776	32760	-32800						1			1
+426	White	426	skill.White.426	배틀 스탠스	0	casting	1	0	SkillAction_LocateEffect29	s_u806_cs	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1												1
+426	White	426	skill.White.426	배틀 스탠스	0	channeling	0	0	SkillAction_LocateEffect34	s_u806_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.1	32776	32760	-32800						1			1
+427	White	427	skill.White.427	스펠 스탠스	0	casting	0	0	SkillAction_LocateEffect31	s_u806_ca	5	trail	9	trail		0	0	-0.85	0	0	0	0	1	0	0	0	0	0.1	32776	32760	-32800						1			1
+427	White	427	skill.White.427	스펠 스탠스	0	channeling	0	0	SkillAction_LocateEffect30	s_u806_channeling_beam	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.1												1
+427	White	427	skill.White.427	스펠 스탠스	0	channeling	1	0	SkillAction_LocateEffect32	s_u806_channeling_mesh	5	trail	9	trail		1	0	0	0	0	0	0	1	0	0	0	1	0.1												1
+427	White	427	skill.White.427	스펠 스탠스	0	channeling	2	0	SkillAction_LocateEffect35	s_u806_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.1	32776	32760	-32800						1			1
+442	moment	442	skill.moment.442	소닉배리어	0	casting	0	0	SkillAction_LocateEffect0	s_u804_a_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2									1			1
+442	moment	442	skill.moment.442	소닉배리어	0	shot	0	0	SkillAction_LocateEffect5	s_u804_a_ta	0	none	0	none		-1	0	0	0	0	0	1	1	0	0	1	0	0.02									1			1
+443	moment	443	skill.moment.443	포스배리어무적	0	casting	0	0	SkillAction_LocateEffect7	s_u804_a_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2									1			1
+443	moment	443	skill.moment.443	포스배리어무적	0	shot	0	0	SkillAction_LocateEffect8	mo_ultimate_defence_a_ca	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25	168	0	264						1			1
+443	moment	443	skill.moment.443	포스배리어무적	0	shot	1	0	SkillAction_LocateEffect9	mo_ultimate_defence_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25									1			1
+454	White	454	skill.White.454	디펜시브스탠스	0	casting	0	0	SkillAction_LocateEffect22	s_u807_fighter_ca	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0													1
+454	White	454	skill.White.454	디펜시브스탠스	0	shot	0	0	SkillAction_LocateEffect23	s_u807_ta	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0	0.2												1
+831	mb	831	skill.mb.831	사이렌자기주변버프캔슬	0	casting	0	0	SkillAction_LocateEffect36	e_u831_b	5	trail	9	trail		0	100	-20.5	0	0	0	0	0	1	0	0	0													1
+831	mb	831	skill.mb.831	사이렌자기주변버프캔슬	0	casting	1	0	SkillAction_LocateEffect37	e_u831_b	5	trail	9	trail		10	-100	-20.5	0.3	0	0	0	0	1	0	0	0													1
+831	mb	831	skill.mb.831	사이렌자기주변버프캔슬	0	casting	2	0	SkillAction_LocateEffect38	e_u831_b	5	trail	9	trail		45	50	-20.5	0.6	0	0	0	0	1	0	0	0													1
+831	mb	831	skill.mb.831	사이렌자기주변버프캔슬	0	casting	3	0	SkillAction_LocateEffect39	e_u831_b	5	trail	9	trail		55	-35	-20.5	0.1	0	0	0	0	1	0	0	0													1
+831	mb	831	skill.mb.831	사이렌자기주변버프캔슬	0	casting	4	0	SkillAction_LocateEffect40	e_u831_b	5	trail	9	trail		-60	50	-20.5	0.2	0	0	0	0	1	0	0	0													1
+831	mb	831	skill.mb.831	사이렌자기주변버프캔슬	0	casting	5	0	SkillAction_LocateEffect41	e_u831_b	5	trail	9	trail		-45	-50	-20.5	0.4	0	0	0	0	1	0	0	0													1
+832	mb	832	skill.mb.832	사이렌자기버프	0	casting	0	0	SkillAction_LocateEffect42	e_u832_ca	5	trail	9	trail		0	0	-20.5	0	0	0	0	0	1	0	0	0	0.5												1
+832	mb	832	skill.mb.832	사이렌자기버프	0	casting	1	0	SkillAction_LocateEffect43	e_u832	5	trail	9	trail		0	0	-20.5	0	0	0	0	0	1	0	0	0	0.5												1
+832	mb	832	skill.mb.832	사이렌자기버프	0	casting	2	0	SkillAction_LocateEffect12		5	trail	9	trail		0	0	-20.5	0	0	0	0	0	1	0	0	0													0
+1007	sa	1007	skill.sa.1007	매스 프렌지	0	casting	0	0	SkillAction_LocateEffect20	sa_mass_frenzy_ca	5	trail	9	trail		1	0	0	0	0	0	0	1	0	0	0	0	0.001				0	100000	0	1		1			1
+1007	sa	1007	skill.sa.1007	매스 프렌지	0	shot	0	0	SkillAction_LocateEffect21	sa_mass_frenzy_cs	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.1									1			1
+1007	sa	1007	skill.sa.1007	매스 프렌지	0	shot	1	0	SkillAction_LocateEffect22	sa_mass_frenzy_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.1									1			1
+1010	Shaman	1010	skill.Shaman.1010	소울 실드	0	casting	0	0	SkillAction_LocateEffect0	sa_mass_frenzy_ca	5	trail	9	trail		0	0	0	0	0	0	0	1	0	1	0	0	0.001				0	100000	0	1		1			1
+1010	Shaman	1010	skill.Shaman.1010	소울 실드	0	shot	0	0	SkillAction_LocateEffect1	s_devotion_of_shine_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.1	393148	309788920	0						1			1
+1011	wh	1011	skill.wh.1011	힐	0	casting	0	0	SkillAction_LocateEffect11	wh_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1011	wh	1011	skill.wh.1011	힐	0	shot	0	0	SkillAction_LocateEffect14	wh_heal_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	1	1	0	0.25												1
+1012	wh	1012	skill.wh.1012	큐어 포이즌	0	casting	0	0	SkillAction_LocateEffect12	wh_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1012	White	1012_sec	skill.White.1012_sec	큐어 포이즌sec	0	casting	0	0	SkillAction_LocateEffect8	wh_sec_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1012	wh	1012	skill.wh.1012	큐어 포이즌	0	shot	0	0	SkillAction_LocateEffect13	wh_cure_poison_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.25												1
+1012	White	1012_sec	skill.White.1012_sec	큐어 포이즌sec	0	shot	0	0	SkillAction_LocateEffect9	wh_cure_poison_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25												1
+1013	White	1013	skill.White.1013	리차지	0	casting	0	0	SkillAction_LocateEffect10	wh_sec_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1013	White	1013	skill.White.1013	리차지	0	shot	0	0	SkillAction_LocateEffect11	wh_recharge_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.25												1
+1016	wh	1016	skill.wh.1016	리저렉션	0	casting	0	0	SkillAction_LocateEffect10	wh_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1												1
+1016	wh	1016	skill.wh.1016	리저렉션	0	shot	0	0	SkillAction_LocateEffect9	wh_resurrection_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.25				0	15000	0	1					1
+1018	White	1018	skill.White.1018	퓨리파이	0	casting	0	0	SkillAction_LocateEffect20	wh_sec_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1018	White	1018	skill.White.1018	퓨리파이	0	shot	0	0	SkillAction_LocateEffect21	wh_cure_poison_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25												1
+1028	White	1028	skill.White.1028	마이트 오브 헤븐	0	casting	0	0	SkillAction_LocateEffect14	wh_sec_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1028	White	1028	skill.White.1028	마이트 오브 헤븐	0	shot	0	0	SkillAction_LocateEffect15	wh_disrupt_undead_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25									1			1
+1031	White	1031	skill.White.1031	디스럽트 언데드	0	casting	0	0	SkillAction_LocateEffect4	wh_sec_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1031	White	1031_sec	skill.White.1031_sec	디스럽트 언데드sec	0	casting	0	0	SkillAction_LocateEffect6	wh_sec_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1031	White	1031	skill.White.1031	디스럽트 언데드	0	shot	0	0	SkillAction_LocateEffect5	wh_disrupt_undead_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25									1			1
+1031	White	1031_sec	skill.White.1031_sec	디스럽트 언데드sec	0	shot	0	0	SkillAction_LocateEffect7	wh_disrupt_undead_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25									1			1
+1035	White	1035	skill.White.1035	멘탈 실드	0	casting	0	0	SkillAction_LocateEffect18	wh_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1												1
+1035	White	1035	skill.White.1035	멘탈 실드	0	shot	0	0	SkillAction_LocateEffect19	wh_mental_shield_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.25	0	224	0									1
+1036	White	1036	skill.White.1036	매직 배리어	0	casting	0	0	SkillAction_LocateEffect16	wh_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1												1
+1036	White	1036	skill.White.1036	매직 배리어	0	shot	0	0	SkillAction_LocateEffect17	wh_magic_barrier_ta	5	trail	9	trail		0	0	1	0	0	0	0	1	0	0	1	1	0.2	0	16416	0						1			1
+1040	wh	1040	skill.wh.1040	실드	0	casting	0	0	SkillAction_LocateEffect7	wh_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1040	wh	1040	skill.wh.1040	실드	0	shot	0	0	SkillAction_LocateEffect8	wh_shield_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	1	1	0	0.25												1
+1043	White	1043	skill.White.1043	홀리 웨폰	0	casting	0	0	SkillAction_LocateEffect0	wh_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1043	White	1043	skill.White.1043	홀리 웨폰	0	shot	0	0	SkillAction_LocateEffect1	wh_holy_weapon_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0	0.25	0	224	0						1			1
+1044	wh	1044	skill.wh.1044	리제네레이션	0	casting	0	0	SkillAction_LocateEffect2	wh_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1044	wh	1044	skill.wh.1044	리제네레이션	0	shot	0	0	SkillAction_LocateEffect3	wh_regeneration_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0	0.25	0	224	0						1			1
+1045	wh	1045	skill.wh.1045	블레스 더 바디	0	casting	0	0	SkillAction_LocateEffect1	wh_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1												1
+1045	wh	1045	skill.wh.1045	블레스 더 바디	0	shot	0	0	SkillAction_LocateEffect4	wh_bless_the_body_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.25	0	224	0						1			1
+1048	wh	1048	skill.wh.1048	블레스 더 소울	0	casting	0	0	SkillAction_LocateEffect5	wh_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1												1
+1048	wh	1048	skill.wh.1048	블레스 더 소울	0	shot	0	0	SkillAction_LocateEffect6	wh_bless_the_soul_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25	0	224	0						1			1
+1049	su	1049	skill.su.1049	퓨리피케이션	0	casting	0	0	SkillAction_LocateEffect20	su_empower_third_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+1049	su	1049	skill.su.1049	퓨리피케이션	0	shot	0	0	SkillAction_LocateEffect21	su_empower_third_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0	0.25	0	263127092	0						1			1
+1056	su	1056	skill.su.1056	캔슬	0	casting	0	0	SkillAction_LocateEffect18	su_empower_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2												1
+1056	su	1056	skill.su.1056	캔슬	0	shot	0	0	SkillAction_LocateEffect19	su_detection_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05												1
+1058	su	1058	skill.su.1058	디텍션	0	casting	0	0	SkillAction_LocateEffect10	su_empower_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2												1
+1058	su	1058	skill.su.1058	디텍션	0	shot	0	0	SkillAction_LocateEffect11	su_detection_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.05												1
+1059	su	1059	skill.su.1059	엠파워	0	casting	0	0	SkillAction_LocateEffect4	su_empower_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2												1
+1059	su	1059	skill.su.1059	엠파워	0	shot	0	0	SkillAction_LocateEffect5	su_empower_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	1	1	0	0.05	0	1161466817	0	0	80000	0	1		1			1
+1062	bl	1062	skill.bl.1062	버저커 스피릿	0	casting	0	0	SkillAction_LocateEffect2	bl_berserker_spirit_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+1062	bl	1062	skill.bl.1062	버저커 스피릿	0	shot	0	0	SkillAction_LocateEffect3	bl_berserker_spirit_ta	5	trail	9	trail		0	0	1	0	0	0	1	1	0	0	1	1	0.05									1			1
+1068	su	1068	skill.su.1068	마이트	0	casting	0	0	SkillAction_LocateEffect14	su_empower_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2												1
+1068	su	1068	skill.su.1068	마이트	0	shot	0	0	SkillAction_LocateEffect15	su_might_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05												1
+1069	su	1069	skill.su.1069	슬리프	0	casting	0	0	SkillAction_LocateEffect12	su_empower_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2												1
+1069	su	1069	skill.su.1069	슬리프	0	shot	0	0	SkillAction_LocateEffect13	su_sleep_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+1077	su	1077	skill.su.1077	포커스	0	casting	0	0	SkillAction_LocateEffect16	su_empower_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2												1
+1077	su	1077	skill.su.1077	포커스	0	shot	0	0	SkillAction_LocateEffect17	su_focus_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0	0.25				0	65536	0	1		1			1
+1078	su	1078	skill.su.1078	콘센트레이션	0	casting	0	0	SkillAction_LocateEffect8	su_empower_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2												1
+1078	su	1078	skill.su.1078	콘센트레이션	0	shot	0	0	SkillAction_LocateEffect9	su_concentration_ta	4	alias	8	alias	e_bone	0	0	0	0	1	1	0	1	0	0	1	0	0.1	0	-65576	0						1			1
+1085	su	1085	skill.su.1085	아큐멘	0	casting	0	0	SkillAction_LocateEffect2	su_empower_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2												1
+1085	su	1085	skill.su.1085	아큐멘	0	shot	0	0	SkillAction_LocateEffect3	su_acumen_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0	0.25	0	263127092	0						1			1
+1086	su	1086	skill.su.1086	헤이스트	0	casting	0	0	SkillAction_LocateEffect0	su_empower_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2												1
+1086	su	1086	skill.su.1086	헤이스트	0	shot	0	0	SkillAction_LocateEffect1	su_haste_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.2							1		1			1
+1087	sp	1087	skill.sp.1087	어질리티	0	casting	0	0	SkillAction_LocateEffect9	sp_agility_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1	0	42159337	0	0	32768	0	1		1			1
+1087	sp	1087	skill.sp.1087	어질리티	0	shot	0	0	SkillAction_LocateEffect10	sp_agility_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	1	0.05												1
+1111	sm	1111	skill.sm.1111	서먼 캣더캣	0	casting	0	0	SkillAction_LocateEffect2	su_summon_a_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.25												1
+1157	bl	1157	skill.bl.1157	바디 투 마인드	0	casting	0	0	SkillAction_LocateEffect0	bl_body_to_mind_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.05									1			1
+1157	bl	1157	skill.bl.1157	바디 투 마인드	0	shot	0	0	SkillAction_LocateEffect1	bl_body_to_mind_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.25	0	224	0						1			1
+1159	bl	1159	skill.bl.1159	커스 데스 링크	0.4	casting	0	0	SkillAction_LocateEffect8	bl_berserker_spirit_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+1159	bl	1159	skill.bl.1159	커스 데스 링크	0.4	shot	0	0	SkillAction_LocateEffect9	el_flame_strike_fl	0	none	0	none		1	0	0	0	0	0	0	1	0	0	0	0	0.02									1	1000	3000	1
+1159	bl	1159	skill.bl.1159	커스 데스 링크	0.4	explosion	0	0	SkillAction_LocateEffect10	el_flame_strike_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.05									1			1
+1167	bl	1167	skill.bl.1167	포인즌 클라우드	0	casting	0	0	SkillAction_LocateEffect4	bl_berserker_spirit_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+1167	bl	1167	skill.bl.1167	포인즌 클라우드	0	shot	0	0	SkillAction_LocateEffect5	bl_poison_cloud_ta	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0	0.05	0	63994800	0				1		1			1
+1167	bl	1167	skill.bl.1167	포인즌 클라우드	0	shot	1	0	SkillAction_LocateEffect11	bl_curse_poison_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+1168	bl	1168	skill.bl.1168	커스 포이즌	0	casting	0	0	SkillAction_LocateEffect6	bl_berserker_spirit_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+1168	bl	1168	skill.bl.1168	커스 포이즌	0	shot	0	0	SkillAction_LocateEffect7	bl_curse_poison_ta	5	trail	9	trail		0	0	0	0	0	0	1	0	1	0	1	0	0.05									1			1
+1171	el	1171	skill.el.1171	블레이징 서클	0	casting	0	0	SkillAction_LocateEffect35	el_flame_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+1171	el	1171	skill.el.1171	블레이징 서클	0	shot	0	0	SkillAction_LocateEffect39	el_flame_strike_ra	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	0	0	0.05									1			1
+1171	el	1171	skill.el.1171	블레이징 서클	0	shot	1	0	SkillAction_LocateEffect40	el_flame_strike_ta	0	none	0	none		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+1172	el	1172	skill.el.1172	오라 번	0	casting	0	0	SkillAction_LocateEffect20	el_aura_burn_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.05												1
+1172	el	1172	skill.el.1172	오라 번	0	shot	0	0	SkillAction_LocateEffect47	el_aura_burn_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.05									1			1
+1175	el	1175	skill.el.1175	아쿠아 스월	0.4	casting	0	0	SkillAction_LocateEffect42	el_aqua_swirl_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1				0	32768	0	1		1			1
+1175	el	1175	skill.el.1175	아쿠아 스월	0.4	casting	1	0	SkillAction_LocateEffect43	el_aqua_swirl_pr	5	trail	9	trail		1	0	0	0	0	0	0	1	0	1	0	0	0.02				0	-50000	0	1		1			1
+1175	el	1175	skill.el.1175	아쿠아 스월	0.4	shot	0	0	SkillAction_LocateEffect46	el_aqua_swirl_fl	0	none	0	none		0	0	0	0	0	0	0	1	0	0	0	0	0.02				0	0	30000			1	1000	3000	1
+1175	el	1175	skill.el.1175	아쿠아 스월	0.4	shot	1	0	SkillAction_LocateEffect48	el_aqua_swirl_pt	5	trail	9	trail		1	0	0	0	0	0	0	1	0	0	0	0	0.1				0	0	30000			1			1
+1175	el	1175	skill.el.1175	아쿠아 스월	0.4	explosion	0	0	SkillAction_LocateEffect45	el_aqua_swirl_ta	0	none	0	none		-1	0	0	0	0	0	0	1	0	0	1	0	0.1				0	0	30000			1			1
+1177	el	1177	skill.el.1177	윈드 스트라이크	0.4	casting	0	0	SkillAction_LocateEffect26	el_wind_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.25												1
+1177	el	1177	skill.el.1177	윈드 스트라이크	0.4	casting	1	0	SkillAction_LocateEffect27	el_wind_strike_pr	5	trail	9	trail		1	0	0	0	0	0	0	1	0	0	0	1	0.1	0	32892	0									1
+1177	el	1177	skill.el.1177	윈드 스트라이크	0.4	shot	0	0	SkillAction_LocateEffect29	el_wind_strike_fl	0	none	0	none		1	0	0	0	0	0	0	1	0	0	0	0	0.05									1	1000	3000	1
+1177	el	1177	skill.el.1177	윈드 스트라이크	0.4	explosion	0	0	SkillAction_LocateEffect28	el_wind_strike_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.1									1			1
+1178	el	1178	skill.el.1178	트위스터	0.4	casting	0	0	SkillAction_LocateEffect0	el_twister_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.25												1
+1178	el	1178	skill.el.1178	트위스터	0.4	casting	1	0	SkillAction_LocateEffect1	el_twister_pr	5	trail	9	trail		1	0	0	0	0	0	0	1	0	1	0	0	0.01				0	0	30000	1		1			1
+1178	el	1178	skill.el.1178	트위스터	0.4	shot	0	0	SkillAction_LocateEffect3	el_twister_fl	0	none	0	none		1	0	0	0	0	0	0	1	0	0	0	0	0.1				0	0	30000	1	1	1	1000	3000	1
+1178	el	1178	skill.el.1178	트위스터	0.4	explosion	0	0	SkillAction_LocateEffect2	el_twister_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.01									1			1
+1181	el	1181	skill.el.1181	플레임 스트라이크	0.4	casting	0	0	SkillAction_LocateEffect30	el_flame_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+1181	el	1181	skill.el.1181	플레임 스트라이크	0.4	casting	1	0	SkillAction_LocateEffect31	el_flame_strike_pr	5	trail	9	trail		0	0	1	0	0	0	0	1	0	1	0	0	0.02									1			1
+1181	el	1181	skill.el.1181	플레임 스트라이크	0.4	shot	0	0	SkillAction_LocateEffect33	el_flame_strike_fl	0	none	0	none		0	0	1	0	0	0	0	1	0	0	0	0	0.02									1	1000	3000	1
+1181	el	1181	skill.el.1181	플레임 스트라이크	0.4	explosion	0	0	SkillAction_LocateEffect32	el_flame_strike_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+1181	el	1181	skill.el.1181	플레임 스트라이크	0.4	explosion	1	0	SkillAction_LocateEffect34	el_flame_strike_ra	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0	0.05									1			1
+1184	el	1184	skill.el.1184	아이스 볼트	0	casting	0	0	SkillAction_LocateEffect12	el_ice_bolt_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1				0	32768	0	1		1			1
+1184	el	1184	skill.el.1184	아이스 볼트	0	shot	0	0	SkillAction_LocateEffect23	el_ice_bolt_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+1201	sp	1201	skill.sp.1201	드라이어드 루트	0	casting	0	0	SkillAction_LocateEffect0	sp_agility_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1	0	42159337	0	0	32768	0	1		1			1
+1201	sp	1201	skill.sp.1201	드라이어드 루트	0	shot	0	0	SkillAction_LocateEffect1	sp_dryad_root_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.1									1			1
+1206	sp	1206	skill.sp.1206	윈드 셰클	0	casting	0	0	SkillAction_LocateEffect6	m_u009_a	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1				0	32768	0	1	1	1			1
+1206	sp	1206	skill.sp.1206	윈드 셰클	0	shot	0	0	SkillAction_LocateEffect7	m_u009_c	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.25												1
+1217	wh	1217	skill.wh.1217	그레이터 힐	0	casting	0	0	SkillAction_LocateEffect0	wh_sec_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1217	White	1217_sec	skill.White.1217_sec	그레이터 힐sec	0	casting	0	0	SkillAction_LocateEffect2	wh_sec_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1217	wh	1217	skill.wh.1217	그레이터 힐	0	shot	0	0	SkillAction_LocateEffect26	wh_greater_heal_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25				0	5000	0			1			1
+1217	White	1217_sec	skill.White.1217_sec	그레이터 힐sec	0	shot	0	0	SkillAction_LocateEffect3	wh_greater_heal_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	1	1	0	0.25				0	5000	0			1			1
+1218	White	1218	skill.White.1218	그레이터 배틀 힐	0	casting	0	0	SkillAction_LocateEffect12	wh_sec_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+1218	White	1218	skill.White.1218	그레이터 배틀 힐	0	shot	0	0	SkillAction_LocateEffect13	wh_greater_heal_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	1	1	0	0.25				0	5000	0			1			1
+1220	el	1220	skill.el.1220	블레이즈	0.4	casting	0	0	SkillAction_LocateEffect36	el_flame_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+1220	el	1220	skill.el.1220	블레이즈	0.4	casting	1	0	SkillAction_LocateEffect37	el_flame_strike_pr	5	trail	9	trail		0	0	1	0	0	0	0	1	0	0	0	0	0.02									1			1
+1220	el	1220	skill.el.1220	블레이즈	0.4	shot	0	0	SkillAction_LocateEffect41	el_flame_strike_fl	0	none	0	none		0	0	1	0	0	0	0	1	0	0	0	0	0.02									1	1000	3000	1
+1220	el	1220	skill.el.1220	블레이즈	0.4	explosion	0	0	SkillAction_LocateEffect38	el_flame_strike_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.05									1			1
+1230	el	1230	skill.el.1230	프로미넌스	0.4	casting	0	0	SkillAction_LocateEffect44	el_prominence_ca	5	trail	9	trail		1	0	0	0	0	0	0	1	0	0	0	0					0	0	15000	1		1			1
+1230	el	1230	skill.el.1230	프로미넌스	0.4	shot	0	0	SkillAction_LocateEffect49	el_prominence_fl	0	none	0	none		0	0	0	0	0	0	0	1	0	0	0	0					0	0	15000	1	1	1	1000	3000	1
+1230	el	1230	skill.el.1230	프로미넌스	0.4	shot	1	0	SkillAction_LocateEffect51	el_prominence_cs	5	trail	9	trail		1	0	0	0	0	0	0	1	0	0	0	0					0	0	5000	1		1			1
+1230	el	1230	skill.el.1230	프로미넌스	0.4	explosion	0	0	SkillAction_LocateEffect50	el_prominence_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0					0	0	5000	1		1			1
+1231	el	1231	skill.el.1231	오라 플래어	0	casting	0	0	SkillAction_LocateEffect18	el_aura_burn_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.05												1
+1231	el	1231	skill.el.1231	오라 플래어	0	shot	0	0	SkillAction_LocateEffect25	el_aura_flare_ta	0	none	0	none		0	0	0	0	0	0	0	1	0	0	1	0	0.05									1			1
+1233	sp	1233	skill.sp.1233	디케이	0	casting	0	0	SkillAction_LocateEffect4	sp_decay_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1	0	467630164	0	0	32768	0	1		1			1
+1233	sp	1233	skill.sp.1233	디케이	0	shot	0	0	SkillAction_LocateEffect5	sp_decay_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.1									1			1
+1235	el	1235	skill.el.1235	하이드로 블래스트	0	casting	0	0	SkillAction_LocateEffect21	el_hydro_blast_ca	5	trail	9	trail		0	0	-0.7	0	0	0	0	1	0	0	0	0	0.25				0	-30000	0	1		1			1
+1235	el	1235	skill.el.1235	하이드로 블래스트	0	shot	0	0	SkillAction_LocateEffect24	el_hydro_blast_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0	0.25				0	-30000	0			1			1
+1237	el	1237	skill.el.1237	아이스 대거	0.4	casting	0	0	SkillAction_LocateEffect13	el_ice_dagger_ca	5	trail	9	trail		0	0	-0.8	0	0	0	0	1	0	1	0	0	0.25				0	-30000	0	1		1			1
+1237	el	1237	skill.el.1237	아이스 대거	0.4	casting	1	0	SkillAction_LocateEffect15	el_ice_dagger_pr	5	trail	9	trail		2	0	0	0	0	0	0	1	0	0	0	1	0.02				0	0	30000	1		1			1
+1237	el	1237	skill.el.1237	아이스 대거	0.4	shot	0	0	SkillAction_LocateEffect17	el_ice_dagger_fl	0	none	0	none		0	0	0	0	0	0	0	1	0	0	0	0	0.02				0	0	30000			1	1000	3000	1
+1237	el	1237	skill.el.1237	아이스 대거	0.4	explosion	0	0	SkillAction_LocateEffect16	el_ice_dagger_ta	0	none	0	none		0	0	0	0	0	0	0	1	0	0	1	0	0.05									1			1
+1239	el	1239	skill.el.1239	허리케인	0.4	casting	0	0	SkillAction_LocateEffect4	el_twister_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.25												1
+1239	el	1239	skill.el.1239	허리케인	0.4	casting	1	0	SkillAction_LocateEffect5	el_hurricane_pr	5	trail	9	trail		1	0	0	0	0	0	0	1	0	1	0	0	0.05				0	1000	0			1			1
+1239	el	1239	skill.el.1239	허리케인	0.4	shot	0	0	SkillAction_LocateEffect7	el_hurricane_fl	0	none	0	none		1	0	0	0	0	0	0	1	0	0	0	0	0.05				0	1000	0			1	1000	3000	1
+1239	el	1239	skill.el.1239	허리케인	0.4	explosion	0	0	SkillAction_LocateEffect6	el_hurricane_ta	5	trail	9	trail		-1	0	0	0	0	0	1	1	0	0	1	0	0.25									1			1
+1240	Sub	1240	skill.Sub.1240	가이던스	0	casting	0	0	SkillAction_LocateEffect0	su_empower_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2												1
+1240	Sub	1240	skill.Sub.1240	가이던스	0	shot	0	0	SkillAction_LocateEffect1	su_guidance_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25									1			1
+1242	su	1242	skill.su.1242	데스 위스퍼	0	casting	0	0	SkillAction_LocateEffect6	su_empower_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2												1
+1242	su	1242	skill.su.1242	데스 위스퍼	0	shot	0	0	SkillAction_LocateEffect7	su_death_whisper_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.05												1
+1264	el	1264	skill.el.1264	솔라 스파크	0	casting	0	0	SkillAction_LocateEffect52	el_aura_burn_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+1264	el	1264	skill.el.1264	솔라 스파크	0	shot	0	0	SkillAction_LocateEffect53	pm_lightening_strike_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.4				0	-10000	0	1		1			1
+1286	sp	1286	skill.sp.1286	시드 오브 워터	0	casting	0	0	SkillAction_LocateEffect2	el_aqua_swirl_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1				0	32768	0	1		1			1
+1286	sp	1286	skill.sp.1286	시드 오브 워터	0	shot	0	0	SkillAction_LocateEffect3	wh_recharge_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.25												1
+1288	el	1288	skill.el.1288	오라 심포니	0	casting	0	0	SkillAction_LocateEffect14	el_aura_burn_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.05												1
+1288	el	1288	skill.el.1288	오라 심포니	0	shot	0	0	SkillAction_LocateEffect19	el_aura_flare_ta	0	none	0	none		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+1288	el	1288	skill.el.1288	오라 심포니	0	shot	1	0	SkillAction_LocateEffect22	el_aura_flare_ta	5	trail	9	trail		0	0	0	0.2	0	0	1	1	0	0	1	0	0.05									1			1
+1296	el	1296	skill.el.1296	이럽션	0	casting	0	0	SkillAction_LocateEffect8	el_flame_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+1296	el	1296	skill.el.1296	이럽션	0	shot	0	0	SkillAction_LocateEffect9	el_eruption_cs	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1									1			1
+1296	el	1296	skill.el.1296	이럽션	0	shot	1	0	SkillAction_LocateEffect10	el_eruption_ta	0	none	0	none		0	0	-1	0	0	0	1	1	0	0	1	0	0.1									1			1
+1296	el	1296	skill.el.1296	이럽션	0	shot	2	0	SkillAction_LocateEffect11	el_eruption_ra	0	none	0	none		0	0	0	0	0	0	0	1	0	0	1	0	0.5									1			1
+1335	wh	1335	skill.wh.1335	밸런스 라이프	0	casting	0	0	SkillAction_LocateEffect15	wh_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1												1
+1335	wh	1335	skill.wh.1335	밸런스 라이프	0	shot	0	0	SkillAction_LocateEffect16	wh_balance_life_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0													1
+1356	sp	1356	skill.sp.1356	프로피시 오브 파이어	0	casting	0	0	SkillAction_LocateEffect67	sp_prophecy_of_fire_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1				0	32768	0	1		1			1
+1356	sp	1356	skill.sp.1356	프로피시 오브 파이어	0	shot	0	0	SkillAction_LocateEffect68	sp_prophecy_of_fire_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0										1			1
+1391	sa	1391	skill.sa.1391	챈트 오브 어스	0	casting	0	0	SkillAction_LocateEffect0	sa_mass_frenzy_ca	5	trail	9	trail		1	0	0	0	0	0	0	1	0	0	0	0	0.001				0	100000	0	1		1			1
+1391	sa	1391	skill.sa.1391	챈트 오브 어스	0	casting	1	0	SkillAction_LocateEffect1	sa_mass_frenzy_cs	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.1									1			1
+1391	sa	1391	skill.sa.1391	챈트 오브 어스	0	shot	0	0	SkillAction_LocateEffect2	sa_mass_frenzy_a_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.1	393148	309788920	0						1			1
+1414	sa	1414	skill.sa.1414	빅토리 오브 피아그리오	0	casting	0	0	SkillAction_LocateEffect6	sa_mass_frenzy_ca	5	trail	9	trail		1	0	0	0	0	0	0	1	0	0	0	0	0.001				0	100000	0	1		1			1
+1414	sa	1414	skill.sa.1414	빅토리 오브 피아그리오	0	shot	0	0	SkillAction_LocateEffect7	sa_mass_frenzy_cs	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.1									1			1
+1414	sa	1414	skill.sa.1414	빅토리 오브 피아그리오	0	shot	1	0	SkillAction_LocateEffect8	sa_mass_frenzy_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.1									1			1
+1419	White	1419	skill.White.1419	볼케이노	0.4	casting	0	0	SkillAction_LocateEffect24	s_u807_mage_ca	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+1419	White	1419	skill.White.1419	볼케이노	0.4	shot	0	0	SkillAction_LocateEffect25	s_u807_fl	0	none	0	none		1	0	0	0	0	0	0	1	0	0	0	0	0.05									1	500	1000	1
+1419	White	1419	skill.White.1419	볼케이노	0.4	explosion	0	0	SkillAction_LocateEffect26	s_u807_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.2												1
+1425	White	1425	skill.White.1425	퓨리피케이션필드	0	casting	0	0	SkillAction_LocateEffect28	s_u807_mage_ca	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.2									1			1
+1425	White	1425	skill.White.1425	퓨리피케이션필드	0	shot	0	0	SkillAction_LocateEffect33	s_u807_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.2												1
+1425	White	1425	skill.White.1425	퓨리피케이션필드	0	shot	1	0	SkillAction_LocateEffect36	wh_bless_the_body_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.25	0	224	0						1			1
+2003	it	2003	skill.it.2003	박 소환	0	casting	0	0	SkillAction_LocateEffect7	su_summon_a_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	1	0	0.25												1
+2008	it	2008	skill.it.2008	소환수마정탄	0	casting	0	0	SkillAction_LocateEffect8	it_spirit_shot_d_ca	4	alias	8	alias	soulshot1	0	0	0	0	1	1	0	1	0	0	1	0										1			1
+2011	it	2011	skill.it.2011	이동속도향상물약	0	casting	0	0	SkillAction_LocateEffect23	it_quick_step_potion_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	1	1	0	0.02									1			1
+2013	it	2013	skill.it.2013	귀환 주문서	0	casting	0	0	SkillAction_LocateEffect9	it_scroll_of_escape_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2				0	2000	0	1		1			1
+2013	it	2013	skill.it.2013	귀환 주문서	0	shot	0	0	SkillAction_LocateEffect13	it_scroll_of_escape_ta	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0	0.1												1
+2031	it	2031	skill.it.2031	체력회복제	0	casting	0	0	SkillAction_LocateEffect6	it_healing_potion_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.02									1			1
+2033	it	2033	skill.it.2033	소환수정령탄	0	casting	0	0	SkillAction_LocateEffect10	it_soul_shot_d_ca	4	alias	8	alias	soulshot1	0	0	0	0	1	1	0	1	0	0	1	0										1			1
+2033	it	2033	skill.it.2033	소환수정령탄	0	casting	1	0	SkillAction_LocateEffect11	it_soul_shot_d_ca	4	alias	8	alias	soulshot2	0	0	0	0	1	1	0	1	0	0	1	0										1			1
+2042	it	2042	skill.it.2042	해독제	0	casting	0	0	SkillAction_LocateEffect24	it_antidote_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.2				0	20000	0	1		1			1
+2165	it	2165	skill.it.2165	에너지 스톤	0	casting	0	0	SkillAction_LocateEffect0	mo_focus_sonic_ta	5	trail	9	trail		0	0	0.2	0	0	0	0	1	0	0	1	0	0.2							1		1			1
+2166	it	2166	skill.it.2166	투지 게이지 물약	0	casting	0	0	SkillAction_LocateEffect1	mo_war_cry_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.05												1
+2167	it	2167	skill.it.2167	SP 주문서	0	casting	0	0	SkillAction_LocateEffect2	su_haste_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.2							1		1			1
+2168	it	2168	skill.it.2168	행운의 부적	0	casting	0	0	SkillAction_LocateEffect3	su_empower_ca	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	0	0	0.2												1
+2168	it	2168	skill.it.2168	행운의 부적	0	shot	0	0	SkillAction_LocateEffect4	su_might_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.05												1
+2177	it	2177	skill.it.2177	축복받은 아지트 귀환 주문서	0	casting	0	0	SkillAction_LocateEffect5	it_scroll_of_escape_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.1												1
+2291	item	2291	skill.item.2291	성형염색헤어체인지 물약	0	casting	0	0	SkillAction_LocateEffect4	e_u004_a	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.02												1
+3626	item	3626	skill.item.3626	포획	0	casting	0	0	SkillAction_LocateEffect3	s_u805_ca_third	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0													1
+3626	item	3626	skill.item.3626	포획	0	channeling	0	0	SkillAction_LocateEffect75	s_u805_channeling_beam	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.1												1
+3626	item	3626	skill.item.3626	포획	0	channeling	1	0	SkillAction_LocateEffect76	s_u805_channeling_mesh	5	trail	9	trail		1	0	0	0	0	0	0	1	0	0	0	1	0.1												1
+3630	item	3630	skill.item.3630	저주검슬래셔	0	casting	0	0	SkillAction_LocateEffect1	at_shock_blast_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0										1			1
+3630	item	3630	skill.item.3630	저주검슬래셔	0	shot	0	0	SkillAction_LocateEffect2	at_shock_blast_ra	0	none	0	none		0	0	0	0	0	0	0	1	0	0	1	0										1			1
+3632	sm	3632	skill.sm.3632	클렌 게이트	0	casting	0	0	SkillAction_LocateEffect0	su_summon_a_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.25												1
+4032	py	4032	skill.py.4032	npc 스트라이크	0	casting	0	0	SkillAction_LocateEffect0	py_npc_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2									1			1
+4032	py	4032	skill.py.4032	npc 스트라이크	0	shot	0	0	SkillAction_LocateEffect1	at_fatal_strike_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.02									1			1
+4101	py	4101	skill.py.4101	npc 스피닝 슬래셔	0	casting	0	0	SkillAction_LocateEffect4	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2							1		1			1
+4101	py	4101	skill.py.4101	npc 스피닝 슬래셔	0	shot	0	0	SkillAction_LocateEffect5	at_fatal_strike_ta	0	none	0	none		-1	0	0	0	0	0	1	1	0	0	1	0	0.02									1			1
+4101	py	4101	skill.py.4101	npc 스피닝 슬래셔	0	shot	1	0	SkillAction_LocateEffect6	at_fatal_strike_ta	0	none	0	none		-1	0	0	0.1	0	0	1	1	0	0	1	0	0.02									1			1
+4143	mm	4143	skill.mm.4143	보물상자 폭발	0	casting	0	0	SkillAction_LocateEffect0	el_flame_strike_ta	5	trail	9	trail		0	0	0	0.1	0	0	0	1	0	0	0	0	0.05									1			1
+4143	mm	4143	skill.mm.4143	보물상자 폭발	0	casting	1	0	SkillAction_LocateEffect1	el_flame_strike_ra	5	trail	9	trail		0	0	-1	0.2	0	0	0	1	0	1	0	0	0.05									1			1
+4143	mm	4143	skill.mm.4143	보물상자 폭발	0	shot	0	0	SkillAction_LocateEffect23	el_flame_strike_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+4168	py	4168	skill.py.4168	파워 스트라이크	0	casting	0	0	SkillAction_LocateEffect2	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2							1		1			1
+4168	py	4168	skill.py.4168	파워 스트라이크	0	shot	0	0	SkillAction_LocateEffect3	at_fatal_strike_ta	5	trail	9	trail		-1	0	0	0	0	0	1	1	0	0	1	0	0.02									1			1
+4172	mm	4172	skill.mm.4172	쇼크	0	casting	0	0	SkillAction_LocateEffect26	s_u804_a_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2									1			1
+4172	mm	4172	skill.mm.4172	쇼크	0	shot	0	0	SkillAction_LocateEffect27	s_u804_a_ta	0	none	0	none		-2	0	0	0	0	0	0	1	0	0	1	0	0.02									1			1
+4204	dp	4204	skill.dp.4204	출혈	0	casting	0	0	SkillAction_LocateEffect49	el_ice_dagger_ca	5	trail	9	trail		0	0	-1.5	0	0	0	0	1	0	1	0	0	0.25				0	-30000	0	1		1			1
+4204	dp	4204	skill.dp.4204	출혈	0	casting	1	0	SkillAction_LocateEffect50	el_ice_dagger_pr	5	trail	9	trail		2	0	0	0	0	0	0	1	0	0	0	0	0.02				0	0	30000	1		1			1
+4204	dp	4204	skill.dp.4204	출혈	0	shot	0	0	SkillAction_LocateEffect52	el_ice_dagger_fl	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.02				0	0	30000			1	1000	3000	1
+4204	dp	4204	skill.dp.4204	출혈	0	explosion	0	0	SkillAction_LocateEffect51	el_ice_dagger_ta	0	none	0	none		0	0	0	0	0	0	0	1	0	0	1	0	0.05									1			1
+4210	mm	4210	skill.mm.4210	BOSS Chant of Life	0	casting	0	0	SkillAction_LocateEffect19	sa_mass_frenzy_ca	5	trail	9	trail		2	0	0	0	0	0	0	1	0	0	0	0	0.001				0	100000	0	1		1			1
+4210	mm	4210	skill.mm.4210	BOSS Chant of Life	0	shot	0	0	SkillAction_LocateEffect20	sa_mass_frenzy_cs	5	trail	9	trail		2	0	0	0	0	0	0	1	0	0	0	0	0.1									1			1
+4210	mm	4210	skill.mm.4210	BOSS Chant of Life	0	shot	1	0	SkillAction_LocateEffect21	sa_mass_frenzy_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.1									1			1
+4236	dp	4236	skill.dp.4236	힐 감소	0.4	casting	0	0	SkillAction_LocateEffect0	el_twister_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.25												1
+4236	dp	4236	skill.dp.4236	힐 감소	0.4	casting	1	0	SkillAction_LocateEffect1	el_hurricane_pr	5	trail	9	trail		1	0	-0.5	0	0	0	0	1	0	0	0	0	0.05				0	1000	0			1			1
+4236	dp	4236	skill.dp.4236	힐 감소	0.4	shot	0	0	SkillAction_LocateEffect2	el_hurricane_fl	0	none	0	none		0	0	-0.5	0	0	0	0	1	0	0	0	0	0.05				0	1000	0			1	1000	3000	1
+4236	dp	4236	skill.dp.4236	힐 감소	0.4	explosion	0	0	SkillAction_LocateEffect3	el_hurricane_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.25									1			1
+4289	mu	4289	skill.mu.4289	와이번 브레스	0.4	shot	0	0	SkillAction_LocateEffect2	mu_wyvern_breath_fl	0	none	0	none		1.8	0	-0.8	0	0	0	0	1	0	0	0	0	0.2									1	1000	3000	1
+4289	mu	4289	skill.mu.4289	와이번 브레스	0.4	explosion	0	0	SkillAction_LocateEffect4	el_flame_strike_ra	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0	0.05									1			1
+4289	mu	4289	skill.mu.4289	와이번 브레스	0.4	explosion	1	0	SkillAction_LocateEffect7	mu_wyvern_breath_ta	0	none	0	none		0	0	-1	0	0	0	1	1	0	0	1	0	0.2									1			1
+4316	mu	4316	skill.mu.4316	Boss 릴림 드레인	0	casting	0	0	SkillAction_LocateEffect5	mu_lilim_drain_boss_cs	1	rh	2	rh		0	0	0	0	1	1	0	1	0	0	0	0	0.05									1			1
+4316	mu	4316	skill.mu.4316	Boss 릴림 드레인	0	casting	1	0	SkillAction_LocateEffect1	mu_lilim_drain_boss_ca	2	lh	3	lh		0	0	0	0	0	0	0	1	0	0	0	0	0.05									1			1
+4316	mu	4316	skill.mu.4316	Boss 릴림 드레인	0	shot	0	0	SkillAction_LocateEffect6	mu_lilim_drain_boss_ta	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0	0.1									1			1
+4318	mm	4318	skill.mm.4318	궁극의 버프	0	casting	0	0	SkillAction_LocateEffect4	mo_battle_roar_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	1	1	0	0.2									1			1
+4319	mm	4319	skill.mm.4319	마비	0	casting	0	0	SkillAction_LocateEffect5	pm_lightening_strike_ta	0	none	0	none		0	0	0	0	0	0	0	1	0	0	1	0	0.4				0	-10000	0	1		1			1
+4321	mm	4321	skill.mm.4321	방어력 하락	0	casting	0	0	SkillAction_LocateEffect6	bl_curse_poison_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	1	1	0	0.05									1			1
+4322	mu	4322	skill.mu.4322	초보용 윈드 워크	0	casting	0	0	SkillAction_LocateEffect10	sp_wind_walk_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	1	1	1	0.25									1			1
+4323	mu	4323	skill.mu.4323	초보용 실드	0	casting	0	0	SkillAction_LocateEffect11	wh_shield_to	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.25												1
+4324	mu	4324	skill.mu.4324	초보용 블레스 더 바디	0	casting	0	0	SkillAction_LocateEffect12	wh_bless_the_body_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.25	0	224	0						1			1
+4325	mu	4325	skill.mu.4325	초보용 뱀피릭 레이지	0	casting	0	0	SkillAction_LocateEffect13	su_focus_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0	0.25				0	65536	0	1		1			1
+4326	mu	4326	skill.mu.4326	초보용 리제네레이션	0	casting	0	0	SkillAction_LocateEffect18	wh_regeneration_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0	0.25	0	224	0						1			1
+4327	mu	4327	skill.mu.4327	초보용 헤이스트	0	casting	0	0	SkillAction_LocateEffect19	su_haste_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.2							1		1			1
+4328	mu	4328	skill.mu.4328	초보용 블레스 더 소울	0	casting	0	0	SkillAction_LocateEffect20	wh_bless_the_soul_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.25	0	224	0						1			1
+4329	mu	4329	skill.mu.4329	초보용 아큐멘	0	casting	0	0	SkillAction_LocateEffect21	su_acumen_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	1	1	0	0.25	0	263127092	0						1			1
+4330	mu	4330	skill.mu.4330	초보용 콘센트레이션	0	casting	0	0	SkillAction_LocateEffect22	su_concentration_ta	5	trail	9	trail		0	0	1	0	0	0	1	1	0	0	1	0	0.1	0	-65576	0						1			1
+4331	mu	4331	skill.mu.4331	초보용 엠파워	0	casting	0	0	SkillAction_LocateEffect23	su_empower_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05	0	1161466817	0	0	80000	0	1		1			1
+4334	mm	4334	skill.mm.4334	SSQ 캔슬	0	casting	0	0	SkillAction_LocateEffect7	su_sleep_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+4339	mu	4339	skill.mu.4339	미미르의 물약	0	casting	0	0	SkillAction_LocateEffect0	wh_resurrection_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0	0.25				0	15000	0	1					1
+4343	mu	4343	skill.mu.4343	아지트 디크리즈 웨이트	0	casting	0	0	SkillAction_LocateEffect3	su_detection_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05												1
+4346	mu	4346	skill.mu.4346	아지트 맨탈 실드	0	casting	0	0	SkillAction_LocateEffect14	wh_mental_shield_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	1	1	0	0.25	0	224	0									1
+4349	mu	4349	skill.mu.4349	아지트 매직 배리어	0	casting	0	0	SkillAction_LocateEffect30	wh_magic_barrier_ta	5	trail	9	trail		0	0	1	0	0	0	1	1	0	0	1	0	0.2	0	16416	0						1			1
+4352	mu	4352	skill.mu.4352	아지트 버저커 스피릿	0	casting	0	0	SkillAction_LocateEffect8	bl_berserker_spirit_ta	5	trail	9	trail		0	0	1	0	0	0	1	1	0	0	1	1	0.05									1			1
+4358	mu	4358	skill.mu.4358	아지트 가이던스	0	casting	0	0	SkillAction_LocateEffect32	su_guidance_ta	0	none	0	none		0	0	0	0	0	0	1	1	0	0	1	0	0.25									1			1
+4360	mu	4360	skill.mu.4360	아지트 데스 위스퍼	0	casting	0	0	SkillAction_LocateEffect9	su_death_whisper_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05												1
+4365	mu	4365	skill.mu.4365	박-렙업	0	casting	0	0	SkillAction_LocateEffect16	su_might_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	1	1	0	0.05												1
+4366	mu	4366	skill.mu.4366	박-중독	0	casting	0	0	SkillAction_LocateEffect15	ph_hate_ta	5	trail	9	trail	e_bone	0	0	1	0	1	1	1	1	0	0	1	0										1			1
+4380	mu	4380	skill.mu.4380	결투장 CP 회복	0	casting	0	0	SkillAction_LocateEffect17	sa_mass_frenzy_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.1									1			1
+4383	raid	4383	skill.raid.4383	NPC Hate Stone	0	casting	0	0	SkillAction_LocateEffect2	wh_recharge_ta	5	trail	9	trail		0	0	-1	10	0	0	0	1	0	1	0	0	0.25												1
+4406	mu	4406	skill.mu.4406	어질리티	0	casting	0	0	SkillAction_LocateEffect31	sp_agility_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	1	0.05												1
+4478	raid	4478	skill.raid.4478	Ice Fairy Aqua Splash	0	casting	0	0	SkillAction_LocateEffect4	el_aqua_swirl_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.1				0	32768	0	1		1			1
+4478	raid	4478	skill.raid.4478	Ice Fairy Aqua Splash	0	shot	0	0	SkillAction_LocateEffect6	ra_ice_fairy_ta	0	none	0	none		0	0	0	0	0	0	0	1	0	0	1	0	0.2	0	16412	0						1			1
+4482	raid	4482	skill.raid.4482	Ice Fairy Silence	0	casting	0	0	SkillAction_LocateEffect3	ra_ice_fairy_ta	0	none	0	none		0	0	0	0	0	0	0	1	0	0	0	0	0.2	0	16412	0						1			1
+4515	raid	4515	skill.raid.4515	Quest - BOSS Weakness(4544)	0	casting	0	0	SkillAction_LocateEffect0	bl_curse_poison_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	1	0	0	0.05									1			1
+4522	qu	4522	skill.qu.4522	암살자의 눈	0	casting	0	0	SkillAction_LocateEffect0	su_focus_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.25				0	65536	0	1		1			1
+4527	qu	4527	skill.qu.4527	Quset Boss Inc HP to Summoned	0	casting	0	0	SkillAction_LocateEffect1	wh_heal_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	1	1	0	0.25												1
+4528	qu	4528	skill.qu.4528	Quest Boss Movement to Summoned	0	casting	0	0	SkillAction_LocateEffect2	sp_wind_walk_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.25									1			1
+4531	qu	4531	skill.qu.4531	Quest Summoned MP Heal	0	casting	0	0	SkillAction_LocateEffect3	wh_recharge_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	1	1	0	0.25												1
+4546	qu	4546	skill.qu.4546	Quest 석판과의 교감	0	casting	0	0	SkillAction_LocateEffect5	wh_recharge_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	1	0	0.25												1
+4548	qu	4548	skill.qu.4548	Quest 감시자의 시선 해제	0	casting	0	0	SkillAction_LocateEffect6		5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0													0
+4548	qu	4548	skill.qu.4548	Quest 감시자의 시선 해제	0	shot	0	0	SkillAction_LocateEffect7	wh_recharge_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.25												1
+4548	qu	4548	skill.qu.4548	Quest 감시자의 시선 해제	0	shot	1	0	SkillAction_LocateEffect8	wh_recharge_ta	5	trail	9	trail		6	0	-1	0	0	0	0	1	0	0	1	0	0.25												1
+4548	qu	4548	skill.qu.4548	Quest 감시자의 시선 해제	0	shot	2	0	SkillAction_LocateEffect9	wh_recharge_ta	5	trail	9	trail		-5	6	-1	0	0	0	0	1	0	0	1	0	0.25												1
+4549	qu	4549	skill.qu.4549	Quest 저주받은 제단	0	casting	0	0	SkillAction_LocateEffect12	bl_berserker_spirit_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+4549	qu	4549	skill.qu.4549	Quest 저주받은 제단	0	shot	0	0	SkillAction_LocateEffect13	bl_poison_cloud_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.05	0	63994800	0				1		1			1
+4549	qu	4549	skill.qu.4549	Quest 저주받은 제단	0	shot	1	0	SkillAction_LocateEffect14	bl_poison_cloud_ta	5	trail	9	trail		10	8	-1	0	0	0	0	1	0	0	1	0	0.05	0	63994800	0				1		1			1
+4549	qu	4549	skill.qu.4549	Quest 저주받은 제단	0	shot	2	0	SkillAction_LocateEffect15	bl_poison_cloud_ta	5	trail	9	trail		-10	-10	-1	0	0	0	0	1	0	0	1	0	0.05	0	63994800	0				1		1			1
+4562	mm	4562	skill.mm.4562	NPC Solar Flare	0	casting	0	0	SkillAction_LocateEffect3	el_flame_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+4562	mm	4562	skill.mm.4562	NPC Solar Flare	0	shot	0	0	SkillAction_LocateEffect8	el_eruption_cs	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1									1			1
+4562	mm	4562	skill.mm.4562	NPC Solar Flare	0	shot	1	0	SkillAction_LocateEffect9	el_eruption_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0	0.1									1			1
+4568	mm	4568	skill.mm.4568	NPC AE Solar Flare	0	casting	0	0	SkillAction_LocateEffect10	el_flame_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+4568	mm	4568	skill.mm.4568	NPC AE Solar Flare	0	shot	0	0	SkillAction_LocateEffect11	el_eruption_ta	0	none	0	none		0	0	-1	0	0	0	1	1	0	0	1	0	0.1									1			1
+4568	mm	4568	skill.mm.4568	NPC AE Solar Flare	0	shot	1	0	SkillAction_LocateEffect12	el_flame_strike_ra	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0	0.05									1			1
+4568	mm	4568	skill.mm.4568	NPC AE Solar Flare	0	shot	2	0	SkillAction_LocateEffect13	el_eruption_cs	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1									1			1
+4573	py	4573	skill.py.4573	NPC Sonic Blaster	0.4	casting	0	0	SkillAction_LocateEffect10	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2							1		1			1
+4573	py	4573	skill.py.4573	NPC Sonic Blaster	0.4	shot	0	0	SkillAction_LocateEffect11	at_sonic_blast_fl	0	none	0	none		1	0	0	0	0	0	0	1	0	0	0	0	0.1				0	0	20000	1	1	1	1000	3000	1
+4573	py	4573	skill.py.4573	NPC Sonic Blaster	0.4	explosion	0	0	SkillAction_LocateEffect12	at_sonic_blast_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.1				0	0	5000	1		1			1
+4579	py	4579	skill.py.4579	출혈	0	casting	0	0	SkillAction_LocateEffect22	at_fatal_strike_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.2							1		1			1
+4579	py	4579	skill.py.4579	출혈	0	shot	0	0	SkillAction_LocateEffect23	at_sting_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+4606	mm	4606	skill.mm.4606	range_poison_earthquake	0	casting	0	0	SkillAction_LocateEffect16	bl_berserker_spirit_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+4606	mm	4606	skill.mm.4606	range_poison_earthquake	0	shot	0	0	SkillAction_LocateEffect17	mu_poison_earthquake_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.05	0	63994800	0				1		1			1
+4606	mm	4606	skill.mm.4606	range_poison_earthquake	0	shot	1	0	SkillAction_LocateEffect18	bl_curse_poison_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+4607	mu	4607	skill.mu.4607	Magma Attack	0.4	casting	0	0	SkillAction_LocateEffect25	el_flame_strike_ca	3	bone	7	bone	Bone01	0	0	0	0	1	1	0	1	0	1	0	0	0.05												1
+4607	mu	4607	skill.mu.4607	Magma Attack	0.4	casting	1	0	SkillAction_LocateEffect28	el_flame_strike_pr	3	bone	7	bone	Bone09	0	-10	-10	0	1	1	0	0	1	0	0	0	0.02									1			1
+4607	mu	4607	skill.mu.4607	Magma Attack	0.4	shot	0	0	SkillAction_LocateEffect27	el_flame_strike_fl	0	none	0	none		1	0	0.5	0	0	0	0	1	0	0	0	0	0.02									1	1000	3000	1
+4607	mu	4607	skill.mu.4607	Magma Attack	0.4	explosion	0	0	SkillAction_LocateEffect29	el_flame_strike_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.05									1			1
+4616	raid	4616	skill.raid.4616	위장 석화	0	casting	0	0	SkillAction_LocateEffect1	wh_recharge_ta	5	trail	9	trail		0	0	-1	360	0	0	0	1	0	1	0	0	0.25												1
+4628	mu	4628	skill.mu.4628	신비한 오라	0	casting	0	0	SkillAction_LocateEffect24	etc_strider_breath	3	bone	7	bone	Bone10	0	0	0	0	0	0	0	1	0	0	0	0	0.05									1			1
+4628	mu	4628	skill.mu.4628	신비한 오라	0	casting	1	0	SkillAction_LocateEffect26	wh_recharge_ta	5	trail	9	trail		0	0	-0.9	0	0	0	0	1	0	0	0	0	0.25												1
+4641	py	4641	skill.py.4641	NPC Super Strike	0	casting	0	0	SkillAction_LocateEffect16	at_shock_blast_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0										1			1
+4641	mob_pysical	4641_a	skill.mob_pysical.4641_a	몬스터 페이탈스트라이크A	0	casting	0	0	SkillAction_LocateEffect6	mp_super_strike_a_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+4641	mob_pysical	4641_b	skill.mob_pysical.4641_b	몬스터 페이탈스트라이크B	0	casting	0	0	SkillAction_LocateEffect10	mp_super_strike_b_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+4641	mob_pysical	4641_a	skill.mob_pysical.4641_a	몬스터 페이탈스트라이크A	0	casting	1	0	SkillAction_LocateEffect7	mp_super_strike_a_co	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.1												1
+4641	mob_pysical	4641_b	skill.mob_pysical.4641_b	몬스터 페이탈스트라이크B	0	casting	1	0	SkillAction_LocateEffect11	mp_super_strike_a_co	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.1												1
+4641	mob_pysical	4641_a	skill.mob_pysical.4641_a	몬스터 페이탈스트라이크A	0	casting	2	0	SkillAction_LocateEffect8	mp_super_strike_a_cs	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.05	16384	0	0									1
+4641	mob_pysical	4641_b	skill.mob_pysical.4641_b	몬스터 페이탈스트라이크B	0	casting	2	0	SkillAction_LocateEffect12	mp_super_strike_a_cs	1	rh	2	rh		0	0	0	0	0	0	0	1	0	0	0	0	0.05	16384	0	0									1
+4641	py	4641	skill.py.4641	NPC Super Strike	0	shot	0	0	SkillAction_LocateEffect17	at_sonic_blast_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.1				0	0	5000	1		1			1
+4641	mob_pysical	4641_a	skill.mob_pysical.4641_a	몬스터 페이탈스트라이크A	0	shot	0	0	SkillAction_LocateEffect9	mp_super_strike_a_ta	0	none	0	none		-1	0	0	0	0	0	0	1	0	0	1	0	0.02									1			1
+4641	mob_pysical	4641_b	skill.mob_pysical.4641_b	몬스터 페이탈스트라이크B	0	shot	0	0	SkillAction_LocateEffect13	mp_super_strike_b_ta	0	none	0	none		-1	0	0	0	0	0	0	1	0	0	0	0	0.1									1			1
+4649	mm	4649	skill.mm.4649	독	0	casting	0	0	SkillAction_LocateEffect14	bl_poison_cloud_ta	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.05	0	63994800	0				1		1			1
+4649	mm	4649	skill.mm.4649	독	0	casting	1	0	SkillAction_LocateEffect15	bl_curse_poison_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+4650	qu	4650	skill.qu.4650	NPC AE - Dispel Hold	0	casting	0	0	SkillAction_LocateEffect4	sp_dryad_root_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.1									1			1
+4683	mb	4683	skill.mb.4683	발라카스 브레스 하	0	casting	0	0	SkillAction_LocateEffect0	mb_valakas_breath_low_fl	3	bone	7	bone	Dummy05	0	0	0	1.9	0	0	0	1	0	0	0	1										1			1
+4683	mb	4683	skill.mb.4683	발라카스 브레스 하	0	casting	1	0	SkillAction_LocateEffect3	mb_valakas_breath_low_fo	3	bone	7	bone	Dummy06	0	0	0	2.1	0	0	0	1	0	0	0	0										1			1
+4683	mb	4683	skill.mb.4683	발라카스 브레스 하	0	shot	0	0	SkillAction_LocateEffect1	mb_valakas_breath_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0													1
+4684	mb	4684	skill.mb.4684	발라카스 브레스 상	0	casting	0	0	SkillAction_LocateEffect2	mb_valakas_breath_high_fl	3	bone	7	bone	Dummy05	0	0	0	2	0	0	0	1	0	0	0	1										1			1
+4684	mb	4684	skill.mb.4684	발라카스 브레스 상	0	shot	0	0	SkillAction_LocateEffect4	mb_valakas_breath_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0													1
+4685	mb	4685	skill.mb.4685	발라카스 꼬리치기	0	casting	0	0	SkillAction_LocateEffect5	mb_valakas_tail_ca	0	none	0	none		-4	0	-0.98	2.7	0	0	0	1	0	0	0	0										1			1
+4688	mb	4688	skill.mb.4688	발라카스 날리기	0	casting	0	0	SkillAction_LocateEffect6	mb_valakas_lash_ca	0	none	0	none		-3	0	-1	3	0	0	0	1	0	0	0	0										1			1
+4697	nm	4697	skill.nm.4697	NPC Monster Hate	0	casting	0	0	SkillAction_LocateEffect18	ph_hate_ta	4	alias	8	alias	e_bone	0	0	0	0	1	1	1	1	0	0	1	0										1			1
+4706	ms	4706	skill.ms.4706	매스 커스 오브 셰이드	0	casting	0	0	SkillAction_LocateEffect8	bl_berserker_spirit_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+4706	ms	4706	skill.ms.4706	매스 커스 오브 셰이드	0	shot	0	0	SkillAction_LocateEffect9	bl_curse_poison_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+4706	ms	4706	skill.ms.4706	매스 커스 오브 셰이드	0	shot	1	0	SkillAction_LocateEffect10	ph_hate_ta	4	alias	8	alias	e_bone	0	0	0	0	1	1	1	1	0	0	1	0										1			1
+4707	ms	4707	skill.ms.4707	셰이크 새크리파이스	0	casting	0	0	SkillAction_LocateEffect5	wh_heal_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.1												1
+4707	ms	4707	skill.ms.4707	셰이크 새크리파이스	0	shot	0	0	SkillAction_LocateEffect7	ab_bleeding	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.3				0	10000	0	1		1			1
+4707	ms	4707	skill.ms.4707	셰이크 새크리파이스	0	shot	1	0	SkillAction_LocateEffect6	wh_heal_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0	0.25												1
+4708	ms	4708	skill.ms.4708	커스트 스트라이크	0	casting	0	0	SkillAction_LocateEffect3	at_shock_blast_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0										1			1
+4708	ms	4708	skill.ms.4708	커스트 스트라이크	0	shot	0	0	SkillAction_LocateEffect4	at_stun_attack_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+4710	ms	4710	skill.ms.4710	소환수 와일드 스턴	0	casting	0	0	SkillAction_LocateEffect0	at_stun_attack_ca	4	alias	8	alias	soulshot1	0	0	0	0	1	1	0	1	0	0	0	0	0.2									1			1
+4710	ms	4710	skill.ms.4710	소환수 와일드 스턴	0	shot	0	0	SkillAction_LocateEffect1	at_shield_stun_cs	4	alias	8	alias	soulshot1	0	0	0	0	1	1	0	1	0	0	0	0	0.2									1			1
+4710	ms	4710	skill.ms.4710	소환수 와일드 스턴	0	shot	1	0	SkillAction_LocateEffect2	at_stun_attack_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+4737	py	4737	skill.py.4737	BOSS Spinning Slasher	0	casting	0	0	SkillAction_LocateEffect7	at_shock_blast_ca	0	none	0	none		0	0	-1	0	0	0	0	1	0	1	0	0										1			1
+4737	py	4737	skill.py.4737	BOSS Spinning Slasher	0	shot	0	0	SkillAction_LocateEffect8	at_fatal_strike_ta	0	none	0	none		-1	0	0	0	0	0	1	1	0	0	1	0	0.02									1			1
+4737	py	4737	skill.py.4737	BOSS Spinning Slasher	0	shot	1	0	SkillAction_LocateEffect9	at_fatal_strike_ta	0	none	0	none		-1	0	0	0.1	0	0	1	1	0	0	1	0	0.02									1			1
+5004	mb	5004	skill.mb.5004	악마등장	0	casting	0	0	SkillAction_LocateEffect11	mb_frintessa_portal_a	0	none	0	none		0	0	20	0	0	0	0	1	0	0	0	0	0.2									1			1
+5004	mb	5004	skill.mb.5004	악마등장	0	shot	0	0	SkillAction_LocateEffect27	mb_frintessa_portal_b	0	none	0	none		0	0	-2	0	0	0	0	1	0	0	0	0		0	16384	0						1			1
+5007	mb	5007	skill.mb.5007	프린테사힐억제	0	casting	0	0	SkillAction_LocateEffect25	el_hurricane_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.25									1			1
+5008	mb	5008	skill.mb.5008	프린테사연속데쉬	0	casting	0	0	SkillAction_LocateEffect24	mo_vengence_ra	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0										1			1
+5009	mb	5009	skill.mb.5009	유령물리일반	0	casting	0	0	SkillAction_LocateEffect16	mp_super_strike_a_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+5009	mb	5009	skill.mb.5009	유령물리일반	0	casting	1	0	SkillAction_LocateEffect17	mp_super_strike_a_cs	3	bone	7	bone	Bip01 R Finger1	0	0	0	0	0	0	0	1	0	0	0	0	0.05	16384	0	0									1
+5009	mb	5009	skill.mb.5009	유령물리일반	0	shot	0	0	SkillAction_LocateEffect18	at_fatal_strike_ta	5	trail	9	trail		-1	0	0	0	0	0	1	1	0	0	1	0	0.02									1			1
+5010	mb	5010	skill.mb.5010	유령마법일반	0	casting	0	0	SkillAction_LocateEffect21	mp_super_strike_a_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0	0.2							1		1			1
+5010	mb	5010	skill.mb.5010	유령마법일반	0	shot	0	0	SkillAction_LocateEffect22	md_aura_burn_a_ta	5	trail	9	trail		0	0	-1	0	0	0	1	1	0	0	1	0	0.2	0	-16448	0						1			1
+5010	mb	5010	skill.mb.5010	유령마법일반	0	shot	1	0	SkillAction_LocateEffect23	el_flame_strike_ra	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0	0.05									1			1
+5011	mb	5011	skill.mb.5011	유령자폭	0	casting	0	0	SkillAction_LocateEffect19	rm_self_blaster_ca	3	bone	7	bone	Bone15	0	5	0	0	1	1	0	1	0	0	0	0		728	917520	0						1			1
+5011	mb	5011	skill.mb.5011	유령자폭	0	shot	0	0	SkillAction_LocateEffect20	rm_self_blaster_ra	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.01	728	933836	0						1			1
+5011	mb	5011	skill.mb.5011	유령자폭	0	shot	1	0	SkillAction_LocateEffect26	el_flame_strike_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+5012	mb	5012	skill.mb.5012	PC묶기	0	casting	0	0	SkillAction_LocateEffect13	mb_frintessa_ghost_drain	5	trail	9	trail		1	0	0.5	1	0	0	0	1	0	0	0	0	0.2	0	16384	0						1			1
+5012	mb	5012	skill.mb.5012	PC묶기	0	shot	0	0	SkillAction_LocateEffect14	mb_frintessa_ghost_clamp_to	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.5									1			1
+5013	mb	5013	skill.mb.5013	유령흡수	0	casting	0	0	SkillAction_LocateEffect15	mb_frintessa_ghost_drain	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.2	0	16384	0						1			1
+5014	mb	5014	skill.mb.5014	프린테사악마일반공격	0	shot	0	0	SkillAction_LocateEffect10	mb_frintessa_normal_a_ta	5	trail	9	trail		-1	0	0	0	0	0	1	1	0	0	1	0	0.3												1
+5016	mb	5016	skill.mb.5016	프린테사악마공중부양	0	casting	0	0	SkillAction_LocateEffect8	mb_frintessa_trance_a_ta	5	trail	9	trail		0	0	-1	0.5	0	0	0	1	0	0	1	0	0.3												1
+5016	mb	5016	skill.mb.5016	프린테사악마공중부양	0	shot	0	0	SkillAction_LocateEffect9	mb_frintessa_trance_a_ra	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0	0.3												1
+5016	mb	5016	skill.mb.5016	프린테사악마공중부양	0	shot	1	0	SkillAction_LocateEffect28	mb_frintessa_trance_a_to	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.3							1					1
+5019	mb	5019	skill.mb.5019	전체흡수	0	shot	0	0	SkillAction_LocateEffect7	mb_frintessa_drain_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.5							1					1
+5023	mm	5023	skill.mm.5023	홀드	0	casting	0	0	SkillAction_LocateEffect22	ph_howl_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	1	1	0	0.1									1			1
+5040	item	5040	skill.item.5040	NPC Healing Potion	0	casting	0	0	SkillAction_LocateEffect0	wh_heal_ta	5	trail	9	trail		0	0	0	0	0	0	0	1	0	1	1	0	0.25												1
+5081	mb	5081	skill.mb.5081	NPC blow silence physical	0	casting	0	0	SkillAction_LocateEffect56	s_u804_c_ca	5	trail	9	trail		0	0	-0.85	0	0	0	0	1	0	1	0	0	0.2							1		1			1
+5081	mb	5081	skill.mb.5081	NPC blow silence physical	0	shot	0	0	SkillAction_LocateEffect57	p_u004_a	0	none	0	none		-1	0	0	0	0	0	0	1	0	0	1	0	0.02												1
+5082	mb	5082	skill.mb.5082	NPC스피닝 슬래셔 트릭	0	casting	0	0	SkillAction_LocateEffect58	s_u804_c_ca	5	trail	9	trail		0	0	-0.85	0	0	0	0	1	0	1	0	0	0.2							1		1			1
+5082	mb	5082	skill.mb.5082	NPC스피닝 슬래셔 트릭	0	shot	0	0	SkillAction_LocateEffect59	s_u804_a_ta	0	none	0	none		-1	0	0	0	0	0	1	1	0	0	1	0	0.02									1			1
+5083	mb	5083	skill.mb.5083	NPC스턴 어택 트릭	0	casting	0	0	SkillAction_LocateEffect60	s_u804_c_ca	5	trail	9	trail		0	0	-0.85	0	0	0	0	1	0	1	0	0	0.2							1		1			1
+5083	mb	5083	skill.mb.5083	NPC스턴 어택 트릭	0	shot	0	0	SkillAction_LocateEffect61	at_shield_stun_ta	0	none	0	none		-1	0	0	0	0	0	0	1	0	0	1	0	0.2									1			1
+5086	mm	5086	skill.mm.5086	치명적인 독	0	casting	0	0	SkillAction_LocateEffect2	bl_berserker_spirit_ca	5	trail	9	trail		0	0	0	0	0	0	0	1	0	1	0	0	0.05												1
+5086	mm	5086	skill.mm.5086	치명적인 독	0	shot	0	0	SkillAction_LocateEffect24	bl_poison_cloud_ta	0	none	0	none		0	0	0	0	0	0	0	1	0	0	0	0	0.05	0	63994800	0				1		1			1
+5086	mm	5086	skill.mm.5086	치명적인 독	0	shot	1	0	SkillAction_LocateEffect25	bl_curse_poison_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+5093	mb	5093	skill.mb.5093	안타라스메테오	0	casting	0	0	SkillAction_LocateEffect31	e_u828_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0													1
+5093	mb	5093	skill.mb.5093	안타라스메테오	0	shot	0	0	SkillAction_LocateEffect32	e_u828_ta	0	none	0	none		0	0	-1	0	0	0	0	1	0	0	1	0													1
+5093	mb	5093	skill.mb.5093	안타라스메테오	0	shot	1	0	SkillAction_LocateEffect80	e_u828_conestone_ta	0	none	0	none		6	5	-1	0.4	0	0	0	1	0	0	1	0													1
+5093	mb	5093	skill.mb.5093	안타라스메테오	0	shot	2	0	SkillAction_LocateEffect81	e_u828_conestone_ta	0	none	0	none		7	5	-1	0.2	0	0	0	1	0	0	1	0													1
+5094	mb	5094	skill.mb.5094	안타라스부하자폭	0	casting	0	0	SkillAction_LocateEffect29	at_shock_blast_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0										1			1
+5094	mb	5094	skill.mb.5094	안타라스부하자폭	0	casting	1	0	SkillAction_LocateEffect45	e_u528_ta_bigsize_b	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.01	728	933836	0						1			1
+5094	mb	5094	skill.mb.5094	안타라스부하자폭	0	shot	0	0	SkillAction_LocateEffect30	el_flame_strike_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+5095	mb	5095	skill.mb.5095	안타라스부하근접공격	0	casting	0	0	SkillAction_LocateEffect35	e_u829_ca_a	3	bone	7	bone	Bip01 Ponytail2Nub	0	0	0	0	0	0	0	1	0	0	0	0	0.3	32768	16384	32768									1
+5095	mb	5095	skill.mb.5095	안타라스부하근접공격	0	shot	0	0	SkillAction_LocateEffect44	at_fatal_strike_ta	5	trail	9	trail		-1	0	0	0	0	0	0	1	0	0	1	0	0.02									1			1
+5096	mb	5096	skill.mb.5096	안타라스 부하 원거리공격	0	casting	0	0	SkillAction_LocateEffect33	s_u804_c_ca	0	none	0	none		0	0	-1	0	0	0	0	1	0	1	0	0	0.2							1		1			1
+5096	mb	5096	skill.mb.5096	안타라스 부하 원거리공격	0	shot	0	0	SkillAction_LocateEffect34	e_u829_ta	0	none	0	none		1	0	0	0	0	0	0	1	0	0	1	0	0.3												1
+5097	mb	5097	skill.mb.5097	안타라스자폭소형	0	casting	0	0	SkillAction_LocateEffect46	at_shock_blast_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	0	0										1			1
+5097	mb	5097	skill.mb.5097	안타라스자폭소형	0	casting	1	0	SkillAction_LocateEffect47	rm_self_blaster_ra	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	0	0	0.01	728	933836	0						1			1
+5097	mb	5097	skill.mb.5097	안타라스자폭소형	0	casting	2	0	SkillAction_LocateEffect78	el_flame_strike_ta	5	trail	9	trail		0	0	0	0	0	0	0	0	1	0	0	0	0.05									1			1
+5097	mb	5097	skill.mb.5097	안타라스자폭소형	0	shot	0	0	SkillAction_LocateEffect79	el_flame_strike_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+5103	deco	5103	skill.deco.5103	혈맹전직레벨업	0	casting	0	0	SkillAction_LocateEffect0	e_u544_levelup_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	0	1	0	0.2									1			1
+5111	deco	5111	skill.deco.5111	원시의섬퀘스트연출	0	casting	0	0	SkillAction_LocateEffect44	wh_recharge_ta	5	trail	9	trail		0	0	-25	0	0	0	0	0	1	0	1	0	0.25												1
+5117	mb	5117	skill.mb.5117	사이렌전용마이트	0	casting	0	0	SkillAction_LocateEffect52	e_u832_new_ca	5	trail	9	trail		0	0	-70	0	0	0	0	0	1	0	0	0	0.5												1
+5117	mb	5117	skill.mb.5117	사이렌전용마이트	0	shot	0	0	SkillAction_LocateEffect53	e_u832	5	trail	9	trail		0	0	-70	0	0	0	0	0	1	0	1	0	0.5												1
+5117	mb	5117	skill.mb.5117	사이렌전용마이트	0	shot	1	0	SkillAction_LocateEffect74	e_u832_ca	5	trail	9	trail		0	0	-70	0	0	0	0	0	1	0	0	0	0.5												1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	0	0	SkillAction_LocateEffect54	e_u831_b	5	trail	9	trail		0	200	-81	0	0	0	0	0	1	0	0	0													1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	1	0	SkillAction_LocateEffect55	e_u831_b	5	trail	9	trail		20	-200	-81	0.2	0	0	0	0	1	0	0	0													1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	2	0	SkillAction_LocateEffect62	e_u831_b	5	trail	9	trail		90	100	-81	0.3	0	0	0	0	1	0	0	0													1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	3	0	SkillAction_LocateEffect63	e_u831_b	5	trail	9	trail		110	-70	-81	0.6	0	0	0	0	1	0	0	0													1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	4	0	SkillAction_LocateEffect64	e_u831_b	5	trail	9	trail		-120	100	-81	0.1	0	0	0	0	1	0	0	0													1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	5	0	SkillAction_LocateEffect65	e_u831_b	5	trail	9	trail		-90	-100	-81	0.4	0	0	0	0	1	0	0	0													1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	6	0	SkillAction_LocateEffect67	e_u831_b	5	trail	9	trail		100	280	-81	0.2	0	0	0	0	1	0	0	0													1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	7	0	SkillAction_LocateEffect68	e_u831_b	5	trail	9	trail		100	-270	-81	0.7	0	0	0	1	0	0	0	0													1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	8	0	SkillAction_LocateEffect69	e_u831_b	5	trail	9	trail		280	100	-81	0.3	0	0	0	0	1	0	0	0													1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	9	0	SkillAction_LocateEffect70	e_u831_b	5	trail	9	trail		-275	-50	-81	0.4	0	0	0	0	1	0	0	0													1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	10	0	SkillAction_LocateEffect71	e_u831_b	5	trail	9	trail		-220	220	-81	0.2	0	0	0	0	1	0	0	0													1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	11	0	SkillAction_LocateEffect72	e_u831_b	5	trail	9	trail		220	-220	-81	0.6	0	0	0	0	1	0	0	0													1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	casting	12	0	SkillAction_LocateEffect76	e_u832_new_ca	5	trail	9	trail		0	0	-70	0	0	0	0	0	1	0	0	0	0.5												1
+5118	mb	5118	skill.mb.5118	사이렌전용캔슬	0	shot	0	0	SkillAction_LocateEffect66	bl_curse_poison_ta	5	trail	9	trail		0	0	0	0	0	0	1	0	1	0	1	0	0.05									1			1
+5122	mb	5122	skill.mb.5122	사이렌전용스턴	0	casting	0	0	SkillAction_LocateEffect50	e_u832_new_ca	5	trail	9	trail		0	0	-70	0	0	0	0	0	1	0	0	0	0.5												1
+5122	mb	5122	skill.mb.5122	사이렌전용스턴	0	shot	0	0	SkillAction_LocateEffect51	at_shield_stun_ta	0	none	0	none		-1	0	0	0	0	0	1	1	0	0	1	0	0.2									1			1
+5130	mu	5130	skill.mu.5130	플레임스트라이크타겟	0	casting	0	0	SkillAction_LocateEffect33	el_flame_strike_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+5131	mu	5131	skill.mu.5131	페이탈스트라이크타겟	0	casting	0	0	SkillAction_LocateEffect34	s_u804_a_ta	0	none	0	none		-1	0	0	0	0	0	1	1	0	0	1	0	0.02									1			1
+5142	mb	5142	skill.mb.5142	몬스터자폭	0	casting	0	0	SkillAction_LocateEffect73	bl_berserker_spirit_ca	5	trail	9	trail		0	0	-1	0	0	0	0	1	0	1	0	0	0.05												1
+5142	mb	5142	skill.mb.5142	몬스터자폭	0	shot	0	0	SkillAction_LocateEffect75	rm_self_blaster_ra	5	trail	9	trail		0	0	0	0	0	0	0	1	0	0	1	0	0.01	728	933836	0						1			1
+5142	mb	5142	skill.mb.5142	몬스터자폭	0	shot	1	0	SkillAction_LocateEffect77	el_flame_strike_ta	5	trail	9	trail		0	0	0	0	0	0	1	1	0	0	1	0	0.05									1			1
+5143	mb	5143	skill.mb.5143	사이렌전용블로우	0	casting	0	0	SkillAction_LocateEffect48	e_u832_new_ca	5	trail	9	trail		0	0	-70	0	0	0	0	0	1	0	0	0	0.5												1
+5143	mb	5143	skill.mb.5143	사이렌전용블로우	0	shot	0	0	SkillAction_LocateEffect49	s_u804_a_ta	0	none	0	none		-1	0	0	0	0	0	1	1	0	0	1	0	0.02									1			1
+5204	mm	5204	skill.mm.5204	초거대돼지합체	0	casting	0	0	SkillAction_LocateEffect28	ch_gourd_death_long	5	trail	9	trail		0	0	0	0	0	0	0	1	0	1	1	0	0.05	0	687349758	-280						1			1

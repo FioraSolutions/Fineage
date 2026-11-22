@@ -89,6 +89,58 @@ public sealed class SkillVisualCatalogEditModeTests
         Assert.AreEqual(SkillVisualPartKind.Impact, wind.Actions[3].Kind);
         Assert.AreEqual(CompositePartSpawnTiming.OnHitCollider, wind.Actions[3].Timing);
         Assert.AreEqual(EffectAttachmentPoint.WorldHitPoint, wind.Actions[3].Attachment);
+        Assert.AreEqual(0f, wind.Actions[0].OffsetX);
+        Assert.AreEqual(0f, wind.Actions[0].OffsetY);
+        Assert.AreEqual(-1f, wind.Actions[0].OffsetZ);
+        Assert.IsTrue(wind.Actions[0].RelativeToCylinder);
+        Assert.AreEqual(0.25f, wind.Actions[0].DrawScale, 0.0001f);
+        Assert.IsFalse(wind.Actions[0].UseCharacterRotation);
+        Assert.AreEqual(1f, wind.Actions[1].OffsetX);
+        Assert.AreEqual(0.1f, wind.Actions[1].DrawScale, 0.0001f);
+        Assert.IsTrue(wind.Actions[1].UseCharacterRotation);
+        Assert.AreEqual(32892f, wind.Actions[1].RotationYaw, 0.0001f);
+        Assert.AreEqual(1000f, wind.Actions[2].Speed, 0.0001f);
+        Assert.AreEqual(3000f, wind.Actions[2].AccSpeed, 0.0001f);
+        Assert.AreEqual(0.05f, wind.Actions[2].DrawScale, 0.0001f);
+        Assert.IsTrue(wind.Actions[3].OnTarget);
+        Assert.AreEqual(0.1f, wind.Actions[3].DrawScale, 0.0001f);
+
+        SkillVisualResolution vortex = catalog.Resolve(1341, 1, Present);
+        Assert.AreEqual(SkillVisualStatus.Ready, vortex.Status);
+        Assert.AreEqual(SkillVisualCatalog.SourceDesc, vortex.Source);
+        Assert.AreEqual("skill.sp.1201", vortex.VisualKey);
+        Assert.AreEqual(0f, vortex.FlyingTime, 0.0001f);
+        Assert.AreEqual(2, vortex.Actions.Count);
+        Assert.AreEqual("casting", vortex.Actions[0].Phase);
+        Assert.AreEqual("sp_agility_ca", vortex.Actions[0].AssetKey);
+        Assert.AreEqual(0f, vortex.Actions[0].OffsetX);
+        Assert.AreEqual(0f, vortex.Actions[0].OffsetY);
+        Assert.AreEqual(-1f, vortex.Actions[0].OffsetZ);
+        Assert.IsTrue(vortex.Actions[0].RelativeToCylinder);
+        Assert.AreEqual("sp_dryad_root_ta", vortex.Actions[1].AssetKey);
+        Assert.IsTrue(vortex.Actions[1].OnTarget);
+
+        SkillVisualResolution prominence = catalog.Resolve(1230, 1, Present);
+        Assert.AreEqual(SkillVisualStatus.Ready, prominence.Status);
+        Assert.AreEqual(SkillVisualCatalog.SourceDesc, prominence.Source);
+        Assert.AreEqual("skill.el.1230", prominence.VisualKey);
+        Assert.AreEqual(0.4f, prominence.FlyingTime, 0.0001f);
+        Assert.AreEqual(4, prominence.Actions.Count);
+        Assert.AreEqual("el_prominence_ca", prominence.Actions[0].AssetKey);
+        Assert.AreEqual(1f, prominence.Actions[0].OffsetX);
+        Assert.AreEqual(SkillVisualPartKind.Projectile, prominence.Actions[1].Kind);
+        Assert.AreEqual("el_prominence_fl", prominence.Actions[1].AssetKey);
+        Assert.AreEqual(1000f, prominence.Actions[1].Speed, 0.0001f);
+        Assert.AreEqual("el_prominence_cs", prominence.Actions[2].AssetKey);
+        Assert.AreEqual(1f, prominence.Actions[2].OffsetX);
+        Assert.AreEqual(CompositePartSpawnTiming.OnAnimationShoot, prominence.Actions[2].Timing);
+        Assert.AreEqual(SkillVisualPartKind.Impact, prominence.Actions[3].Kind);
+        Assert.AreEqual("el_prominence_ta", prominence.Actions[3].AssetKey);
+        Assert.IsTrue(prominence.Actions[3].OnTarget);
+
+        SkillVisualResolution emptyCast = catalog.Resolve(4548, 1, Present);
+        Assert.AreEqual(SkillVisualStatus.Missing, emptyCast.Status);
+        CollectionAssert.Contains(emptyCast.MissingAssets, "phase:casting missing field=EffectClass");
 
         SkillVisualResolution power = catalog.Resolve(3, 1, Present);
         Assert.AreEqual(SkillVisualStatus.None, power.Status);
@@ -115,6 +167,9 @@ public sealed class SkillVisualCatalogEditModeTests
         Assert.AreEqual(
             Normalize(File.ReadAllText(Path.Combine(docs, "skill-effects-engine.tsv"))),
             Normalize(File.ReadAllText(Path.Combine(streaming, "skill-effects-engine.txt"))));
+        Assert.AreEqual(
+            Normalize(File.ReadAllText(Path.Combine(docs, "skills", "skill-effect-placement.tsv"))),
+            Normalize(File.ReadAllText(Path.Combine(streaming, "skill-effect-placement.txt"))));
 
         Dictionary<int, Dictionary<int, string>> fromDat = ReadDesc(Path.Combine(docs, "dats", "skillgrp.tsv"), "skill_level");
         Dictionary<int, Dictionary<int, string>> fromRuntime = ReadDesc(Path.Combine(streaming, "skillgrp-desc.txt"), "level");
@@ -154,7 +209,7 @@ public sealed class SkillVisualCatalogEditModeTests
         SkillVisualCatalog catalog;
         bool ok = SkillVisualCatalog.TryParse(
             File.ReadAllText(Path.Combine(docs, "dats", "skillgrp.tsv")),
-            File.ReadAllText(Path.Combine(docs, "skill-effects-engine.tsv")),
+            File.ReadAllText(Path.Combine(docs, "skills", "skill-effect-placement.tsv")),
             out catalog,
             out error);
         Assert.IsTrue(ok, error);

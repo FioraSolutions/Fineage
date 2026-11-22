@@ -56,7 +56,8 @@ public partial class AudioService
         AudioCategory category,
         float volumeScale,
         bool atListener,
-        string idForLog)
+        string idForLog,
+        float maxDistanceMeters = -1f)
     {
         if (_disabled || clip == null)
             return;
@@ -77,7 +78,7 @@ public partial class AudioService
         WorldEmitter emitter = AcquireWorldEmitter();
         emitter.Category = category;
         emitter.Go.transform.position = worldPos;
-        ApplyWorldFalloff(emitter.Source);
+        ApplyWorldFalloff(emitter.Source, maxDistanceMeters);
         emitter.Source.PlayOneShot(clip, CategoryVolume(category) * volumeScale);
         emitter.ReleaseAt = Time.unscaledTime + clip.length + 0.15f;
     }
@@ -143,13 +144,16 @@ public partial class AudioService
         }
     }
 
-    internal static void ApplyWorldFalloff(AudioSource src)
+    internal static void ApplyWorldFalloff(AudioSource src, float maxDistanceMeters = -1f)
     {
         src.spatialBlend = 1f;
         src.dopplerLevel = 0f;
         src.rolloffMode = AudioRolloffMode.Linear;
+        float maxDistance = maxDistanceMeters > 0f ? maxDistanceMeters : WorldHearMaxMeters;
         src.minDistance = WorldHearMinMeters;
-        src.maxDistance = WorldHearMaxMeters;
+        src.maxDistance = maxDistance;
+        if (src.minDistance >= src.maxDistance)
+            src.minDistance = Mathf.Max(0.01f, src.maxDistance * 0.1f);
     }
 
     public void PlayDelayed(float delaySeconds, System.Action action)

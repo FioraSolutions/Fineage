@@ -37,9 +37,17 @@ public static partial class SkillCastSound
 
         Vector3 pos = caster != null ? caster.transform.position : Vector3.zero;
         InterludeSfx.PlaceAtCaster(pos, caster == DomainPacketServices.LocalPlayer);
+        bool listener = caster == DomainPacketServices.LocalPlayer;
         bool shotOk = false;
-        if (!string.IsNullOrEmpty(shotClip))
-            shotOk = PlaySfx(shotClip, pos, Volume, caster == DomainPacketServices.LocalPlayer);
+        if (pending.SkillId != 0 || pending.ShotCue.HasClip || (pending.ShotEffects != null && pending.ShotEffects.Length > 0))
+        {
+            shotOk = PlayCue(pending.ShotCue, "shot", pending.SkillId, pos, listener, asCast: false);
+            shotOk = PlayCueList(pending.ShotEffects, "shot", pending.SkillId, pos, listener) || shotOk;
+        }
+        else if (!string.IsNullOrEmpty(shotClip))
+        {
+            shotOk = PlayCue(CueFromStem(shotClip), "shot", skillId, pos, listener, asCast: false);
+        }
 
         // 2) Release hero voice — PlayVoice cuts any still-playing cast line.
         PlayVoiceKind(caster, throwVoiceKind);
@@ -76,12 +84,16 @@ public static partial class SkillCastSound
         PendingCast pending;
         if (!_pending.TryGetValue(casterId, out pending) || pending.ExplodePlayed)
             return;
-        if (string.IsNullOrEmpty(pending.ExplodeClip))
+        if (!HasAnyCue(pending.ExplodeCue, pending.ExpEffects) && string.IsNullOrEmpty(pending.ExplodeClip))
             return;
         pending.ExplodePlayed = true;
         _pending[casterId] = pending;
         float t = Time.realtimeSinceStartup - pending.StartTime;
-        bool ok = PlaySfx(pending.ExplodeClip, pos, Volume, IsLocalCaster(casterId));
+        bool listener = IsLocalCaster(casterId);
+        bool ok = PlayCue(pending.ExplodeCue, "exp", pending.SkillId, pos, listener, asCast: false);
+        ok = PlayCueList(pending.ExpEffects, "exp", pending.SkillId, pos, listener) || ok;
+        if (!ok && !pending.ExplodeCue.HasClip && !string.IsNullOrEmpty(pending.ExplodeClip))
+            ok = PlayCue(CueFromStem(pending.ExplodeClip), "exp", pending.SkillId, pos, listener, asCast: false);
         float barRem = CastBarOverlay.Remaining01;
         Debug.Log(
             "[CastSync] PIPELINE.hit EXPLODE reason=" + reason +
@@ -126,12 +138,56 @@ public static partial class SkillCastSound
 
     static void PlayCastSfx(string clipName, float volume)
     {
-        AudioClip clip = Load(SfxRoot, clipName);
-        if (clip == null && !string.IsNullOrEmpty(clipName))
-            clip = Load(SfxRoot, clipName.ToLowerInvariant());
+        PlayCue(CueFromStem(clipName), "cast", 0, Vector3.zero, true, asCast: true, overrideVolume: volume);
+    }
+
+    static bool PlayCueList(SkillSoundCue[] cues, string phase, int skillId, Vector3 pos, bool listener)
+    {
+        if (cues == null || cues.Length == 0)
+            return false;
+        bool any = false;
+        for (int i = 0; i < cues.Length; i++)
+            any = PlayCue(cues[i], phase, skillId, pos, listener, asCast: false) || any;
+        return any;
+    }
+
+    static bool PlayCue(
+        SkillSoundCue cue,
+        string phase,
+        int skillId,
+        Vector3 pos,
+        bool listener,
+        bool asCast,
+        float overrideVolume = -1f)
+    {
+        if (!cue.HasClip)
+            return false;
+
+        AudioClip clip = Load(SfxRoot, cue.Clip);
         if (clip == null)
-            return;
-        InterludeSfx.PlayCast(clip, volume);
+            clip = Load(SfxRoot, cue.Clip.ToLowerInvariant());
+        if (clip == null)
+        {
+            string package = string.IsNullOrEmpty(cue.Package) ? "?" : cue.Package;
+            string name = string.IsNullOrEmpty(cue.Name) ? cue.Clip : cue.Name;
+            Debug.LogError(
+                "[SkillCastSound] missing clip package=" + package +
+                " name=" + name +
+                " token=" + (cue.Token ?? "") +
+                " skill=" + skillId +
+                " phase=" + phase);
+            return false;
+        }
+
+        float volume = overrideVolume >= 0f ? overrideVolume : VolumeFromTable(cue.Vol);
+        float radius = RadiusMetersFromTable(cue.Rad);
+        if (asCast)
+            InterludeSfx.PlayCast(clip, volume);
+        else if (listener)
+            InterludeSfx.Play(clip, volume);
+        else
+            InterludeSfx.PlayAt(clip, pos, volume, false, radius);
+        return true;
     }
 
     static string StemFromClip(string clip)

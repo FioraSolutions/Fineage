@@ -24,3 +24,10 @@ Committed output is text only (`l2-unity/Docs/interlude-ref`). Decrypted package
 | `ddf/Interlude/*.ddf` | Community DAT schemas (two Interlude corrections: huntingzone `ASCF extra`, logongrp floats) |
 
 `l2encdec` is not committed; use the Darwin binary already under `tools/interlude-dat/l2encdec-bin/`.
+
+| `export_package_properties.sh` | Lossless JSON dump of every property on every object in `skill.usk` plus `lineageeffect.u` |
+| `build_skill_effect_placement.py` | Placement TSV/JSON, skill-effect-sounds TSV/JSON, gap report, and sharded dump parts from that JSON |
+| `write_lineageeffect_uc.py` | Writes complete LineageEffect `.uc` defaultproperties (including `Begin Object` emitter blocks) from the lossless JSON dump. UScriptDump drops the Emitters arrays; the generator still parses `.uc`, so this is the single path that keeps emitters lossless. |
+| `build_skill_visual_runtime.py` | StreamingAssets skill-visual tables plus the missing-assets TSV (leftovers only). |
+| `build_skill_effect_sounds.py` | Derived sound table used by the placement gap report. |
+

@@ -37,6 +37,14 @@ public static partial class AudioPacketServicesBridge
             svc.PlayClipAt(clip, pos, category, vol, listener, clip.name);
         };
 
+        InterludeSfxBridge.PlayClipAtRanged = (clip, pos, category, vol, listener, maxDistanceMeters) =>
+        {
+            AudioService svc = AudioPacketServices.Service;
+            if (svc == null || clip == null)
+                return;
+            svc.PlayClipAt(clip, pos, category, vol, listener, clip.name, maxDistanceMeters);
+        };
+
         InterludeSfxBridge.PlayCastClip = (clip, vol) =>
         {
             AudioService svc = AudioPacketServices.Service;

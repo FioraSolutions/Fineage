@@ -1,0 +1,4927 @@
+{
+  "package": "lineageeffect",
+  "source": "system/lineageeffect.u",
+  "tool": "tools/interlude-extract/ExportPackageProperties.java",
+  "export_count": 5484,
+  "import_count": 613,
+  "extract_failures": 0,
+  "imports": [
+    {
+      "import_index": 0,
+      "object_name": "Engine",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 1,
+      "object_name": "Core",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 2,
+      "object_name": "SpriteEmitter",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 3,
+      "object_name": "LineageEffectsTextures",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 4,
+      "object_name": "Emitter",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 5,
+      "object_name": "Particles",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 6,
+      "object_name": "MeshEmitter",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 7,
+      "object_name": "LineageEffectsStaticmeshes",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 8,
+      "object_name": "Object",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -2,
+      "package": "import:Core:Package:Core"
+    },
+    {
+      "import_index": 9,
+      "object_name": "TextBuffer",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -2,
+      "package": "import:Core:Package:Core"
+    },
+    {
+      "import_index": 10,
+      "object_name": "Class",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -2,
+      "package": "import:Core:Package:Core"
+    },
+    {
+      "import_index": 11,
+      "object_name": "Particles2",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 12,
+      "object_name": "Etc",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 13,
+      "object_name": "Skill_Power",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 14,
+      "object_name": "Particles3",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 15,
+      "object_name": "Fire",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 16,
+      "object_name": "fx_m_t0000",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 17,
+      "object_name": "LineageEffectsTextures2",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 18,
+      "object_name": "Monster",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 19,
+      "object_name": "balakas",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -18,
+      "package": "import:Core:Package:LineageEffectsTextures2"
+    },
+    {
+      "import_index": 20,
+      "object_name": "Impact",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 21,
+      "object_name": "fx_m_t0061",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 22,
+      "object_name": "fx_m_t1002",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 23,
+      "object_name": "fx_m_t0063",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 24,
+      "object_name": "magiccircle",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 25,
+      "object_name": "fx_m_t0085",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 26,
+      "object_name": "FX_E_T",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 27,
+      "object_name": "spirit_gun00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 28,
+      "object_name": "NSkillProjectile",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 29,
+      "object_name": "skill_charge02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -14,
+      "package": "import:Core:Package:Skill_Power"
+    },
+    {
+      "import_index": 30,
+      "object_name": "fx_m_t0105",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 31,
+      "object_name": "skill_power01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -14,
+      "package": "import:Core:Package:Skill_Power"
+    },
+    {
+      "import_index": 32,
+      "object_name": "fx_m_t2033",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 33,
+      "object_name": "shockwave00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -21,
+      "package": "import:Core:Package:Impact"
+    },
+    {
+      "import_index": 34,
+      "object_name": "fx_m_t0005",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 35,
+      "object_name": "fx_m_t0127",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 36,
+      "object_name": "Actor",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 37,
+      "object_name": "Wind",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 38,
+      "object_name": "fx_m_t1060",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 39,
+      "object_name": "printesha",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 40,
+      "object_name": "fx_m_t0067",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 41,
+      "object_name": "Support",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 42,
+      "object_name": "fx_m_t_3004",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -16,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 43,
+      "object_name": "fx_m_t_3004b",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -16,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 44,
+      "object_name": "spark00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -19,
+      "package": "import:Core:Package:Monster"
+    },
+    {
+      "import_index": 45,
+      "object_name": "wispray00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -19,
+      "package": "import:Core:Package:Monster"
+    },
+    {
+      "import_index": 46,
+      "object_name": "fx_m_t2011",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -20,
+      "package": "import:Core:Package:balakas"
+    },
+    {
+      "import_index": 47,
+      "object_name": "Etc",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 48,
+      "object_name": "skill_power04",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -14,
+      "package": "import:Core:Package:Skill_Power"
+    },
+    {
+      "import_index": 49,
+      "object_name": "VertMeshEmitter",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 50,
+      "object_name": "LineageEffectMeshes",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 51,
+      "object_name": "curse_sword",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 52,
+      "object_name": "flame_a00",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -54,
+      "package": "import:Core:Package:Flameset_a"
+    },
+    {
+      "import_index": 53,
+      "object_name": "Flameset_a",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -27,
+      "package": "import:Core:Package:FX_E_T"
+    },
+    {
+      "import_index": 54,
+      "object_name": "fx_m_t1037",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -20,
+      "package": "import:Core:Package:balakas"
+    },
+    {
+      "import_index": 55,
+      "object_name": "fx_m_t1003",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 56,
+      "object_name": "fx_m_t0035",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 57,
+      "object_name": "fx_m_t0069",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 58,
+      "object_name": "White",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 59,
+      "object_name": "magiccirclewhite01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -25,
+      "package": "import:Core:Package:magiccircle"
+    },
+    {
+      "import_index": 60,
+      "object_name": "fx_m_t0071",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 61,
+      "object_name": "fx_m_t0034",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 62,
+      "object_name": "BeamEmitter",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 63,
+      "object_name": "fx_m_t4013",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 64,
+      "object_name": "magiccircleblack02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -25,
+      "package": "import:Core:Package:magiccircle"
+    },
+    {
+      "import_index": 65,
+      "object_name": "Aura",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 66,
+      "object_name": "fx_m_t0060",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 67,
+      "object_name": "fx_m_t0056",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 68,
+      "object_name": "NProjectile",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 69,
+      "object_name": "fx_m_t0033",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 70,
+      "object_name": "fx_m_t0006",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 71,
+      "object_name": "Function",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -2,
+      "package": "import:Core:Package:Core"
+    },
+    {
+      "import_index": 72,
+      "object_name": "Fire",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 73,
+      "object_name": "etc_levelup00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 74,
+      "object_name": "boss",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 75,
+      "object_name": "Summon",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 76,
+      "object_name": "etc_spawn00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 77,
+      "object_name": "fx_m_t0072",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 78,
+      "object_name": "skill_charge00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -14,
+      "package": "import:Core:Package:Skill_Power"
+    },
+    {
+      "import_index": 79,
+      "object_name": "fx_m_t0002",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 80,
+      "object_name": "fx_m_t2054",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 81,
+      "object_name": "supportenchant01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -42,
+      "package": "import:Core:Package:Support"
+    },
+    {
+      "import_index": 82,
+      "object_name": "windknifewave00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -38,
+      "package": "import:Core:Package:Wind"
+    },
+    {
+      "import_index": 83,
+      "object_name": "fx_m_t0084",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 84,
+      "object_name": "FX_E_S",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 85,
+      "object_name": "fx_m_t1017",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 86,
+      "object_name": "fx_m_t0126",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 87,
+      "object_name": "etc_levelup01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 88,
+      "object_name": "fx_m_t2003",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -16,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 89,
+      "object_name": "fx_m_t0066",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 90,
+      "object_name": "WaterHitEmitter",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 91,
+      "object_name": "auracharge01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -66,
+      "package": "import:Core:Package:Aura"
+    },
+    {
+      "import_index": 92,
+      "object_name": "fx_m_t2035",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 93,
+      "object_name": "fx_m_t0109",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 94,
+      "object_name": "fx_m_t2013",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -20,
+      "package": "import:Core:Package:balakas"
+    },
+    {
+      "import_index": 95,
+      "object_name": "fx_m_t1026",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 96,
+      "object_name": "fx_m_t0116",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 97,
+      "object_name": "FloatProperty",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -2,
+      "package": "import:Core:Package:Core"
+    },
+    {
+      "import_index": 98,
+      "object_name": "Cubics",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 99,
+      "object_name": "wispray01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -19,
+      "package": "import:Core:Package:Monster"
+    },
+    {
+      "import_index": 100,
+      "object_name": "fx_m_t0091",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -99,
+      "package": "import:Core:Package:Cubics"
+    },
+    {
+      "import_index": 101,
+      "object_name": "LightGlowSet",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -27,
+      "package": "import:Core:Package:FX_E_T"
+    },
+    {
+      "import_index": 102,
+      "object_name": "Elf",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 103,
+      "object_name": "sword_mesh00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -103,
+      "package": "import:Core:Package:Elf"
+    },
+    {
+      "import_index": 104,
+      "object_name": "sparkredcone00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -21,
+      "package": "import:Core:Package:Impact"
+    },
+    {
+      "import_index": 105,
+      "object_name": "fx_m_t0062",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 106,
+      "object_name": "fx_m_t0059",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 107,
+      "object_name": "fx_m_t5011",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 108,
+      "object_name": "Etc",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -27,
+      "package": "import:Core:Package:FX_E_T"
+    },
+    {
+      "import_index": 109,
+      "object_name": "magiccirclewhite00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -25,
+      "package": "import:Core:Package:magiccircle"
+    },
+    {
+      "import_index": 110,
+      "object_name": "fx_m_t0099",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 111,
+      "object_name": "fx_m_t0081",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 112,
+      "object_name": "supportenchant00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -42,
+      "package": "import:Core:Package:Support"
+    },
+    {
+      "import_index": 113,
+      "object_name": "fx_m_t2012",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -20,
+      "package": "import:Core:Package:balakas"
+    },
+    {
+      "import_index": 114,
+      "object_name": "fx_m_t0144",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -48,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 115,
+      "object_name": "fx_m_t0108",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 116,
+      "object_name": "fx_m_t0004",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 117,
+      "object_name": "fx_m_t0001",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 118,
+      "object_name": "fx_m_t1022",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 119,
+      "object_name": "fx_m_t0132",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 120,
+      "object_name": "fx_m_t1066",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 121,
+      "object_name": "fx_m_t1021",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 122,
+      "object_name": "NCubics",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 123,
+      "object_name": "fx_m_t0054",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 124,
+      "object_name": "Black",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 125,
+      "object_name": "etcpotion01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 126,
+      "object_name": "fx_m_t1071",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 127,
+      "object_name": "water",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 128,
+      "object_name": "fx_m_t5004",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 129,
+      "object_name": "ObjectProperty",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -2,
+      "package": "import:Core:Package:Core"
+    },
+    {
+      "import_index": 130,
+      "object_name": "supportenchant02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -42,
+      "package": "import:Core:Package:Support"
+    },
+    {
+      "import_index": 131,
+      "object_name": "fx_m_t1014",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 132,
+      "object_name": "line_glow2",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -40,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 133,
+      "object_name": "fx_m_t5009",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 134,
+      "object_name": "fx_m_t2092",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 135,
+      "object_name": "wind_L",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -40,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 136,
+      "object_name": "Pawn",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 137,
+      "object_name": "PostBeginPlay",
+      "class_name": "Function",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 138,
+      "object_name": "Hero",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 139,
+      "object_name": "Etc",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -85,
+      "package": "import:Core:Package:FX_E_S"
+    },
+    {
+      "import_index": 140,
+      "object_name": "fx_m_t0083",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 141,
+      "object_name": "summon00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -76,
+      "package": "import:Core:Package:Summon"
+    },
+    {
+      "import_index": 142,
+      "object_name": "fx_m_t0080",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 143,
+      "object_name": "TargetActor",
+      "class_name": "ObjectProperty",
+      "class_package": "Core",
+      "package_index": -69,
+      "package": "import:Core:Class:NProjectile"
+    },
+    {
+      "import_index": 144,
+      "object_name": "swirl",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 145,
+      "object_name": "Sound",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 146,
+      "object_name": "fx_m_t0133",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 147,
+      "object_name": "fx_m_t2070",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 148,
+      "object_name": "slashlight00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -21,
+      "package": "import:Core:Package:Impact"
+    },
+    {
+      "import_index": 149,
+      "object_name": "union_zariche",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 150,
+      "object_name": "fx_m_t0111",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 151,
+      "object_name": "fx_m_t0050",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 152,
+      "object_name": "fx_m_t0137",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 153,
+      "object_name": "Cir_Beam",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -40,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 154,
+      "object_name": "fireball00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -73,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 155,
+      "object_name": "ItemSound2",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 156,
+      "object_name": "fx_m_t0100",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 157,
+      "object_name": "DynamicLoadObject",
+      "class_name": "Function",
+      "class_package": "Core",
+      "package_index": -9,
+      "package": "import:Core:Class:Object"
+    },
+    {
+      "import_index": 158,
+      "object_name": "windblowin01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -38,
+      "package": "import:Core:Package:Wind"
+    },
+    {
+      "import_index": 159,
+      "object_name": "fx_m_t0064",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 160,
+      "object_name": "lightcone01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -21,
+      "package": "import:Core:Package:Impact"
+    },
+    {
+      "import_index": 161,
+      "object_name": "auraburn00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -66,
+      "package": "import:Core:Package:Aura"
+    },
+    {
+      "import_index": 162,
+      "object_name": "fx_m_t0053",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 163,
+      "object_name": "fx_m_t0068",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 164,
+      "object_name": "fx_m_t0058",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 165,
+      "object_name": "fx_m_t0089",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 166,
+      "object_name": "fx_m_t0143",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 167,
+      "object_name": "Tick",
+      "class_name": "Function",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 168,
+      "object_name": "Chronicle3_Firework",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -156,
+      "package": "import:Core:Package:ItemSound2"
+    },
+    {
+      "import_index": 169,
+      "object_name": "magiccircleblack01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -25,
+      "package": "import:Core:Package:magiccircle"
+    },
+    {
+      "import_index": 170,
+      "object_name": "black_poison00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -125,
+      "package": "import:Core:Package:Black"
+    },
+    {
+      "import_index": 171,
+      "object_name": "Skillsound3",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 172,
+      "object_name": "fx_m_t_3044",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 173,
+      "object_name": "fx_m_t_3036",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 174,
+      "object_name": "windblowin00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -38,
+      "package": "import:Core:Package:Wind"
+    },
+    {
+      "import_index": 175,
+      "object_name": "npc_2f_etc_G01",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -102,
+      "package": "import:Core:Package:LightGlowSet"
+    },
+    {
+      "import_index": 176,
+      "object_name": "Fx_argos_eye",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -27,
+      "package": "import:Core:Package:FX_E_T"
+    },
+    {
+      "import_index": 177,
+      "object_name": "Spirit_Wind",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 178,
+      "object_name": "fx_m_t0153",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -48,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 179,
+      "object_name": "orc",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 180,
+      "object_name": "Cubics",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 181,
+      "object_name": "skill_charge01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -14,
+      "package": "import:Core:Package:Skill_Power"
+    },
+    {
+      "import_index": 182,
+      "object_name": "fx_m_t5006",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 183,
+      "object_name": "fx_m_t4012",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 184,
+      "object_name": "fx_m_t0152",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -48,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 185,
+      "object_name": "FX_M_T",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 186,
+      "object_name": "Texture",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 187,
+      "object_name": "Spark",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 188,
+      "object_name": "fx_m_t_3057",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 189,
+      "object_name": "fx_m_t0042",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -188,
+      "package": "import:Core:Package:Spark"
+    },
+    {
+      "import_index": 190,
+      "object_name": "skill_power00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -14,
+      "package": "import:Core:Package:Skill_Power"
+    },
+    {
+      "import_index": 191,
+      "object_name": "fx_m_t0030",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 192,
+      "object_name": "Mesh",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 193,
+      "object_name": "fx_m_t_3037",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 194,
+      "object_name": "white_Protect00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -59,
+      "package": "import:Core:Package:White"
+    },
+    {
+      "import_index": 195,
+      "object_name": "frintessa_drop",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -172,
+      "package": "import:Core:Package:Skillsound3"
+    },
+    {
+      "import_index": 196,
+      "object_name": "summon01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -76,
+      "package": "import:Core:Package:Summon"
+    },
+    {
+      "import_index": 197,
+      "object_name": "A_F",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -52,
+      "package": "import:Core:Package:curse_sword"
+    },
+    {
+      "import_index": 198,
+      "object_name": "fx_m_t6002",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 199,
+      "object_name": "stone_col00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -19,
+      "package": "import:Core:Package:Monster"
+    },
+    {
+      "import_index": 200,
+      "object_name": "skill_rapidshot",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -14,
+      "package": "import:Core:Package:Skill_Power"
+    },
+    {
+      "import_index": 201,
+      "object_name": "skill_power02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -14,
+      "package": "import:Core:Package:Skill_Power"
+    },
+    {
+      "import_index": 202,
+      "object_name": "fx_e_t001_34",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -109,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 203,
+      "object_name": "fx_m_t0138",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 204,
+      "object_name": "fx_m_t4016",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -48,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 205,
+      "object_name": "fx_m_t5018",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 206,
+      "object_name": "fx_teleport",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -85,
+      "package": "import:Core:Package:FX_E_S"
+    },
+    {
+      "import_index": 207,
+      "object_name": "etcpotion02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 208,
+      "object_name": "windblowin03",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -38,
+      "package": "import:Core:Package:Wind"
+    },
+    {
+      "import_index": 209,
+      "object_name": "fx_m_t_3038",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 210,
+      "object_name": "fx_m_t2089",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 211,
+      "object_name": "ShotNotify",
+      "class_name": "Function",
+      "class_package": "Core",
+      "package_index": -69,
+      "package": "import:Core:Class:NProjectile"
+    },
+    {
+      "import_index": 212,
+      "object_name": "S_L",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -52,
+      "package": "import:Core:Package:curse_sword"
+    },
+    {
+      "import_index": 213,
+      "object_name": "Owner",
+      "class_name": "ObjectProperty",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 214,
+      "object_name": "AirEmitter",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 215,
+      "object_name": "GetSpawnRate",
+      "class_name": "Function",
+      "class_package": "Core",
+      "package_index": -91,
+      "package": "import:Core:Class:WaterHitEmitter"
+    },
+    {
+      "import_index": 216,
+      "object_name": "fx_m_t_3009",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 217,
+      "object_name": "summon02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -76,
+      "package": "import:Core:Package:Summon"
+    },
+    {
+      "import_index": 218,
+      "object_name": "fx_m_t2016",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -16,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 219,
+      "object_name": "fx_m_t2051",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 220,
+      "object_name": "fx_m_t_3073",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 221,
+      "object_name": "orc_magic00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -180,
+      "package": "import:Core:Package:orc"
+    },
+    {
+      "import_index": 222,
+      "object_name": "etc_spawn01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 223,
+      "object_name": "fx_m_t_3249",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 224,
+      "object_name": "fx_m_t0117",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -226,
+      "package": "import:Core:Package:Spark2"
+    },
+    {
+      "import_index": 225,
+      "object_name": "Spark2",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 226,
+      "object_name": "SkillSound2",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 227,
+      "object_name": "fx_m_t4009",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 228,
+      "object_name": "windknifeball00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -38,
+      "package": "import:Core:Package:Wind"
+    },
+    {
+      "import_index": 229,
+      "object_name": "fx_m_t1076",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 230,
+      "object_name": "fx_m_t_3056",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 231,
+      "object_name": "fx_m_t2072",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 232,
+      "object_name": "LastTargetLocation",
+      "class_name": "StructProperty",
+      "class_package": "Core",
+      "package_index": -69,
+      "package": "import:Core:Class:NProjectile"
+    },
+    {
+      "import_index": 233,
+      "object_name": "fx_m_t0003",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 234,
+      "object_name": "fx_m_t_3032",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 235,
+      "object_name": "M_FX_particle",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -186,
+      "package": "import:Core:Package:FX_M_T"
+    },
+    {
+      "import_index": 236,
+      "object_name": "magiccircleblack00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -25,
+      "package": "import:Core:Package:magiccircle"
+    },
+    {
+      "import_index": 237,
+      "object_name": "fx_m_t0139",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 238,
+      "object_name": "watericedagger00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -128,
+      "package": "import:Core:Package:water"
+    },
+    {
+      "import_index": 239,
+      "object_name": "fx_m_t_3051",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 240,
+      "object_name": "printesha",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -18,
+      "package": "import:Core:Package:LineageEffectsTextures2"
+    },
+    {
+      "import_index": 241,
+      "object_name": "stone_sharp",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -75,
+      "package": "import:Core:Package:boss"
+    },
+    {
+      "import_index": 242,
+      "object_name": "white_shield00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -59,
+      "package": "import:Core:Package:White"
+    },
+    {
+      "import_index": 243,
+      "object_name": "fx_m_t0065",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 244,
+      "object_name": "auracharge00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -66,
+      "package": "import:Core:Package:Aura"
+    },
+    {
+      "import_index": 245,
+      "object_name": "fx_jewel_ring1",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -140,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 246,
+      "object_name": "fx_m_t2071",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 247,
+      "object_name": "firebomb00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -73,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 248,
+      "object_name": "Lighting",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -40,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 249,
+      "object_name": "Frintessa_monster",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -75,
+      "package": "import:Core:Package:boss"
+    },
+    {
+      "import_index": 250,
+      "object_name": "hero_aura00",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 251,
+      "object_name": "water00",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 252,
+      "object_name": "fx_m_t_3215",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 253,
+      "object_name": "twist_m06",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 254,
+      "object_name": "watericebolt01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -128,
+      "package": "import:Core:Package:water"
+    },
+    {
+      "import_index": 255,
+      "object_name": "Physics",
+      "class_name": "ByteProperty",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 256,
+      "object_name": "fx_m_t1034",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -20,
+      "package": "import:Core:Package:balakas"
+    },
+    {
+      "import_index": 257,
+      "object_name": "C3_Firework_shotup",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -169,
+      "package": "import:Core:Package:Chronicle3_Firework"
+    },
+    {
+      "import_index": 258,
+      "object_name": "fx_teleport",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -27,
+      "package": "import:Core:Package:FX_E_T"
+    },
+    {
+      "import_index": 259,
+      "object_name": "white_heal00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -59,
+      "package": "import:Core:Package:White"
+    },
+    {
+      "import_index": 260,
+      "object_name": "fx_m_t2052",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 261,
+      "object_name": "fx_m_t0122",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 262,
+      "object_name": "selfblaster",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 263,
+      "object_name": "spirit_wind01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -178,
+      "package": "import:Core:Package:Spirit_Wind"
+    },
+    {
+      "import_index": 264,
+      "object_name": "magic_circle",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -40,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 265,
+      "object_name": "fx_m_t_3208",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 266,
+      "object_name": "fx_m_t2069",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 267,
+      "object_name": "fx_m_t4030",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 268,
+      "object_name": "lightcone00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -21,
+      "package": "import:Core:Package:Impact"
+    },
+    {
+      "import_index": 269,
+      "object_name": "fx_m_t0051",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 270,
+      "object_name": "C3_Firework_explosion",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -169,
+      "package": "import:Core:Package:Chronicle3_Firework"
+    },
+    {
+      "import_index": 271,
+      "object_name": "fx_m_t1020",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 272,
+      "object_name": "bloodspray00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -21,
+      "package": "import:Core:Package:Impact"
+    },
+    {
+      "import_index": 273,
+      "object_name": "fx_m_t4006",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 274,
+      "object_name": "etc_CrackedWall1",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 275,
+      "object_name": "fx_m_t1033",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -20,
+      "package": "import:Core:Package:balakas"
+    },
+    {
+      "import_index": 276,
+      "object_name": "fx_m_t0101",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 277,
+      "object_name": "windblowin02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -38,
+      "package": "import:Core:Package:Wind"
+    },
+    {
+      "import_index": 278,
+      "object_name": "fx_m_t0112",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 279,
+      "object_name": "fx_m_t4023",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 280,
+      "object_name": "fx_m_t_3049",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 281,
+      "object_name": "Fx_argos_eye_t04",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -177,
+      "package": "import:Core:Package:Fx_argos_eye"
+    },
+    {
+      "import_index": 282,
+      "object_name": "aka2",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -52,
+      "package": "import:Core:Package:curse_sword"
+    },
+    {
+      "import_index": 283,
+      "object_name": "spirit_wind00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -178,
+      "package": "import:Core:Package:Spirit_Wind"
+    },
+    {
+      "import_index": 284,
+      "object_name": "union_zariche2",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -150,
+      "package": "import:Core:Package:union_zariche"
+    },
+    {
+      "import_index": 285,
+      "object_name": "fx_argos_eye_s",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -85,
+      "package": "import:Core:Package:FX_E_S"
+    },
+    {
+      "import_index": 286,
+      "object_name": "Line_glow",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -40,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 287,
+      "object_name": "aka",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -52,
+      "package": "import:Core:Package:curse_sword"
+    },
+    {
+      "import_index": 288,
+      "object_name": "dark",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -52,
+      "package": "import:Core:Package:curse_sword"
+    },
+    {
+      "import_index": 289,
+      "object_name": "stone_base00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -19,
+      "package": "import:Core:Package:Monster"
+    },
+    {
+      "import_index": 290,
+      "object_name": "npc_2f_etc_G",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -102,
+      "package": "import:Core:Package:LightGlowSet"
+    },
+    {
+      "import_index": 291,
+      "object_name": "firebomb02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -73,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 292,
+      "object_name": "fx_m_t0088",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 293,
+      "object_name": "fx_m_t1100",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -16,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 294,
+      "object_name": "manaf_eye",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -52,
+      "package": "import:Core:Package:curse_sword"
+    },
+    {
+      "import_index": 295,
+      "object_name": "manaf_wire",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -52,
+      "package": "import:Core:Package:curse_sword"
+    },
+    {
+      "import_index": 296,
+      "object_name": "fx_m_t_3003",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -16,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 297,
+      "object_name": "dark2",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -52,
+      "package": "import:Core:Package:curse_sword"
+    },
+    {
+      "import_index": 298,
+      "object_name": "M_L",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -52,
+      "package": "import:Core:Package:curse_sword"
+    },
+    {
+      "import_index": 299,
+      "object_name": "buble",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -227,
+      "package": "import:Core:Package:SkillSound2"
+    },
+    {
+      "import_index": 300,
+      "object_name": "buble_1",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -300,
+      "package": "import:Core:Package:buble"
+    },
+    {
+      "import_index": 301,
+      "object_name": "fx_m_t_3055",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 302,
+      "object_name": "Sworld",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 303,
+      "object_name": "fx_m_t_3127",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 304,
+      "object_name": "fx_m_t0130",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 305,
+      "object_name": "white_center01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -59,
+      "package": "import:Core:Package:White"
+    },
+    {
+      "import_index": 306,
+      "object_name": "fx_head_texture22",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -236,
+      "package": "import:Core:Package:M_FX_particle"
+    },
+    {
+      "import_index": 307,
+      "object_name": "pwave00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -19,
+      "package": "import:Core:Package:Monster"
+    },
+    {
+      "import_index": 308,
+      "object_name": "Mesh",
+      "class_name": "ObjectProperty",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 309,
+      "object_name": "white_sideRing",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -59,
+      "package": "import:Core:Package:White"
+    },
+    {
+      "import_index": 310,
+      "object_name": "skill_Meteo5",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -75,
+      "package": "import:Core:Package:boss"
+    },
+    {
+      "import_index": 311,
+      "object_name": "stone_stone00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -19,
+      "package": "import:Core:Package:Monster"
+    },
+    {
+      "import_index": 312,
+      "object_name": "white_centerRing",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -59,
+      "package": "import:Core:Package:White"
+    },
+    {
+      "import_index": 313,
+      "object_name": "SkeletalMesh",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 314,
+      "object_name": "fx_m_t7009",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 315,
+      "object_name": "white_radiation00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -59,
+      "package": "import:Core:Package:White"
+    },
+    {
+      "import_index": 316,
+      "object_name": "fx_m_t2022",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -16,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 317,
+      "object_name": "fx_m_t1001",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 318,
+      "object_name": "stone_sharp03",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -75,
+      "package": "import:Core:Package:boss"
+    },
+    {
+      "import_index": 319,
+      "object_name": "AirEffect",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 320,
+      "object_name": "twist",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -75,
+      "package": "import:Core:Package:boss"
+    },
+    {
+      "import_index": 321,
+      "object_name": "fx_m_t2053",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 322,
+      "object_name": "heart_ring02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 323,
+      "object_name": "fx_m_t_3033",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 324,
+      "object_name": "fx_skill_charge01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -140,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 325,
+      "object_name": "coin01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 326,
+      "object_name": "fx_m_t2075",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 327,
+      "object_name": "union_zariche_glow",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -150,
+      "package": "import:Core:Package:union_zariche"
+    },
+    {
+      "import_index": 328,
+      "object_name": "fx_m_t1016",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 329,
+      "object_name": "Skill",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 330,
+      "object_name": "fx_m_t7004",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 331,
+      "object_name": "Hit2",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -40,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 332,
+      "object_name": "union_zariche_glow4",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -150,
+      "package": "import:Core:Package:union_zariche"
+    },
+    {
+      "import_index": 333,
+      "object_name": "fx_m_t_3046",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 334,
+      "object_name": "supportenchant03",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -42,
+      "package": "import:Core:Package:Support"
+    },
+    {
+      "import_index": 335,
+      "object_name": "etcpotion00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 336,
+      "object_name": "Ground_e",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -40,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 337,
+      "object_name": "fx_m_t2032",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -16,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 338,
+      "object_name": "fx_m_t2006",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -20,
+      "package": "import:Core:Package:balakas"
+    },
+    {
+      "import_index": 339,
+      "object_name": "fx_m_t0154",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -48,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 340,
+      "object_name": "fx_m_t7005",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 341,
+      "object_name": "fx_m_t_3043",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 342,
+      "object_name": "fx_m_t0150",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -48,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 343,
+      "object_name": "fx_m_t2091",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 344,
+      "object_name": "Skins",
+      "class_name": "ArrayProperty",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 345,
+      "object_name": "etc_questguide02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 346,
+      "object_name": "etc_questguide01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 347,
+      "object_name": "heart_ring01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 348,
+      "object_name": "etc_questguide00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 349,
+      "object_name": "fx_m_t_3102",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -241,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 350,
+      "object_name": "fx_m_t6004",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 351,
+      "object_name": "sword6",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 352,
+      "object_name": "skill_black02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -14,
+      "package": "import:Core:Package:Skill_Power"
+    },
+    {
+      "import_index": 353,
+      "object_name": "fx_m_t1015",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 354,
+      "object_name": "water_wave04",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -109,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 355,
+      "object_name": "fx_m_t1023",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 356,
+      "object_name": "defense2",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 357,
+      "object_name": "white_option00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -59,
+      "package": "import:Core:Package:White"
+    },
+    {
+      "import_index": 358,
+      "object_name": "fx_m_t0134",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 359,
+      "object_name": "fx_m_t1005",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 360,
+      "object_name": "fx_m_t1006",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 361,
+      "object_name": "fx_m_t0124",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 362,
+      "object_name": "bolt00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -19,
+      "package": "import:Core:Package:Monster"
+    },
+    {
+      "import_index": 363,
+      "object_name": "sel_ring_blue02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 364,
+      "object_name": "sel_ring_blue03",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 365,
+      "object_name": "sel_ring_red02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 366,
+      "object_name": "sel_ring_red03",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 367,
+      "object_name": "baium",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -227,
+      "package": "import:Core:Package:SkillSound2"
+    },
+    {
+      "import_index": 368,
+      "object_name": "PreshotNotify",
+      "class_name": "Function",
+      "class_package": "Core",
+      "package_index": -69,
+      "package": "import:Core:Class:NProjectile"
+    },
+    {
+      "import_index": 369,
+      "object_name": "bHidden",
+      "class_name": "BoolProperty",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 370,
+      "object_name": "castleob03",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 371,
+      "object_name": "orc_magic01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -180,
+      "package": "import:Core:Package:orc"
+    },
+    {
+      "import_index": 372,
+      "object_name": "white_heal01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -59,
+      "package": "import:Core:Package:White"
+    },
+    {
+      "import_index": 373,
+      "object_name": "Base",
+      "class_name": "ObjectProperty",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 374,
+      "object_name": "flameset_m00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -73,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 375,
+      "object_name": "Fx_argos_eye_t05",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -177,
+      "package": "import:Core:Package:Fx_argos_eye"
+    },
+    {
+      "import_index": 376,
+      "object_name": "StructProperty",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -2,
+      "package": "import:Core:Package:Core"
+    },
+    {
+      "import_index": 377,
+      "object_name": "fx_argos_eye_m02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -286,
+      "package": "import:Core:Package:fx_argos_eye_s"
+    },
+    {
+      "import_index": 378,
+      "object_name": "flameset_m01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -73,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 379,
+      "object_name": "npc_2f_etc_W",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -102,
+      "package": "import:Core:Package:LightGlowSet"
+    },
+    {
+      "import_index": 380,
+      "object_name": "watericebolt00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -128,
+      "package": "import:Core:Package:water"
+    },
+    {
+      "import_index": 381,
+      "object_name": "Water01",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 382,
+      "object_name": "A_L",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -52,
+      "package": "import:Core:Package:curse_sword"
+    },
+    {
+      "import_index": 383,
+      "object_name": "firebomb01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -73,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 384,
+      "object_name": "fx_m_t0136",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 385,
+      "object_name": "Plane",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 386,
+      "object_name": "fx_m_t_3001",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -16,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 387,
+      "object_name": "fx_m_t0148",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -389,
+      "package": "import:Core:Package:Hero"
+    },
+    {
+      "import_index": 388,
+      "object_name": "Hero",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 389,
+      "object_name": "skill_forcerage",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -38,
+      "package": "import:Core:Package:Wind"
+    },
+    {
+      "import_index": 390,
+      "object_name": "twist_m01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 391,
+      "object_name": "Location",
+      "class_name": "StructProperty",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 392,
+      "object_name": "fx_m_t1018",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 393,
+      "object_name": "Dark_Under",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -40,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 394,
+      "object_name": "fx_m_t_3206",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 395,
+      "object_name": "Spirit_Fire",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 396,
+      "object_name": "spirit_fire00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -396,
+      "package": "import:Core:Package:Spirit_Fire"
+    },
+    {
+      "import_index": 397,
+      "object_name": "twist_m00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 398,
+      "object_name": "twist_m05",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 399,
+      "object_name": "swirl_ring_02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 400,
+      "object_name": "fx_m_t2017",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -20,
+      "package": "import:Core:Package:balakas"
+    },
+    {
+      "import_index": 401,
+      "object_name": "fx_m_t2018",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -20,
+      "package": "import:Core:Package:balakas"
+    },
+    {
+      "import_index": 402,
+      "object_name": "Coords",
+      "class_name": "Struct",
+      "class_package": "Core",
+      "package_index": -9,
+      "package": "import:Core:Class:Object"
+    },
+    {
+      "import_index": 403,
+      "object_name": "fx_head_texture15",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -236,
+      "package": "import:Core:Package:M_FX_particle"
+    },
+    {
+      "import_index": 404,
+      "object_name": "tree",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 405,
+      "object_name": "fx_hold",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -407,
+      "package": "import:Core:Package:FX_M_S"
+    },
+    {
+      "import_index": 406,
+      "object_name": "FX_M_S",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 407,
+      "object_name": "fireflame03",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -73,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 408,
+      "object_name": "fx_m_t1000",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 409,
+      "object_name": "swirl_ring_03",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 410,
+      "object_name": "flare7",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -412,
+      "package": "import:Core:Package:M_FX_FlareSet"
+    },
+    {
+      "import_index": 411,
+      "object_name": "M_FX_FlareSet",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -186,
+      "package": "import:Core:Package:FX_M_T"
+    },
+    {
+      "import_index": 412,
+      "object_name": "Magic_ring",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 413,
+      "object_name": "water_wave00",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -109,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 414,
+      "object_name": "fx_m_t4029",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 415,
+      "object_name": "cubic_supp00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -181,
+      "package": "import:Core:Package:Cubics"
+    },
+    {
+      "import_index": 416,
+      "object_name": "BloodSplash",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 417,
+      "object_name": "blood_pack",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -417,
+      "package": "import:Core:Package:BloodSplash"
+    },
+    {
+      "import_index": 418,
+      "object_name": "fx_teleport_mesh01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -207,
+      "package": "import:Core:Package:fx_teleport"
+    },
+    {
+      "import_index": 419,
+      "object_name": "fx_teleport_mesh05",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -207,
+      "package": "import:Core:Package:fx_teleport"
+    },
+    {
+      "import_index": 420,
+      "object_name": "fx_teleport_mesh02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -207,
+      "package": "import:Core:Package:fx_teleport"
+    },
+    {
+      "import_index": 421,
+      "object_name": "fx_m_t_3039",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 422,
+      "object_name": "twist_m04",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 423,
+      "object_name": "fx_teleport04",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -259,
+      "package": "import:Core:Package:fx_teleport"
+    },
+    {
+      "import_index": 424,
+      "object_name": "fx_teleport07",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -259,
+      "package": "import:Core:Package:fx_teleport"
+    },
+    {
+      "import_index": 425,
+      "object_name": "eva_effect",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -27,
+      "package": "import:Core:Package:FX_E_T"
+    },
+    {
+      "import_index": 426,
+      "object_name": "eva_effect_map38",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -426,
+      "package": "import:Core:Package:eva_effect"
+    },
+    {
+      "import_index": 427,
+      "object_name": "ring2",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -330,
+      "package": "import:Core:Package:Skill"
+    },
+    {
+      "import_index": 428,
+      "object_name": "particles_etc",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -27,
+      "package": "import:Core:Package:FX_E_T"
+    },
+    {
+      "import_index": 429,
+      "object_name": "FX_e_still_mesh00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -432,
+      "package": "import:Core:Package:broadcasting_tower_s"
+    },
+    {
+      "import_index": 430,
+      "object_name": "fx_m_t_3040",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 431,
+      "object_name": "broadcasting_tower_s",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -85,
+      "package": "import:Core:Package:FX_E_S"
+    },
+    {
+      "import_index": 432,
+      "object_name": "elf_particleA_03",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -429,
+      "package": "import:Core:Package:particles_etc"
+    },
+    {
+      "import_index": 433,
+      "object_name": "fx_m_t5012",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 434,
+      "object_name": "fx_m_t4027",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 435,
+      "object_name": "fx_m_t5500",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -441,
+      "package": "import:Core:Package:antaras"
+    },
+    {
+      "import_index": 436,
+      "object_name": "GetBoneCoordsWithBoneIndex",
+      "class_name": "Function",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 437,
+      "object_name": "stone_sharp02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -75,
+      "package": "import:Core:Package:boss"
+    },
+    {
+      "import_index": 438,
+      "object_name": "fx_m_t1078",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 439,
+      "object_name": "Frintessa_eye",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -75,
+      "package": "import:Core:Package:boss"
+    },
+    {
+      "import_index": 440,
+      "object_name": "antaras",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -18,
+      "package": "import:Core:Package:LineageEffectsTextures2"
+    },
+    {
+      "import_index": 441,
+      "object_name": "gholow",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 442,
+      "object_name": "fx_m_t5010",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 443,
+      "object_name": "fx_m_t1044",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -20,
+      "package": "import:Core:Package:balakas"
+    },
+    {
+      "import_index": 444,
+      "object_name": "air_effect0002",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -320,
+      "package": "import:Core:Package:AirEffect"
+    },
+    {
+      "import_index": 445,
+      "object_name": "fx_m_t5020",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 446,
+      "object_name": "fx_m_t_3209",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 447,
+      "object_name": "ghomid",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 448,
+      "object_name": "ghost2",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 449,
+      "object_name": "air_effect0001",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -320,
+      "package": "import:Core:Package:AirEffect"
+    },
+    {
+      "import_index": 450,
+      "object_name": "gun_fire",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -452,
+      "package": "import:Core:Package:toad_canon"
+    },
+    {
+      "import_index": 451,
+      "object_name": "toad_canon",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 452,
+      "object_name": "fx_e_s_splash00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -140,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 453,
+      "object_name": "air_effect0000",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -320,
+      "package": "import:Core:Package:AirEffect"
+    },
+    {
+      "import_index": 454,
+      "object_name": "water_wave01",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -109,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 455,
+      "object_name": "fx_m_t_3244",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 456,
+      "object_name": "fx_e_s_splash01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -140,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 457,
+      "object_name": "meteor_explosion",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -460,
+      "package": "import:Core:Package:meteor"
+    },
+    {
+      "import_index": 458,
+      "object_name": "fr_drop_a",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -196,
+      "package": "import:Core:Package:frintessa_drop"
+    },
+    {
+      "import_index": 459,
+      "object_name": "meteor",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -464,
+      "package": "import:Core:Package:SkillSound5"
+    },
+    {
+      "import_index": 460,
+      "object_name": "fr_drop_b",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -196,
+      "package": "import:Core:Package:frintessa_drop"
+    },
+    {
+      "import_index": 461,
+      "object_name": "fr_drop_c",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -196,
+      "package": "import:Core:Package:frintessa_drop"
+    },
+    {
+      "import_index": 462,
+      "object_name": "etc_CrackedWall2",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 463,
+      "object_name": "SkillSound5",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 464,
+      "object_name": "fr_drop_d",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -196,
+      "package": "import:Core:Package:frintessa_drop"
+    },
+    {
+      "import_index": 465,
+      "object_name": "fr_drop_e",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -196,
+      "package": "import:Core:Package:frintessa_drop"
+    },
+    {
+      "import_index": 466,
+      "object_name": "etc_CrackedWall3",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 467,
+      "object_name": "fr_drop_f",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -196,
+      "package": "import:Core:Package:frintessa_drop"
+    },
+    {
+      "import_index": 468,
+      "object_name": "skill_Meteo_beam",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -75,
+      "package": "import:Core:Package:boss"
+    },
+    {
+      "import_index": 469,
+      "object_name": "skill_Meteo",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -75,
+      "package": "import:Core:Package:boss"
+    },
+    {
+      "import_index": 470,
+      "object_name": "jm-flat",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 471,
+      "object_name": "sel_ring_red01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 472,
+      "object_name": "sel_ring_blue01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 473,
+      "object_name": "fx_m_t1025",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 474,
+      "object_name": "swordlow2",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -40,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 475,
+      "object_name": "fx_m_t1024",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 476,
+      "object_name": "fx_m_t6006",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 477,
+      "object_name": "Sworld",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -40,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 478,
+      "object_name": "Sworld2",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -40,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 479,
+      "object_name": "heart",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 480,
+      "object_name": "fx_m_t6001",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 481,
+      "object_name": "fx_m_t6000",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 482,
+      "object_name": "fx_m_t0151",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -48,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 483,
+      "object_name": "hero_pole_acc00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -139,
+      "package": "import:Core:Package:Hero"
+    },
+    {
+      "import_index": 484,
+      "object_name": "AttachToBone",
+      "class_name": "Function",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 485,
+      "object_name": "fx_m_t7006",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 486,
+      "object_name": "hero_dualsword_acc00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -139,
+      "package": "import:Core:Package:Hero"
+    },
+    {
+      "import_index": 487,
+      "object_name": "fx_m_t_3101",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 488,
+      "object_name": "hero_bow_acc01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -139,
+      "package": "import:Core:Package:Hero"
+    },
+    {
+      "import_index": 489,
+      "object_name": "fx_m_t_3048",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 490,
+      "object_name": "hero_dagger_acc00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -139,
+      "package": "import:Core:Package:Hero"
+    },
+    {
+      "import_index": 491,
+      "object_name": "fx_m_t_3130",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -241,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 492,
+      "object_name": "fx_m_t_3146",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -241,
+      "package": "import:Core:Package:printesha"
+    },
+    {
+      "import_index": 493,
+      "object_name": "hero_staff_acc00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -139,
+      "package": "import:Core:Package:Hero"
+    },
+    {
+      "import_index": 494,
+      "object_name": "hero_hammer_acc00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -139,
+      "package": "import:Core:Package:Hero"
+    },
+    {
+      "import_index": 495,
+      "object_name": "fx_m_t_3050",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 496,
+      "object_name": "hero_mace_acc00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -139,
+      "package": "import:Core:Package:Hero"
+    },
+    {
+      "import_index": 497,
+      "object_name": "RightHandBone",
+      "class_name": "NameProperty",
+      "class_package": "Core",
+      "package_index": -137,
+      "package": "import:Core:Class:Pawn"
+    },
+    {
+      "import_index": 498,
+      "object_name": "hero_axe_acc00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -139,
+      "package": "import:Core:Package:Hero"
+    },
+    {
+      "import_index": 499,
+      "object_name": "fx_m_t1045",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -16,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 500,
+      "object_name": "hero_two_handed_sword_acc00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -139,
+      "package": "import:Core:Package:Hero"
+    },
+    {
+      "import_index": 501,
+      "object_name": "stone_clash2",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -75,
+      "package": "import:Core:Package:boss"
+    },
+    {
+      "import_index": 502,
+      "object_name": "fx_m_t2004",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -16,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 503,
+      "object_name": "Balakas_sound",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -75,
+      "package": "import:Core:Package:boss"
+    },
+    {
+      "import_index": 504,
+      "object_name": "Balakas_tail_stone",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -75,
+      "package": "import:Core:Package:boss"
+    },
+    {
+      "import_index": 505,
+      "object_name": "fx_m_t2005",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -20,
+      "package": "import:Core:Package:balakas"
+    },
+    {
+      "import_index": 506,
+      "object_name": "hero_sword_acc00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -139,
+      "package": "import:Core:Package:Hero"
+    },
+    {
+      "import_index": 507,
+      "object_name": "fx_m_t0141",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -48,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 508,
+      "object_name": "anakim_teleport",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -512,
+      "package": "import:Core:Package:anakim"
+    },
+    {
+      "import_index": 509,
+      "object_name": "skill_black00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -14,
+      "package": "import:Core:Package:Skill_Power"
+    },
+    {
+      "import_index": 510,
+      "object_name": "skill_black01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -14,
+      "package": "import:Core:Package:Skill_Power"
+    },
+    {
+      "import_index": 511,
+      "object_name": "anakim",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -172,
+      "package": "import:Core:Package:Skillsound3"
+    },
+    {
+      "import_index": 512,
+      "object_name": "white_option01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -59,
+      "package": "import:Core:Package:White"
+    },
+    {
+      "import_index": 513,
+      "object_name": "fx_m_t0135",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 514,
+      "object_name": "baium_lightning",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -368,
+      "package": "import:Core:Package:baium"
+    },
+    {
+      "import_index": 515,
+      "object_name": "baium_spark_1",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -368,
+      "package": "import:Core:Package:baium"
+    },
+    {
+      "import_index": 516,
+      "object_name": "fx_m_t0123",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 517,
+      "object_name": "etc_music_case00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 518,
+      "object_name": "summonskeleton03",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -76,
+      "package": "import:Core:Package:Summon"
+    },
+    {
+      "import_index": 519,
+      "object_name": "summonskeleton00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -76,
+      "package": "import:Core:Package:Summon"
+    },
+    {
+      "import_index": 520,
+      "object_name": "summonskeleton02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -76,
+      "package": "import:Core:Package:Summon"
+    },
+    {
+      "import_index": 521,
+      "object_name": "summonskeleton01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -76,
+      "package": "import:Core:Package:Summon"
+    },
+    {
+      "import_index": 522,
+      "object_name": "Blackfire",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 523,
+      "object_name": "fx_m_t0020",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -523,
+      "package": "import:Core:Package:Blackfire"
+    },
+    {
+      "import_index": 524,
+      "object_name": "black_vampire01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -125,
+      "package": "import:Core:Package:Black"
+    },
+    {
+      "import_index": 525,
+      "object_name": "coin00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 526,
+      "object_name": "Timer",
+      "class_name": "Function",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 527,
+      "object_name": "elf_particleA_044",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -429,
+      "package": "import:Core:Package:particles_etc"
+    },
+    {
+      "import_index": 528,
+      "object_name": "etc_splash01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 529,
+      "object_name": "etc_splash00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 530,
+      "object_name": "fx_m_t0073",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 531,
+      "object_name": "teleport_out",
+      "class_name": "Sound",
+      "class_package": "Engine",
+      "package_index": -533,
+      "package": "import:Core:Package:Teleport"
+    },
+    {
+      "import_index": 532,
+      "object_name": "Teleport",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -534,
+      "package": "import:Core:Package:SkillSound"
+    },
+    {
+      "import_index": 533,
+      "object_name": "SkillSound",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 534,
+      "object_name": "CollisionRadius",
+      "class_name": "FloatProperty",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 535,
+      "object_name": "fx_argos_eye_m01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -286,
+      "package": "import:Core:Package:fx_argos_eye_s"
+    },
+    {
+      "import_index": 536,
+      "object_name": "Fx_argos_eye_t02",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -177,
+      "package": "import:Core:Package:Fx_argos_eye"
+    },
+    {
+      "import_index": 537,
+      "object_name": "Fx_argos_eye_t01",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -177,
+      "package": "import:Core:Package:Fx_argos_eye"
+    },
+    {
+      "import_index": 538,
+      "object_name": "water_wave03",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -109,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 539,
+      "object_name": "smoke",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -27,
+      "package": "import:Core:Package:FX_E_T"
+    },
+    {
+      "import_index": 540,
+      "object_name": "anghel_fog",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -540,
+      "package": "import:Core:Package:smoke"
+    },
+    {
+      "import_index": 541,
+      "object_name": "npc_2f_etc_Y",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -102,
+      "package": "import:Core:Package:LightGlowSet"
+    },
+    {
+      "import_index": 542,
+      "object_name": "npc_2f_etc_R",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -102,
+      "package": "import:Core:Package:LightGlowSet"
+    },
+    {
+      "import_index": 543,
+      "object_name": "npc_2f_etc01",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -102,
+      "package": "import:Core:Package:LightGlowSet"
+    },
+    {
+      "import_index": 544,
+      "object_name": "fx_m_t0142",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 545,
+      "object_name": "fx_e_t001",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -109,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 546,
+      "object_name": "star01",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -109,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 547,
+      "object_name": "ice_fairy_die",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -128,
+      "package": "import:Core:Package:water"
+    },
+    {
+      "import_index": 548,
+      "object_name": "Rotation",
+      "class_name": "StructProperty",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    },
+    {
+      "import_index": 549,
+      "object_name": "fx_m_t5007",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 550,
+      "object_name": "fx_m_t7000",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 551,
+      "object_name": "Origin",
+      "class_name": "StructProperty",
+      "class_package": "Core",
+      "package_index": -403,
+      "package": "import:Core:Struct:Coords"
+    },
+    {
+      "import_index": 552,
+      "object_name": "black_magic_00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -125,
+      "package": "import:Core:Package:Black"
+    },
+    {
+      "import_index": 553,
+      "object_name": "black_berserker00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -125,
+      "package": "import:Core:Package:Black"
+    },
+    {
+      "import_index": 554,
+      "object_name": "black_berserker01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -125,
+      "package": "import:Core:Package:Black"
+    },
+    {
+      "import_index": 555,
+      "object_name": "cubic_m00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -14,
+      "package": "import:Core:Package:Skill_Power"
+    },
+    {
+      "import_index": 556,
+      "object_name": "fx_m_t2036",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -16,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 557,
+      "object_name": "FX_head_plane07",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -406,
+      "package": "import:Core:Package:fx_hold"
+    },
+    {
+      "import_index": 558,
+      "object_name": "fx_m_t0082",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -6,
+      "package": "import:Core:Package:Particles"
+    },
+    {
+      "import_index": 559,
+      "object_name": "Spirit_Earth",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 560,
+      "object_name": "spirit_earth00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -560,
+      "package": "import:Core:Package:Spirit_Earth"
+    },
+    {
+      "import_index": 561,
+      "object_name": "FX_head_plane20",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -406,
+      "package": "import:Core:Package:fx_hold"
+    },
+    {
+      "import_index": 562,
+      "object_name": "fireflame00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -73,
+      "package": "import:Core:Package:Fire"
+    },
+    {
+      "import_index": 563,
+      "object_name": "swirl_ring_00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 564,
+      "object_name": "fx_m_t7015",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 565,
+      "object_name": "fx_m_t6009",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 566,
+      "object_name": "fx_m_t6010",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 567,
+      "object_name": "Mhold_text",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 568,
+      "object_name": "Mhold_glow",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 569,
+      "object_name": "etc_music_case01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 570,
+      "object_name": "Vector",
+      "class_name": "Struct",
+      "class_package": "Core",
+      "package_index": -9,
+      "package": "import:Core:Class:Object"
+    },
+    {
+      "import_index": 571,
+      "object_name": "twist_m02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 572,
+      "object_name": "RibbonEmitter",
+      "class_name": "Class",
+      "class_package": "Core",
+      "package_index": -1,
+      "package": "import:Core:Package:Engine"
+    },
+    {
+      "import_index": 573,
+      "object_name": "fx_wispray00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -140,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 574,
+      "object_name": "cubic_vipr00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -181,
+      "package": "import:Core:Package:Cubics"
+    },
+    {
+      "import_index": 575,
+      "object_name": "cubic_vamp00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -181,
+      "package": "import:Core:Package:Cubics"
+    },
+    {
+      "import_index": 576,
+      "object_name": "swirl_ring_05",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 577,
+      "object_name": "fx_m_t_3041",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 578,
+      "object_name": "linetail60frm",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 579,
+      "object_name": "fx_m_t5019",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 580,
+      "object_name": "linetail60frm_red",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 581,
+      "object_name": "castleob02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 582,
+      "object_name": "swirl_ring_01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 583,
+      "object_name": "impact_cone",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -21,
+      "package": "import:Core:Package:Impact"
+    },
+    {
+      "import_index": 584,
+      "object_name": "membrane_02",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 585,
+      "object_name": "membrane_03",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 586,
+      "object_name": "membrane_03_blink",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 587,
+      "object_name": "membrane_00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 588,
+      "object_name": "membrane_01",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 589,
+      "object_name": "membrane_01_blink",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -13,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 590,
+      "object_name": "cubic_heal00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -181,
+      "package": "import:Core:Package:Cubics"
+    },
+    {
+      "import_index": 591,
+      "object_name": "cubic_wind00",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -181,
+      "package": "import:Core:Package:Cubics"
+    },
+    {
+      "import_index": 592,
+      "object_name": "fx_m_t_3147",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -594,
+      "package": "import:Core:Package:Lobby"
+    },
+    {
+      "import_index": 593,
+      "object_name": "Lobby",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -4,
+      "package": "import:Core:Package:LineageEffectsTextures"
+    },
+    {
+      "import_index": 594,
+      "object_name": "fx_m_t5008",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 595,
+      "object_name": "cubic_12Faces",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -181,
+      "package": "import:Core:Package:Cubics"
+    },
+    {
+      "import_index": 596,
+      "object_name": "fx_m_t4026",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -99,
+      "package": "import:Core:Package:Cubics"
+    },
+    {
+      "import_index": 597,
+      "object_name": "fx_m_t5001",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -15,
+      "package": "import:Core:Package:Particles3"
+    },
+    {
+      "import_index": 598,
+      "object_name": "Tail",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -608,
+      "package": "import:Core:Package:Eff_Static"
+    },
+    {
+      "import_index": 599,
+      "object_name": "fx_e_t001_35",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -109,
+      "package": "import:Core:Package:Etc"
+    },
+    {
+      "import_index": 600,
+      "object_name": "LineageNpcsTex",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 601,
+      "object_name": "viewing_tower",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -601,
+      "package": "import:Core:Package:LineageNpcsTex"
+    },
+    {
+      "import_index": 602,
+      "object_name": "viewing_tower_e00",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -602,
+      "package": "import:Core:Package:viewing_tower"
+    },
+    {
+      "import_index": 603,
+      "object_name": "fx_m_t1019",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 604,
+      "object_name": "magic2",
+      "class_name": "VertMesh",
+      "class_package": "Engine",
+      "package_index": -51,
+      "package": "import:Core:Package:LineageEffectMeshes"
+    },
+    {
+      "import_index": 605,
+      "object_name": "fx_m_t_3031",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 606,
+      "object_name": "fx_m_t_3013",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 607,
+      "object_name": "Eff_Static",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": -8,
+      "package": "import:Core:Package:LineageEffectsStaticmeshes"
+    },
+    {
+      "import_index": 608,
+      "object_name": "shield5",
+      "class_name": "StaticMesh",
+      "class_package": "Engine",
+      "package_index": -330,
+      "package": "import:Core:Package:Skill"
+    },
+    {
+      "import_index": 609,
+      "object_name": "LineageWeapons",
+      "class_name": "Package",
+      "class_package": "Core",
+      "package_index": 0,
+      "package": "none"
+    },
+    {
+      "import_index": 610,
+      "object_name": "fx_m_t_3006",
+      "class_name": "Texture",
+      "class_package": "Engine",
+      "package_index": -12,
+      "package": "import:Core:Package:Particles2"
+    },
+    {
+      "import_index": 611,
+      "object_name": "knife_m00_wp",
+      "class_name": "SkeletalMesh",
+      "class_package": "Engine",
+      "package_index": -610,
+      "package": "import:Core:Package:LineageWeapons"
+    },
+    {
+      "import_index": 612,
+      "object_name": "DetachFromBone",
+      "class_name": "Function",
+      "class_package": "Core",
+      "package_index": -37,
+      "package": "import:Core:Class:Actor"
+    }
+  ],
+  "parts": [
+    {
+      "file": "lineageeffect.u.part01.json",
+      "exports": 5348,
+      "bytes": 18870237
+    },
+    {
+      "file": "lineageeffect.u.part02.json",
+      "exports": 136,
+      "bytes": 810861
+    }
+  ],
+  "note": "Class exports use ClassDefaults (properties_source=class_defaults). Emitter and other objects use tagged properties at the serial offset. Sound/texture binary payloads are not stored."
+}

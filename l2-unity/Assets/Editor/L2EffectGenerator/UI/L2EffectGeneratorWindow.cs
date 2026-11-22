@@ -319,6 +319,65 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
         EditorApplication.Exit(fail == 0 ? 0 : 1);
     }
 
+    /// <summary>
+    /// Generate effect prefabs from .uc files already copied under the listed
+    /// effect folders, without touching GlobalEffect bindings.
+    /// Env FINEAGE_VFX_GENERATE_LIST: text file, one Assets/... folder per line.
+    /// </summary>
+    public static void GenerateListedFoldersCli()
+    {
+        AssetDatabase.Refresh();
+        string listPath = Environment.GetEnvironmentVariable("FINEAGE_VFX_GENERATE_LIST");
+        if (string.IsNullOrWhiteSpace(listPath) || !File.Exists(listPath))
+        {
+            Debug.LogError("[L2EffectGenerator] FINEAGE_VFX_GENERATE_LIST not set or missing");
+            EditorApplication.Exit(1);
+            return;
+        }
+
+        int ok = 0;
+        int fail = 0;
+        foreach (string raw in File.ReadAllLines(listPath))
+        {
+            string folder = raw.Trim();
+            if (folder.Length == 0 || folder.StartsWith("#"))
+            {
+                continue;
+            }
+
+            if (!AssetDatabase.IsValidFolder(folder))
+            {
+                Debug.LogError("[L2EffectGenerator] generate: missing folder " + folder);
+                fail++;
+                continue;
+            }
+
+            L2EffectGeneratorFolderBuilder.BuildResult result =
+                L2EffectGeneratorFolderBuilder.CreateFromFolder(
+                    folder,
+                    Path.GetFileName(folder),
+                    0,
+                    false);
+            for (int li = 0; li < result.LogLines.Count; li++)
+            {
+                Debug.Log("[L2EffectGenerator] " + result.LogLines[li]);
+            }
+
+            if (!result.Success)
+            {
+                Debug.LogError("[L2EffectGenerator] generate failed " + folder + ": " + result.ErrorMessage);
+                fail++;
+                continue;
+            }
+
+            ok++;
+        }
+
+        Debug.Log("[L2EffectGenerator] GenerateListedFolders done ok=" + ok + " fail=" + fail);
+        EditorApplication.Exit(fail == 0 ? 0 : 1);
+    }
+
+
     public static bool TryRunHumanMageBatch(out string summary)
     {
         return TryRunManifestBatch(

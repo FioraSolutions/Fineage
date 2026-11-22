@@ -97,6 +97,7 @@ public static partial class NetZonePacketDecoder
             NetOpcode.PledgeInfo => NetCodec.DecodePledgeInfo(payload),
             NetOpcode.PledgeWarList => NetCodec.DecodePledgeWarList(payload),
             NetOpcode.ClanHallList => NetCodec.DecodeClanHallList(payload),
+            NetOpcode.AgitDecoInfo => NetCodec.DecodeAgitDecoInfo(payload),
             NetOpcode.CrestData => NetCodec.DecodeCrestData(payload),
             NetOpcode.RelationChanged => NetCodec.DecodeRelationChanged(payload),
             NetOpcode.CastleInfo => NetCodec.DecodeCastleInfo(payload),
