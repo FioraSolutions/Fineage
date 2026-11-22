@@ -10,6 +10,7 @@ using UnityEngine;
 /// the most animated editor curves of each reduced clip. Unity must load the reduced YAML clip and
 /// reproduce those values within the tool tolerance (plus float32 evaluation slack).
 /// </summary>
+[Category("Slow")]
 public sealed class AnimKeyReducePilotEditModeTests
 {
     private static readonly string[] ProbeFiles =

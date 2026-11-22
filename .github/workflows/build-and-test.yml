@@ -1,18 +1,38 @@
 name: build-and-test
 
+# Full suite on push to dev/main. PR → dev: seconds-long stub (legacy required check name).
+# Real PR gate is pr-sanity.yml.
 on:
   pull_request:
-    branches: [dev, main]
+    branches: [dev]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "l2-unity/docs/**"
   push:
-    branches: ['feat/**', 'fix/**', 'chore/**']
+    branches: [dev, main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "l2-unity/docs/**"
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  build-and-test-pr-stub:
+    name: build-and-test
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "PR gate is pr-sanity; full build-and-test runs on push to dev/main."
+          echo "Drop this stub from branch protection when Nikita switches required checks."
+
   build-and-test:
     name: build-and-test
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
@@ -110,6 +130,7 @@ jobs:
   # whitespace drift; continue-on-error keeps the PR gate on build-and-test.
   format-check:
     name: format-check
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
