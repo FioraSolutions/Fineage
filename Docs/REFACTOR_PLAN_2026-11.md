@@ -461,8 +461,9 @@ Hosts that `[Inject]` move to `Fineage.Di` (the only asmdef that references VCon
 - [x] **S36b** `EventProcessor.Start` reads `OfflineMode` through `IWorldSpawnContext`. `BindSpawnContext` stores the host when it is a `World`. A different implementer logs `[NetworkingPacketServices] IWorldSpawnContext is not a World`. A null context stays enabled, the same as a missing game world at app start.
 - [x] **S37** `IWorldEntity` in `Fineage.Game`: `Identity`, `Transform`, and `Position` (`transform.position`). `Entity` implements it. Subclasses inherit the surface. `World` call sites still take `Entity`.
 - [x] **S38** `IVisibilityRoster` in `Fineage.Game`. `VisibilityManager` implements `Register` and `Unregister`. `VisibilityPacketServices.Manager` returns that interface. Tier, nameplate, and audio queries still use the concrete manager inside the locator.
-- [ ] **S38b** The next packet-service locator `World` calls gets an interface in `Fineage.Game`.
-- [ ] **S39** `World` → `Fineage.Di`. Only after S35b and S38b. It still `[Inject]`s.
+- [x] **S38b** `INameplateRoster` in `Fineage.Game`: `Remove` and `SetMask`. `World` uses `NameplatePacketServices.BoundNameplates`. A missing bind logs `[World] INameplateRoster missing — NameplatesManager.Awake did not bind` once and skips the update. That path does not read `NameplatesManager.Instance`.
+- [ ] **S38c** The next packet-service locator `World` calls gets an interface in `Fineage.Game`.
+- [ ] **S39** `World` → `Fineage.Di`. Only after S35b and S38c. It still `[Inject]`s.
 - [ ] **S40** `IPlayerPawn` in `Fineage.Game` for the movement and heading members other types use on `PlayerController`.
 - [ ] **S41** `PlayerController` talks to `Entity`, `WorldPlacement`, and `PlayerStateMachine` through interfaces from S37 and new seams in `Fineage.Game`. One dependency per PR.
 - [ ] **S42** `PlayerController` → `Fineage.Di`. It uses UnityEngine and those interfaces. The two `[Inject]` sites stay.

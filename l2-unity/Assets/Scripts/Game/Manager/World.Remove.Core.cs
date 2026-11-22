@@ -103,7 +103,7 @@ public partial class World
         if (_npcDeco != null)
             _npcDeco.Stop(id);
         UnregisterObject(id, entity);
-        NameplatesManager nameplates = NameplatePacketServices.Nameplates;
+        INameplateRoster nameplates = Nameplates();
         if (nameplates != null)
             nameplates.Remove(id);
         SetEntityInteraction(go, false);
