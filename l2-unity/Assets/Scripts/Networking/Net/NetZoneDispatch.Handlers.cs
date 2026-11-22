@@ -49,12 +49,6 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.SkillList:
                 _session.ApplySkillList((SkillListNetMsg)packet.Body);
                 break;
-            case NetOpcode.EnchantSkillList:
-                _ = (EnchantSkillListNetMsg)packet.Body;
-                break;
-            case NetOpcode.EnchantSkillInfo:
-                _ = (EnchantSkillInfoNetMsg)packet.Body;
-                break;
             case NetOpcode.UserInfo:
                 _session.ApplyUserInfo((UserInfoNetMsg)packet.Body);
                 break;
