@@ -95,6 +95,7 @@ public sealed partial class GameLifetimeScope
             RequireVisibilityRoster(container);
             RequireEntityActionRoster(container);
             RequireMoveRoster(container);
+            RequireNameplateRoster(container);
             App.GameContainer = container;
             try
             {
