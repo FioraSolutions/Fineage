@@ -109,12 +109,10 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 ## Gaps by category
 
 ### 1. World effects (map Emitter / SpriteEmitter / xEmitter)
-- Original placed emitter actors: **11545** on **70** maps/levels.
-- Fineage `Resources/Data/Maps` contains **no** dedicated emitter/particle prefabs or Meta JSON for world emitters.
-- `L2TownAmbience` hardcodes three FMOD loops (`fire_small_05`, `waterfall_big_02`, `stream_small_03`) 
-  because, in its own comment, "the map export dropped" original beds. That is a silent substitute,
-  not a dump-backed placement.
-- Starting-zone emitter counts are listed below. Full table: `world/map-actors.tsv` (class contains Emitter).
+- Official placed `Emitter` actors: **4484** on **70** maps/levels, with **7075** child streams (Sprite/Mesh/Beam/VertMesh). Combined actor-class count is **11545**.
+- Runtime table: `StreamingAssets/Data/Meta/Effects/official-world-emitters.json.gz` (4471 actors with resolved streams, 13 with an official empty `Emitters` array). Unique particle definitions are `Resources/Data/Effects/world/we_<hash>/`. `OfficialWorldEmitterPlayback` instances those prefabs at official Location/Rotation/DrawScale (3×3 tiles, `VisibleLimit` in L2 UU).
+- Missing prefabs, unresolved `SpawnSound` waves, and the `WetTexture` `2SP_PRO_000` (5 uses) are logged and are not replaced. `L2TownAmbience` FMOD loops are not used for emitter placement.
+- Starting-zone emitter counts are listed below. Full table: `world/map-actors.tsv` (class contains Emitter). Report: `world/official-world-emitters-report.md`.
 
 ### 2. Ambient sounds (AmbientSound / AmbientSoundObject)
 - Original ambient actors: **185277**, all shipped in `StreamingAssets/Data/Meta/Sounds/official-ambient-objects.tsv.gz` (grid dumps plus `Lobby` from `map-actors.tsv.gz`).

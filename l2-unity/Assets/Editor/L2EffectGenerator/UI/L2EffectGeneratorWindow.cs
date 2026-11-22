@@ -675,6 +675,60 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
     /// Unity.exe -batchmode -nographics -quit -executeMethod L2EffectGeneratorWindow.GenerateNpcDecoCli
     /// Required: -decoName &lt;Interlude LineageEffect deco class&gt;
     /// </summary>
+    /// <summary>
+    /// World map emitters: one official definition → one L2Particle under
+    /// Resources/Data/Effects/world. No skill id, no composite.
+    /// Unity.exe -batchmode -nographics -quit -executeMethod L2EffectGeneratorWindow.GenerateWorldMapEmittersCli
+    /// Optional: -worldEmitterName we_&lt;hash&gt; to build one class; otherwise every subfolder.
+    /// </summary>
+    public static void GenerateWorldMapEmittersCli()
+    {
+        const string worldRoot = "Assets/Resources/Data/Effects/world";
+        string only = ReadNamedArg("-worldEmitterName");
+        AssetDatabase.Refresh();
+        if (!AssetDatabase.IsValidFolder(worldRoot))
+        {
+            Debug.LogError("[L2EffectGenerator] world emitter root is missing: " + worldRoot);
+            EditorApplication.Exit(1);
+            return;
+        }
+
+        int ok = 0;
+        int fail = 0;
+        if (!string.IsNullOrWhiteSpace(only))
+        {
+            if (!GenerateDeco(worldRoot + "/" + only, only))
+            {
+                EditorApplication.Exit(1);
+                return;
+            }
+            Debug.Log("[L2EffectGenerator][world] generated " + only);
+            return;
+        }
+
+        string full = Path.Combine(Directory.GetCurrentDirectory(), worldRoot);
+        if (!Directory.Exists(full))
+        {
+            Debug.LogError("[L2EffectGenerator] world emitter directory is missing on disk: " + worldRoot);
+            EditorApplication.Exit(1);
+            return;
+        }
+
+        foreach (string dir in Directory.GetDirectories(full))
+        {
+            string name = Path.GetFileName(dir);
+            if (string.IsNullOrEmpty(name) || !name.StartsWith("we_"))
+                continue;
+            if (!GenerateDeco(worldRoot + "/" + name, name))
+                fail++;
+            else
+                ok++;
+        }
+
+        Debug.Log("[L2EffectGenerator][world] GenerateWorldMapEmittersCli ok=" + ok + " fail=" + fail);
+        EditorApplication.Exit(fail == 0 ? 0 : 1);
+    }
+
     public static void GenerateNpcDecoCli()
     {
         string effectName = ReadNamedArg("-decoName");

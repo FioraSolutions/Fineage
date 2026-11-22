@@ -26,6 +26,8 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
             gameObject.AddComponent<OfficialMusicVolumePlayback>();
         if (GetComponent<OfficialAmbientSoundPlayback>() == null)
             gameObject.AddComponent<OfficialAmbientSoundPlayback>();
+        if (GetComponent<OfficialWorldEmitterPlayback>() == null)
+            gameObject.AddComponent<OfficialWorldEmitterPlayback>();
         if (GetComponent<L2FlameAnim>() == null)
             gameObject.AddComponent<L2FlameAnim>();
         UpdateMasks();

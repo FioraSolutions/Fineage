@@ -1,0 +1,69 @@
+class we_121a55cdb2bcd55b extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_0
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorScaleRepeats=1.000000
+         Opacity=0.540000
+         FadeOutStartTime=0.530000
+         FadeOut=True
+         FadeInEndTime=0.350000
+         FadeIn=True
+         MaxParticles=300
+         WeatherSoundCheck=True
+         Name="SpriteEmitter4"
+         StartLocationRange=(X=(Min=-1500.000000,Max=1500.000000),Y=(Min=-1500.000000,Max=1500.000000),Z=(Min=-100.000000,Max=500.000000))
+         SpinParticles=True
+         StartSizeRange=(X=(Min=10.000000,Max=50.000000),Y=(Min=10.000000,Max=50.000000),Z=(Min=10.000000,Max=50.000000))
+         UniformSize=True
+         InitialParticlesPerSecond=1000.000000
+         AutomaticInitialSpawning=False
+         Texture=Texture'FX_E_T.Etc.star01'
+         TextureUSubdivisions=1
+         TextureVSubdivisions=2
+         SubdivisionEnd=1
+         LifetimeRange=(Min=10000.000000,Max=10000.000000)
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter_0'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_1
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=43,G=43,R=43,A=255),RelativeTime=0.514286)
+         ColorScale(2)=(Color=(B=77,G=77,R=77,A=255),RelativeTime=0.750000)
+         ColorScale(3)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorScaleRepeats=5.000000
+         FadeOutStartTime=1.000000
+         MaxParticles=18
+         Name="Ticks"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=120.000000)
+         StartLocationShape=PTLS_Sphere
+         SphereRadiusRange=(Min=15.000000,Max=15.000000)
+         StartLocationPolarRange=(X=(Min=150.000000,Max=150.000000),Y=(Min=10.000000,Max=10.000000),Z=(Min=30.000000,Max=30.000000))
+         SpinParticles=True
+         SpinsPerSecondRange=(X=(Min=0.000000,Max=2.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=0.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=0.600000,RelativeTime=0.310000)
+         SizeScale(1)=(RelativeSize=0.200000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=2.000000,Max=4.000000),Y=(Min=2.000000,Max=4.000000),Z=(Min=2.000000,Max=4.000000))
+         UniformSize=True
+         InitialParticlesPerSecond=100.000000
+         AutomaticInitialSpawning=False
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0061'
+         TextureUSubdivisions=4
+         TextureVSubdivisions=8
+         SubdivisionStart=1
+         SubdivisionEnd=4
+         UseRandomSubdivision=True
+         LifetimeRange=(Min=0.500000,Max=2.000000)
+         InitialDelayRange=(Min=0.050000,Max=0.050000)
+         StartVelocityRange=(X=(Min=-100.000000,Max=100.000000),Y=(Min=50.000000,Max=50.000000),Z=(Min=150.000000,Max=150.000000))
+         VelocityLossRange=(X=(Min=6.000000,Max=6.000000),Y=(Min=6.000000,Max=6.000000),Z=(Min=0.100000,Max=0.100000))
+         GetVelocityDirectionFrom=PTVD_AddRadial
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter_1'
+}
