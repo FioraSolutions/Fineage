@@ -5,7 +5,7 @@ using UnityEngine;
 using VContainer.Unity;
 using VContainer;
 
-public sealed partial class EntityActionMachine : ITickable
+public sealed partial class EntityActionMachine : ITickable, IEntityActionRoster
 {
     [System.Obsolete("Use EntityActionPacketServices.Actions or [Inject] EntityActionMachine instead")]
     public static EntityActionMachine Instance { get; private set; }

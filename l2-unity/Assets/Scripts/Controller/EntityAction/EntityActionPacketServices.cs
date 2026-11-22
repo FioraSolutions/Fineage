@@ -13,6 +13,9 @@ public static class EntityActionPacketServices
             _actions = actions;
     }
 
+    /// <summary>The roster <see cref="Bind"/> stored. No container or <c>Instance</c> fallback.</summary>
+    public static IEntityActionRoster BoundActions => _actions;
+
     public static EntityActionMachine Actions =>
         _actions != null
             ? _actions

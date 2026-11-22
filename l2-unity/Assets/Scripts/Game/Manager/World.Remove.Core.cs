@@ -86,8 +86,9 @@ public partial class World
             moves.Forget(id);
         _entities.Unregister(id);
         _entityWait.Fail(id);
-        if (EntityActionPacketServices.Actions != null)
-            EntityActionPacketServices.Actions.Remove(entity);
+        IEntityActionRoster actions = Actions();
+        if (actions != null)
+            actions.Remove(entity);
 
         if (_gravityNpc != null)
             _gravityNpc.DeleteGravity(id);
