@@ -162,7 +162,14 @@ def build_t3d(tile_id: str, terrain_info0: str, static_meshes: list[dict]) -> tu
     for line in terrain_info0.splitlines():
         if line.startswith("TerrainMap=") or line.startswith("TerrainScale=") or line.startswith("Layers("):
             out.append("    " + line)
-        elif line.startswith(("DecoLayers(", "GeneratedSectorCounter=", "Location=", "DrawScale=")):
+        elif line.startswith((
+            "DecoLayers(",
+            "QuadVisibilityBitmap(",
+            "EdgeTurnBitmap(",
+            "GeneratedSectorCounter=",
+            "Location=",
+            "DrawScale=",
+        )):
             out.append("    " + line)
     out.append("End Actor")
     individuals: list[str] = []

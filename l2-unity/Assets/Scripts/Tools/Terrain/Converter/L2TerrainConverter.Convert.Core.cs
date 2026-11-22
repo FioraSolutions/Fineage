@@ -7,6 +7,11 @@ using UnityEngine;
 public partial class TerrainConverter
 {
     static void ConvertTerrainToMesh(L2TerrainInfo terrainInfo) {
+        currentTerrainInfo = terrainInfo;
+        if (terrainInfo != null && terrainInfo.quadVisibilityBitmap != null
+            && terrainInfo.quadVisibilityBitmap.Length == L2TerrainInfoParser.QuadVisibilityWordCount) {
+            meshSubdivisions = L2TerrainInfoParser.QuadVisibilitySize;
+        }
         terrainToMesh = new TerrainToMesh();
         texture2DArrayGenerator = new Texture2DArrayGenerator();
 
@@ -30,7 +35,7 @@ public partial class TerrainConverter
         if(convertTerrain) {
             Material terrainMat = GenerateMaterial(saveFolder, terrainInfo);
 
-            GameObject destObject = GenerateMesh(terrainToConvert, terrainMat, true);
+            GameObject destObject = GenerateMesh(terrainToConvert, terrainMat, true, applyHoles: true);
 
             if(saveAssets) {
                 // Persist heightmap mesh and bind it before prefab save; otherwise prefab
@@ -47,7 +52,7 @@ public partial class TerrainConverter
         }
 
         if(createMapSafenet) {
-            GameObject destObject = GenerateMesh(terrainToConvert, null, false);
+            GameObject destObject = GenerateMesh(terrainToConvert, null, false, applyHoles: false);
             SaveMesh(saveFolder, destObject, true);
         }
 
