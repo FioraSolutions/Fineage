@@ -9,16 +9,16 @@ using UnityEngine;
 
 public partial class L2BrushBuilder
 {
-    public static GameObject BuildBrushesFromT3d(string t3dAbsolutePath) {
+    public static GameObject BuildBrushesFromT3d(string t3dAbsolutePath, bool includeSkyBrushes = false) {
         var bspBrushes = L2T3DBrushParser.ParseFile(t3dAbsolutePath);
         string tileAbs = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetFullPath(t3dAbsolutePath))).Replace('\\', '/');
         string dataAbs = Path.GetFullPath(Application.dataPath).Replace('\\', '/');
         if (tileAbs.StartsWith(dataAbs))
-            return BuildMerged(bspBrushes, "Assets" + tileAbs.Substring(dataAbs.Length));
-        return BuildMerged(bspBrushes, null);
+            return BuildMerged(bspBrushes, "Assets" + tileAbs.Substring(dataAbs.Length), includeSkyBrushes);
+        return BuildMerged(bspBrushes, null, includeSkyBrushes);
     }
 
-    public static GameObject BuildMerged(IReadOnlyList<L2BspBrush> brushes, string tileAssetFolder) {
+    public static GameObject BuildMerged(IReadOnlyList<L2BspBrush> brushes, string tileAssetFolder, bool includeSkyBrushes = false) {
         var matCache = new Dictionary<string, Material>();
         var subs = new Dictionary<Material, List<int>>();
         var colliderSubs = new List<int>();
@@ -44,7 +44,7 @@ public partial class L2BrushBuilder
                 if (pd.vertices == null || pd.vertices.Length < 3) continue;
                 if (!L2BspPolyFlags.ShouldRenderPolygon(pd.polyFlags, pd.texture)) continue;
                 string tex = pd.texture;
-                if (!L2BspPolyFlags.IsBrushTextureRenderable(tex)) continue;
+                if (!L2BspPolyFlags.IsBrushTextureRenderable(tex, includeSkyBrushes)) continue;
                 if (!matCache.TryGetValue(tex, out var mat)) {
                     mat = FindMaterial(tex);
                     if (mat == null || mat.name == "BrushFallbackGray")

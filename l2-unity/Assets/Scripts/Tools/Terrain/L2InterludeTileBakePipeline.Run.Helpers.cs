@@ -95,7 +95,7 @@ public static partial class L2InterludeTileBakePipeline
 
             if ((steps & L2InterludeBakeStep.BuildBrushes) != 0 && hasT3d)
             {
-                GameObject brushes = L2BrushBuilder.BuildBrushesFromT3d(t3dAbs);
+                GameObject brushes = L2BrushBuilder.BuildBrushesFromT3d(t3dAbs, LobbyMapInterludeContract.BakesSkyboxBsp(tileId));
                 if (brushes != null)
                 {
                     SaveScenePrefab(tileId, brushes, "Brushes.prefab");

@@ -98,9 +98,17 @@ namespace Fineage.TerrainBsp
 
         public static bool IsBrushTextureRenderable(string texture)
         {
+            return IsBrushTextureRenderable(texture, includeSky: false);
+        }
+
+        // World tiles exclude L2_Skies brushes (their sky comes from the sky path,
+        // not BSP). The lobby's skybox IS a BSP box with L2_Skies faces, so the
+        // lobby bake passes includeSky: true; every other exclusion stays.
+        public static bool IsBrushTextureRenderable(string texture, bool includeSky)
+        {
             if (string.IsNullOrEmpty(texture))
                 return false;
-            if (texture.StartsWith("L2_Skies", StringComparison.OrdinalIgnoreCase))
+            if (!includeSky && texture.StartsWith("L2_Skies", StringComparison.OrdinalIgnoreCase))
                 return false;
             if (texture.StartsWith("L2_ETC_Textures", StringComparison.OrdinalIgnoreCase))
                 return false;
