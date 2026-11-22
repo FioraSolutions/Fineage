@@ -14,8 +14,8 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     void Start() {
         if (_deadManager != null)
             _deadManager.OnReadyToRemove += RemoveObject;
-        if (GetComponent<L2VillageStatuePanner>() == null)
-            gameObject.AddComponent<L2VillageStatuePanner>();
+        if (GetComponent<L2Ue2MaterialRuntime>() == null)
+            gameObject.AddComponent<L2Ue2MaterialRuntime>();
         if (GetComponent<L2CaveTerrainGate>() == null)
             gameObject.AddComponent<L2CaveTerrainGate>();
         if (GetComponent<L2DoorPassage>() == null)
