@@ -421,7 +421,7 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [x] **S5** `L2TerrainSunIntensity` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the UE2 sun-direction formula so it sits with `L2StaticMeshVertexLight` / sun masks (#1688). Formula unchanged; still not a rebake entry point.
 - [ ] **S6** `L2BrushPortal` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the baked-brush portal cut (#1688 / #1692 neighbor, mesh cut unchanged).
 - [x] **S7** `EntityStunStars` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the stun-star drawer; it already calls `L2FxCompositorLayers` in Fineage.Game.
-- [ ] **S8** `ItemEnchantGlowView` → `Fineage.Game/Combat/`. Cuts ACS ownership of the enchant-glow view; placement and style already live on `EnchantGlow` in Fineage.Domain.
+- [x] **S8** `ItemEnchantGlowView` → `Fineage.Game/Combat/`. Cuts ACS ownership of the enchant-glow view; placement and style already live on `EnchantGlow` in Fineage.Domain.
 - [x] **S9** `LoginJungleFillPass` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the login far-plane fill. Uses only Unity rendering types.
 - [ ] **S10** `L2StarDomeMesh` → `Fineage.Game/Rendering/Sky/`. Cuts ACS ownership of the star-dome mesh builder. The `L2StarDome` MonoBehaviour stays ACS (VContainer).
 - [x] **S11** `L2DayNightLut` (all partials) → `Fineage.Game/Rendering/Lut/`. Cuts ACS ownership of the day/night color table (#1691 neighbor). Sampling unchanged; no per-tile ZoneInfo.
