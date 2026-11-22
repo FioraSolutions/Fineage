@@ -20,6 +20,9 @@ public static class WorldPacketServices
             _worldApply = worldApply;
     }
 
+    /// <summary>The roster <see cref="Bind"/> stored. No container or <c>Instance</c> fallback.</summary>
+    public static IAnimationRoster BoundAnimations => _animations;
+
     public static IAnimationManager Animations =>
         _animations != null ? _animations : GamePacketServices.Animations;
 
