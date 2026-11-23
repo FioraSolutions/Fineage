@@ -408,11 +408,15 @@ public static class L2InterludeMaterialBinder
                 string package = slash > 0 ? rel.Substring(0, slash) : "";
                 string noExt = Path.ChangeExtension(rel, null).Replace('\\', '/');
                 string resource = "Data/Textures/" + noExt;
+                // A texture imported as both .png and .tga is one resource. Two
+                // rows for it made PickTexturePath count two candidates and call
+                // a unique name ambiguous.
+                if (ChainAssets.ContainsKey(resource))
+                    continue;
+                ChainAssets.Add(resource, assetPath);
                 ChainNames.Add(kv.Key);
                 ChainPackages.Add(package);
                 ChainResources.Add(resource);
-                if (!ChainAssets.ContainsKey(resource))
-                    ChainAssets.Add(resource, assetPath);
             }
         }
     }
