@@ -237,7 +237,7 @@ public static class LoginForestShot
     static int LogCoveringGraphics(Canvas canvas)
     {
         int covers = 0;
-        Image[] images = canvas.GetComponentsInChildren<Image>(true);
+        UnityEngine.UI.Image[] images = canvas.GetComponentsInChildren<UnityEngine.UI.Image>(true);
         for (int i = 0; i < images.Length; i++)
         {
             if (!CoversScreen(images[i].rectTransform))
