@@ -42,14 +42,14 @@ public partial class PlayerController
 
     public void InitMoveToPawn(MoveToPawnDto moveToPawnPacket)
     {
-        World world = _packetWorld != null ? _packetWorld : ControllerPacketServices.GameWorld;
-        if (world == null || DomainPacketServices.LocalPlayer == null)
+        if (DomainPacketServices.LocalPlayer == null)
             return;
 
         // Engine OnMoveToPawn uses the packet's pawn directly. It does not require
         // that pawn to be the UI-selected target. During replay the first attacked
         // goblin is still selected while this packet already follows the second one.
-        Entity target = world.GetEntityNoLockSync(moveToPawnPacket.TarObjid);
+        // Same registry World.GetEntityNoLockSync reads. This path does not take World.
+        Entity target = Spawned.Find(moveToPawnPacket.TarObjid);
         if (target == null)
         {
             // ReplayAttackTrace.Write(

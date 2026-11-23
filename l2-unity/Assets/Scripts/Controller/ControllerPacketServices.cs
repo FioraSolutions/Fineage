@@ -163,6 +163,21 @@ public sealed partial class PlayerController
     [Inject] PlayerPositionSender _injectedPositionSender;
     [Inject] ClickManager _packetClicks;
     [Inject] L2PawnYaw _pawnYaw;
+    [Inject] ISpawnedEntities _spawned;
+
+    ISpawnedEntities Spawned
+    {
+        get
+        {
+            if (_spawned == null)
+            {
+                throw new InvalidOperationException(
+                    "[PlayerController] ISpawnedEntities missing — GameLifetimeScope did not register SpawnedEntityCatalog, so the pawn target was not found.");
+            }
+
+            return _spawned;
+        }
+    }
 
     void WireControllerPacketServices()
     {
