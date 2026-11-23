@@ -20,6 +20,7 @@ python3 scripts/check-client-asmdef-layout.py
 python3 scripts/check-deco-archive-fixture.py
 python3 scripts/check-unity-meta-guids.py
 python3 scripts/check-interlude-window-layout.py
+python3 scripts/check-unity-editmode-guards.py --self-test
 python3 scripts/check-unity-editmode-guards.py
 
 bash scripts/check-interlude-javac.sh

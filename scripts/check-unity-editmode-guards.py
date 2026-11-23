@@ -329,12 +329,54 @@ def check_cs9_syntax() -> list[str]:
 
 
 _USING_NS = re.compile(r"^\s*using\s+([A-Za-z_][\w.]*)\s*;", re.MULTILINE)
-_USING_ALIAS = re.compile(r"^\s*using\s+(Object|Debug)\s*=", re.MULTILINE)
-_BARE_OBJECT = re.compile(r"(?<![\w.])Object\.")
-_BARE_DEBUG = re.compile(r"(?<![\w.])Debug\.")
-# Namespaces that publish a type also named Debug. `using FMOD;` imports
-# FMOD.Debug; `using FMODUnity` and `using FMOD.Studio` do not.
-_DEBUG_CLASH_USINGS = frozenset({"FMOD", "System.Diagnostics"})
+_USING_ALIAS = re.compile(r"^\s*using\s+([A-Za-z_]\w*)\s*=", re.MULTILINE)
+_USING_LINE = re.compile(r"^\s*using\s")
+_BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.DOTALL)
+
+# Simple type names exported by more than one namespace. A file that imports
+# two namespaces of one entry cannot use the bare name — every spelling
+# (`Name.`, `Name[]`, `<Name>`, `new Name(`, `typeof(Name)`, `is Name`,
+# `(Name)x`, `Name?`, a field of type `Name`) is CS0104, so the guard matches
+# any unqualified occurrence, not just `Name.`.
+_AMBIGUOUS_TYPE_NAMESPACES: dict[str, frozenset[str]] = {
+    "Object": frozenset({"System", "UnityEngine"}),
+    "Random": frozenset({"System", "UnityEngine"}),
+    # `using FMODUnity` / `using FMOD.Studio` do not import FMOD.Debug.
+    "Debug": frozenset({"UnityEngine", "FMOD", "System.Diagnostics"}),
+    "Color": frozenset({"UnityEngine", "System.Drawing"}),
+    "Font": frozenset({"UnityEngine", "System.Drawing"}),
+    "Image": frozenset({"UnityEngine.UI", "UnityEngine.UIElements", "System.Drawing"}),
+    "Button": frozenset({"UnityEngine.UI", "UnityEngine.UIElements", "System.Windows.Forms"}),
+    "Toggle": frozenset({"UnityEngine.UI", "UnityEngine.UIElements"}),
+    "Slider": frozenset({"UnityEngine.UI", "UnityEngine.UIElements"}),
+    "Text": frozenset({"UnityEngine.UI", "UnityEngine.UIElements"}),
+    "Cursor": frozenset({"UnityEngine", "UnityEngine.UIElements", "System.Windows.Forms"}),
+    "Label": frozenset({"UnityEngine.UIElements", "System.Reflection.Emit", "System.Windows.Forms"}),
+    "Application": frozenset({"UnityEngine", "System.Windows.Forms"}),
+    "Screen": frozenset({"UnityEngine", "System.Windows.Forms"}),
+    "Vector2": frozenset({"UnityEngine", "System.Numerics"}),
+    "Vector3": frozenset({"UnityEngine", "System.Numerics"}),
+    "Vector4": frozenset({"UnityEngine", "System.Numerics"}),
+    "Quaternion": frozenset({"UnityEngine", "System.Numerics"}),
+    "Matrix4x4": frozenset({"UnityEngine", "System.Numerics"}),
+    "Plane": frozenset({"UnityEngine", "System.Numerics"}),
+    "Touch": frozenset({"UnityEngine", "UnityEngine.InputSystem.EnhancedTouch"}),
+    "TouchPhase": frozenset({"UnityEngine", "UnityEngine.InputSystem"}),
+    "Gyroscope": frozenset({"UnityEngine", "UnityEngine.InputSystem"}),
+    "Timer": frozenset({"System.Threading", "System.Timers"}),
+}
+
+# `<type> <name> (= | ; | ( | { | , | ) | ])` declares a member/local/parameter
+# named <name>. Keywords are not a type, so `new Color()` / `return Color;`
+# never count as declarations. `=` must not be `==` or `=>`.
+_MEMBER_DECL = (
+    r"(?<![\w.])"
+    r"(?:(?:public|private|protected|internal|static|readonly|const|volatile|"
+    r"new|sealed|override|virtual|abstract|extern|unsafe|async|required)\s+)*"
+    r"(?!(?:new|return|is|as|case|typeof|nameof|sizeof|default|switch|throw|"
+    r"using|in|out|ref|checked|unchecked)\b)"
+    r"[\w.<>,\[\]?]+\s+{name}\s*(?:=(?!=)|[;({{,)\]])"
+)
 
 
 def _using_namespaces(text: str) -> set[str]:
@@ -345,13 +387,34 @@ def _aliased_names(text: str) -> set[str]:
     return {match.group(1) for match in _USING_ALIAS.finditer(text)}
 
 
-def check_ambiguous_types() -> list[str]:
-    """Bare names that resolve to two imported types.
+def _member_declared_in_file(text: str, name: str) -> bool:
+    """A field/property/local/parameter named `name` shadows type lookup in this
+    file, so its bare uses are not type references."""
+    return bool(re.search(_MEMBER_DECL.format(name=re.escape(name)), text))
 
-    `Object` with `using System` and `using UnityEngine`.
-    `Debug` with `using UnityEngine` and either `using FMOD` or
-    `using System.Diagnostics`. A `using Object = ...` or `using Debug = ...`
-    alias picks one, so the bare name is legal.
+
+def _strip_block_comments(text: str) -> str:
+    return _BLOCK_COMMENT.sub(lambda m: "\n" * m.group(0).count("\n"), text)
+
+
+def ambiguous_names_for_usings(usings: set[str], aliases: set[str]) -> dict[str, str]:
+    """Bare name -> the imported namespaces it clashes between, per file usings."""
+    clashes: dict[str, str] = {}
+    for name, namespaces in _AMBIGUOUS_TYPE_NAMESPACES.items():
+        imported = sorted(namespaces & usings)
+        if len(imported) >= 2 and name not in aliases:
+            clashes[name] = " + ".join(imported)
+    return clashes
+
+
+def check_ambiguous_types() -> list[str]:
+    """Bare names that resolve to two imported types (CS0104).
+
+    The ambiguous set is derived from the file's own usings through
+    _AMBIGUOUS_TYPE_NAMESPACES, so any spelling of the name is caught — the
+    LoginForestShot break was `Image[]` / `GetComponentsInChildren<Image>`,
+    which a `Name\\.`-only matcher never sees. A `using Name = ...` alias or a
+    type/member of the same name declared in the file makes the bare name legal.
     """
     errors: list[str] = []
     roots = [SCRIPTS, ASSETS / "Editor", ASSETS / "Tests"]
@@ -363,28 +426,27 @@ def check_ambiguous_types() -> list[str]:
         if "Plugins" in path.parts:
             continue
         text = path.read_text(encoding="utf-8-sig", errors="replace")
-        usings = _using_namespaces(text)
-        aliases = _aliased_names(text)
-        has_unity = "UnityEngine" in usings
-        check_object = has_unity and "System" in usings and "Object" not in aliases
-        check_debug = (
-            has_unity
-            and bool(usings & _DEBUG_CLASH_USINGS)
-            and "Debug" not in aliases
-        )
-        if not check_object and not check_debug:
+        clashes = ambiguous_names_for_usings(_using_namespaces(text), _aliased_names(text))
+        if not clashes:
             continue
+        code_text = _strip_block_comments(text)
         rel = path.relative_to(REPO)
-        for line_no, line in enumerate(text.splitlines(), start=1):
-            code = _code_fragment(line)
-            if check_object and _BARE_OBJECT.search(code):
-                errors.append(
-                    f"{rel}:{line_no}: `Object.` is ambiguous with System + UnityEngine — use UnityEngine.Object"
-                )
-            if check_debug and _BARE_DEBUG.search(code):
-                errors.append(
-                    f"{rel}:{line_no}: `Debug.` is ambiguous with UnityEngine and FMOD or System.Diagnostics — use UnityEngine.Debug"
-                )
+        lines = code_text.splitlines()
+        for name, where in clashes.items():
+            if (
+                _type_defined_in_file(text, name)
+                or _method_defined_in_file(text, name)
+                or _member_declared_in_file(text, name)
+            ):
+                continue
+            bare = re.compile(rf"(?<![\w.]){re.escape(name)}\b")
+            for line_no, line in enumerate(lines, start=1):
+                if _USING_LINE.match(line):
+                    continue
+                if bare.search(_code_fragment(line)):
+                    errors.append(
+                        f"{rel}:{line_no}: `{name}` is ambiguous with {where} — qualify it"
+                    )
     return errors
 
 
@@ -541,7 +603,9 @@ def check_zone_fog_factor() -> list[str]:
     return errors
 
 
-def main() -> int:
+def main(argv: list[str]) -> int:
+    if "--self-test" in argv:
+        return self_test()
     errors = (
         check_editmode_asmdef_types()
         + check_asmdef_references_assembly_csharp()
@@ -562,5 +626,146 @@ def main() -> int:
     return 0
 
 
+def self_test() -> int:
+    """Fixture-tree run of check_ambiguous_types: the LoginForestShot break and
+    the suppression matrix (alias, same-name member/type, qualified spellings,
+    comments, strings) must produce exactly the expected flags."""
+    import tempfile
+
+    cases: dict[str, tuple[str, str | None]] = {
+        # file: (source, flagged name or None)
+        "f01_image_array.cs": (
+            "using UnityEngine.UI;\nusing UnityEngine.UIElements;\n"
+            "class C {\n    void M(Canvas canvas) {\n"
+            "        Image[] images = canvas.GetComponentsInChildren<Image>(true);\n    }\n}\n",
+            "Image",
+        ),
+        "f02_object_dot.cs": (
+            "using System;\nusing UnityEngine;\nusing UnityEngine.UIElements;\n"
+            "class C {\n    void M() {\n"
+            "        UIDocument[] docs = Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Include, FindObjectsSortMode.None);\n    }\n}\n",
+            "Object",
+        ),
+        "f03_alias.cs": (
+            "using System;\nusing UnityEngine;\nusing Object = UnityEngine.Object;\n"
+            "class C {\n    void M() {\n        Object.Destroy(null);\n    }\n}\n",
+            None,
+        ),
+        "f04_random_field.cs": (
+            "using System;\nusing UnityEngine;\n"
+            "class C {\n    public readonly int Random;\n"
+            "    C(int random) {\n        Random = random;\n    }\n}\n",
+            None,
+        ),
+        "f05_random_range.cs": (
+            "using System;\nusing UnityEngine;\n"
+            "class C {\n    void M() {\n        var range = Random.Range(0, 1);\n    }\n}\n",
+            "Random",
+        ),
+        "f06_label_ui_uielements.cs": (
+            "using UnityEngine.UI;\nusing UnityEngine.UIElements;\n"
+            "class C {\n    void M() {\n        var label = new Label();\n    }\n}\n",
+            None,
+        ),
+        "f07_label_emit.cs": (
+            "using System.Reflection.Emit;\nusing UnityEngine.UIElements;\n"
+            "class C {\n    void M() {\n        var label = new Label();\n    }\n}\n",
+            "Label",
+        ),
+        "f08_debug_fmodunity.cs": (
+            "using FMODUnity;\nusing UnityEngine;\n"
+            "class C {\n    void M() {\n        Debug.Log(\"x\");\n    }\n}\n",
+            None,
+        ),
+        "f09_debug_fmod.cs": (
+            "using FMOD;\nusing UnityEngine;\n"
+            "class C {\n    void M() {\n        Debug.Log(\"x\");\n    }\n}\n",
+            "Debug",
+        ),
+        "f10_color_member.cs": (
+            "using System.Drawing;\nusing UnityEngine;\n"
+            "class C {\n    string M() {\n        return \"<color=\" + _data.Color + \">\";\n    }\n"
+            "    Data _data;\n    class Data { public int Color; }\n}\n",
+            None,
+        ),
+        "f11_color_var.cs": (
+            "using System.Drawing;\nusing UnityEngine;\n"
+            "class C {\n    void M() {\n        Color c = Color.red;\n    }\n}\n",
+            "Color",
+        ),
+        "f12_block_comment.cs": (
+            "using UnityEngine.UI;\nusing UnityEngine.UIElements;\n"
+            "/* the Image card\n   more Image */\n"
+            "class C {\n    void M() {\n    }\n}\n",
+            None,
+        ),
+        "f13_string_literal.cs": (
+            "using UnityEngine.UI;\nusing UnityEngine.UIElements;\n"
+            "class C {\n    void M() {\n        var s = \"the Image card\";\n    }\n}\n",
+            None,
+        ),
+        "f14_qualified.cs": (
+            "using UnityEngine.UI;\nusing UnityEngine.UIElements;\n"
+            "class C {\n    UnityEngine.UI.Image img;\n}\n",
+            None,
+        ),
+        "f15_local_type.cs": (
+            "using UnityEngine.UI;\nusing UnityEngine.UIElements;\n"
+            "class Image {\n    Image other;\n}\n",
+            None,
+        ),
+        "f16_property_text.cs": (
+            "using UnityEngine.UI;\nusing UnityEngine.UIElements;\n"
+            "class C {\n    public string Text { get; set; }\n"
+            "    void M() {\n        Text = \"a\";\n    }\n}\n",
+            None,
+        ),
+        "f17_nameof.cs": (
+            "using UnityEngine.UI;\nusing UnityEngine.UIElements;\n"
+            "class C {\n    void M() {\n        var n = nameof(Image);\n    }\n}\n",
+            "Image",
+        ),
+        "f18_button_ui_only.cs": (
+            "using UnityEngine.UI;\n"
+            "class C {\n    Button b;\n}\n",
+            None,
+        ),
+    }
+
+    global REPO, ASSETS, SCRIPTS
+    with tempfile.TemporaryDirectory() as tmp:
+        REPO = Path(tmp)
+        ASSETS = REPO / "l2-unity/Assets"
+        SCRIPTS = ASSETS / "Scripts"
+        editor = ASSETS / "Editor"
+        editor.mkdir(parents=True)
+        for name, (source, _) in cases.items():
+            (editor / name).write_text(source, encoding="utf-8")
+        errors = check_ambiguous_types()
+
+    failed = False
+    for name, (_, flagged) in cases.items():
+        hits = [e for e in errors if e.startswith(f"l2-unity/Assets/Editor/{name}:")]
+        if flagged is None and hits:
+            print(f"self-test: {name}: unexpected flag(s): {hits}", file=sys.stderr)
+            failed = True
+        elif flagged is not None:
+            if len(hits) != 1 or f"`{flagged}`" not in hits[0]:
+                print(f"self-test: {name}: want one `{flagged}` flag, got {hits}", file=sys.stderr)
+                failed = True
+    stray = [
+        e
+        for e in errors
+        if not any(e.startswith(f"l2-unity/Assets/Editor/{name}:") for name in cases)
+    ]
+    if stray:
+        print(f"self-test: stray flags: {stray}", file=sys.stderr)
+        failed = True
+    if failed:
+        return 1
+    print("check-unity-editmode-guards self-test OK")
+    return 0
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))
