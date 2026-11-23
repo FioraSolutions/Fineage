@@ -5,6 +5,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 /// <summary>
 /// Lobby pawns are the shared character prefab. The lobby container must inject motion
