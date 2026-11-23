@@ -360,6 +360,36 @@ public sealed partial class GameLifetimeScope
             "[GameLifetimeScope] ILocalPlayerSlot is not a LocalPlayerSlot — LocalPlayerSlot was not registered as ILocalPlayerSlot.");
     }
 
+    /// <summary>
+    /// <see cref="PlayerController"/> is <see cref="IPlayerPawn"/> (#131 S40).
+    /// The live accessor is null until the pawn is in a loaded scene. A missing registration still throws.
+    /// </summary>
+    static void RequirePlayerPawn(IObjectResolver container)
+    {
+        IPlayerPawn pawn;
+        try
+        {
+            pawn = container.Resolve<IPlayerPawn>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IPlayerPawn))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] IPlayerPawn missing — PlayerController was not registered as IPlayerPawn.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (pawn == null || pawn is PlayerController)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] IPlayerPawn is not a PlayerController — PlayerController was not registered as IPlayerPawn.");
+    }
+
     static void RequireSpawnedEntities(IObjectResolver container)
     {
         ISpawnedEntities spawned;
