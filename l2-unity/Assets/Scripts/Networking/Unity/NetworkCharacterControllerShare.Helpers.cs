@@ -8,10 +8,11 @@ using VContainer;
 public partial class NetworkCharacterControllerShare : MonoBehaviour
 {
     private void FixedUpdate() {
-        PlayerController player = LocalPlayer;
-        if (player == null || _networkTransformShare == null)
+        PlayerController found = LocalPlayer;
+        if (found == null || _networkTransformShare == null)
             return;
 
+        IPlayerPawn player = found;
         Vector3 newDirection = player.MoveDirection.normalized;
         long now = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         if (ShouldShareMoveDirection(newDirection, now)) {
@@ -53,9 +54,10 @@ public partial class NetworkCharacterControllerShare : MonoBehaviour
     }
 
     public void ForceShareMoveDirection() {
-        PlayerController player = LocalPlayer;
-        if (player == null)
+        PlayerController found = LocalPlayer;
+        if (found == null)
             return;
+        IPlayerPawn player = found;
         ShareMoveDirection(player.MoveDirection.normalized);
     }
 }
