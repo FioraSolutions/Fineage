@@ -75,11 +75,11 @@ public partial class PlayerController
         // Hole in the walkable mesh: geodata (or the current deck) still says we
         // should be here, but the next collider is a distant shell. Do not fall
         // through. A real cliff has geodata far below, so gravity still runs.
-        bool meshHole = !WorldPlacement.HasFloorWithin(transform.position, WorldGrounding.SnapToleranceMeters);
+        bool meshHole = !Placement.HasFloorWithin(transform.position, WorldGrounding.SnapToleranceMeters);
         bool stayOnDeck = false;
         if (meshHole)
         {
-            if (WorldPlacement.TryResolveGeodataY(transform.position, out float geoY)
+            if (Placement.TryResolveGeodataY(transform.position, out float geoY)
                 && Mathf.Abs(geoY - transform.position.y) <= WorldGrounding.SnapToleranceMeters)
                 stayOnDeck = true;
         }
@@ -102,11 +102,11 @@ public partial class PlayerController
 
     void RecoverFeetIfUnderFloor()
     {
-        if (!WorldPlacement.TryLiftOutOfFloor(transform.position, out float deck))
+        if (!Placement.TryLiftOutOfFloor(transform.position, out float deck))
             return;
         Vector3 p = transform.position;
         p.y = deck;
-        WorldPlacement.ApplyPose(gameObject, p, transform.rotation);
+        Placement.ApplyPose(gameObject, p, transform.rotation);
         _verticalVelocity = -2f;
     }
 

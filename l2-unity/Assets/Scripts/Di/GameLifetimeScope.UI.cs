@@ -102,6 +102,7 @@ public sealed partial class GameLifetimeScope
             RequireCharacterInfo(container);
             RequirePlayerRebirth(container);
             RequireLocalPlayer(container);
+            RequireWorldPlacement(container);
             App.GameContainer = container;
             try
             {
