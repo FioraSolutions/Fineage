@@ -170,8 +170,10 @@ public static partial class EntitySpawnShared
 
     public static void RegisterAnimation(IWorldSpawnRegistration world, int objectId, IAnimationController controller, Entity entity)
     {
-        if (world != null && world.Animations != null && controller != null)
-            world.Animations.RegisterController(objectId, controller, entity);
+        if (world == null || controller == null)
+            return;
+
+        world.RegisterSpawnAnimation(objectId, controller, entity);
     }
 
     public static void ApplyNpcCollisionVisualScale(GameObject go, Npcgrp npcgrp)

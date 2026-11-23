@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Ground height and spawn containers (#131 S35).
-/// Register and animation members stay on <c>IWorldSpawnRegistration</c> in Assembly-CSharp.
+/// Register members live on <c>IWorldSpawnRegistration</c> in Fineage.Game.
 /// </summary>
 public interface IWorldSpawnContext
 {
