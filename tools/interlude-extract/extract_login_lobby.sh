@@ -16,7 +16,8 @@
 # Steps: 1=property dumps, 2=terrain quadvisibility, 3=BSP brushes,
 #        4=Engine/UWindow .uc defaults, 5=sysstring-e.tsv,
 #        6=texture pixels (java, no umodel), 7=G8 meshes (Docker umodel+Blender),
-#        8=camera BSP zones (ZoneAtPoint: which ZoneInfo each Camera sits in),
+#        8=camera BSP zones (ZoneAtPoint). The shot does not read the TSV;
+#          a parse failure is logged with ZoneAtPoint's exit code and the step continues.
 #        9=l2_skies material chains (.props.txt via Docker umodel).
 #
 # Prerequisites (already needed by other extraction tools):
@@ -36,6 +37,10 @@
 #     Mesh .usx packages come from lobby_mesh_resolve.py (package_index), not
 #     a hardcoded list.
 set -euo pipefail
+# Print this script's status on the way out. A caller that pipes into tee and
+# then runs $(date) sees tee's status (0). The line below is the real code;
+# with `set -o pipefail`, it is also ${PIPESTATUS[0]}.
+trap 'status=$?; echo "extract_login_lobby exit=$status" >&2; exit "$status"' EXIT
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 CLIENT="${L2_INTERLUDE_CLIENT_ROOT:-$HOME/Downloads/L2_Interlude_Client/Lineage II}"
@@ -258,15 +263,25 @@ if want_step 7; then
 fi
 
 if want_step 8; then
-  echo "== [8/9] Camera BSP zones (ZoneAtPoint self-checked point-zone query) =="
-  # Lobby has three ZoneInfo actors with disagreeing fog; the vista fog is the
-  # zone containing Camera25. The tool walks the level BSP nodes and validates
-  # the node layout by resolving every ZoneInfo at its own stored Location;
-  # any failure is a hard ERROR, never a guessed zone.
+  echo "== [8/9] Camera BSP zones (UModel point-zone query) =="
+  # The login shot does not read this file. build_login_vista.py takes
+  # InterpolationPoint5's stored Region.Zone (ZoneInfo0 in this dump).
+  # Camera25 is the UnrealEd viewport (Tag U2Viewport2), not the shot camera.
+  # A failed walk must not invent a zone: ZoneAtPoint's own message names the
+  # model or the actor, and this step logs that process's exit code and continues.
   l2_jar
+  set +e
   java -cp "$L2JAR" "$ROOT/tools/interlude/ZoneAtPoint.java" \
     "$CLIENT/maps/Lobby.unr" "$WORLD/env/Lobby.camera-zones.tsv"
-  echo "camera zones -> $WORLD/env/Lobby.camera-zones.tsv"
+  zone_status=$?
+  set -e
+  if [[ "$zone_status" -ne 0 ]]; then
+    echo "ERROR: ZoneAtPoint exited $zone_status. Lobby.camera-zones.tsv was not written." >&2
+    echo "ERROR: missing Lobby.camera-zones.tsv (BSP zone of each Camera and InterpolationPoint)." >&2
+    echo "ERROR: the login shot does not read that file. LoginVista.json zoneActor is InterpolationPoint5's stored Region.Zone." >&2
+  else
+    echo "camera zones -> $WORLD/env/Lobby.camera-zones.tsv"
+  fi
 fi
 
 if want_step 9; then

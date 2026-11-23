@@ -92,117 +92,123 @@ public class Model extends Object {
 		this.boundingBox = new Bound(reader);
 		this.boundingSphere = new Sphere(reader);
 
-		int vectorCount = reader.readIndex();
+		// L2 Interlude is version 123, licensee 19. Its UModel order is
+		// Vectors, Points, Nodes, Surfs, Verts, then numSharedSides, numZones,
+		// ZoneProperties (actor, connectivity, visibility, last render time),
+		// Polys, bounds, leaf hulls, leaves, lights, rootOutside, linked.
+		// There is no light-map array. Node and surface records are variable
+		// length (compact indices), so a stride probe cannot read them.
+		boolean l2 = pkg.license == 19 && pkg.version >= 117 && pkg.version < 178;
+		if (pkg.version >= 117 && !l2) {
+			throw new IllegalStateException(
+					"UModel for package version " + pkg.version + " licensee " + pkg.license
+					+ " is not implemented. L2 Interlude is version 123 licensee 19;"
+					+ " refusing to guess an FBspNode stride.");
+		}
+
+		int vectorCount = arrayCount(reader, "vectors");
 		this.vectors = new ArrayList<>(vectorCount);
 		for (int i = 0; i < vectorCount; i++) {
 			reader.ensureRemaining(16);
 			vectors.add(new Vector(reader));
 		}
 
-		int pointCount = reader.readIndex();
+		int pointCount = arrayCount(reader, "points");
 		this.points = new ArrayList<>(pointCount);
 		for (int i = 0; i < pointCount; i++) {
 			reader.ensureRemaining(16);
 			points.add(new Vector(reader));
 		}
 
-		int nodeCount = reader.readIndex();
+		int nodeCount = arrayCount(reader, "nodes");
 		this.nodes = new ArrayList<>(nodeCount);
 		for (int i = 0; i < nodeCount; i++) {
-			reader.ensureRemaining(64);
-			if (pkg.version < 117) nodes.add(new Node(reader));
-//			else {
-				// XXX unknown data structures for UE2
-//				new Plane(reader);
-//				reader.readLong();
-//				reader.readInt(); reader.readInt();
-//				reader.readFloat();reader.readFloat(); reader.readFloat();reader.readFloat();
-//				reader.readInt(); reader.readInt();	reader.readInt(); reader.readInt();
-//				reader.readShort();
-//				reader.readByte();
-//				reader.readLong(); reader.readLong();
-//				reader.readInt();
-//			}
+			try {
+				nodes.add(l2 ? Node.readL2(reader) : new Node(reader));
+			} catch (RuntimeException ex) {
+				throw new IllegalStateException(
+						"Model node " + i + " of " + nodeCount + ": " + ex.getMessage(), ex);
+			}
 		}
 
-		int surfCount = reader.readIndex();
+		int surfCount = arrayCount(reader, "surfs");
 		this.surfaces = new ArrayList<>(surfCount);
 		for (int i = 0; i < surfCount; i++) {
-			reader.ensureRemaining(32);
-			if (pkg.version < 117) surfaces.add(new Surface(pkg, reader));
-//			else {
-				// XXX unknown data structures for UE2
-//				reader.readIndex();
-//				reader.readInt();
-//				reader.readIndex();reader.readIndex();reader.readIndex();reader.readIndex();reader.readIndex();
-//				reader.readIndex();
-//				reader.readFloat();reader.readFloat();reader.readFloat();reader.readFloat();reader.readFloat();
-//				Texture INDEX
-//				PolyFlags DWORD
-//				5x INDEX (pBase, vNormal, vTextureU, vTextureV, iLightMap ?)
-//				iBrushPoly INDEX
-//				5x FLOAT
-//			}
+			try {
+				surfaces.add(l2 ? Surface.readL2(pkg, reader) : new Surface(pkg, reader));
+			} catch (RuntimeException ex) {
+				throw new IllegalStateException(
+						"Model surface " + i + " of " + surfCount + ": " + ex.getMessage(), ex);
+			}
 		}
 
-		int vertCount = reader.readIndex();
+		int vertCount = arrayCount(reader, "verts");
 		this.verts = new ArrayList<>(vertCount);
 		for (int i = 0; i < vertCount; i++) {
 			reader.ensureRemaining(8);
 			verts.add(new Vert(reader));
 		}
 
+		reader.ensureRemaining(8);
 		this.numSharedSides = reader.readInt();
 
+		int zoneAt = reader.currentPosition();
 		int zoneCount = reader.readInt();
+		if (zoneCount < 0 || zoneCount > 64) {
+			throw new IllegalStateException("Model num_zones " + zoneCount + " at offset " + zoneAt);
+		}
 		this.zones = new ArrayList<>(zoneCount);
 		for (int i = 0; i < zoneCount; i++) {
-			reader.ensureRemaining(32);
+			reader.ensureRemaining(24);
 			zones.add(new Zone(pkg, reader));
-
-			// extraneous data
-			if (pkg.version < 63) reader.readFloat(); // last render time (?)
-			if (pkg.version >= 117) reader.readInt(); // unknown
+			// UE1 (<63) and L2 ZoneProperties both store a float after the masks.
+			if (pkg.version < 63 || l2) reader.readFloat();
+			else if (pkg.version >= 117) reader.readInt();
 		}
 
 		this.polys = new ObjectReference(pkg, reader.readIndex());
 
-		int lightMapCount = reader.readIndex();
-		this.lightMaps = new ArrayList<>(lightMapCount);
-		for (int i = 0; i < lightMapCount; i++) {
-			reader.ensureRemaining(32);
-			lightMaps.add(new LightMap(pkg, reader));
+		if (l2) {
+			this.lightMaps = List.of();
+			this.lightBits = List.of();
+		} else {
+			int lightMapCount = arrayCount(reader, "lightMaps");
+			this.lightMaps = new ArrayList<>(lightMapCount);
+			for (int i = 0; i < lightMapCount; i++) {
+				reader.ensureRemaining(32);
+				lightMaps.add(new LightMap(pkg, reader));
+			}
+
+			int lightBitCount = arrayCount(reader, "lightBits");
+			this.lightBits = new ArrayList<>(lightBitCount);
+			for (int i = 0; i < lightBitCount; i++) {
+				reader.ensureRemaining(1);
+				lightBits.add(reader.readByte());
+			}
 		}
 
-		int lightBitCount = reader.readIndex();
-		this.lightBits = new ArrayList<>(lightBitCount);
-		for (int i = 0; i < lightBitCount; i++) {
-			reader.ensureRemaining(1);
-			lightBits.add(reader.readByte());
-		}
-
-		int boundCount = reader.readIndex();
+		int boundCount = arrayCount(reader, "bounds");
 		this.bounds = new ArrayList<>(boundCount);
 		for (int i = 0; i < boundCount; i++) {
 			reader.ensureRemaining(25);
 			bounds.add(new Bound(reader));
 		}
 
-		int leafHullsCount = reader.readIndex();
+		int leafHullsCount = arrayCount(reader, "leafHulls");
 		this.leafHulls = new ArrayList<>(leafHullsCount);
 		for (int i = 0; i < leafHullsCount; i++) {
 			reader.ensureRemaining(4);
 			leafHulls.add(reader.readInt());
 		}
 
-		int leavesCount = reader.readIndex();
+		int leavesCount = arrayCount(reader, "leaves");
 		this.leaves = new ArrayList<>(leavesCount);
 		for (int i = 0; i < leavesCount; i++) {
 			reader.ensureRemaining(32);
 			leaves.add(new Leaf(pkg, reader));
 		}
 
-		int lightsCount = reader.readIndex();
+		int lightsCount = arrayCount(reader, "lights");
 		this.lights = new ArrayList<>(lightsCount);
 		for (int i = 0; i < lightsCount; i++) {
 			reader.ensureRemaining(2);
@@ -213,6 +219,46 @@ public class Model extends Object {
 
 		this.rootOutside = reader.readInt();
 		this.linked = reader.readInt();
+
+		if (l2) {
+			int end = reader.currentPosition();
+			int limit = export.pos + export.size;
+			if (end > limit) {
+				throw new IllegalStateException(
+						"Model " + export.name.name + " parse ended at " + end + ", export ends at " + limit);
+			}
+		}
+	}
+
+	private static int arrayCount(PackageReader reader, String field) {
+		int at = reader.currentPosition();
+		int n = reader.readIndex();
+		if (n < 0 || n > 500_000) {
+			throw new IllegalStateException("Model " + field + " count " + n + " at offset " + at);
+		}
+		return n;
+	}
+
+	/**
+	 * Zone number of the leaf containing the point. Front is
+	 * {@code dot(plane, P) - w >= 0}. A negative child is a leaf; zone 1 is
+	 * the front side and zone 0 is the back side.
+	 */
+	public static int pointZone(List<Node> nodes, double x, double y, double z) {
+		if (nodes.isEmpty()) throw new IllegalStateException("Model has no BSP nodes");
+		int idx = 0;
+		for (int guard = 0; guard <= nodes.size(); guard++) {
+			if (idx < 0 || idx >= nodes.size()) {
+				throw new IllegalStateException(
+						"BSP node " + idx + " is outside the node array (" + nodes.size() + ")");
+			}
+			Node node = nodes.get(idx);
+			boolean front = node.plane.x * x + node.plane.y * y + node.plane.z * z - node.plane.w >= 0;
+			int child = front ? node.front : node.back;
+			if (child < 0) return node.zone[front ? 1 : 0];
+			idx = child;
+		}
+		throw new IllegalStateException("BSP walk did not reach a leaf");
 	}
 
 	@Override

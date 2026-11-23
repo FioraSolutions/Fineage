@@ -86,13 +86,17 @@ Which `.usx` to open is `lobby_mesh_resolve.py --missing-fbx` (every StaticMesh
 import's `package_index` chain). `--check` fails if any import does not resolve
 to a package path.
 
-Step 8 (camera BSP zones) is Step-3 feedstock: Lobby has three `ZoneInfo`
-actors with disagreeing fog (`ZoneInfo0` 500–10000 grey, `ZoneInfo1` 300–3500,
-`ZoneInfo2` 0–4000 purple), so the per-tile "pick the terrain zone" selection
-is ambiguous by design. The vista fog is the zone containing Camera25, resolved
-authoritatively by `ZoneAtPoint.java` walking the level BSP nodes (self-checked
-against every ZoneInfo's own stored Location; hard ERROR if the node layout
-fails validation) → `world/env/Lobby.camera-zones.tsv`.
+Step 8 (camera BSP zones) walks the level `UModel` with the same reader the
+terrain jar uses (`Model`, package 123 / licensee 19: Vectors, Points, Nodes,
+Surfs, Verts, then the zone list). `ZoneAtPoint.java` does not probe FVert
+sizes. The login shot does not read `world/env/Lobby.camera-zones.tsv`:
+`build_login_vista.py` takes InterpolationPoint5's stored `Region.Zone`
+(`ZoneInfo0` in this dump; fog 500–10000). Camera25's Tag is `U2Viewport2`,
+the UnrealEd viewport, and its stored region is the same zone. A failed walk
+logs `ZoneAtPoint exited N` and the name of the missing file, and the extract
+continues. It does not invent a zone. The script's own status is the line
+`extract_login_lobby exit=N` (a pipe into `tee` followed by `$(date)` would
+otherwise report tee's 0).
 
 Step 9 (l2_skies material chains): the skybox brushes reference
 `L2_Skies.Shaders.*` (`Cloud_Final`, `HazeRing_Final`, `SkybackgroundColor` +

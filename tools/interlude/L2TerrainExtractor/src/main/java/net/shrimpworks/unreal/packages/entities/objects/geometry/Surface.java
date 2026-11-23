@@ -61,6 +61,27 @@ public class Surface {
 		);
 	}
 
+	/**
+	 * Lineage 2 BSP surface: material, flags, base/normal/texture axes, brush poly,
+	 * actor, a plane, and two trailing ints. There is no light map and no pan.
+	 */
+	public static Surface readL2(Package pkg, PackageReader reader) {
+		ObjectReference texture = new ObjectReference(pkg, reader.readIndex());
+		int polyFlags = reader.readInt();
+		int pBase = reader.readIndex();
+		int normal = reader.readIndex();
+		int textureU = reader.readIndex();
+		int textureV = reader.readIndex();
+		ObjectReference brushPoly = new ObjectReference(pkg, reader.readIndex());
+		ObjectReference actor = new ObjectReference(pkg, reader.readIndex());
+		reader.ensureRemaining(24);
+		new Plane(reader);
+		reader.readInt();
+		reader.readInt();
+		return new Surface(texture, polyFlags, pBase, normal, textureU, textureV,
+						   new ObjectReference(pkg, 0), brushPoly, (short) 0, (short) 0, actor);
+	}
+
 	@Override
 	public String toString() {
 		return String.format("[texture=%s, polyFlags=%s, pBase=%s, normal=%s, textureU=%s, textureV=%s, lightMap=%s, brushPoly=%s, " +

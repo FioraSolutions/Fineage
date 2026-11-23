@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # Rebuild the Interlude login vista from the Lobby.unr dump and shoot it.
-# Runs on the owner's Mac (Unity 6000.3.27f1). Every step exits non-zero
-# on failure. Python steps do not need Unity. The Unity steps need the
+# Runs on the owner's Mac (Unity 6000.3.27f1). A failing step exits with
+# that step's status. The last line of the log is
+# "login-lobby-rebuild exit=N". Piping this script into tee and then
+# printing $(date) reports tee's status, which is 0; use
+# `set -o pipefail` and ${PIPESTATUS[0]} for the script's status.
+# Python steps do not need Unity. The Unity steps need the
 # client export root and the editor binary.
 #
 #   L2_INTERLUDE_CLIENT_ROOT="/path/to/Lineage II" \
@@ -20,6 +24,7 @@
 # fails here, before the client dump, when the binary is missing.
 # https://www.gildor.org/downloads — linux/amd64 inside Docker on Apple Silicon.
 set -euo pipefail
+trap 'status=$?; echo "login-lobby-rebuild exit=$status" >&2; exit "$status"' EXIT
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"

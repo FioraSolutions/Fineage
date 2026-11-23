@@ -23,6 +23,7 @@ python3 scripts/check-interlude-window-layout.py
 python3 scripts/check-unity-editmode-guards.py
 bash scripts/check-interlude-javac.sh
 python3 tools/interlude-extract/lobby_mesh_resolve.py --check
+python3 tools/interlude-extract/check_lobby_camera_zone.py
 
 python3 scripts/test_asset_import_policy_meta.py
 python3 scripts/check-asset-import-policy.py
