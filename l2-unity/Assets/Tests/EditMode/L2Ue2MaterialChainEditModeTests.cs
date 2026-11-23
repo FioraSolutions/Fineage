@@ -72,6 +72,70 @@ public class L2Ue2MaterialChainEditModeTests
     }
 
     [Test]
+    public void Oscillator_absent_props_use_class_defaults()
+    {
+        // The props dump stores only non-default tags; absent keys mean the
+        // Engine.u/TexOscillator.uc defaults (rate 1, phase 0, amp 0.1, OT_Pan).
+        var props = Props(
+            "fire", "Diffuse = TexOscillator'osc'\n",
+            "osc", "UOscillationRate = 0\nMaterial = Texture'flame'\n");
+        L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.Evaluate("fire", props);
+        Assert.AreEqual(0, eval.Errors.Count);
+        L2Ue2MaterialChain.UvSample uv = L2Ue2MaterialChain.SampleUv(eval.DiffuseUv, Mathf.PI * 0.5f);
+        Assert.AreEqual(0f, uv.OffsetU, 1e-4f);
+        Assert.AreEqual(0.1f, uv.OffsetV, 1e-4f);
+    }
+
+    [Test]
+    public void Oscillator_without_stored_types_pans_like_retail_lobby_water()
+    {
+        // Assets/Resources/Data/Textures/FX_E_T/TexOscillator/WaterSurfaceShaderSet/
+        // TexOscillator0.props.txt stores rates/phases/amps and no types.
+        var props = Props(
+            "water", "Diffuse = TexOscillator'wosc'\n",
+            "wosc",
+            "UOscillationRate = 0.1\nVOscillationRate = 0.1\n" +
+            "UOscillationPhase = 0.1\nVOscillationPhase = 0.1\n" +
+            "UOscillationAmplitude = 0.05\nVOscillationAmplitude = 0.05\n" +
+            "Material = Texture'wate'\n");
+        L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.Evaluate("water", props);
+        Assert.AreEqual(0, eval.Errors.Count);
+        // sin(0.1 * t + 0.1) == 1 at t = 5*pi - 1.
+        L2Ue2MaterialChain.UvSample uv = L2Ue2MaterialChain.SampleUv(eval.DiffuseUv, 5f * Mathf.PI - 1f);
+        Assert.AreEqual(0.05f, uv.OffsetU, 1e-4f);
+        Assert.AreEqual(0.05f, uv.OffsetV, 1e-4f);
+    }
+
+    [Test]
+    public void Triggered_oscillator_without_stored_keys_oscillates_at_defaults()
+    {
+        // A TexOscillatorTriggered whose every tag sits at the class default
+        // stores no keys at all; the op name still carries the behavior.
+        var props = Props(
+            "water", "Diffuse = TexOscillatorTriggered'tosc'\n",
+            "tosc", "StopAfterPeriod = 5\nMaterial = Texture'wate'\n");
+        L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.Evaluate("water", props);
+        Assert.AreEqual(0, eval.Errors.Count);
+        L2Ue2MaterialChain.UvSample uv = L2Ue2MaterialChain.SampleUv(eval.DiffuseUv, Mathf.PI * 0.5f);
+        Assert.AreEqual(0.1f, uv.OffsetU, 1e-4f);
+        Assert.AreEqual(0.1f, uv.OffsetV, 1e-4f);
+    }
+
+    [Test]
+    public void Panner_without_stored_rate_uses_class_default()
+    {
+        // Engine.u/TexPanner.uc defaultproperties: PanRate=0.1.
+        var props = Props(
+            "beam", "Diffuse = TexPanner'pan'\n",
+            "pan", "PanDirection = (Pitch=0,Yaw=0,Roll=0)\nMaterial = Texture'beamtex'\n");
+        L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.Evaluate("beam", props);
+        Assert.AreEqual(0, eval.Errors.Count);
+        L2Ue2MaterialChain.UvSample uv = L2Ue2MaterialChain.SampleUv(eval.DiffuseUv, 2f);
+        Assert.AreEqual(0.2f, uv.OffsetU, 1e-4f);
+        Assert.AreEqual(0f, uv.OffsetV, 1e-4f);
+    }
+
+    [Test]
     public void Scaler_multiplies_uv_and_adds_offset()
     {
         var props = Props(
