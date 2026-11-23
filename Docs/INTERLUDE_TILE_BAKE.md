@@ -241,7 +241,7 @@ python3 tools/interlude-extract/rebuild_terrain_layers.py \
   --export-dir .work/tex-export
 ```
 
-The bake parser reads those fields and skips `Texture=None` slots (no silent Base substitution). `_Layer_N_Xform` carries rotation (UE rotator units) and axis into `L2_TerrainLayerUv`. `T_themepark.17_16BG` is referenced on `19_17` but the official `T_themepark.utx` was not in this client tree — bake logs a missing-texture error for that layer.
+The bake parser reads those fields and skips `Texture=None` slots (no silent Base substitution). `_Layer_N_UV.xy` is layer Scale times UScale/VScale (UU per repeat) and `.zw` is UPan/VPan. `_Layer_N_Xform` carries rotation (UE rotator units) and axis into `L2_TerrainLayerUv`. A missing Scale or UScale is an error, not a 128 UU stand-in. `T_themepark.17_16BG` is referenced on `19_17` but the official `T_themepark.utx` was not in this client tree — bake logs a missing-texture error for that layer.
 
 Shipped meshes/materials still need Unity `L2TerrainMeshCli.RunCli` (no `-nographics`) on every in-repo tile so the new layers paint. Close other Unity instances first; use this worktree, not `~/Projects/Fineage`.
 

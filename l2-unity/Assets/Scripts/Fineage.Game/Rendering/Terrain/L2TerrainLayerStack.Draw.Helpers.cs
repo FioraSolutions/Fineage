@@ -5,6 +5,15 @@ using System.Collections.Generic;
 
 public sealed partial class L2TerrainLayerStack
 {
+    static readonly HashSet<string> RepeatErrors = new HashSet<string>();
+
+    static void LogRepeatError(string msg)
+    {
+        if (!RepeatErrors.Add(msg))
+            return;
+        Debug.LogError("[TerrainUv] " + msg);
+    }
+
     static void LogOnce(string msg)
     {
         if (_loggedOnce)
