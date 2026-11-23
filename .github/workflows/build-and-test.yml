@@ -51,6 +51,11 @@ jobs:
           ref: dev
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install Python tooling dependencies
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 -m pip install --quiet -r tools/ui-extract/requirements.txt
+
       - name: Install ffprobe for audio import policy duration checks
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
