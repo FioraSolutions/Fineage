@@ -22,6 +22,8 @@ public partial class BaseAnimationController : AnimationEventsBase, IAnimationCo
     private CastClipPlayable _castPlayable;
 
     public bool IsCastClipActive => _castPlayable != null && _castPlayable.IsActive;
+
+    public bool IsMotionGraphBound => _castPlayable != null && _castPlayable.IsGraphAlive;
     private bool _castIdleSkip;
 
     // Дубли OnAnimationShoot на одном кадре (два ивента на клипе / два слоя) — в подписчики уходит один раз.

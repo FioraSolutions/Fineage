@@ -1,3 +1,4 @@
+using System;
 using VContainer;
 
 /// <summary>
@@ -14,5 +15,12 @@ public static class MotionPipelineRegistration
         builder.Register<SharedMoveRoster>(Lifetime.Singleton)
             .As<IMoveRoster>()
             .AsSelf();
+    }
+
+    public static bool IsMotionService(Type type)
+    {
+        return type == typeof(IAnimationManager)
+            || type == typeof(IAnimationRoster)
+            || type == typeof(IMoveRoster);
     }
 }

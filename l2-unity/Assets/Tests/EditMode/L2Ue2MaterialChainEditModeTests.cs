@@ -260,6 +260,7 @@ public class L2Ue2MaterialChainEditModeTests
     public void Chain_does_not_upgrade_sky_or_terrain_shaders()
     {
         Assert.IsFalse(L2Ue2MaterialChain.CanUpgradeShader("L2/Sky/Cloud"));
+        Assert.IsFalse(L2Ue2MaterialChain.CanUpgradeShader("Hidden/L2/SkyBackdrop"));
         Assert.IsFalse(L2Ue2MaterialChain.CanUpgradeShader("L2/World/TerrainBaseModulate2X"));
         Assert.IsFalse(L2Ue2MaterialChain.CanUpgradeShader("L2/World/WaterModulate2X"));
         Assert.IsFalse(L2Ue2MaterialChain.CanUpgradeShader("L2/UI/BitmapFontScreenSpace"));

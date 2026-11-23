@@ -16,8 +16,8 @@ Shader "L2/World/TerrainLayerModulate2X"
         _UseSplatArrays ("Use splat arrays", Float) = 0
         _LayerIndex ("Layer Index (official overlay, RenderDoc)", Float) = 1
         _SplatSlice ("Splat slice (layerIndex - 1)", Float) = 0
-        _LayerUV ("Layer UScale (TerrainInfo)", Vector) = (1, 1, 0, 0)
-        _L2WorldUvPerTileUu ("World UV tile (UU)", Float) = 128
+        _LayerUV ("Layer repeat UU (Scale * UScale)", Vector) = (0, 0, 0, 0)
+        _LayerXform ("Layer rotation/axis", Vector) = (0, 0, 0, 0)
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2
     }
 
@@ -37,10 +37,10 @@ Shader "L2/World/TerrainLayerModulate2X"
     CBUFFER_START(UnityPerMaterial)
         float4 _LayerTex_ST;
         float4 _LayerUV;
+        float4 _LayerXform;
         float _LayerIndex;
         float _SplatSlice;
         float _UseSplatArrays;
-        float _L2WorldUvPerTileUu;
         float _Cull;
     CBUFFER_END
     ENDHLSL
@@ -89,6 +89,7 @@ Shader "L2/World/TerrainLayerModulate2X"
                 float3 color0 : TEXCOORD1;
                 float viewAbsZ : TEXCOORD2;
                 float2 meshUv : TEXCOORD3;
+                float heightUu : TEXCOORD4;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -100,6 +101,7 @@ Shader "L2/World/TerrainLayerModulate2X"
                 VertexPositionInputs posInputs = GetVertexPositionInputs(IN.positionOS.xyz);
                 OUT.positionCS = posInputs.positionCS;
                 OUT.worldUu = posInputs.positionWS.xz * 52.5;
+                OUT.heightUu = posInputs.positionWS.y * 52.5;
                 float3 vtx = IN.color.rgb;
                 if (max(max(vtx.r, vtx.g), vtx.b) < 0.001)
                     vtx = float3(1, 1, 1);
@@ -115,7 +117,7 @@ Shader "L2/World/TerrainLayerModulate2X"
                 UNITY_SETUP_INSTANCE_ID(IN);
                 if (_L2TerrainLightDebug > 0.5)
                     return half4(L2_TerrainLightDebugColor(IN.worldUu), 1);
-                float2 colorUv = L2_TerrainLayerUv(IN.worldUu, _LayerUV, _L2WorldUvPerTileUu);
+                float2 colorUv = L2_TerrainLayerUv(IN.worldUu, IN.heightUu, _LayerUV, _LayerXform.x, _LayerXform.y);
                 float2 maskUv = L2_TerrainSplatUv(IN.meshUv);
                 half3 albedo;
                 half alpha;

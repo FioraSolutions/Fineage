@@ -72,9 +72,21 @@ public partial class CharacterCreator
         UpdatePawnPosAndRot(pawnObject, pawnData);
         pawnObject.transform.name = name;
         pawnObject.transform.SetParent(container.transform, true);
+        InjectLobbyPawn(pawnObject);
         pawnObject.SetActive(true);
         LobbyPresentation.ApplyLayer(pawnObject);
         EntitySpawnShared.EnsureEntityClickArea(pawnObject);
         BindLobbyPawnPresentation(pawnObject);
+    }
+
+    void InjectLobbyPawn(GameObject pawnObject)
+    {
+        if (_lobbyScope == null)
+        {
+            throw new InvalidOperationException(
+                "[LobbyMotion] lobby container missing — LoginLifetimeScope did not inject CharacterCreator, so the lobby pawn was not injected.");
+        }
+
+        HierarchyScopeInjection.Inject(_lobbyScope, pawnObject);
     }
 }

@@ -14,6 +14,7 @@ public partial class CharacterCreator : MonoBehaviour
     [Inject] private CharacterBuilder _characterBuilder;
     [Inject] private LogongrpTable _logonGrps;
     [Inject] private IAnimationManager _animations;
+    [Inject] private IObjectResolver _lobbyScope;
 
     private IAnimationManager Animations
     {

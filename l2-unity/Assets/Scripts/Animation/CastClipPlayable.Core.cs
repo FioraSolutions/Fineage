@@ -15,6 +15,7 @@ public sealed partial class CastClipPlayable
             return;
         }
 
+        MotionGraphAvatar.Ensure(animator);
         if (animator.avatar == null || !animator.avatar.isValid)
         {
             throw new InvalidOperationException(

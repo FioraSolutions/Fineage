@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
-using VContainer.Unity;
-using System.Collections;
 
 public partial class SelectableCharacterEntity : MonoBehaviour
 {
@@ -19,28 +16,21 @@ public partial class SelectableCharacterEntity : MonoBehaviour
 
     void InjectSharedMotion()
     {
-        if (App.Container == null)
+        if (_animations != null)
+            return;
+
+        IObjectResolver lobby = HierarchyScopeInjection.Lobby;
+        if (lobby == null)
         {
             throw new InvalidOperationException(
-                "[LobbyMotion] IAnimationManager missing — App.Container is null, so the lobby pawn was not injected.");
+                "[LobbyMotion] lobby container missing — LoginLifetimeScope did not build, so the lobby pawn was not injected.");
         }
 
-        try
-        {
-            App.Container.InjectGameObject(gameObject);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException(
-                "[LobbyMotion] IAnimationManager missing — App.Container could not inject the lobby pawn (" +
-                ex.Message + ").",
-                ex);
-        }
-
+        HierarchyScopeInjection.Inject(lobby, gameObject);
         if (_animations == null)
         {
             throw new InvalidOperationException(
-                "[LobbyMotion] IAnimationManager missing — AppLifetimeScope did not register AnimationManager, so the lobby pawn has no motion pipeline.");
+                "[LobbyMotion] IAnimationManager missing — LoginLifetimeScope did not register AnimationManager, so the lobby pawn has no motion pipeline.");
         }
     }
 
