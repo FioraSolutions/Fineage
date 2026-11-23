@@ -114,13 +114,17 @@ renders props from that JSON. Texture pixels stay on `ExportNamedTextures`.
 
 `l2_skies` has two exports both named `TexPanner0` (group `Shaders`, PanRate
 0.002, Material `Textures.WhiteCloud`; group `moon`, PanRate -0.05, Material
-`moon.OpenEyeMoon_myst_bitmap4`). The committed `TexPanner/TexPanner0.props.txt`
-is the moon one. It is left in place. `Cloud.props.txt` references
-`TexPanner'Shaders.TexPanner0'`, and the short-name lookup finds that moon file.
+`moon.OpenEyeMoon_myst_bitmap4`). Identity is package+group+name.
+`TexPanner/Shaders/TexPanner0.props.txt` is the cloud panner, rendered from the
+dump. `TexPanner/moon/TexPanner0.props.txt` is the moon panner, also from the
+dump. The legacy `TexPanner/TexPanner0.props.txt` is left in place. A short
+name is used only when every file of that name has the same bytes.
 
-`Blend3Textures` (`MaterialSequence`) is `dump-incomplete`: the dump stores
-`SequenceItems` array size 3 and no elements. Step 9 does not write a props
-file for it and exits 1. That object is not a lobby brush face.
+`Blend3Textures` (`MaterialSequence`, group `moon`) is the only dump-incomplete
+object in `l2_skies.json`: `SequenceItems` array size 3 and no elements. It is
+not a lobby brush face. Step 9 does not write a props file for it and exits 1.
+The dumper already records an array when Cruma fills `object_array` or
+`subproperties`; this dump did not. A later Mac re-dump is what fills it.
 
 Lobby brush classes in `Brushes.json` (export table): Texture 15
 (umodel-supported), Shader 2 (supported), ColorModifier 3 (not supported).
@@ -130,13 +134,20 @@ imports have no committed `*.props.txt` (16 of them have FBX under
 `StaticMeshes/`), so their skin classes are not in the tree. Step 7 is still
 the mesh export.
 
-Bake consumption of the new props: `L2MaterialBuilder.ProcessProps` follows a
-`Diffuse`/`Material` value only when it starts with `Texture`.
-`SkybackgroundColor` does (`Texture'Textures.WhiteChip'`). `Cloud_Final` and
-`HazeRing_Final` point at a `Shader`, so the generated `.mat` has no main
-texture until the builder follows that reference. `L2Ue2MaterialChain.KnownOps`
-is the same umodel set minus the texture-only classes; a Modifier subclass
-errors `unknown op` there. Pre-verify only checks that the props file exists.
+Bake consumption: `L2MaterialBuilder.ProcessProps` evaluates the props file
+through `L2Ue2MaterialChain`. Shader, Combiner, and FinalBlend keep their
+slot walk. Every other Material subclass follows `Material` (or `Diffuse`)
+and applies the modifier properties that are present: `Color` multiplies
+`_BaseColor`, pan uses yaw 0 when `PanDirection` was left at the UE2 default,
+scale and oscillation use the same fields as TexScaler and TexOscillator.
+`OutputBlending = 1` is `OB_Masked` (Shader.uc). A chain that does not reach
+a texture file is an error and does not write a blank `.mat`.
+
+Package folders use one name: `asset_package_name`, the `Textures/` child that
+already exists (`Castle_Kent_t` and `castle_kent_t` are `castle_kent_t`).
+Step 6 places every chain-leaf PNG there (`Textures/castle_kent_t/kent_capet.png`,
+and whatever base texture the FX_E_T combiners and oscillators name). Pre-verify
+walks the same chain and names a missing leaf.
 
 ### Mac rerun: l2_lobby brush faces
 
@@ -153,11 +164,15 @@ bash tools/interlude-extract/extract_login_lobby.sh --only 6,9 --dry-run
 ```
 
 `Cloud_Final`, `HazeRing_Final`, `SkybackgroundColor`, and `WaterShader01` are
-`satisfied`. `Kent_capet_m` and `reflection` are `needs-property-dump`. No line
-is an umodel command.
+`satisfied`. `Kent_capet_m` and `reflection` are `satisfied` once their props
+from the previous step 6 are still on disk; a clean tree lists them as
+`needs-property-dump`. No line is an umodel command. Step 9's only
+`dump-incomplete` line is `Blend3Textures`.
 
-Rerun **step 6 only** on the Mac. It needs Cruma (the property dumper) for
-`Castle_Kent_t` and `FX_E_T`. It does not need Docker. Steps 1–5 and 7–9 stay
+Rerun **step 6**, then the Unity bake. Step 6 needs Cruma for any package
+whose dump is not already next to the script. It does not need Docker.
+It places `kent_capet.png` into `Textures/castle_kent_t/` and every FX_E_T
+leaf the water chain names into `Textures/FX_E_T/`. Steps 1–5 and 7–9 stay
 as they are. Step 7 is still Docker umodel, for meshes.
 
 ```bash

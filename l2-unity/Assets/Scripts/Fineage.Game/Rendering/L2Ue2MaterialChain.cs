@@ -35,6 +35,9 @@ public static class L2Ue2MaterialChain
         public float OscVAmp;
         public float OscUOffset;
         public float OscVOffset;
+        public float RotationTurns;
+        public float RotRate;
+        public int RotationType;
 
         public static UvMod Identity => new UvMod { ScaleU = 1f, ScaleV = 1f };
     }
@@ -78,6 +81,7 @@ public static class L2Ue2MaterialChain
         public bool ZWrite = true;
         public string OutputBlending;
         public string FrameBufferBlending;
+        public Color Tint = Color.white;
         public bool ModulateStaticLighting2X = true;
         public bool ModulateSpecular2X;
         public bool PerformLightingOnSpecularPass;
@@ -127,13 +131,58 @@ public static class L2Ue2MaterialChain
     static readonly HashSet<string> PannerProps = new HashSet<string>(StringComparer.Ordinal)
     {
         "Material", "PanDirection", "PanRate",
+        "M", "TexCoordSource", "TexCoordCount", "TexCoordProjected",
+        "FallbackMaterial", "DefaultMaterial", "SurfaceType", "bUseTextureAsHeat", "HeatMaterial",
     };
+
+    // One allowlist for every Modifier subclass the structural ops do not name
+    // (ColorModifier, TexRotator, TexModifier, and the rest). The op is whatever
+    // the reference says; the properties that are present decide the effect.
+    static readonly HashSet<string> ModifierProps = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "Material", "Diffuse", "Color", "RenderTwoSided", "AlphaBlend",
+        "PanDirection", "PanRate",
+        "UScale", "VScale", "UOffset", "VOffset",
+        "UOscillationRate", "VOscillationRate", "UOscillationPhase", "VOscillationPhase",
+        "UOscillationAmplitude", "VOscillationAmplitude", "UOscillationType", "VOscillationType",
+        "Rotation", "TexRotationType", "OscillationRate", "OscillationAmplitude", "OscillationPhase",
+        "ConstantRotation",
+        "TexCoordSource", "TexCoordCount", "TexCoordProjected",
+        "M", "FallbackMaterial", "DefaultMaterial", "SurfaceType", "bUseTextureAsHeat", "HeatMaterial",
+    };
+
+    static readonly string[] OutputBlendNames =
+    {
+        "OB_Normal", "OB_Masked", "OB_Modulate", "OB_Translucent", "OB_Invisible", "OB_Brighten", "OB_Darken",
+    };
+
+    static readonly string[] CombineNames =
+    {
+        "CO_Use_Color_From_Material1", "CO_Use_Color_From_Material2", "CO_Multiply", "CO_Add",
+        "CO_Subtract", "CO_AlphaBlend_With_Mask", "CO_Add_With_Mask_Modulation", "CO_Use_Color_From_Mask",
+    };
+
+    static readonly string[] AlphaNames =
+    {
+        "AO_Use_Mask", "AO_Multiply", "AO_Add", "AO_Use_Alpha_From_Material1", "AO_Use_Alpha_From_Material2",
+    };
+
+    static readonly string[] RotationNames =
+    {
+        "TR_FixedRotation", "TR_ConstantlyRotating", "TR_OscillatingRotation",
+    };
+
+    static readonly Regex ColorRe = new Regex(
+        @"([RGBA])\s*=\s*(-?\d+)",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     static readonly HashSet<string> OscProps = new HashSet<string>(StringComparer.Ordinal)
     {
         "Material", "UOscillationRate", "VOscillationRate", "UOscillationPhase", "VOscillationPhase",
         "UOscillationAmplitude", "VOscillationAmplitude", "UOscillationType", "VOscillationType",
         "UOffset", "VOffset",
+        "M", "TexCoordSource", "TexCoordCount", "TexCoordProjected",
+        "FallbackMaterial", "DefaultMaterial", "SurfaceType", "bUseTextureAsHeat", "HeatMaterial",
     };
 
     static readonly HashSet<string> EnvProps = new HashSet<string>(StringComparer.Ordinal)
@@ -144,6 +193,8 @@ public static class L2Ue2MaterialChain
     static readonly HashSet<string> ScalerProps = new HashSet<string>(StringComparer.Ordinal)
     {
         "Material", "UScale", "VScale", "UOffset", "VOffset",
+        "M", "TexCoordSource", "TexCoordCount", "TexCoordProjected",
+        "FallbackMaterial", "DefaultMaterial", "SurfaceType", "bUseTextureAsHeat", "HeatMaterial",
     };
 
     public static Eval Evaluate(string materialName, IReadOnlyDictionary<string, string> propsByName)
@@ -278,6 +329,12 @@ public static class L2Ue2MaterialChain
         public UvMod CombineUv;
         public int EnvType;
         public bool IsEnv;
+        public Color Tint;
+    }
+
+    static Slot NewSlot()
+    {
+        return new Slot { Uv = UvMod.Identity, CombineOp = -1, AlphaOp = -1, EnvType = -1, Tint = Color.white };
     }
 
     static void ExecuteRoot(Ctx ctx, string name, string body, Eval eval)
@@ -285,9 +342,15 @@ public static class L2Ue2MaterialChain
         Dictionary<string, string> props = ParseProps(body, eval, name, InferOp(body));
         string op = props.TryGetValue("Class", out string cls) && !string.IsNullOrEmpty(cls) ? cls : InferOp(body);
         eval.Op = op;
-        if (!KnownOps.Contains(op) && op != "Shader")
+        if (op == "Modifier" || (!KnownOps.Contains(op) && op != "Shader"))
         {
-            Error(eval, eval.MaterialName, op, "unknown op");
+            RejectUnknown(eval, op, props);
+            Slot modified = ResolveModifier(ctx, props, op);
+            if (TryColor(props, "Color", out Color rootTint))
+                modified.Tint = Multiply(modified.Tint, rootTint);
+            MergeSlot(eval, modified, asDiffuse: true);
+            if (Bool(props, "RenderTwoSided"))
+                eval.TwoSided = true;
             return;
         }
         RejectUnknown(eval, op, props);
@@ -381,6 +444,7 @@ public static class L2Ue2MaterialChain
             return;
         eval.DiffuseTexture = slot.Texture;
         eval.DiffuseUv = slot.Uv;
+        eval.Tint = Multiply(eval.Tint, slot.Tint.a == 0f && slot.Tint.maxColorComponent == 0f ? Color.white : slot.Tint);
         if (slot.CombineOp >= 0)
         {
             eval.CombineOp = slot.CombineOp;
@@ -398,7 +462,7 @@ public static class L2Ue2MaterialChain
 
     static Slot ResolveRef(Ctx ctx, string raw, string viaOp)
     {
-        var empty = new Slot { Uv = UvMod.Identity, CombineOp = -1, AlphaOp = -1, EnvType = -1 };
+        Slot empty = NewSlot();
         if (IsNone(raw))
             return empty;
         Match m = ObjRefRe.Match(raw.Trim());
@@ -410,27 +474,28 @@ public static class L2Ue2MaterialChain
         string op = m.Groups[1].Value;
         string full = m.Groups[2].Value;
         string shortName = ShortName(full);
-        if (!KnownOps.Contains(op))
-        {
-            Error(ctx.Eval, ctx.Root, op, "'" + shortName + "' unknown op");
-            return empty;
-        }
         if (op == "Texture")
         {
             empty.Texture = full;
             return empty;
         }
-        if (!TryGet(ctx.Props, shortName, out string stored) && !TryGet(ctx.Props, full, out stored))
+        // Full path first: Shaders.TexPanner0 and moon.TexPanner0 are different
+        // exports. A short name is used only when that name is unique.
+        bool have = TryGet(ctx.Props, full, out string stored) || TryGet(ctx.Props, shortName, out stored);
+        if (!have)
         {
-            Error(ctx.Eval, ctx.Root, op, "'" + shortName + "' missing props");
+            if (!KnownOps.Contains(op))
+                Error(ctx.Eval, ctx.Root, op, "'" + shortName + "' unknown op");
+            else
+                Error(ctx.Eval, ctx.Root, op, "'" + shortName + "' missing props");
             return empty;
         }
-        return ResolveNode(ctx, shortName, Body(stored), op);
+        return ResolveNode(ctx, full, Body(stored), op);
     }
 
     static Slot ResolveNode(Ctx ctx, string name, string body, string op)
     {
-        var slot = new Slot { Uv = UvMod.Identity, CombineOp = -1, AlphaOp = -1, EnvType = -1 };
+        Slot slot = NewSlot();
         if (ctx.Depth > 8 || !ctx.Seen.Add(name))
         {
             Error(ctx.Eval, ctx.Root, op, "'" + name + "' chain depth exceeded");
@@ -466,12 +531,107 @@ public static class L2Ue2MaterialChain
                     slot = ResolveRef(ctx, diff, "Shader");
                 break;
             default:
-                Error(ctx.Eval, ctx.Root, op, "'" + name + "' unknown op");
+                slot = ResolveModifier(ctx, props, op);
                 break;
         }
+        if (TryColor(props, "Color", out Color tint))
+            slot.Tint = Multiply(slot.Tint, tint);
         ctx.Depth--;
         ctx.Seen.Remove(name);
         return slot;
+    }
+
+    static Slot ResolveModifier(Ctx ctx, Dictionary<string, string> props, string op)
+    {
+        Slot slot;
+        if (props.TryGetValue("Material", out string mat) && !IsNone(mat))
+            slot = ResolveRef(ctx, mat, op);
+        else if (props.TryGetValue("Diffuse", out string diff) && !IsNone(diff))
+            slot = ResolveRef(ctx, diff, op);
+        else
+        {
+            Error(ctx.Eval, ctx.Root, op, "property Material missing");
+            slot = NewSlot();
+        }
+        if (props.ContainsKey("PanRate"))
+            slot = ApplyPan(ctx, slot, props, op);
+        if (props.ContainsKey("UScale") || props.ContainsKey("VScale"))
+            ApplyScale(ctx, ref slot, props, op);
+        if (props.ContainsKey("UOscillationRate") || props.ContainsKey("VOscillationRate"))
+            ApplyOscillation(ctx, ref slot, props, op);
+        if (props.TryGetValue("Rotation", out string rotation) && TryYaw(rotation, out int yaw))
+            slot.Uv.RotationTurns += yaw / 65536f;
+        if (props.TryGetValue("TexRotationType", out string rotationType) &&
+            TryNamed(rotationType, "TR_", RotationNames, out int rotationIndex, out _))
+        {
+            slot.Uv.RotationType = rotationIndex;
+            if (rotationIndex == 1 &&
+                props.TryGetValue("OscillationRate", out string rate) && TryYaw(rate, out int rateYaw))
+                slot.Uv.RotRate += rateYaw / 65536f;
+        }
+        if (Bool(props, "RenderTwoSided"))
+            ctx.Eval.TwoSided = true;
+        return slot;
+    }
+
+    static Slot ApplyPan(Ctx ctx, Slot slot, Dictionary<string, string> props, string op)
+    {
+        if (!props.TryGetValue("PanRate", out string rateRaw) ||
+            !float.TryParse(rateRaw, NumberStyles.Float, CultureInfo.InvariantCulture, out float rate))
+        {
+            Error(ctx.Eval, ctx.Root, op, "property PanRate missing");
+            return slot;
+        }
+        int yaw = 0;
+        if (props.TryGetValue("PanDirection", out string dirRaw) && !TryYaw(dirRaw, out yaw))
+        {
+            Error(ctx.Eval, ctx.Root, op, "property PanDirection missing");
+            return slot;
+        }
+        Vector2 vel = PanVelocity(rate, yaw);
+        slot.Uv.PanU += vel.x;
+        slot.Uv.PanV += vel.y;
+        return slot;
+    }
+
+    static void ApplyScale(Ctx ctx, ref Slot slot, Dictionary<string, string> props, string op)
+    {
+        if (!TryFloat(props, "UScale", out float us) || !TryFloat(props, "VScale", out float vs))
+        {
+            Error(ctx.Eval, ctx.Root, op, "property UScale/VScale missing");
+            return;
+        }
+        TryFloat(props, "UOffset", out float uo);
+        TryFloat(props, "VOffset", out float vo);
+        slot.Uv.ScaleU *= us;
+        slot.Uv.ScaleV *= vs;
+        slot.Uv.OffsetU += uo;
+        slot.Uv.OffsetV += vo;
+    }
+
+    static void ApplyOscillation(Ctx ctx, ref Slot slot, Dictionary<string, string> props, string op)
+    {
+        if (!TryFloat(props, "UOscillationRate", out float ur) || !TryFloat(props, "VOscillationRate", out float vr) ||
+            !TryFloat(props, "UOscillationPhase", out float up) || !TryFloat(props, "VOscillationPhase", out float vp) ||
+            !TryFloat(props, "UOscillationAmplitude", out float ua) || !TryFloat(props, "VOscillationAmplitude", out float va) ||
+            !TryOscType(props, "UOscillationType", out int ut) || !TryOscType(props, "VOscillationType", out int vt))
+        {
+            Error(ctx.Eval, ctx.Root, op, "oscillation property missing");
+            return;
+        }
+        TryFloat(props, "UOffset", out float uo);
+        TryFloat(props, "VOffset", out float vo);
+        slot.Uv.Oscillate = true;
+        slot.Uv.OscUType = ut;
+        slot.Uv.OscVType = vt;
+        slot.Uv.OscURate = ur;
+        slot.Uv.OscVRate = vr;
+        slot.Uv.OscUPhase = up;
+        slot.Uv.OscVPhase = vp;
+        slot.Uv.OscUAmp = ua;
+        slot.Uv.OscVAmp = va;
+        slot.Uv.OscUOffset = uo;
+        slot.Uv.OscVOffset = vo;
     }
 
     static Slot ResolvePanner(Ctx ctx, Dictionary<string, string> props)
@@ -483,7 +643,9 @@ public static class L2Ue2MaterialChain
             Error(ctx.Eval, ctx.Root, "TexPanner", "property PanRate missing");
             return slot;
         }
-        if (!props.TryGetValue("PanDirection", out string dirRaw) || !TryYaw(dirRaw, out int yaw))
+        // The dump stores only non-default tags. PanDirection's default yaw is 0.
+        int yaw = 0;
+        if (props.TryGetValue("PanDirection", out string dirRaw) && !TryYaw(dirRaw, out yaw))
         {
             Error(ctx.Eval, ctx.Root, "TexPanner", "property PanDirection missing");
             return slot;
@@ -558,8 +720,8 @@ public static class L2Ue2MaterialChain
 
     static Slot ResolveCombiner(Ctx ctx, Dictionary<string, string> props)
     {
-        var slot = new Slot { Uv = UvMod.Identity, CombineOp = -1, AlphaOp = -1, EnvType = -1 };
-        if (!props.TryGetValue("CombineOperation", out string cop) || !TryEnum(cop, "CO_", out int combine, out string combineName))
+        Slot slot = NewSlot();
+        if (!props.TryGetValue("CombineOperation", out string cop) || !TryNamed(cop, "CO_", CombineNames, out int combine, out string combineName))
         {
             Error(ctx.Eval, ctx.Root, "Combiner", "property CombineOperation missing");
             return slot;
@@ -570,7 +732,7 @@ public static class L2Ue2MaterialChain
             return slot;
         }
         slot.CombineOp = combine;
-        if (props.TryGetValue("AlphaOperation", out string aop) && TryEnum(aop, "AO_", out int alpha, out string alphaName))
+        if (props.TryGetValue("AlphaOperation", out string aop) && TryNamed(aop, "AO_", AlphaNames, out int alpha, out string alphaName))
         {
             if (!KnownAlpha(alphaName))
                 Error(ctx.Eval, ctx.Root, "Combiner", "property AlphaOperation '" + alphaName + "' unknown");
@@ -581,6 +743,7 @@ public static class L2Ue2MaterialChain
         Slot b = props.TryGetValue("Material2", out string m2) && !IsNone(m2) ? ResolveRef(ctx, m2, "Combiner") : default;
         slot.Texture = a.Texture;
         slot.Uv = a.Uv;
+        slot.Tint = a.Tint.a == 0f && a.Tint.maxColorComponent == 0f ? Color.white : a.Tint;
         slot.CombineOp = combine;
         slot.CombineTexture = b.Texture;
         slot.CombineUv = b.Uv.ScaleU == 0f ? UvMod.Identity : b.Uv;
@@ -603,7 +766,7 @@ public static class L2Ue2MaterialChain
         if (!props.TryGetValue("Material", out string mat) || IsNone(mat))
         {
             Error(ctx.Eval, ctx.Root, op, "property Material missing");
-            return new Slot { Uv = UvMod.Identity, CombineOp = -1, AlphaOp = -1, EnvType = -1 };
+            return NewSlot();
         }
         return ResolveRef(ctx, mat, op);
     }
@@ -625,7 +788,7 @@ public static class L2Ue2MaterialChain
             eval.HasZWrite = true;
             eval.ZWrite = Bool(props, "ZWrite");
         }
-        if (props.TryGetValue("OutputBlending", out string blend) && TryEnum(blend, "OB_", out _, out string blendName))
+        if (props.TryGetValue("OutputBlending", out string blend) && TryNamed(blend, "OB_", OutputBlendNames, out _, out string blendName))
         {
             eval.OutputBlending = blendName;
             if (!KnownOutput(blendName))
@@ -812,7 +975,7 @@ public static class L2Ue2MaterialChain
             case "TexOscillator": return OscProps;
             case "TexEnvMap": return EnvProps;
             case "TexScaler": return ScalerProps;
-            default: return null;
+            default: return ModifierProps;
         }
     }
 
@@ -836,6 +999,10 @@ public static class L2Ue2MaterialChain
         if (body.IndexOf("UScale", StringComparison.Ordinal) >= 0 ||
             body.IndexOf("VScale", StringComparison.Ordinal) >= 0)
             return "TexScaler";
+        // ColorModifier, TexRotator, TexModifier: a Material child and no Diffuse slot.
+        if (body.IndexOf("Material =", StringComparison.Ordinal) >= 0 &&
+            body.IndexOf("Diffuse =", StringComparison.Ordinal) < 0)
+            return "Modifier";
         return "Shader";
     }
 
@@ -915,6 +1082,155 @@ public static class L2Ue2MaterialChain
         if (!TryEnum(raw, "OT_", out type, out string name))
             return false;
         return name == "OT_Pan" || name == "OT_Stretch" || name == "OT_StretchRepeat" || name == "OT_Jitter";
+    }
+
+    public static bool TryOutputBlending(string raw, out string name)
+    {
+        if (!TryNamed(raw, "OB_", OutputBlendNames, out _, out name))
+            return false;
+        return KnownOutput(name);
+    }
+
+    static bool TryNamed(string raw, string prefix, string[] names, out int index, out string name)
+    {
+        if (TryEnum(raw, prefix, out index, out name))
+            return true;
+        if (int.TryParse((raw ?? "").Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out index) &&
+            index >= 0 && index < names.Length)
+        {
+            name = names[index];
+            return true;
+        }
+        name = null;
+        index = 0;
+        return false;
+    }
+
+    static bool TryColor(Dictionary<string, string> props, string key, out Color color)
+    {
+        color = Color.white;
+        if (!props.TryGetValue(key, out string raw) || string.IsNullOrEmpty(raw))
+            return false;
+        int r = 255, g = 255, b = 255, a = 255;
+        bool any = false;
+        foreach (Match match in ColorRe.Matches(raw))
+        {
+            any = true;
+            int value = int.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture) & 255;
+            switch (char.ToUpperInvariant(match.Groups[1].Value[0]))
+            {
+                case 'R': r = value; break;
+                case 'G': g = value; break;
+                case 'B': b = value; break;
+                case 'A': a = value; break;
+            }
+        }
+        if (!any)
+            return false;
+        color = new Color(r / 255f, g / 255f, b / 255f, a / 255f);
+        return true;
+    }
+
+    static Color Multiply(Color a, Color b)
+    {
+        return new Color(a.r * b.r, a.g * b.g, a.b * b.b, a.a * b.a);
+    }
+
+    /// <summary>
+    /// Evaluate the props file and every other props file in its package.
+    /// Keys are group.name when the file sits in a group directory, and the
+    /// bare name when that name occurs once.
+    /// </summary>
+    public static Eval EvaluateAt(string propsPath)
+    {
+        if (string.IsNullOrEmpty(propsPath) || !File.Exists(propsPath))
+        {
+            var missing = new Eval { MaterialName = propsPath ?? "" };
+            Error(missing, propsPath, "Shader", "missing props");
+            return missing;
+        }
+        string packageDir = PackageDirectory(propsPath);
+        Dictionary<string, string> index = IndexProps(packageDir);
+        return Evaluate(PropsKey(propsPath, packageDir, index), index);
+    }
+
+    static string PackageDirectory(string propsPath)
+    {
+        var dir = new DirectoryInfo(Path.GetDirectoryName(propsPath));
+        while (dir != null && dir.Parent != null)
+        {
+            string parent = dir.Parent.Name;
+            if (parent.Equals("Textures", StringComparison.OrdinalIgnoreCase) ||
+                parent.Equals("SysTextures", StringComparison.OrdinalIgnoreCase))
+                return dir.FullName;
+            dir = dir.Parent;
+        }
+        return Path.GetDirectoryName(propsPath);
+    }
+
+    static string PropsObjectName(string file)
+    {
+        string fileName = Path.GetFileName(file);
+        const string suffix = ".props.txt";
+        if (fileName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            return fileName.Substring(0, fileName.Length - suffix.Length);
+        return Path.GetFileNameWithoutExtension(fileName);
+    }
+
+    static string GroupDirectory(string file, string packageDir)
+    {
+        string classDir = Path.GetDirectoryName(file);
+        string aboveClass = classDir == null ? null : Path.GetDirectoryName(classDir);
+        if (aboveClass != null && string.Equals(Path.GetDirectoryName(aboveClass), packageDir, StringComparison.OrdinalIgnoreCase))
+            return Path.GetFileName(classDir);
+        return "";
+    }
+
+    static Dictionary<string, string> IndexProps(string packageDir)
+    {
+        var index = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        string[] files = Directory.GetFiles(packageDir, "*.props.txt", SearchOption.AllDirectories);
+        var texts = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        foreach (string file in files)
+        {
+            string name = PropsObjectName(file);
+            string text = File.ReadAllText(file);
+            if (!texts.TryGetValue(name, out List<string> list))
+            {
+                list = new List<string>();
+                texts[name] = list;
+            }
+            list.Add(text);
+            string group = GroupDirectory(file, packageDir);
+            if (!string.IsNullOrEmpty(group))
+                index[group + "." + name] = text;
+        }
+        foreach (var kv in texts)
+        {
+            bool same = true;
+            for (int i = 1; i < kv.Value.Count; i++)
+            {
+                if (kv.Value[i] != kv.Value[0])
+                {
+                    same = false;
+                    break;
+                }
+            }
+            // Identical nested copies keep the short name. Two different
+            // TexPanner0 exports do not.
+            if (same)
+                index[kv.Key] = kv.Value[0];
+        }
+        return index;
+    }
+
+    static string PropsKey(string propsPath, string packageDir, Dictionary<string, string> index)
+    {
+        string name = PropsObjectName(propsPath);
+        string group = GroupDirectory(propsPath, packageDir);
+        if (!string.IsNullOrEmpty(group) && index.ContainsKey(group + "." + name))
+            return group + "." + name;
+        return name;
     }
 
     static bool TryEnum(string raw, string prefix, out int index, out string name)

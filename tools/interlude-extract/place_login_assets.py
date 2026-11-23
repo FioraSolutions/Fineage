@@ -74,6 +74,39 @@ def clone_meta(template: Path, dest: Path) -> None:
     meta.write_text(text, encoding="utf-8")
 
 
+def place_one_png(src: Path, dest: Path) -> None:
+    """Copy one leaf texture into Textures/ and normalize its .meta.
+
+    Identical bytes already at dest are kept. Different bytes are an error.
+    The meta template is a sibling png.meta in the destination folder, then
+    any png.meta already under Textures/.
+    """
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if dest.exists():
+        if dest.read_bytes() != src.read_bytes():
+            raise SystemExit(
+                f"ERROR {dest} already exists with different content than {src}"
+            )
+    else:
+        shutil.copy2(src, dest)
+        print(f"place {src.name} -> {dest}")
+    template = next(
+        (p for p in dest.parent.glob("*.png.meta") if p.name != dest.name + ".meta"),
+        None,
+    )
+    if template is None and TEX.is_dir():
+        template = next(TEX.rglob("*.png.meta"), None)
+    if template is None:
+        raise SystemExit(f"ERROR no png.meta template for {dest}")
+    clone_meta(template, dest)
+    try:
+        dest.resolve().relative_to(UNITY.resolve())
+    except ValueError:
+        return
+    if build_texture_expectation(posix_path(dest), _RULES, dest) is not None:
+        normalize_texture_meta(dest)
+
+
 def place_textures(src_root: Path) -> int:
     missing: list[str] = []
     placed = 0

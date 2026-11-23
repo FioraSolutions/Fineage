@@ -22,8 +22,10 @@ from pathlib import Path
 
 from material_props import (
     Dump,
+    asset_package_name,
     find_dump_file,
     find_named,
+    find_props_file,
     load_dump,
     props_dest,
     render_face,
@@ -120,7 +122,7 @@ def describe_package(jar: Path, utx: Path) -> list[tuple[str, str, str]]:
 
 
 def find_props(face: Face, roots: list[Path]) -> Path | None:
-    return find_named(roots, face.package, face.name + ".props.txt")
+    return find_props_file(roots, face.package, face.name, face.group)
 
 
 def find_png(face: Face, roots: list[Path]) -> Path | None:
@@ -187,7 +189,33 @@ def expand_chain(
 
 
 def dest_png(out_root: Path, face: Face) -> Path:
-    return out_root / face.package / "Texture" / f"{face.name}.png"
+    # Same canonical folder as props (the Textures/ child that already exists).
+    return out_root / asset_package_name(face.package) / "Texture" / f"{face.name}.png"
+
+
+def place_leaf_pngs(faces: list[Face], out_root: Path, assets_root: Path | None = None) -> None:
+    """Copy every chain-leaf PNG into Textures/{canonical package}/.
+
+    The export dir may use a different case (Castle_Kent_t) than the folder
+    already committed (castle_kent_t). asset_package_name is the one folder.
+    A PNG already in that package, including under a group directory, is
+    satisfied. A different file at the destination is an error.
+    """
+    from place_login_assets import place_one_png
+
+    assets = assets_root or TEX_ASSETS
+    missing: list[str] = []
+    for face in faces:
+        if find_png(face, [assets]) is not None:
+            continue
+        src = find_png(face, [out_root])
+        if src is None:
+            missing.append(f"{face.format()} png not exported and not under Textures/")
+            continue
+        dest = assets / asset_package_name(face.package, assets) / f"{face.name}.png"
+        place_one_png(src, dest)
+    if missing:
+        raise SystemExit("brush texture not placed:\n" + "\n".join(missing))
 
 
 def export_textures(
@@ -212,7 +240,7 @@ def export_textures(
         utx_of[package] = utx
         if utx is None:
             continue
-        out_dir = out_root / package / "Texture"
+        out_dir = out_root / asset_package_name(package) / "Texture"
         out_dir.mkdir(parents=True, exist_ok=True)
         names = sorted({face.name for face in group})
         if any("," in name for name in names):
@@ -399,7 +427,7 @@ def export_faces(
         text = _rendered(face, dumps)
         if text is None:
             continue
-        dest = props_dest(props_out, face.package, face.ue_class, face.name)
+        dest = props_dest(props_out, face.package, face.ue_class, face.name, face.group)
         before = dest.is_file()
         write_rendered(dest, text)
         if not before:
@@ -430,6 +458,7 @@ def export_faces(
     tex_errors = export_textures(client, jar, list(all_textures.values()), out_root, [TEX_ASSETS, out_root])
     if tex_errors:
         raise SystemExit("brush texture missing:\n" + "\n".join(tex_errors))
+    place_leaf_pngs(list(all_textures.values()), out_root)
     print(
         f"brush faces: {len(all_textures)} textures, "
         f"{len(written)} material props from the property dump"

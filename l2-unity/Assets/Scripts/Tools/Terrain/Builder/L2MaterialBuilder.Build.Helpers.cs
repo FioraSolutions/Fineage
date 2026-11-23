@@ -82,17 +82,36 @@ public partial class L2MaterialBuilder
                         }
                         // Debug.Log("AlphaTest:" + value);
                     } else if (key.StartsWith("OutputBlending")) {
-                        // Debug.Log("OutputBlending:");
-                        if (value.StartsWith("OB_Brighten")) {
-                            isUnlit = true;
-                        } else if (value.StartsWith("OB_Masked")) {
-                            isTransparent = true;
+                        if (L2Ue2MaterialChain.TryOutputBlending(value, out string blend)) {
+                            if (blend == "OB_Brighten") {
+                                isUnlit = true;
+                            } else if (blend == "OB_Masked") {
+                                isTransparent = true;
+                            }
                         }
                     }
                 }
             }
 
+            string propsFull = Path.GetFullPath(Path.Combine(Application.dataPath, "..", propsPath));
+            L2Ue2MaterialChain.Eval chain = L2Ue2MaterialChain.EvaluateAt(propsFull);
+            if (string.IsNullOrEmpty(textureName) && !string.IsNullOrEmpty(chain.DiffuseTexture)) {
+                textureName = L2Ue2MaterialChain.ShortName(chain.DiffuseTexture);
+            }
+            if (string.IsNullOrEmpty(textureName)) {
+                Debug.LogError(
+                    "L2MaterialBuilder: material chain has no texture; " + propsPath
+                    + (chain.Errors.Count == 0 ? "" : "\n" + string.Join("\n", chain.Errors)));
+                continue;
+            }
+
             Texture2D texture = LoadTexture(materialPath, textureName);
+            if (texture == null) {
+                Debug.LogError(
+                    "L2MaterialBuilder: texture file missing package folder for "
+                    + textureName + " referenced by " + propsPath);
+                continue;
+            }
             Material material;
 
             // Build Material
@@ -105,9 +124,13 @@ public partial class L2MaterialBuilder
                 if (isSpecular) {
                     specularMap = LoadTexture(materialPath, specularTextureName);
                 }
-                material = BuildLitMaterial(specularMap, isDoubleFace);
+                material = BuildLitMaterial(specularMap, isDoubleFace, chain.Tint);
             }
 
+            material.color = chain.Tint;
+            if (material.HasProperty("_BaseColor")) {
+                material.SetColor("_BaseColor", chain.Tint);
+            }
             material.mainTexture = texture;
 
             if (File.Exists(materialPath)) {

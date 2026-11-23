@@ -5,11 +5,11 @@ using UnityEngine;
 
 public partial class L2MaterialBuilder
 {
-    static Material BuildLitMaterial(Texture2D specularMap, bool isDoubleFace) {
+    static Material BuildLitMaterial(Texture2D specularMap, bool isDoubleFace, Color baseColor) {
         Material material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
         float state = isDoubleFace ? 0f : 2f;
         material.SetFloat("_Cull", state);
-        material.SetColor("_BaseColor", Color.white);
+        material.SetColor("_BaseColor", baseColor);
         material.SetFloat("_Smoothness", 0);
         material.SetFloat("_EnvironmentReflections", 0f);
         material.SetFloat("_SpecularHighlights", 0f);
@@ -75,7 +75,7 @@ public partial class L2MaterialBuilder
                 materialPath.EndsWith("_bh_u00.mat")) {
                 material = BuildTransprentMaterial();
             } else {
-                material = BuildLitMaterial(null, false);
+                material = BuildLitMaterial(null, false, Color.white);
             }
 
             Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);

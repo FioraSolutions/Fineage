@@ -38,8 +38,21 @@ public sealed class LoginVistaBakeEditModeTests
         Assert.AreEqual("Shader", face.UeClass);
         Assert.AreEqual("WaterSurfaceShaderSet", face.Group);
         Assert.AreEqual("WaterShader01", face.Name);
-        // Props are already committed, so the gate does not ask for a PNG.
+        // The shader props are committed. The chain still has to reach
+        // Combiner reflection, which is not in the tree, and base1.png, which is.
         string json = WriteBrushJson("FX_E_T.WaterSurfaceShaderSet.WaterShader01");
+        var ex = Assert.Throws<InvalidOperationException>(
+            () => L2JSONBrushImporter.RequireBrushTexturesPresent(json, _dir));
+        StringAssert.Contains("name=reflection", ex.Message);
+        StringAssert.Contains("class=Combiner", ex.Message);
+        Assert.IsFalse(ex.Message.Contains("WaterShader01.png"), ex.Message);
+        Assert.IsFalse(ex.Message.Contains("name=base1"), ex.Message);
+    }
+
+    [Test]
+    public void Cloud_Final_chain_reaches_the_committed_cloud_texture()
+    {
+        string json = WriteBrushJson("L2_Skies.Shaders.Cloud_Final");
         Assert.DoesNotThrow(() => L2JSONBrushImporter.RequireBrushTexturesPresent(json, _dir));
     }
 

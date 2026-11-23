@@ -44,8 +44,9 @@ public class L2JSONBrushImporter : L2TerrainAssetImporter {
     }
 
     // Pre-bake gate. Texture-class faces need a PNG. Every other Material
-    // subclass needs its props chain. Anything the export table does not
-    // contain fails here, naming package, group, name, and class.
+    // subclass needs its props chain, and every Texture that chain reaches
+    // needs a PNG. Anything the export table does not contain fails here,
+    // naming package, group, name, and class.
     public static void RequireBrushTexturesPresent(string brushJsonAbsolutePath, string exportRoot) {
         var missing = new List<string>();
         var textureFiles = new List<string>();
@@ -57,10 +58,7 @@ public class L2JSONBrushImporter : L2TerrainAssetImporter {
                 continue;
             }
             if (face.KindOf == L2BrushFaceClass.Kind.Material) {
-                if (L2BrushFaceClass.FindProps(face) != null) {
-                    continue;
-                }
-                missing.Add(face.Format() + " expectedProps=" + face.Name + ".props.txt");
+                L2BrushFaceClass.CollectMissingChain(face, exportRoot, missing);
                 continue;
             }
             missing.Add(face.Format() + " ref=" + reference);

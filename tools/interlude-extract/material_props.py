@@ -245,13 +245,18 @@ def asset_package_name(package: str, root: Path = TEX_ASSETS) -> str:
     return package
 
 
-def props_dest(root: Path, package: str, ue_class: str, name: str) -> Path:
+def props_dest(root: Path, package: str, ue_class: str, name: str, group: str = "") -> Path:
     # Match the folder case already committed under Textures/, so a
     # case-sensitive checkout does not grow a second L2_Skies next to l2_skies.
-    return root / asset_package_name(package) / ue_class / f"{name}.props.txt"
+    # A non-empty group is its own directory: two exports can share a name
+    # (TexPanner0 in Shaders and in moon) and must not share a file.
+    dest = root / asset_package_name(package) / ue_class
+    if group:
+        dest = dest / group
+    return dest / f"{name}.props.txt"
 
 
-def find_named(roots: list[Path], package: str, filename: str) -> Path | None:
+def iter_named(roots: list[Path], package: str, filename: str):
     want = filename.lower()
     pkg = package.lower()
     for root in roots:
@@ -261,8 +266,69 @@ def find_named(roots: list[Path], package: str, filename: str) -> Path | None:
             if not path.is_file() or path.name.lower() != want:
                 continue
             if pkg in {part.lower() for part in path.parts}:
-                return path
-    return None
+                yield path
+
+
+def find_named(roots: list[Path], package: str, filename: str) -> Path | None:
+    return next(iter_named(roots, package, filename), None)
+
+
+def _in_group(path: Path, group: str) -> bool:
+    return group.lower() in {part.lower() for part in path.parts}
+
+
+def _shallowest_same(paths: list[Path]) -> Path | None:
+    """One file, or the shortest path when every copy has the same bytes.
+
+    l2_skies/l2_skies/ is a nested duplicate of the real package tree.
+    Two different exports that share a name (the two TexPanner0s) do not.
+    """
+    if not paths:
+        return None
+    if len(paths) == 1:
+        return paths[0]
+    first = paths[0].read_bytes()
+    if any(path.read_bytes() != first for path in paths[1:]):
+        return None
+    return min(paths, key=lambda path: len(path.parts))
+
+
+def find_props_file(roots: list[Path], package: str, name: str, group: str = "") -> Path | None:
+    """Props for package+group+name.
+
+    A file in a directory named group wins. Identical group-less copies still
+    satisfy a grouped reference. Two different files with the same name do not.
+    """
+    matches = list(iter_named(roots, package, name + ".props.txt"))
+    if group:
+        grouped = [path for path in matches if _in_group(path, group)]
+        chosen = _shallowest_same(grouped)
+        if chosen is not None:
+            return chosen
+        return _shallowest_same(matches)
+    return _shallowest_same(matches)
+
+
+_OBJ_REF = re.compile(r"[A-Za-z_][A-Za-z0-9_]*'[^']+'")
+
+
+def props_satisfied(
+    roots: list[Path], package: str, name: str, group: str, rendered: str,
+) -> Path | None:
+    """The file that already holds this export, or None.
+
+    Object references are the identity. Enum and float formatting from umodel
+    still satisfies the dump render. The moon TexPanner0 file does not
+    satisfy the Shaders TexPanner0 export, because the texture ref differs.
+    """
+    path = find_props_file(roots, package, name, group)
+    if path is None:
+        return None
+    text = path.read_text(encoding="utf-8", errors="replace")
+    for ref in _OBJ_REF.findall(rendered):
+        if ref not in text:
+            return None
+    return path
 
 
 def render_face(dump: Dump, face: Face) -> str | None:
@@ -295,16 +361,20 @@ def material_exports(dump: Dump, idx: ExportIndex | None = None) -> list[dict]:
 
 
 def write_package(dump: Dump, props_out: Path, existing_roots: list[Path]) -> list[Path]:
-    """Write props for every Material subclass that is not already on disk."""
+    """Write props for every Material subclass that is not already on disk.
+
+    A grouped export whose values already live in a group-less file is copied
+    to class/group/name so lookup by group does not hit the other export.
+    The legacy file is left in place.
+    """
     written: list[Path] = []
     rendered_at: dict[Path, str] = {}
     incomplete: list[str] = []
+    roots = list(existing_roots) + [props_out]
     for exp in material_exports(dump):
         name = str(exp["name"])
         ue_class = str(exp["class"])
         group = dump.group_of(exp)
-        if find_named(existing_roots, dump.package, name + ".props.txt") is not None:
-            continue
         text = dump.render(exp)
         if "elements not stored in the property dump" in text:
             incomplete.append(
@@ -312,7 +382,22 @@ def write_package(dump: Dump, props_out: Path, existing_roots: list[Path]) -> li
                 "property dump has an array size and no elements"
             )
             continue
-        dest = props_dest(props_out, dump.package, ue_class, name)
+        have = props_satisfied(roots, dump.package, name, group, text)
+        dest = props_dest(props_out, dump.package, ue_class, name, group)
+        if have is not None:
+            # Copy a group-less file into class/group/ only when the name is
+            # shared. A unique name is already found by the group-less fallback.
+            same_name = list(iter_named(roots, dump.package, name + ".props.txt"))
+            if (
+                group
+                and not _in_group(have, group)
+                and len(same_name) > 1
+                and not dest.is_file()
+            ):
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(have.read_bytes())
+                written.append(dest)
+            continue
         prior = rendered_at.get(dest)
         if prior is not None and prior != text:
             raise SystemExit(
@@ -396,6 +481,37 @@ def lobby_skin_classes() -> tuple[Counter, list[str]]:
     return counts, missing
 
 
+def dump_gap_lines() -> list[str]:
+    """Arrays the property dump counted but did not store.
+
+    Blend3Textures is the lobby-package case: MaterialSequence SequenceItems
+    has a size and no elements, and Brushes.json does not reference it.
+    """
+    lines: list[str] = []
+    path = find_dump_file("l2_skies")
+    if path is None:
+        return lines
+    dump = Dump.load(path)
+    for exp in dump.exports:
+        for prop in exp.get("properties") or []:
+            rendered = ""
+            try:
+                rendered = dump.format_value(prop)
+            except ValueError:
+                continue
+            if "elements not stored in the property dump" not in rendered:
+                continue
+            group = dump.group_of(exp)
+            lines.append(
+                "dump-incomplete: "
+                f"package={dump.package} group={group} name={exp.get('name')} "
+                f"class={exp.get('class')} property={prop.get('name')} "
+                f"array_size={prop.get('array_size')} has no elements; "
+                "not a lobby brush face"
+            )
+    return lines
+
+
 def audit_lines() -> list[str]:
     brushes = lobby_brush_classes()
     skins, missing_pkgs = lobby_skin_classes()
@@ -424,6 +540,7 @@ def audit_lines() -> list[str]:
         f"lobby mesh packages with no committed props: {len(missing_pkgs)} "
         "(their skin classes are not in this list)"
     )
+    lines.extend(dump_gap_lines())
     lines.append("all committed StaticMesh props (not only lobby):")
     if not all_skins:
         lines.append("  (none)")
@@ -459,7 +576,7 @@ def main() -> None:
             ue_class = str(exp["class"])
             group = dump.group_of(exp)
             text = dump.render(exp)
-            if find_named(existing, dump.package, name + ".props.txt"):
+            if props_satisfied(existing, dump.package, name, group, text) is not None:
                 status = "satisfied"
             elif "elements not stored in the property dump" in text:
                 status = "dump-incomplete"

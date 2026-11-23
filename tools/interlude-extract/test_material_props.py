@@ -156,6 +156,21 @@ class DumpPlanTest(unittest.TestCase):
             self.assertIn("Blend3Textures", str(raised.exception))
             self.assertIn("no elements", str(raised.exception))
             self.assertFalse((root / "l2_skies" / "Shader" / "Cloud.props.txt").is_file())
+            shaders = props.TEX_ASSETS / "l2_skies" / "TexPanner" / "Shaders" / "TexPanner0.props.txt"
+            moon = props.TEX_ASSETS / "l2_skies" / "TexPanner" / "moon" / "TexPanner0.props.txt"
+            legacy = props.TEX_ASSETS / "l2_skies" / "TexPanner" / "TexPanner0.props.txt"
+            self.assertIn("Textures.WhiteCloud", shaders.read_text(encoding="utf-8"))
+            self.assertIn("OpenEyeMoon_myst_bitmap4", moon.read_text(encoding="utf-8"))
+            self.assertIn("OpenEyeMoon_myst_bitmap4", legacy.read_text(encoding="utf-8"))
+            self.assertNotEqual(shaders.read_bytes(), moon.read_bytes())
+            self.assertEqual(
+                props.find_props_file([props.TEX_ASSETS], "l2_skies", "TexPanner0", "Shaders"),
+                shaders,
+            )
+            self.assertEqual(
+                props.find_props_file([props.TEX_ASSETS], "l2_skies", "TexPanner0", "moon"),
+                moon,
+            )
             again = export.material_plan(refs, [root])
             by_written = {face.name: status for face, status in again}
             self.assertEqual("satisfied", by_written["Cloud_Final"])
@@ -173,6 +188,12 @@ class UmodelClassAuditTest(unittest.TestCase):
         text = "\n".join(props.audit_lines())
         self.assertIn("brush ColorModifier:", text)
         self.assertIn("umodel-unsupported", text)
+        self.assertIn("name=Blend3Textures", text)
+        self.assertIn("class=MaterialSequence", text)
+        self.assertIn("not a lobby brush face", text)
+        self.assertEqual("castle_kent_t", props.asset_package_name("Castle_Kent_t"))
+        self.assertEqual("FX_E_T", props.asset_package_name("fx_e_t"))
+        self.assertEqual("l2_skies", props.asset_package_name("L2_Skies"))
         mesh = props.committed_mesh_skin_classes()
         self.assertTrue(mesh)
         unsupported = set(mesh) - props.UMODEL_SUPPORTED_MATERIAL_CLASSES
@@ -181,6 +202,28 @@ class UmodelClassAuditTest(unittest.TestCase):
         # when the StaticMeshes tree exists.
         _skins, missing = props.lobby_skin_classes()
         self.assertTrue(missing or _skins)
+
+
+class LeafTexturePlacementTest(unittest.TestCase):
+    def test_chain_leaf_png_lands_in_the_canonical_package_folder(self):
+        from brush_face_class import Face, KIND_TEXTURE
+
+        face = Face("Castle_Kent_t", "", "kent_capet", "Castle_Kent_t.kent_capet", "Texture", KIND_TEXTURE)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            export_dir = root / "export"
+            assets = root / "Textures"
+            (assets / "castle_kent_t").mkdir(parents=True)
+            src = export_dir / "Castle_Kent_t" / "Texture" / "kent_capet.png"
+            src.parent.mkdir(parents=True)
+            src.write_bytes(b"\x89PNG-kent")
+            template = assets / "castle_kent_t" / "other.png.meta"
+            template.write_text("guid: abc\n", encoding="utf-8")
+            export.place_leaf_pngs([face], export_dir, assets)
+            dest = assets / "castle_kent_t" / "kent_capet.png"
+            self.assertEqual(b"\x89PNG-kent", dest.read_bytes())
+            self.assertTrue(Path(str(dest) + ".meta").is_file())
+            export.place_leaf_pngs([face], export_dir, assets)
 
 
 if __name__ == "__main__":

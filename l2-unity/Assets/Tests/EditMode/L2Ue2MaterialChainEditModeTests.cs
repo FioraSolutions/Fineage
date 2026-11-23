@@ -282,6 +282,107 @@ public class L2Ue2MaterialChainEditModeTests
             null, "field_deco_T.grass010", names, packages, out _));
     }
 
+    [Test]
+    public void ColorModifier_multiplies_tint_onto_the_group_panner_leaf()
+    {
+        var props = Props(
+            "Cloud_Final", "Color = (B=151,G=192,R=255,A=255)\nRenderTwoSided = false\nMaterial = Shader'Shaders.Cloud'\n",
+            "Cloud", "Diffuse = TexPanner'Shaders.TexPanner0'\n",
+            "Shaders.TexPanner0", "PanRate = 0.002\nM = (struct Matrix)\nMaterial = Texture'Textures.WhiteCloud'\n",
+            "moon.TexPanner0", "PanRate = -0.05\nMaterial = Texture'moon.OpenEyeMoon_myst_bitmap4'\n");
+        L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.Evaluate("Cloud_Final", props);
+        Assert.AreEqual(0, eval.Errors.Count, string.Join("\n", eval.Errors));
+        Assert.AreEqual("Textures.WhiteCloud", eval.DiffuseTexture);
+        Assert.AreEqual(1f, eval.Tint.r, 1e-3f);
+        Assert.AreEqual(192f / 255f, eval.Tint.g, 1e-3f);
+        Assert.AreEqual(151f / 255f, eval.Tint.b, 1e-3f);
+        Assert.AreEqual(0.002f, eval.DiffuseUv.PanU, 1e-5f);
+    }
+
+    [Test]
+    public void HazeRing_Final_tints_WhiteRing()
+    {
+        var props = Props(
+            "HazeRing_Final", "Color = (B=149,G=228,R=255,A=255)\nMaterial = Shader'Shaders.HazeRing'\n",
+            "HazeRing", "Diffuse = Texture'Textures.WhiteRing'\n");
+        L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.Evaluate("HazeRing_Final", props);
+        Assert.AreEqual(0, eval.Errors.Count, string.Join("\n", eval.Errors));
+        Assert.AreEqual("Textures.WhiteRing", eval.DiffuseTexture);
+        Assert.AreEqual(228f / 255f, eval.Tint.g, 1e-3f);
+        Assert.AreEqual(149f / 255f, eval.Tint.b, 1e-3f);
+    }
+
+    [Test]
+    public void OutputBlending_bare_integer_is_the_shader_enum()
+    {
+        Assert.IsTrue(L2Ue2MaterialChain.TryOutputBlending("1", out string masked));
+        Assert.AreEqual("OB_Masked", masked);
+        Assert.IsTrue(L2Ue2MaterialChain.TryOutputBlending("OB_Masked (1)", out masked));
+        Assert.AreEqual("OB_Masked", masked);
+        var props = Props("Kent_capet_m", "Diffuse = Texture'kent_capet'\nOutputBlending = 1\n");
+        L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.Evaluate("Kent_capet_m", props);
+        Assert.AreEqual(0, eval.Errors.Count, string.Join("\n", eval.Errors));
+        Assert.AreEqual("kent_capet", eval.DiffuseTexture);
+        Assert.AreEqual("OB_Masked", eval.OutputBlending);
+        Assert.IsTrue(eval.AlphaTest);
+    }
+
+    [Test]
+    public void TexRotator_with_props_follows_its_material()
+    {
+        var props = Props(
+            "spinmat", "Diffuse = TexRotator'spin'\n",
+            "spin", "TexRotationType = TR_ConstantlyRotating (1)\nRotation = { Yaw=8, Pitch=0, Roll=0 }\n"
+                + "OscillationRate = { Yaw=0, Pitch=0, Roll=0 }\nMaterial = Texture'kent_capet'\n");
+        L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.Evaluate("spinmat", props);
+        Assert.AreEqual(0, eval.Errors.Count, string.Join("\n", eval.Errors));
+        Assert.AreEqual("kent_capet", eval.DiffuseTexture);
+        Assert.AreEqual(1, eval.DiffuseUv.RotationType);
+    }
+
+    [Test]
+    public void Combiner_integer_ops_follow_both_materials()
+    {
+        var props = Props(
+            "reflection",
+            "CombineOperation = 6\nAlphaOperation = 1\n"
+                + "Material1 = TexOscillator'WaterSurfaceShaderSet.TexOscillator0'\n"
+                + "Material2 = Combiner'WaterSurfaceShaderSet.com'\n",
+            "WaterSurfaceShaderSet.TexOscillator0",
+            "UOscillationRate = 1\nVOscillationRate = 1\nUOscillationPhase = 0\nVOscillationPhase = 0\n"
+                + "UOscillationAmplitude = 1\nVOscillationAmplitude = 1\n"
+                + "UOscillationType = OT_Pan (0)\nVOscillationType = OT_Pan (0)\n"
+                + "Material = Texture'ocean028'\n",
+            "WaterSurfaceShaderSet.com",
+            "CombineOperation = CO_Multiply (2)\nMaterial1 = Texture'base1'\nMaterial2 = Texture'ocean_atlas'\n");
+        L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.Evaluate("reflection", props);
+        Assert.AreEqual(0, eval.Errors.Count, string.Join("\n", eval.Errors));
+        Assert.AreEqual("ocean028", eval.DiffuseTexture);
+        Assert.AreEqual("base1", eval.CombineTexture);
+        Assert.AreEqual(6, eval.CombineOp);
+        Assert.AreEqual(1, eval.AlphaOp);
+    }
+
+    [Test]
+    public void Committed_Cloud_Final_resolves_WhiteCloud_and_its_color()
+    {
+        string root = Path.Combine(
+            UnityEngine.Application.dataPath, "Resources", "Data", "Textures", "l2_skies");
+        string propsPath = Path.Combine(root, "ColorModifier", "Cloud_Final.props.txt");
+        L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.EvaluateAt(propsPath);
+        Assert.AreEqual(0, eval.Errors.Count, string.Join("\n", eval.Errors));
+        Assert.AreEqual("WhiteCloud", L2Ue2MaterialChain.ShortName(eval.DiffuseTexture));
+        Assert.AreEqual(192f / 255f, eval.Tint.g, 1e-3f);
+        Assert.AreEqual(151f / 255f, eval.Tint.b, 1e-3f);
+
+        string hazePath = Path.Combine(root, "ColorModifier", "HazeRing_Final.props.txt");
+        L2Ue2MaterialChain.Eval haze = L2Ue2MaterialChain.EvaluateAt(hazePath);
+        Assert.AreEqual(0, haze.Errors.Count, string.Join("\n", haze.Errors));
+        Assert.AreEqual("WhiteRing", L2Ue2MaterialChain.ShortName(haze.DiffuseTexture));
+        Assert.AreEqual(228f / 255f, haze.Tint.g, 1e-3f);
+        Assert.AreEqual(149f / 255f, haze.Tint.b, 1e-3f);
+    }
+
     static Dictionary<string, string> Props(params string[] pairs)
     {
         var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
