@@ -18,5 +18,6 @@ public class L2StaticMesh {
     // UE DrawScale3D (actor-local X,Y,Z); may be negative = mirrored
     public Vector3 drawScale3D = Vector3.one;
     public bool hasDrawScale3D;
+    public Vector3 prePivot;
 }
 #endif

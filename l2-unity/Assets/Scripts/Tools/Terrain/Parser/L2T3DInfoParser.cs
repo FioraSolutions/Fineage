@@ -67,6 +67,7 @@ public partial class L2T3DInfoParser {
                 line = line.Trim();
                 L2StaticMesh mesh = new L2StaticMesh();
                 if (line.StartsWith("Begin Actor Class=StaticMeshActor Name=")) {
+                    bool hasSway = false;
                     while ((line = reader.ReadLine()) != null && !line.Contains("End Actor")) {
                         line = line.Trim();
 
@@ -76,6 +77,15 @@ public partial class L2T3DInfoParser {
 
                         if (line.StartsWith("SwayRotationOrig=")) {
                             mesh.eulerAngles = L2MetaDataUtils.ParseRotation(line);
+                            hasSway = true;
+                        }
+
+                        if (!hasSway && line.StartsWith("Rotation=")) {
+                            mesh.eulerAngles = L2MetaDataUtils.ParseRotation(line);
+                        }
+
+                        if (line.StartsWith("PrePivot=")) {
+                            mesh.prePivot = L2MetaDataUtils.ParseVector3(line);
                         }
 
                         if (line.StartsWith("Location=")) {

@@ -42,49 +42,34 @@ public class L2MapStaticMeshBuilder : MonoBehaviour
         }
     }
 
-    static void ApplyAxisScale(ref Vector3 s, Vector3 localAxis, float v) {
-        Vector3 a = new Vector3(Mathf.Abs(localAxis.x), Mathf.Abs(localAxis.y), Mathf.Abs(localAxis.z));
-        if (a.x >= a.y && a.x >= a.z) s.x *= v;
-        else if (a.y >= a.z) s.y *= v;
-        else s.z *= v;
-    }
-
     public static void BuildSingleStaticMesh(L2StaticMesh staticMesh, GameObject container) {
-        Vector3 basePosition = Vector3.zero;
         string meshPath = StaticMeshUtils.GetMeshPath(staticMesh.staticMesh);
         GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(meshPath);
-        if (go != null) {
-            Vector3 position = new Vector3(staticMesh.y, staticMesh.z, staticMesh.x) * (1/52.5f) * L2TerrainGeneratorTool.MAP_SCALE;
-            Quaternion rot = Quaternion.Euler(VectorUtils.ConvertRotToUnity(staticMesh.eulerAngles)) *
-                             Quaternion.Euler(0f, MeshLocalYawFix, 0f) * go.transform.rotation;
-
-            float meshDataScaleMultiplier = staticMesh.scale != 0 ? staticMesh.scale : 1f;
-            float meshDataScaleX = staticMesh.scaleX != 0 ? staticMesh.scaleX : 1f;
-            float meshDataScaleY = staticMesh.scaleY != 0 ? staticMesh.scaleY : 1f;
-            float meshDataScaleZ = staticMesh.scaleZ != 0 ? staticMesh.scaleZ : 1f;
-            Vector3 meshDataScale = new Vector3(meshDataScaleX, meshDataScaleY, meshDataScaleZ);
-            if (staticMesh.hasDrawScale3D) {
-                // UE actor-local X/Y/Z == converted frame Z/X/Y (same swap as positions).
-                // Map each onto the instance-local axis it lands on after MeshLocalYawFix * go.rotation.
-                Quaternion inv = Quaternion.Inverse(Quaternion.Euler(0f, MeshLocalYawFix, 0f) * go.transform.rotation);
-                Vector3 s3 = Vector3.one;
-                ApplyAxisScale(ref s3, inv * Vector3.forward, staticMesh.drawScale3D.x);
-                ApplyAxisScale(ref s3, inv * Vector3.right, staticMesh.drawScale3D.y);
-                ApplyAxisScale(ref s3, inv * Vector3.up, staticMesh.drawScale3D.z);
-                meshDataScale = Vector3.Scale(meshDataScale, s3);
-            }
-
-            GameObject instantiated = GameObject.Instantiate(go, position + basePosition, rot);
-            instantiated.name = staticMesh.staticMesh;
-            instantiated.transform.localScale = Vector3.Scale(instantiated.transform.localScale, meshDataScale) *
-                meshDataScaleMultiplier *
-                //ueToUnityUnitScale *
-                L2TerrainGeneratorTool.MAP_SCALE;
-
-            instantiated.transform.parent = container.transform;
-        } else {
-            // Debug.LogError("Can't find StaticMesh FBX " + staticMesh.staticMesh + " at path " + meshPath);
+        if (go == null) {
+            Debug.LogError("[StaticMesh] missing FBX for " + staticMesh.staticMesh + " at " + meshPath);
+            return;
         }
+
+        float drawScale = staticMesh.scaleX != 0f ? staticMesh.scaleX : staticMesh.scale;
+        L2Ue2ActorXform.Pose pose = L2Ue2ActorXform.Evaluate(
+            new Vector3(staticMesh.x, staticMesh.y, staticMesh.z),
+            staticMesh.eulerAngles,
+            staticMesh.prePivot,
+            drawScale,
+            staticMesh.drawScale3D,
+            staticMesh.hasDrawScale3D,
+            MeshLocalYawFix,
+            go.transform.rotation,
+            go.transform.localScale,
+            staticMesh.staticMesh);
+        float mapScale = L2TerrainGeneratorTool.MAP_SCALE;
+        GameObject instantiated = GameObject.Instantiate(
+            go,
+            pose.position * mapScale,
+            pose.rotation);
+        instantiated.name = staticMesh.staticMesh;
+        instantiated.transform.localScale = pose.localScale * mapScale;
+        instantiated.transform.parent = container.transform;
     }
 }
 #endif
