@@ -141,14 +141,13 @@ class LobbyStep6DryRunTest(unittest.TestCase):
         text = export.format_plan(rows)
         self.assertNotIn("umodel", text)
         self.assertNotIn("/umodel", text)
-        # Props derived from l2_skies.json are committed, so they are not re-exported.
-        for name in ("Cloud_Final", "HazeRing_Final", "SkybackgroundColor", "WaterShader01"):
+        # Props rendered from the dumps are committed, so nothing is re-exported.
+        for name in ("Cloud_Final", "HazeRing_Final", "SkybackgroundColor", "WaterShader01",
+                     "Kent_capet_m", "reflection"):
             face, status = by_object[name]
             self.assertEqual("satisfied", status, face.format())
-        # No dump is committed for these packages. Step 6 dumps the utx on the Mac.
         for name in ("Kent_capet_m", "reflection"):
-            face, status = by_object[name]
-            self.assertEqual("needs-property-dump", status, face.format())
+            face, _ = by_object[name]
             self.assertNotEqual("Texture", face.ue_class)
 
 

@@ -137,10 +137,11 @@ class DumpPlanTest(unittest.TestCase):
         self.assertEqual("from-dump", by_empty["SkybackgroundColor"])
         self.assertEqual("needs-property-dump", by_empty["Kent_capet_m"])
         self.assertNotIn("umodel", export.format_plan(empty))
-        # WaterShader01's committed props pull Combiner reflection into the chain.
+        # WaterShader01's committed props pull Combiner reflection into the chain;
+        # both props files are committed, so nothing asks for a fresh dump.
         committed = {face.name: status for face, status in export.material_plan(refs, [props.TEX_ASSETS])}
         self.assertEqual("satisfied", committed["WaterShader01"])
-        self.assertEqual("needs-property-dump", committed["reflection"])
+        self.assertEqual("satisfied", committed["reflection"])
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
