@@ -14,6 +14,7 @@ public static class L2ZoneRender
     static L2ZoneRenderTable _table;
     static bool _loadAttempted;
     static string _active;
+    static string _zoneActor;
     static bool _hasFog;
     static L2ZoneRenderTable.DistanceFog _fog;
     static bool _hasSky;
@@ -27,9 +28,20 @@ public static class L2ZoneRender
 
     public static void SetActiveMap(string map)
     {
-        if (string.Equals(_active, map, StringComparison.OrdinalIgnoreCase))
+        SetActiveMap(map, null);
+    }
+
+    /// <param name="zoneActor">
+    /// BSP zone for the active camera when the map has more than one terrain
+    /// ZoneInfo. Null keeps the single-zone catalog rule.
+    /// </param>
+    public static void SetActiveMap(string map, string zoneActor)
+    {
+        if (string.Equals(_active, map, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(_zoneActor, zoneActor ?? "", StringComparison.Ordinal))
             return;
         _active = map;
+        _zoneActor = zoneActor ?? "";
         if (string.IsNullOrEmpty(map))
             return;
         EnsureTable();
@@ -42,7 +54,9 @@ public static class L2ZoneRender
             _moonScale = 1f;
             return;
         }
-        _hasFog = _table.TryDistanceFog(map, out _fog, errors);
+        _hasFog = string.IsNullOrEmpty(zoneActor)
+            ? _table.TryDistanceFog(map, out _fog, errors)
+            : _table.TryNamedDistanceFog(map, zoneActor, out _fog, errors);
         _hasSky = _table.TrySkyPan(map, out _panU, out _panV, errors);
         _sunScale = _table.BodyRadiusScale(map, "NSun", errors);
         _moonScale = _table.BodyRadiusScale(map, "NMoon", errors);
@@ -73,6 +87,41 @@ public static class L2ZoneRender
         if (actorClass == "NSun")
             return _sunScale;
         return 1f;
+    }
+
+    /// <summary>
+    /// Zone named by every row of camera-zones/&lt;map&gt;.tsv. Disagreeing rows
+    /// are an error and return null — the caller does not pick one.
+    /// </summary>
+    public static string AgreedCameraZone(string map)
+    {
+        if (string.IsNullOrEmpty(map))
+            return null;
+        string path = Path.Combine(Application.streamingAssetsPath, "Data/Meta/World/camera-zones", map + ".tsv");
+        if (!File.Exists(path))
+            return null;
+        string[] lines = File.ReadAllText(path).Split('\n');
+        string agreed = null;
+        for (int i = 1; i < lines.Length; i++)
+        {
+            string line = lines[i].TrimEnd('\r');
+            if (line.Length == 0)
+                continue;
+            string[] cells = line.Split('\t');
+            if (cells.Length < 5 || string.IsNullOrEmpty(cells[4]))
+            {
+                LogOnce("[ZoneFog] map " + map + " camera-zones row " + (i + 1) + " has no zone");
+                return null;
+            }
+            if (agreed == null)
+                agreed = cells[4];
+            else if (!string.Equals(agreed, cells[4], StringComparison.Ordinal))
+            {
+                LogOnce("[ZoneFog] map " + map + " camera zones disagree " + agreed + " vs " + cells[4]);
+                return null;
+            }
+        }
+        return agreed;
     }
 
     static void EnsureTable()

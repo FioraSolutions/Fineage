@@ -168,6 +168,28 @@ public class L2ZoneRenderEditModeTests
         Assert.AreEqual(1f, table.BodyRadiusScale("c", "NSun", errors), 1e-5f);
     }
 
+    [Test]
+    public void Lobby_vista_fog_is_the_camera_zone_when_terrain_zones_disagree()
+    {
+        L2ZoneRenderTable table = Load();
+        var errors = new List<string>();
+        Assert.IsFalse(table.TryDistanceFog("Lobby", out _, errors));
+        Assert.IsTrue(errors[0].Contains("ambiguous"));
+        Assert.IsTrue(errors[0].Contains("ZoneInfo0"));
+        Assert.IsTrue(errors[0].Contains("ZoneInfo1"));
+
+        errors.Clear();
+        Assert.IsTrue(table.TryNamedDistanceFog("Lobby", "ZoneInfo0", out L2ZoneRenderTable.DistanceFog fog, errors));
+        Assert.AreEqual(0, errors.Count);
+        Assert.AreEqual("ZoneInfo0", fog.Actor);
+        Assert.AreEqual(500f, fog.StartUu, 1e-3f);
+        Assert.AreEqual(10000f, fog.EndUu, 1e-3f);
+        Assert.IsTrue(fog.HasColor);
+        Assert.AreEqual(210, fog.R);
+        Assert.AreEqual(208, fog.G);
+        Assert.AreEqual(196, fog.B);
+    }
+
     static L2ZoneRenderTable Load()
     {
         string docs = File.ReadAllText(Path.Combine(Application.dataPath, "../docs/interlude-ref/world/zone-render.tsv"));

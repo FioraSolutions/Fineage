@@ -55,8 +55,54 @@ public partial class L2AmbientSoundBuilder : MonoBehaviour
                     "[FmodEvent] ambient sound name is not Package.Group.Name name=\""
                     + raw + "\" actor=" + actor);
             } else {
-                string eventName = $"event:/AmbSound/{parts[0]}/{parts[2]}";
-                emitter.EventReference = L2FmodEditorEventResolver.Resolve(eventName, actor);
+                string package = parts[0];
+                string group = parts[1];
+                string leaf = parts[2];
+                string[] candidates = L2AmbientEventPaths.Candidates(package, group, leaf);
+                string hit = null;
+                try
+                {
+                    for (int c = 0; c < candidates.Length; c++)
+                    {
+                        var guid = L2FmodEditorEventResolver.Lookup(candidates[c]);
+                        if (guid != null)
+                        {
+                            hit = candidates[c];
+                            break;
+                        }
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError(
+                        "[FmodEvent] editor cache lookup failed package=" + package
+                        + " group=" + group + " name=" + leaf
+                        + " actor=" + actor + " (" + e.GetType().Name + ": " + e.Message + ")");
+                }
+                if (hit != null)
+                {
+                    emitter.EventReference = L2FmodEditorEventResolver.Resolve(hit, actor);
+                }
+                else
+                {
+                    string wave = L2AmbientEventPaths.WaveResource(package, group, leaf);
+                    string wav = System.IO.Path.Combine(Application.dataPath, "Resources", wave + ".wav");
+                    if (System.IO.File.Exists(wav))
+                    {
+                        Debug.Log(
+                            "[FmodEvent] bank has no event for package=" + package
+                            + " group=" + group + " name=" + leaf
+                            + " wave=" + wave + " actor=" + actor);
+                    }
+                    else
+                    {
+                        Debug.LogError(
+                            "[FmodEvent] event missing package=" + package
+                            + " group=" + group + " name=" + leaf
+                            + " actor=" + actor
+                            + " tried " + string.Join(", ", candidates));
+                    }
+                }
             }
         }
         emitter.OverrideAttenuation = true;

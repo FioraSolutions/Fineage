@@ -40,10 +40,21 @@ public static class LoginForestShot
                 dest = args[i + 1];
         }
 
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (string.Equals(args[i], "-quit", System.StringComparison.OrdinalIgnoreCase))
+            {
+                Debug.LogError(
+                    "[LoginForest] -quit exits when RunCli returns, before Poll() enters play mode. "
+                    + "Run without -quit; the shot calls EditorApplication.Exit.");
+            }
+        }
+
         Directory.CreateDirectory(Path.GetDirectoryName(dest) ?? "/tmp");
         File.WriteAllText(ShotPathFile, dest);
         Debug.Log("[LoginForest] RunCli armed " + dest);
-        // Poll() on update drives play + capture + Exit.
+        // Poll() on update drives play + capture + Exit. Do not pass -quit:
+        // Unity leaves batchmode when executeMethod returns, before play mode.
     }
 
     static void Poll()

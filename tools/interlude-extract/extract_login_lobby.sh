@@ -215,6 +215,27 @@ if want_step 6; then
     python3 "$ROOT/tools/interlude-extract/export_brush_textures.py" \
       "${BRUSH_ARGS[@]}" --client "$CLIENT" --out "$WORK/mesh-export" \
       --props-out "$WORK/props-export" --jar "$L2JAR"
+    # Static-mesh skins and terrain layers name Diffuse textures that brush
+    # faces never mention. Export each missing leaf from its package. A leaf
+    # that is itself a material (it has props) is not a texture.
+    python3 "$ROOT/tools/interlude-extract/lobby_diffuse_closure.py" > "$WORK/missing-diffuses.txt" || true
+    if [[ -s "$WORK/missing-diffuses.txt" ]]; then
+      echo "lobby diffuse textures still missing:"
+      cat "$WORK/missing-diffuses.txt"
+      while read -r line; do
+        pkg="$(sed -n 's/.*package=\([^ ]*\).*/\1/p' <<<"$line")"
+        name="$(sed -n 's/.*name=\([^ ]*\).*/\1/p' <<<"$line")"
+        utx="$(find "$CLIENT/textures" "$CLIENT/systextures" -maxdepth 1 -iname "$pkg.utx" -print -quit 2>/dev/null || true)"
+        if [[ -z "$utx" ]]; then
+          echo "ERROR package=$pkg group= name=$name class=Texture utx missing" >&2
+          exit 2
+        fi
+        java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
+          "$utx" "$WORK/tex/$pkg" "$name"
+      done < "$WORK/missing-diffuses.txt"
+      python3 "$ROOT/tools/interlude-extract/place_login_assets.py" textures --src "$WORK/tex"
+      python3 "$ROOT/tools/interlude-extract/lobby_diffuse_closure.py" --verify
+    fi
   fi
 fi
 

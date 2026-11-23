@@ -41,9 +41,12 @@ public static class L2InterludeMaterialBinder
         if (copied > 0) AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
 
         var props = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        // Committed props (step 6/9) are the bake input. umodel export dirs only
+        // fill names that were never placed under Textures/.
+        IndexProps(props, TexRoot);
+        IndexProps(props, MeshRoot);
         foreach (var r in roots)
-            foreach (var f in Directory.GetFiles(r, "*.props.txt", SearchOption.AllDirectories))
-                props[Path.GetFileName(f).Replace(".props.txt", "")] = f;
+            IndexProps(props, r);
 
         var tex = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         foreach (var g in AssetDatabase.FindAssets("t:Texture2D", new[] { TexRoot }))
@@ -370,6 +373,20 @@ public static class L2InterludeMaterialBinder
     static readonly List<string> ChainNames = new List<string>();
     static readonly List<string> ChainPackages = new List<string>();
     static readonly List<string> ChainResources = new List<string>();
+
+    static void IndexProps(Dictionary<string, string> props, string root)
+    {
+        if (string.IsNullOrEmpty(root) || !Directory.Exists(root))
+            return;
+        foreach (var f in Directory.GetFiles(root, "*.props.txt", SearchOption.AllDirectories))
+        {
+            string key = Path.GetFileName(f);
+            if (key.EndsWith(".props.txt", StringComparison.OrdinalIgnoreCase))
+                key = key.Substring(0, key.Length - ".props.txt".Length);
+            if (!props.ContainsKey(key))
+                props[key] = f;
+        }
+    }
 
     static void BuildChainIndex(Dictionary<string, List<string>> tex)
     {

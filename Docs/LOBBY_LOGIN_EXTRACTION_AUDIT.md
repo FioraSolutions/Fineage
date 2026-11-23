@@ -211,6 +211,18 @@ Step 9 exits 1 on `l2_skies` / `moon` / `Blend3Textures` (`MaterialSequence`):
 the dump has the array size and not the elements, so no props file is written.
 Steps 6–8 have already finished by then.
 
+Forest shot (after the bake is in the project). Do **not** pass `-quit` or
+`-nographics`. `-quit` kills the editor when `RunCli` returns, before `Poll()`
+enters play mode. The shot exits itself via `EditorApplication.Exit`.
+
+```bash
+export UNITY="/Applications/Unity/Hub/Editor/6000.3.27f1/Unity.app/Contents/MacOS/Unity"
+"$UNITY" -batchmode -projectPath l2-unity \
+  -executeMethod LoginForestShot.RunCli \
+  -shotOut "$HOME/Desktop/fineage-login-forest-proof.png" \
+  -fineage-login-forest-shot
+```
+
 Then commit: new dumps under `l2-unity/docs/interlude-ref/` (world/env +
 scripts/Engine.u + scripts/UWindow.u), placed assets under
 `Textures/l2_skies/`, `Textures/lobby_terrain_t/H_M_05.png`,

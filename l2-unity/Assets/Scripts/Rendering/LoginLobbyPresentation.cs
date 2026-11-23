@@ -41,6 +41,11 @@ public static class LoginLobbyPresentation
         // camera (transform from Lobby.unr Camera25). UE2 FovAngle=50 is horizontal
         // (PlayerController.uc default); Unity vertical derives from the live aspect.
         L2Ue2Fov.Apply(loginCamera, L2Ue2Fov.OfficialHfovDeg);
+        // ZoneInfo rows on Lobby disagree. The BSP camera-zone table names the
+        // one that contains the vista cameras; that DistanceFog is the haze.
+        string zone = L2ZoneRender.AgreedCameraZone(LobbyMapInterludeContract.ZoneCatalogMap);
+        L2ZoneRender.SetActiveMap(LobbyMapInterludeContract.ZoneCatalogMap, zone);
+        L2EnvWorldLut.PushDistanceFog(12f);
         LoginForestMusic.Play();
     }
 

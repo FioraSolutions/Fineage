@@ -3,6 +3,8 @@ public static class LobbyMapInterludeContract
 {
     public const string AdditiveLobbySceneName = "l2_lobby";
     public const string RetailMapName = "Lobby.unr";
+    /// <summary>zone-render.tsv map id for Lobby.unr (the package name, not the scene).</summary>
+    public const string ZoneCatalogMap = "Lobby";
     public const string LobbyEnvironmentProfileResource = LobbyAccountEnvironmentProfile.DefaultResourcePath;
 
     /// <summary>

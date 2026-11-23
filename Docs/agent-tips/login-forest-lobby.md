@@ -20,7 +20,9 @@ Retail Lobby.unr through the shared world pipeline — **no presenter, no side s
   `ConvertRotToUnity` and `L2Ue2Fov` — never hand-tune a camera.
 - `lobby_terrain_t/D_M_*` are the terrain **alphamaps** (splat weights), not
   albedo textures.
-- Proof: `LoginForestShot.RunCli` + `-shotOut` (Editor must not hold the project lock);
+- Proof: `LoginForestShot.RunCli` + `-shotOut`. Do not pass `-quit` or `-nographics`.
+  `-quit` exits when `RunCli` returns, before `Poll()` enters play mode. The shot
+  calls `EditorApplication.Exit` itself. No other Unity instance may hold the project.
   the harness captures once splash is gone and `#LoginWindow` is laid out.
 
 ## Don't

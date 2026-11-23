@@ -141,6 +141,64 @@ public sealed class L2ZoneRenderTable
         return true;
     }
 
+    /// <summary>
+    /// The zone the BSP query named for this map's cameras. Used when several
+    /// terrain ZoneInfo rows disagree, so the catalog does not drop fog.
+    /// </summary>
+    public bool TryNamedDistanceFog(string map, string actorName, out DistanceFog fog, List<string> errors)
+    {
+        fog = default;
+        if (string.IsNullOrEmpty(actorName))
+        {
+            errors?.Add("[ZoneFog] map " + map + " camera zone missing");
+            return false;
+        }
+        if (string.IsNullOrEmpty(map) || !_byMap.TryGetValue(map, out List<Actor> rows))
+        {
+            errors?.Add("[ZoneFog] map " + map + " missing");
+            return false;
+        }
+        Actor selected = default;
+        bool found = false;
+        for (int i = 0; i < rows.Count; i++)
+        {
+            if (!string.Equals(rows[i].Name, actorName, StringComparison.Ordinal))
+                continue;
+            if (!string.Equals(rows[i].ClassName, "ZoneInfo", StringComparison.Ordinal))
+                continue;
+            selected = rows[i];
+            found = true;
+            break;
+        }
+        if (!found)
+        {
+            errors?.Add("[ZoneFog] map " + map + " camera zone " + actorName + " missing");
+            return false;
+        }
+        if (selected.DistanceFog != "1")
+        {
+            errors?.Add("[ZoneFog] map " + map + " actor " + actorName + " DistanceFog off");
+            return false;
+        }
+        fog.Actor = selected.Name;
+        if (!TryFloat(selected.FogStart, out fog.StartUu))
+            fog.StartUu = EngineZoneInfoDistanceFogStartUu;
+        fog.HasStart = true;
+        if (!TryFloat(selected.FogEnd, out fog.EndUu))
+            errors?.Add("[ZoneFog] map " + map + " actor " + selected.Name + " DistanceFogEnd missing");
+        else
+            fog.HasEnd = true;
+        if (fog.HasStart && fog.HasEnd && fog.StartUu >= fog.EndUu)
+        {
+            errors?.Add("[ZoneFog] map " + map + " actor " + selected.Name + " DistanceFogStart past DistanceFogEnd");
+            fog.HasEnd = false;
+        }
+        if (TryByte(selected.FogR, out fog.R) && TryByte(selected.FogG, out fog.G) &&
+            TryByte(selected.FogB, out fog.B) && TryByte(selected.FogA, out fog.A))
+            fog.HasColor = true;
+        return fog.HasEnd;
+    }
+
     public bool TrySkyPan(string map, out float u, out float v, List<string> errors)
     {
         u = 0f;
