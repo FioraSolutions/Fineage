@@ -143,6 +143,11 @@ public partial class AnimationManager
             return null;
 
         string race = controller.GetAnimatorName();
+        Entity timingEntity = GetEntity(objectId);
+        int timingSkill = timingEntity != null && timingEntity.GetMagicCastData() != null
+            ? timingEntity.GetMagicCastData().SkillId
+            : 0;
+        SkillAnimationResolver.SetActiveSkill(timingSkill);
         bool spatk = token.IndexOf("SpAtk", StringComparison.OrdinalIgnoreCase) >= 0;
         if (!spatk)
             return SkillAnimationDatabase.GetOverrideClip(token, race);

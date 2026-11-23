@@ -5,7 +5,9 @@ using UnityEngine;
 
 public static partial class SkillCastSound
 {
-    static void PlayVoiceKind(Entity caster, string kind)
+    static readonly HashSet<string> VoiceMissLogged = new HashSet<string>(StringComparer.Ordinal);
+
+    static void PlayVoiceKind(Entity caster, string kind, int skillId)
     {
         string prefix = VoicePrefixFor(caster);
         if (string.IsNullOrEmpty(prefix) || string.IsNullOrEmpty(kind))
@@ -16,18 +18,32 @@ public static partial class SkillCastSound
             Debug.Log("[CastSync] VOICE play=" + primary);
             return;
         }
-        // Soft fallbacks only within the same phase family.
+        // Same phase family only. The substitute is logged; it is not the skillsoundgrp cue.
         if (kind == "Notarget" && PlayVoiceClip(prefix + "_Shot"))
         {
-            Debug.Log("[CastSync] VOICE play=" + prefix + "_Shot (fallback from Notarget)");
+            LogVoiceFallback(skillId, prefix, primary, prefix + "_Shot");
             return;
         }
         if (kind == "Shot" && PlayVoiceClip(prefix + "_Throw"))
         {
-            Debug.Log("[CastSync] VOICE play=" + prefix + "_Throw (fallback from Shot)");
+            LogVoiceFallback(skillId, prefix, primary, prefix + "_Throw");
             return;
         }
-        Debug.LogWarning("[CastSync] VOICE miss kind=" + kind + " tried=" + primary);
+        LogVoiceFallback(skillId, prefix, primary, "");
+    }
+
+    static void LogVoiceFallback(int skillId, string raceSexPrefix, string expected, string played)
+    {
+        string key = skillId + "|" + expected + ">" + played;
+        if (!VoiceMissLogged.Add(key))
+            return;
+
+        Debug.LogError(
+            "[SkillCastSound] voice " + (string.IsNullOrEmpty(played) ? "missing" : "fallback") +
+            " skillId=" + skillId +
+            " raceSex=" + raceSexPrefix +
+            " expected=" + expected +
+            (string.IsNullOrEmpty(played) ? "" : " played=" + played));
     }
 
     static string KindForRace(string[] kinds, Entity caster)

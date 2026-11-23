@@ -9,6 +9,7 @@ using UnityEngine;
 public static class InterludeAnimationClipResolver
 {
     static readonly HashSet<string> LoggedMissing = new HashSet<string>(StringComparer.Ordinal);
+    static readonly HashSet<string> LoggedAlias = new HashSet<string>(StringComparer.Ordinal);
 
     static readonly string[] CreaturePackages =
     {
@@ -79,6 +80,22 @@ public static class InterludeAnimationClipResolver
 
         string meshAnim = profile.Race + "_anim";
         string query = BuildPlayerSpAtkQuery(spAtkNumber, weaponToken, profile.Race);
+        if (LineageWarriorAnimAlias.TryGet(profile.Race, spAtkNumber, weaponToken, out string aliased))
+        {
+            string aliasKey = meshAnim + "\0" + query;
+            if (LoggedAlias.Add(aliasKey))
+            {
+                Debug.Log(
+                    "[SkillAnimation] LineageWarrior.int alias mesh=" + meshAnim
+                    + " literal=" + query
+                    + " sequence=" + aliased
+                    + " state=" + normalizedState
+                    + " (the ukx has no sequence named " + query + ")");
+            }
+
+            query = aliased;
+        }
+
         AnimTweenTable table = TablePacketServices.AnimTweens;
         if (table == null || !table.TryResolveExactSequence(meshAnim, query, out string animTweenSequence))
         {

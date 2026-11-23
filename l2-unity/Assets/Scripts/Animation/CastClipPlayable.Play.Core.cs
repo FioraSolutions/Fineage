@@ -28,6 +28,9 @@ public sealed partial class CastClipPlayable
         string raceName = _animator.runtimeAnimatorController != null
             ? _animator.runtimeAnimatorController.name
             : null;
+        _objectId = _animator.GetInteger(AnimatorUtils.OBJECT_ID);
+        _castData = EntityActionSkill.ResolveCastData(_objectId);
+        SkillAnimationResolver.SetActiveSkill(_castData != null ? _castData.SkillId : 0);
         AnimationClip clip = SkillAnimationDatabase.GetOverrideClip(overrideAnimName, raceName);
         if (clip == null)
         {
@@ -43,8 +46,6 @@ public sealed partial class CastClipPlayable
 
         _stateIndex = StateIndex(phaseTriggerName);
         _finalShot = _stateIndex == 2;
-        _objectId = _animator.GetInteger(AnimatorUtils.OBJECT_ID);
-        _castData = EntityActionSkill.ResolveCastData(_objectId);
         _speed = PhaseSpeed(_castData, _stateIndex);
         _clipLength = clip.length;
         _enterTime = Time.time;

@@ -90,6 +90,7 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         int skillId = entity != null && entity.GetMagicCastData() != null
             ? entity.GetMagicCastData().SkillId
             : 0;
+        SkillAnimationResolver.SetActiveSkill(skillId);
 
         // Resolve before the miss log so SpAtk06 can map onto the shared hand gesture
         // instead of reporting the weapon take as missing and then playing it.

@@ -5,6 +5,20 @@ using UnityEngine;
 
 public static partial class SkillCastSound
 {
+    static readonly HashSet<string> SoundRowMissLogged = new HashSet<string>(StringComparer.Ordinal);
+
+    static void LogMissingSoundRow(int skillId, int level)
+    {
+        string key = skillId + "@" + level;
+        if (!SoundRowMissLogged.Add(key))
+            return;
+
+        Debug.LogError(
+            "[SkillCastSound] no skillsoundgrp row skillId=" + skillId +
+            " level=" + level +
+            " (original has no cast/shot/voice; not inventing a stem).");
+    }
+
     public static void OnMagicSkillUse(Entity caster, MagicSkillUseDto dto)
     {
         if (caster == null || dto == null)
@@ -39,23 +53,10 @@ public static partial class SkillCastSound
         string throwVoice = fromGrp ? KindForRace(row.ThrowKinds, caster) : null;
 
         string key = KeyFor(dto.SkillId, dto.SkillLvl);
-        // Invented stems only when the skill is missing from skillsoundgrp.
-        // An empty table slot means this phase has no sound.
+        // No skillsoundgrp row means the original client has no cast, shot, or hero voice.
+        // Do not invent {name}_cast / {name}_shot / a Shot voice.
         if (!fromGrp)
-        {
-            if (string.IsNullOrEmpty(castClip) && !string.IsNullOrEmpty(key))
-                castClip = key + "_cast";
-            if (string.IsNullOrEmpty(shotClip) && !string.IsNullOrEmpty(key))
-                shotClip = key + "_shot";
-            if (!castCue.HasClip && !string.IsNullOrEmpty(castClip))
-                castCue = CueFromStem(castClip);
-            if (!shotCue.HasClip && !string.IsNullOrEmpty(shotClip))
-                shotCue = CueFromStem(shotClip);
-            if (string.IsNullOrEmpty(castVoice))
-                castVoice = VoiceKindFor(key ?? StemFromClip(castClip), caster);
-            if (string.IsNullOrEmpty(throwVoice))
-                throwVoice = "Shot";
-        }
+            LogMissingSoundRow(dto.SkillId, dto.SkillLvl);
 
         // Packet HitTime ≈ impact; projectile leaves at HitTime − flight.
         // Same ResolveMagicFlightTimeMs as READY_TO_ACT / MagicCastData (not explode-gated).
@@ -100,7 +101,7 @@ public static partial class SkillCastSound
         // 1) Cast SFX + cast-time hero voice (sub / Element / White / …).
         if (castCue.HasClip)
             PlayCue(castCue, "cast", dto.SkillId, pos, true, asCast: true);
-        PlayVoiceKind(caster, castVoice);
+        PlayVoiceKind(caster, castVoice, dto.SkillId);
 
         int casterId = caster.Identity != null ? caster.Identity.Id : 0;
         _pending[casterId] = new PendingCast

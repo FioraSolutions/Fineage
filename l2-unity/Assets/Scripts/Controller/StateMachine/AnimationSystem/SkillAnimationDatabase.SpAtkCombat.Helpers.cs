@@ -82,6 +82,14 @@ public partial class SkillAnimationDatabase
         if (profile == null)
             return false;
 
+        PlayerSpAtkAnim.TryParse(normalizedState, out int spAtkNumber, out _, out _);
+        if (LineageWarriorAnimAlias.TryGet(profile.Race, spAtkNumber, weaponToken, out string aliased))
+        {
+            string take = InterludeAnimResourceTakeTable.ResourcesTakeName(profile.Race + "_anim", aliased);
+            resourcesPath = profile.Folder + profile.MeshStem + ".ao_" + take;
+            return true;
+        }
+
         string weaponStem = CanonicalClipWeaponStem(weaponToken);
         string stem = spatkStem + "_" + weaponStem;
         resourcesPath = profile.Folder + profile.MeshStem + ".ao_" + stem + "_" + profile.Race;
@@ -189,7 +197,10 @@ public partial class SkillAnimationDatabase
         if (profile == null)
             return 0f;
 
+        PlayerSpAtkAnim.TryParse(stateName, out int spAtkNumber, out _, out _);
         string sequence = spatkStem + "_" + CanonicalClipWeaponStem(weaponToken) + "_" + profile.Race;
+        if (LineageWarriorAnimAlias.TryGet(profile.Race, spAtkNumber, weaponToken, out string aliased))
+            sequence = aliased;
         string mesh = profile.Race + "_anim";
         if (!AnimNotifyTable.TryGetByMeshSequence(mesh, sequence, out IReadOnlyList<AnimNotifyBinding> bindings))
             return 0f;

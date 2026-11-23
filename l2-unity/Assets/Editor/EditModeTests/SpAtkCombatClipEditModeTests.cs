@@ -132,7 +132,10 @@ public sealed class SpAtkCombatClipEditModeTests
                             clip,
                             row.Tag + " race=" + race + " state=" + state + " path=" + resourcesPath);
 
-                        if (wantNumber != 1)
+                        string weaponSuffix = PlayerAnimStateMapBase.ToWeaponSuffix(weapon);
+                        bool intAlias = LineageWarriorAnimAlias.TryGet(race, wantNumber, weaponSuffix, out string aliased)
+                            && clip.name.IndexOf(aliased, StringComparison.OrdinalIgnoreCase) >= 0;
+                        if (!intAlias && wantNumber != 1)
                         {
                             Assert.IsFalse(
                                 clip.name.IndexOf("SpAtk01", StringComparison.OrdinalIgnoreCase) >= 0,
@@ -140,7 +143,8 @@ public sealed class SpAtkCombatClipEditModeTests
                                 + " must not load generic SpAtk01 clip; got " + clip.name);
                         }
 
-                        AssertSpAtkNumberInClipName(clip.name, wantNumber);
+                        if (!intAlias)
+                            AssertSpAtkNumberInClipName(clip.name, wantNumber);
                     }
                 }
             }

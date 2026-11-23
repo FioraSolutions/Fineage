@@ -50,7 +50,7 @@ public static partial class SkillCastSound
         }
 
         // 2) Release hero voice — PlayVoice cuts any still-playing cast line.
-        PlayVoiceKind(caster, throwVoiceKind);
+        PlayVoiceKind(caster, throwVoiceKind, skillId);
 
         float barRem = CastBarOverlay.Remaining01;
         Debug.Log(
