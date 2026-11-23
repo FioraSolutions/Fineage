@@ -48,6 +48,12 @@ public static class LoginLobbyPresentation
         L2ZoneRender.SetActiveMap(LobbyMapInterludeContract.ZoneCatalogMap, zone);
         L2ZoneTerrainDraw.Apply(LobbyMapInterludeContract.ZoneCatalogMap);
         L2EnvWorldLut.PushDistanceFog(12f);
+        if (loginCamera != null && L2ZoneRender.TryFogClearColor(out Color fog))
+        {
+            loginCamera.clearFlags = CameraClearFlags.SolidColor;
+            loginCamera.backgroundColor = fog;
+        }
+        L2Ue2MaterialRuntime.Ensure();
         LoginForestMusic.Play();
     }
 

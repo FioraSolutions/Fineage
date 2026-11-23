@@ -31,6 +31,27 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
     string _resolvingMaterial;
     Driven[] _driven = Array.Empty<Driven>();
 
+    /// <summary>
+    /// Lobby and tile loads must upgrade cutout materials even when the World
+    /// copy of this component is inactive. Play mode applies the chain shader;
+    /// a material rebake is not required for the shot.
+    /// </summary>
+    public static void Ensure()
+    {
+        L2Ue2MaterialRuntime[] all = FindObjectsByType<L2Ue2MaterialRuntime>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < all.Length; i++)
+        {
+            if (all[i] != null && all[i].isActiveAndEnabled)
+            {
+                all[i].Rebuild();
+                return;
+            }
+        }
+        var go = new GameObject(nameof(L2Ue2MaterialRuntime));
+        go.AddComponent<L2Ue2MaterialRuntime>();
+    }
+
     void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -57,7 +78,7 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
         }
     }
 
-    void Rebuild()
+    public void Rebuild()
     {
         EnsureProps();
         EnsureIndex();

@@ -82,6 +82,19 @@ public static class L2ZoneRender
         return !string.IsNullOrEmpty(_active) && _hasFog;
     }
 
+    /// <summary>
+    /// Camera clear when a zone DistanceFogColor is active. Gaps that miss
+    /// geometry show this, not the prefab light blue.
+    /// </summary>
+    public static bool TryFogClearColor(out Color color)
+    {
+        color = default;
+        if (!TryActiveFog(out L2ZoneRenderTable.DistanceFog fog) || !fog.HasColor)
+            return false;
+        color = new Color(fog.R / 255f, fog.G / 255f, fog.B / 255f, 1f);
+        return true;
+    }
+
     public static bool TryActiveSkyPan(out float u, out float v)
     {
         u = _panU;

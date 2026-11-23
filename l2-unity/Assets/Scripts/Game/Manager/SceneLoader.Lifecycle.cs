@@ -48,6 +48,7 @@ public partial class SceneLoader : MonoBehaviour
         yield return null;
         LobbyBrokenMaterialHider.HideBrokenRenderers("after_l2_lobby");
         L2ZoneTerrainDraw.Apply(LobbyMapInterludeContract.ZoneCatalogMap);
+        L2Ue2MaterialRuntime.Ensure();
         Manager.OnGameLaunched();
         yield return PreloadGameScene();
     }

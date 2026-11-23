@@ -112,7 +112,7 @@ public static class L2Ue2MaterialChain
         "Diffuse", "NormalMap", "Opacity", "Specular", "SpecularityMask", "SelfIllumination",
         "SelfIlluminationMask", "Detail", "DetailScale", "OutputBlending", "TwoSided", "Wireframe",
         "ModulateStaticLighting2X", "PerformLightingOnSpecularPass", "ModulateSpecular2X",
-        "TreatAsTwoSided", "ZWrite", "AlphaTest", "AlphaRef", "Opacity_Bio", "HeightMap",
+        "TreatAsTwoSided", "ZWrite", "AlphaTest", "bAlphaTest", "AlphaRef", "Opacity_Bio", "HeightMap",
         "SpecularMask", "GlossinessMask", "ReflectionMask", "EmissiveMask", "SubsurfaceMask",
         "ClipMask", "FallbackMaterial", "DefaultMaterial", "SurfaceType", "bUseTextureAsHeat",
         "HeatMaterial",
@@ -125,7 +125,7 @@ public static class L2Ue2MaterialChain
 
     static readonly HashSet<string> FinalBlendProps = new HashSet<string>(StringComparer.Ordinal)
     {
-        "FrameBufferBlending", "ZWrite", "ZTest", "AlphaTest", "TwoSided", "AlphaRef", "Material",
+        "FrameBufferBlending", "ZWrite", "ZTest", "AlphaTest", "bAlphaTest", "TwoSided", "TreatAsTwoSided", "AlphaRef", "Material",
     };
 
     static readonly HashSet<string> PannerProps = new HashSet<string>(StringComparer.Ordinal)
@@ -257,6 +257,10 @@ public static class L2Ue2MaterialChain
             return true;
         if (!string.IsNullOrEmpty(eval.FrameBufferBlending) &&
             eval.FrameBufferBlending != "FB_Overwrite" && eval.FrameBufferBlending != "FB_AlphaBlend")
+            return true;
+        // OB_Masked / AlphaTest / two-sided must clip and cull on the chain shader.
+        // A baked URP Lit ignores those flags and draws the card's zero-alpha texels.
+        if (eval.AlphaTest || eval.TwoSided)
             return true;
         return false;
     }
@@ -390,6 +394,7 @@ public static class L2Ue2MaterialChain
         }
         if (props.TryGetValue("DefaultMaterial", out string def) && !IsNone(def))
             Error(eval, eval.MaterialName, "Shader", "property DefaultMaterial is set and not executed");
+        MaskSameTextureOpacity(eval);
         FlagUnexecutedShader(eval, props);
     }
 
@@ -771,9 +776,33 @@ public static class L2Ue2MaterialChain
         return ResolveRef(ctx, mat, op);
     }
 
+    /// <summary>
+    /// Foliage cards store the mask in the diffuse alpha and set TreatAsTwoSided,
+    /// with AlphaTest left false (Primitive_INDecotree_02_1). An opaque draw writes
+    /// the dark RGB of the zero-alpha texels. A different opacity texture is a
+    /// real blend slot and is not inferred.
+    /// </summary>
+    static void MaskSameTextureOpacity(Eval eval)
+    {
+        if (eval.AlphaTest || !eval.TwoSided)
+            return;
+        if (string.IsNullOrEmpty(eval.OpacityTexture) || string.IsNullOrEmpty(eval.DiffuseTexture))
+            return;
+        if (!string.Equals(eval.OpacityTexture, eval.DiffuseTexture, StringComparison.OrdinalIgnoreCase))
+            return;
+        if (!string.IsNullOrEmpty(eval.OutputBlending) && eval.OutputBlending != "OB_Normal")
+            return;
+        eval.AlphaTest = true;
+        if (!eval.HasAlphaRef)
+        {
+            eval.HasAlphaRef = true;
+            eval.AlphaRef = 0;
+        }
+    }
+
     static void ReadShaderFlags(Eval eval, Dictionary<string, string> props)
     {
-        eval.AlphaTest = Bool(props, "AlphaTest");
+        eval.AlphaTest = eval.AlphaTest || Bool(props, "AlphaTest") || Bool(props, "bAlphaTest");
         if (props.TryGetValue("AlphaRef", out string ar) &&
             int.TryParse(ar, NumberStyles.Integer, CultureInfo.InvariantCulture, out int alphaRef))
         {
@@ -782,7 +811,7 @@ public static class L2Ue2MaterialChain
         }
         else if (eval.AlphaTest)
             Error(eval, eval.MaterialName, "Shader", "property AlphaRef missing");
-        eval.TwoSided = Bool(props, "TwoSided") || Bool(props, "TreatAsTwoSided");
+        eval.TwoSided = eval.TwoSided || Bool(props, "TwoSided") || Bool(props, "TreatAsTwoSided");
         if (props.ContainsKey("ZWrite"))
         {
             eval.HasZWrite = true;
@@ -812,7 +841,7 @@ public static class L2Ue2MaterialChain
         }
         else
             Error(eval, eval.MaterialName, "FinalBlend", "property FrameBufferBlending missing");
-        if (Bool(props, "AlphaTest"))
+        if (Bool(props, "AlphaTest") || Bool(props, "bAlphaTest"))
             eval.AlphaTest = true;
         if (props.TryGetValue("AlphaRef", out string ar) &&
             int.TryParse(ar, NumberStyles.Integer, CultureInfo.InvariantCulture, out int alphaRef))
@@ -820,7 +849,7 @@ public static class L2Ue2MaterialChain
             eval.HasAlphaRef = true;
             eval.AlphaRef = alphaRef;
         }
-        if (Bool(props, "TwoSided"))
+        if (Bool(props, "TwoSided") || Bool(props, "TreatAsTwoSided"))
             eval.TwoSided = true;
         if (props.ContainsKey("ZWrite"))
         {

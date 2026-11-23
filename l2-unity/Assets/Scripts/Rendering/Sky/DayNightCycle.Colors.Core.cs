@@ -59,9 +59,13 @@ public partial class DayNightCycle
         if (cam == null)
             return;
 
-        // Original colour pass clears black. The sky pass then paints the upper
-        // blue vault; the lower black is where haze/ground live.
+        // A zone DistanceFogColor is the clear wherever geometry misses. The sky
+        // pass still paints the vault on the gameplay camera. Login is not that
+        // camera, so the prefab light blue must not stay.
+        Color clear = skyColor;
+        if (L2ZoneRender.TryFogClearColor(out Color fog))
+            clear = fog;
         cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.backgroundColor = L2FxCompositorRuntime.PreferGpuQueue ? Color.black : skyColor;
+        cam.backgroundColor = L2FxCompositorRuntime.PreferGpuQueue ? Color.black : clear;
     }
 }

@@ -220,8 +220,9 @@ Shader "L2/World/Ue2Chain"
                 float alpha = diff.a;
                 if (_HasOpacity > 0.5)
                     alpha = SAMPLE_TEXTURE2D(_OpacityMap, sampler_OpacityMap, TRANSFORM_TEX(IN.uv, _OpacityMap)).a;
-                if (_AlphaClip > 0.5)
-                    clip(alpha - _Cutoff);
+                // D3DCMP_GREATER: AlphaRef 0 still rejects alpha 0. clip(alpha - 0) does not.
+                if (_AlphaClip > 0.5 && alpha <= _Cutoff)
+                    clip(-1);
 
                 float3 ambient = L2_OrWhite(_L2StaticMeshAmbient.rgb);
                 float3 color0 = saturate(IN.color.rgb * ambient * 0.5);
@@ -301,8 +302,8 @@ Shader "L2/World/Ue2Chain"
                 float alpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, TRANSFORM_TEX(IN.uv, _BaseMap)).a;
                 if (_HasOpacity > 0.5)
                     alpha = SAMPLE_TEXTURE2D(_OpacityMap, sampler_OpacityMap, TRANSFORM_TEX(IN.uv, _OpacityMap)).a;
-                if (_AlphaClip > 0.5)
-                    clip(alpha - _Cutoff);
+                if (_AlphaClip > 0.5 && alpha <= _Cutoff)
+                    clip(-1);
                 return 0;
             }
             ENDHLSL

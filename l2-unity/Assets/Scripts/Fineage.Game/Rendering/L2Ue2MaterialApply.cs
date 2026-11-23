@@ -44,7 +44,9 @@ public static class L2Ue2MaterialApply
         SetFloat(material, "_CombineOp", eval.CombineOp);
         SetFloat(material, "_AlphaOp", eval.AlphaOp);
         SetFloat(material, "_EnvMapType", eval.EnvMapType);
-        SetFloat(material, "_HasOpacity", string.IsNullOrEmpty(eval.OpacityTexture) ? 0f : 1f);
+        bool separateOpacity = !string.IsNullOrEmpty(eval.OpacityTexture)
+            && !string.Equals(eval.OpacityTexture, eval.DiffuseTexture, StringComparison.OrdinalIgnoreCase);
+        SetFloat(material, "_HasOpacity", separateOpacity ? 1f : 0f);
         SetFloat(material, "_HasSpec", string.IsNullOrEmpty(eval.SpecularTexture) ? 0f : 1f);
         SetFloat(material, "_HasSpecMask", string.IsNullOrEmpty(eval.SpecularityMaskTexture) ? 0f : 1f);
         SetFloat(material, "_HasEmit", string.IsNullOrEmpty(eval.SelfIlluminationTexture) ? 0f : 1f);

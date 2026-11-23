@@ -74,8 +74,9 @@ public partial class L2MaterialBuilder
                             // Debug.LogWarning("Transparent: " + textureName);
                             isTransparent = true;
                         }
-                    } else if (key.StartsWith("TwoSided")) {
-                        isDoubleFace = (value == "true");
+                    } else if (key.StartsWith("TwoSided") || key == "TreatAsTwoSided") {
+                        if (value == "true")
+                            isDoubleFace = true;
                     } else if (key.StartsWith("AlphaTest")) {
                         if(!isTransparent) {
                             isTransparent = (value == "true");
@@ -95,6 +96,10 @@ public partial class L2MaterialBuilder
 
             string propsFull = Path.GetFullPath(Path.Combine(Application.dataPath, "..", propsPath));
             L2Ue2MaterialChain.Eval chain = L2Ue2MaterialChain.EvaluateAt(propsFull);
+            if (chain.AlphaTest)
+                isTransparent = false;
+            if (chain.TwoSided)
+                isDoubleFace = true;
             if (string.IsNullOrEmpty(textureName) && !string.IsNullOrEmpty(chain.DiffuseTexture)) {
                 textureName = L2Ue2MaterialChain.ShortName(chain.DiffuseTexture);
             }
@@ -114,8 +119,19 @@ public partial class L2MaterialBuilder
             }
             Material material;
 
-            // Build Material
-            if (isTransparent) {
+            // AlphaTest / OB_Masked is cutout, not the SpeedTree premultiply path.
+            if (chain.AlphaTest) {
+                material = BuildLitMaterial(null, isDoubleFace, chain.Tint);
+                if (material.HasProperty("_AlphaClip"))
+                    material.SetFloat("_AlphaClip", 1f);
+                float cutoff = chain.HasAlphaRef ? chain.AlphaRef / 255f : 0f;
+                if (material.HasProperty("_Cutoff"))
+                    material.SetFloat("_Cutoff", cutoff <= 0f ? 1f / 255f : cutoff);
+                material.EnableKeyword("_ALPHATEST_ON");
+                material.SetOverrideTag("RenderType", "TransparentCutout");
+                material.SetFloat("_Cull", isDoubleFace ? 0f : 2f);
+                material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+            } else if (isTransparent) {
                 material = BuildTransprentMaterial();
             } else if (isUnlit) {
                 material = BuildUnlitMaterial(isDoubleFace);

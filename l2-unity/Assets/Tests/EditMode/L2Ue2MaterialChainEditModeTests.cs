@@ -227,6 +227,27 @@ public class L2Ue2MaterialChainEditModeTests
         Assert.AreEqual(0, eval.AlphaRef);
         Assert.IsTrue(eval.TwoSided);
         Assert.IsFalse(eval.ZWrite);
+        Assert.IsTrue(L2Ue2MaterialChain.NeedsChainShader(eval));
+    }
+
+    [Test]
+    public void TwoSided_opacity_on_the_diffuse_is_cutout()
+    {
+        string path = Path.Combine(
+            Application.dataPath,
+            "Resources/Data/Textures/Primitive_FieldOBJ_T/Shader/Primitive_INDecotree_02_1.props.txt");
+        Assert.IsTrue(File.Exists(path), path);
+        var props = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Primitive_INDecotree_02_1", File.ReadAllText(path) },
+        };
+        L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.Evaluate("Primitive_INDecotree_02_1", props);
+        Assert.AreEqual(0, eval.Errors.Count, string.Join("\n", eval.Errors));
+        Assert.IsTrue(eval.TwoSided);
+        Assert.IsTrue(eval.AlphaTest);
+        Assert.AreEqual(0, eval.AlphaRef);
+        Assert.AreEqual(eval.DiffuseTexture, eval.OpacityTexture);
+        Assert.IsTrue(L2Ue2MaterialChain.NeedsChainShader(eval));
     }
 
     [Test]
