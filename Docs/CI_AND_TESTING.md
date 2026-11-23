@@ -17,7 +17,7 @@
 4. Restores, builds, and tests `tools/Fineage.Tools.sln` (Release configuration)
 5. Uploads test results as artifacts (`.trx` format, 14 day retention)
 
-**Unity (not on PRs):** Workflow `unity-compile` does **not** run on pull requests (seat/backlog; see #1676). After merge, **push to `dev`** (path-filtered Scripts/Tests/Editor/Packages) batchmode-compiles the client and runs fast EditMode (`!Slow`); failures post a red **Unity EditMode** check on that commit. Push to `main`, nightly 01:00 UTC, and `workflow_dispatch` run the full EditMode suite. Requires `UNITY_EMAIL` and `UNITY_PASSWORD`. Player builds remain on `release-clients`.
+**Unity:** Workflow `unity-compile` runs fast EditMode (`!Slow`) on push to `dev`, and on pull requests into `dev` that touch `l2-unity/Assets/Editor/EditModeTests/`, `l2-unity/Assets/Scripts/Di/`, or `l2-unity/Assets/Scripts/Fineage.Di/`. Other pull requests do not start it (seat/backlog; see #1676). Push to `main`, nightly 01:00 UTC, and `workflow_dispatch` run the full EditMode suite. Requires `UNITY_EMAIL` and `UNITY_PASSWORD`. Player builds remain on `release-clients`.
 
 **Required status check name:** `build-and-test`
 
@@ -90,7 +90,7 @@ dotnet test tools/Fineage.Tools.sln --collect:"XPlat Code Coverage"
 
 ## Unity EditMode / PR compile (#737)
 
-Workflow: `.github/workflows/unity-compile.yml` (path-filtered to `l2-unity/Assets/Scripts|Tests`).
+Workflow: `.github/workflows/unity-compile.yml`. Push to `dev` is path-filtered to `l2-unity/**`. Pull requests into `dev` run only when the diff touches EditMode tests or DI wiring (`Assets/Editor/EditModeTests`, `Assets/Scripts/Di`, `Assets/Scripts/Fineage.Di`).
 
 **Merge policy:** `unity-editmode` is **not** a required status check on `dev`. Required gate remains **`build-and-test`** only. Agents/humans may merge once `build-and-test` is green; do not block ~20–25 min on game-ci. Treat a later red Unity run as a follow-up fix, not a merge blocker.
 

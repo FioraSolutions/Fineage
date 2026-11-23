@@ -7,15 +7,18 @@ using System.Collections.Concurrent;
 public sealed partial class NetSession : MonoBehaviour
 {
     /// <summary>
-    /// Composition-root owner for the single DontDestroyOnLoad session host.
+    /// Composition-root owner for the single session host.
     /// Call from App/Game LifetimeScope bind only — not from gameplay / UI.
+    /// Play mode marks the host DontDestroyOnLoad. EditMode cannot: Unity throws
+    /// when a script calls it outside play mode, which is how the game-scope graph test builds this callback.
     /// </summary>
     public static NetSession CreateForCompositionRoot()
     {
         if (Instance != null)
             return Instance;
         var go = new GameObject("NetSession");
-        DontDestroyOnLoad(go);
+        if (Application.isPlaying)
+            DontDestroyOnLoad(go);
         Instance = go.AddComponent<NetSession>();
         return Instance;
     }

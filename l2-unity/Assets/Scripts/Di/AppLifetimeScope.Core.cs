@@ -5,7 +5,13 @@ using VContainer.Unity;
 
 public sealed partial class AppLifetimeScope : LifetimeScope
 {
-    protected override void Configure(IContainerBuilder builder)
+    protected override void Configure(IContainerBuilder builder) => Install(builder);
+
+    /// <summary>
+    /// Registrations <see cref="Configure"/> uses. EditMode builds from here
+    /// so a deferred <see cref="LifetimeScope.Awake"/> is not the only path.
+    /// </summary>
+    public void Install(IContainerBuilder builder)
     {
         RegisterAppEventProcessor(builder);
         RegisterGameManager(builder);
