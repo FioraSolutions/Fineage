@@ -89,10 +89,11 @@ public partial class L2AmbientSoundBuilder : MonoBehaviour
                     string wav = System.IO.Path.Combine(Application.dataPath, "Resources", wave + ".wav");
                     if (System.IO.File.Exists(wav))
                     {
-                        Debug.Log(
+                        Debug.LogError(
                             "[FmodEvent] bank has no event for package=" + package
                             + " group=" + group + " name=" + leaf
-                            + " wave=" + wave + " actor=" + actor);
+                            + " wave=" + wave + " actor=" + actor
+                            + " (wave is not played)");
                     }
                     else
                     {

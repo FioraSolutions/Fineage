@@ -31,8 +31,8 @@ public partial class LoginCameraManager : MonoBehaviour
 
     private void Start() {
         // Cameras wired in Awake so StudioListener exists before FMOD's first Update.
-        // Forest login vista: the Login camera sits at Lobby.unr Camera25 (baked in
-        // Cameras.prefab); LoginLobbyPresentation applies the UE2 50° HFOV per aspect.
+        // Forest login vista: the Login camera is Lobby.unr InterpolationPoint5
+        // (Logon_Warp). LoginLobbyPresentation applies the UE2 50° HFOV per aspect.
         EnsureStudioListener(_activeCamera);
         UpdateListenerPosition();
     }

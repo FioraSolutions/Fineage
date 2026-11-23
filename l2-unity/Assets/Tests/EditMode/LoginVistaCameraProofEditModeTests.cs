@@ -5,26 +5,26 @@ using NUnit.Framework;
 using UnityEngine;
 
 /// <summary>
-/// Camera25 in Lobby.unr is the login vista. The baked Login camera must match
-/// the t3d location, rotation, and the UE2 50° horizontal FOV. The heightmap
-/// at that cell is above the camera, which is why the lower frame is the
-/// culled underside of the sheet rather than a missing BSP floor.
+/// The login vista is InterpolationPoint5 (the point Logon_Warp warps to).
+/// Camera25 is the UnrealEd viewport U2Viewport2 and is not the login camera.
+/// The baked Login camera must match InterpolationPoint5. The eye is above the
+/// grove meshes in front of that point and below the one-sided heightmap sheet.
 /// </summary>
 public class LoginVistaCameraProofEditModeTests
 {
     [Test]
-    public void Login_camera_matches_Camera25_and_sits_under_the_heightmap()
+    public void Login_camera_is_InterpolationPoint5_above_the_grove()
     {
         string t3d = File.ReadAllText(Path.Combine(
             Application.dataPath, "Resources/Data/Maps/l2_lobby/Meta/l2_lobby.t3d"));
+        Assert.IsTrue(t3d.Contains("Tag=U2Viewport2"), "Camera25 editor viewport tag missing");
+
         var cam = Regex.Match(
             t3d,
-            @"Begin Actor Class=Camera Name=Camera25\s+"
+            @"Begin Actor Class=InterpolationPoint Name=InterpolationPoint5\s+"
             + @"Location=\(X=([-\d.]+),Y=([-\d.]+),Z=([-\d.]+)\)\s+"
-            + @"Rotation=\(Pitch=(\d+),Yaw=(\d+)\)\s+"
-            + @"Tag=U2Viewport2\s+"
-            + @"FovAngle=([-\d.]+)");
-        Assert.IsTrue(cam.Success, "Camera25 block missing from l2_lobby.t3d");
+            + @"Rotation=\(Pitch=(\d+),Yaw=(\d+)\)");
+        Assert.IsTrue(cam.Success, "InterpolationPoint5 block missing from l2_lobby.t3d");
 
         var ue = new Vector3(
             float.Parse(cam.Groups[1].Value, CultureInfo.InvariantCulture),
@@ -34,8 +34,6 @@ public class LoginVistaCameraProofEditModeTests
             float.Parse(cam.Groups[4].Value, CultureInfo.InvariantCulture),
             float.Parse(cam.Groups[5].Value, CultureInfo.InvariantCulture),
             0f);
-        float hfov = float.Parse(cam.Groups[6].Value, CultureInfo.InvariantCulture);
-        Assert.AreEqual(50f, hfov, 1e-3f);
 
         Vector3 unity = VectorUtils.ConvertPosToUnity(ue);
         Vector3 euler = VectorUtils.ConvertRotToUnity(rot);
@@ -49,21 +47,30 @@ public class LoginVistaCameraProofEditModeTests
         int nameAt = prefab.IndexOf("m_Name: Login", System.StringComparison.Ordinal);
         Assert.Greater(nameAt, 0);
         int posAt = prefab.IndexOf("m_LocalPosition:", nameAt, System.StringComparison.Ordinal);
-        var pos = Regex.Match(prefab.Substring(posAt, 120),
+        var pos = Regex.Match(prefab.Substring(posAt, 160),
             @"m_LocalPosition: \{x: ([-\d.]+), y: ([-\d.]+), z: ([-\d.]+)\}");
         Assert.IsTrue(pos.Success);
         Assert.AreEqual(unity.x, float.Parse(pos.Groups[1].Value, CultureInfo.InvariantCulture), 0.02f);
         Assert.AreEqual(unity.y, float.Parse(pos.Groups[2].Value, CultureInfo.InvariantCulture), 0.02f);
         Assert.AreEqual(unity.z, float.Parse(pos.Groups[3].Value, CultureInfo.InvariantCulture), 0.02f);
 
-        float vertical = L2Ue2Fov.VerticalForHorizontal(hfov, 4f / 3f);
-        Assert.AreEqual(38.5526f, vertical, 0.01f);
-        Assert.AreEqual(185.076f, yaw, 0.02f);
-        Assert.AreEqual(9.58f, pitch, 0.02f);
+        Assert.AreEqual(180f, yaw, 0.02f);
+        Assert.AreEqual(0.154f, pitch, 0.02f);
+        Assert.AreEqual(38.5526f, L2Ue2Fov.VerticalForHorizontal(50f, 4f / 3f), 0.01f);
 
         float surface = HeightAt(ue.x, ue.y);
-        Assert.Greater(surface, ue.z, "Camera25 is under the official heightmap at its cell");
-        Assert.AreEqual(137f, surface - ue.z, 15f);
+        Assert.Greater(surface, ue.z, "the one-sided sheet is above the eye");
+        Assert.AreEqual(135f, surface - ue.z, 15f);
+
+        var grass = Regex.Match(
+            t3d,
+            @"Begin Actor Class=StaticMeshActor Name=StaticMeshActor1353\s+"
+            + @"StaticMesh=StaticMesh'[^']+'\s+"
+            + @"Location=\(X=([-\d.]+),Y=([-\d.]+),Z=([-\d.]+)\)");
+        Assert.IsTrue(grass.Success, "grove grass StaticMeshActor1353 missing");
+        float grassZ = float.Parse(grass.Groups[3].Value, CultureInfo.InvariantCulture);
+        Assert.Greater(ue.z, grassZ, "the eye is above the grove mesh");
+        Assert.AreEqual(68f, ue.z - grassZ, 5f);
     }
 
     [Test]
