@@ -234,18 +234,30 @@ if want_step 6; then
       cat "$WORK/missing-diffuses.txt"
       while read -r line; do
         pkg="$(sed -n 's/.*package=\([^ ]*\).*/\1/p' <<<"$line")"
+        own="$(sed -n 's/.*own=\([^ ]*\).*/\1/p' <<<"$line")"
         name="$(sed -n 's/.*name=\([^ ]*\).*/\1/p' <<<"$line")"
         utx="$(find "$CLIENT/textures" "$CLIENT/systextures" -maxdepth 1 -iname "$pkg.utx" -print -quit 2>/dev/null || true)"
+        out_pkg="$pkg"
+        if [[ -z "$utx" && -n "$own" && "$own" != "$pkg" ]]; then
+          # Group reference printed as Group.Object: the texture is an export
+          # of the material's own package. ExportNamedTextures fails loudly
+          # when the name is not in it.
+          utx="$(find "$CLIENT/textures" "$CLIENT/systextures" -maxdepth 1 -iname "$own.utx" -print -quit 2>/dev/null || true)"
+          out_pkg="$own"
+        fi
         if [[ -z "$utx" ]]; then
-          echo "ERROR package=$pkg group= name=$name class=Texture utx missing" >&2
+          echo "ERROR package=$pkg own=$own group= name=$name class=Texture utx missing" >&2
           exit 2
         fi
         java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
-          "$utx" "$WORK/tex/$pkg" "$name"
+          "$utx" "$WORK/tex/$out_pkg" "$name"
       done < "$WORK/missing-diffuses.txt"
       python3 "$ROOT/tools/interlude-extract/place_login_assets.py" textures --src "$WORK/tex"
       python3 "$ROOT/tools/interlude-extract/lobby_diffuse_closure.py" --verify
     fi
+    # New textures change the name index and the ops gap the runtime reads.
+    # Regenerate both so the committed files match the committed tree.
+    python3 "$ROOT/tools/interlude-extract/build_ue2_material_gap.py"
   fi
 fi
 
@@ -355,6 +367,8 @@ Done. Commit the new reference dumps and assets:
           l2-unity/docs/interlude-ref/scripts/UWindow.u \\
           l2-unity/docs/interlude-ref/dats/sysstring-e.tsv \\
           l2-unity/Assets/Resources/Data/Textures/l2_skies \\
+          l2-unity/Assets/StreamingAssets/Data/Meta/Materials/ue2-texture-index.tsv \\
+          l2-unity/docs/interlude-ref/world/material-ops-gap.md \\
           l2-unity/Assets/Resources/Data/Textures/lobby_terrain_t/H_M_05.png* \\
           l2-unity/Assets/Resources/Data/UI/Assets/Login/start_logo-k.png* \\
           l2-unity/Assets/Resources/Data/UI/Assets/Login/start_minilogo-k.png* \\
