@@ -42,6 +42,8 @@ public static partial class L2EnvWorldLut
 
     static readonly int FogColorId = Shader.PropertyToID("_L2FogColor");
 
+    static readonly int FogStartId = Shader.PropertyToID("_L2FogStart");
+
     static readonly int FogEndId = Shader.PropertyToID("_L2FogEnd");
 
     static readonly int FogScaleId = Shader.PropertyToID("_L2FogScale");

@@ -50,6 +50,12 @@ jobs:
       - name: Install ffprobe for audio import policy duration checks
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
       - name: Client guards (parity with push build-and-test)
         run: bash scripts/ci-client-guards.sh
 

@@ -335,14 +335,17 @@ public sealed class L2ZoneRenderTable
         return radius / mode;
     }
 
-    public static void DistanceFogGlobals(DistanceFog fog, float uuToUnity, out float endMeters, out float scale, out bool enable)
+    public static void DistanceFogGlobals(
+        DistanceFog fog, float uuToUnity, out float startMeters, out float endMeters, out float scale, out bool enable)
     {
+        startMeters = 0f;
         endMeters = 0f;
         scale = 0f;
         float rangeUu = fog.HasStart ? fog.EndUu - fog.StartUu : fog.EndUu;
         enable = fog.HasEnd && uuToUnity > 1e-8f && rangeUu > 1e-3f;
         if (!enable)
             return;
+        startMeters = (fog.HasStart ? fog.StartUu : 0f) * uuToUnity;
         endMeters = fog.EndUu * uuToUnity;
         scale = 1f / (rangeUu * uuToUnity);
     }

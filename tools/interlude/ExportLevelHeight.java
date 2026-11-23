@@ -110,9 +110,10 @@ public class ExportLevelHeight {
                     exportIndex = tex.index;
                     ExportedObject texObj = asObject(tex);
                     var loadedTex = texPkg.object(texObj);
-                    if (!(loadedTex instanceof Texture texture)) {
+                    if (!(loadedTex instanceof Texture)) {
                         fail("TerrainMap " + qualified + " export " + exportIndex + " is not a Texture");
                     }
+                    Texture texture = (Texture) loadedTex;
                     if (texture.format() != TextureBase.Format.G16) {
                         fail("TerrainMap " + qualified + " export " + exportIndex
                             + " format " + texture.format() + " is not G16");
@@ -276,5 +277,6 @@ public class ExportLevelHeight {
     static void fail(String message) {
         System.err.println("ERROR " + message);
         System.exit(1);
+        throw new IllegalStateException(message);
     }
 }

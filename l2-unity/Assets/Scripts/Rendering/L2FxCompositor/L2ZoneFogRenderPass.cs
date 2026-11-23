@@ -11,6 +11,9 @@ using UnityEngine.Rendering.Universal;
 public sealed class L2ZoneFogRenderPass : ScriptableRenderPass
 {
     static readonly int SourceId = Shader.PropertyToID("_L2ZoneFogSource");
+    static readonly int ZBufferId = Shader.PropertyToID("_L2ZBufferParams");
+    static readonly int ReversedId = Shader.PropertyToID("_L2ReversedZ");
+    static readonly int FarId = Shader.PropertyToID("_L2FogFarClip");
     static readonly ProfilingSampler Sampler = new ProfilingSampler("L2 Zone Fog");
 
     readonly Material _material;
@@ -20,7 +23,9 @@ public sealed class L2ZoneFogRenderPass : ScriptableRenderPass
     {
         public TextureHandle color;
         public TextureHandle depth;
-        public bool hasDepth;
+        public Vector4 zBuffer;
+        public float reversed;
+        public float farClip;
         public L2ZoneFogRenderPass pass;
     }
 
@@ -70,9 +75,18 @@ public sealed class L2ZoneFogRenderPass : ScriptableRenderPass
         using (IUnsafeRenderGraphBuilder builder =
                renderGraph.AddUnsafePass<PassData>("L2 Zone Fog", out PassData passData, Sampler))
         {
+            float near = camera.nearClipPlane;
+            float far = camera.farClipPlane;
+            if (near < 1e-4f)
+                near = 0.3f;
+            if (far <= near + 1e-3f)
+                far = near + 1000f;
+            bool reversedZ = SystemInfo.usesReversedZBuffer;
             passData.color = color;
             passData.depth = depth;
-            passData.hasDepth = true;
+            passData.zBuffer = L2ZoneFogMath.ZBufferParams(near, far, reversedZ);
+            passData.reversed = reversedZ ? 1f : 0f;
+            passData.farClip = far;
             passData.pass = this;
             builder.UseTexture(color, AccessFlags.ReadWrite);
             builder.UseTexture(depth, AccessFlags.Read);
@@ -81,12 +95,12 @@ public sealed class L2ZoneFogRenderPass : ScriptableRenderPass
             builder.SetRenderFunc(static (PassData data, UnsafeGraphContext context) =>
             {
                 CommandBuffer cmd = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
-                data.pass.Apply(cmd, data.color, data.depth);
+                data.pass.Apply(cmd, data.color, data.depth, data.zBuffer, data.reversed, data.farClip);
             });
         }
     }
 
-    void Apply(CommandBuffer cmd, TextureHandle color, TextureHandle depth)
+    void Apply(CommandBuffer cmd, TextureHandle color, TextureHandle depth, Vector4 zBuffer, float reversed, float farClip)
     {
         RTHandle colorRt = (RTHandle)color;
         RTHandle depthRt = (RTHandle)depth;
@@ -98,6 +112,11 @@ public sealed class L2ZoneFogRenderPass : ScriptableRenderPass
         cmd.SetGlobalTexture(SourceId, _copy.nameID);
         if (depthRt != null)
             cmd.SetGlobalTexture("_CameraDepthTexture", depthRt.nameID);
+        // Unity's per-camera _ZBufferParams is not bound for this procedural draw.
+        // Left at 0, LinearEyeDepth is infinite and the pass fogs every pixel.
+        cmd.SetGlobalVector(ZBufferId, zBuffer);
+        cmd.SetGlobalFloat(ReversedId, reversed);
+        cmd.SetGlobalFloat(FarId, farClip);
         Draw(colorRt, 1);
 
         void Draw(RTHandle destination, int pass)

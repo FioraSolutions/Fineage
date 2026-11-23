@@ -7,6 +7,8 @@ using UnityEngine;
 
 public static partial class L2EnvWorldLut
 {
+    static string _distanceFogLog;
+
     public static void PushDistanceFog(float worldHours)
     {
         L2HazeLut.EnsureLoaded();
@@ -14,29 +16,58 @@ public static partial class L2EnvWorldLut
         float uuToUnity = VectorUtils.L2UuToUnity;
         if (string.IsNullOrEmpty(L2ZoneRender.ActiveMap))
         {
+            float startUu = FogEndUu - FogRangeUu;
             Shader.SetGlobalColor(FogColorId, haze);
+            Shader.SetGlobalFloat(FogStartId, startUu * uuToUnity);
             Shader.SetGlobalFloat(FogEndId, FogEndUu * uuToUnity);
             Shader.SetGlobalFloat(FogScaleId, uuToUnity > 1e-8f ? (1f / FogRangeUu) / uuToUnity : 0f);
             Shader.SetGlobalFloat(FogEnableId, 1f);
+            LogDistanceFog("map=(none) actor=(haze) rgb=" + Rgb(haze) +
+                " startUu=" + startUu.ToString("0.###") + " endUu=" + FogEndUu.ToString("0.###"));
             return;
         }
 
         if (!L2ZoneRender.TryActiveFog(out L2ZoneRenderTable.DistanceFog fog) || !fog.HasEnd)
         {
             Shader.SetGlobalFloat(FogEnableId, 0f);
+            LogDistanceFog("map=" + L2ZoneRender.ActiveMap + " actor=" + L2ZoneRender.ActiveZone + " fog=off");
             return;
         }
 
         Color color = haze;
         if (fog.HasColor)
             color = new Color(fog.R / 255f, fog.G / 255f, fog.B / 255f, 1f);
-        L2ZoneRenderTable.DistanceFogGlobals(fog, uuToUnity, out float endMeters, out float scale, out bool enable);
+        L2ZoneRenderTable.DistanceFogGlobals(
+            fog, uuToUnity, out float startMeters, out float endMeters, out float scale, out bool enable);
         Shader.SetGlobalColor(FogColorId, color);
         Shader.SetGlobalFloat(FogEnableId, enable ? 1f : 0f);
         if (!enable)
+        {
+            LogDistanceFog("map=" + L2ZoneRender.ActiveMap + " actor=" + fog.Actor + " fog=disabled");
             return;
+        }
+        Shader.SetGlobalFloat(FogStartId, startMeters);
         Shader.SetGlobalFloat(FogEndId, endMeters);
         Shader.SetGlobalFloat(FogScaleId, scale);
+        LogDistanceFog("map=" + L2ZoneRender.ActiveMap + " actor=" + fog.Actor +
+            " rgb=" + fog.R + "," + fog.G + "," + fog.B +
+            " startUu=" + fog.StartUu.ToString("0.###") + " endUu=" + fog.EndUu.ToString("0.###") +
+            " startM=" + startMeters.ToString("0.###") + " endM=" + endMeters.ToString("0.###"));
+    }
+
+    static void LogDistanceFog(string message)
+    {
+        if (message == _distanceFogLog)
+            return;
+        _distanceFogLog = message;
+        FineageLog.Info(FineageLogCategory.World, "[ZoneFog] " + message);
+    }
+
+    static string Rgb(Color color)
+    {
+        return Mathf.RoundToInt(color.r * 255f) + "," +
+            Mathf.RoundToInt(color.g * 255f) + "," +
+            Mathf.RoundToInt(color.b * 255f);
     }
 
     public static void PushGlobals(float worldHours, Color actorAmbient, Color sunColor)

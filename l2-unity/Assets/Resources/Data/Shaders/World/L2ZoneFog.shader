@@ -15,6 +15,13 @@ Shader "Hidden/L2/ZoneFog"
     SAMPLER(sampler_L2ZoneFogSource);
     TEXTURE2D_X(_CameraDepthTexture);
     SAMPLER(sampler_CameraDepthTexture);
+
+    // Uploaded on the command buffer before the procedural draw. That draw does
+    // not inherit Unity's per-camera _ZBufferParams; left at 0, every real
+    // depth becomes infinite and the pass fogs the frame.
+    float4 _L2ZBufferParams;
+    float _L2ReversedZ;
+    float _L2FogFarClip;
     ENDHLSL
 
     SubShader
@@ -49,16 +56,14 @@ Shader "Hidden/L2/ZoneFog"
             {
                 float4 src = SAMPLE_TEXTURE2D(_L2ZoneFogSource, sampler_L2ZoneFogSource, i.texcoord);
                 float raw = SAMPLE_TEXTURE2D_X(_CameraDepthTexture, sampler_CameraDepthTexture, i.texcoord).r;
-                // Sky cards force the far plane. Fogging that depth replaces the
-                // backdrop with the fog color. World pixels have a real depth.
-                #if defined(UNITY_REVERSED_Z)
-                bool farPlane = raw <= 1e-6;
-                #else
-                bool farPlane = raw >= 1.0 - 1e-6;
-                #endif
+                // Cleared depth is 0 on reversed-Z (Metal) and 1 otherwise. A missing
+                // depth texture reads that clear and used to fog every pixel.
+                bool farPlane = _L2ReversedZ > 0.5 ? (raw <= 1e-6) : (raw >= 1.0 - 1e-6);
+                float eye = LinearEyeDepth(raw, _L2ZBufferParams);
+                bool usable = !farPlane && eye > 0.0 && eye < _L2FogFarClip * 0.999;
                 float3 rgb = src.rgb;
-                if (!farPlane)
-                    rgb = L2_LinearFog(rgb, LinearEyeDepth(raw, _ZBufferParams));
+                if (usable)
+                    rgb = L2_LinearFog(rgb, eye);
                 return float4(rgb, src.a);
             }
             ENDHLSL

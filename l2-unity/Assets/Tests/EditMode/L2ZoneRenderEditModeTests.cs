@@ -33,8 +33,9 @@ public class L2ZoneRenderEditModeTests
         Assert.IsFalse(fog.HasColor);
         Assert.AreEqual(1500f, fog.StartUu, 1e-3f);
         Assert.AreEqual(10000f, fog.EndUu, 1e-3f);
-        L2ZoneRenderTable.DistanceFogGlobals(fog, Uu, out float endMeters, out float scale, out bool enable);
+        L2ZoneRenderTable.DistanceFogGlobals(fog, Uu, out float startMeters, out float endMeters, out float scale, out bool enable);
         Assert.IsTrue(enable);
+        Assert.AreEqual(1500f * Uu, startMeters, 1e-4f);
         Assert.AreEqual(10000f * Uu, endMeters, 1e-4f);
         Assert.AreEqual(1f / ((10000f - 1500f) * Uu), scale, 1e-4f);
     }
@@ -50,8 +51,9 @@ public class L2ZoneRenderEditModeTests
         Assert.AreEqual(L2ZoneRenderTable.EngineZoneInfoDistanceFogStartUu, fog.StartUu, 1e-3f);
         Assert.AreEqual(15000f, fog.EndUu, 1e-3f);
         Assert.AreEqual(0, errors.Count);
-        L2ZoneRenderTable.DistanceFogGlobals(fog, Uu, out float endMeters, out float scale, out bool enable);
+        L2ZoneRenderTable.DistanceFogGlobals(fog, Uu, out float startMeters, out float endMeters, out float scale, out bool enable);
         Assert.IsTrue(enable);
+        Assert.AreEqual(L2ZoneRenderTable.EngineZoneInfoDistanceFogStartUu * Uu, startMeters, 1e-4f);
         float range = 15000f - L2ZoneRenderTable.EngineZoneInfoDistanceFogStartUu;
         Assert.AreEqual(15000f * Uu, endMeters, 1e-4f);
         Assert.AreEqual(1f / (range * Uu), scale, 1e-4f);
@@ -188,6 +190,76 @@ public class L2ZoneRenderEditModeTests
         Assert.AreEqual(210, fog.R);
         Assert.AreEqual(208, fog.G);
         Assert.AreEqual(196, fog.B);
+    }
+
+    [Test]
+    public void ZoneInfo0_fog_factor_uses_the_shader_constants()
+    {
+        // Login cameras sit in ZoneInfo0: start 500 UU, end 10000 UU, beige (210,208,196).
+        // The amount is saturate((eye - start) / (end - start)) after UU * (1/52.5).
+        L2ZoneRenderTable table = Load();
+        var errors = new List<string>();
+        Assert.IsTrue(table.TryNamedDistanceFog("Lobby", "ZoneInfo0", out L2ZoneRenderTable.DistanceFog fog, errors));
+        Assert.AreEqual(0, errors.Count);
+        Assert.AreEqual(500f, fog.StartUu, 1e-3f);
+        Assert.AreEqual(10000f, fog.EndUu, 1e-3f);
+        Assert.AreEqual(210, fog.R);
+        Assert.AreEqual(208, fog.G);
+        Assert.AreEqual(196, fog.B);
+
+        L2ZoneRenderTable.DistanceFogGlobals(fog, Uu, out float startM, out float endM, out float scale, out bool enable);
+        Assert.IsTrue(enable);
+
+        float ShaderFactor(float eyeUu)
+        {
+            float t = (eyeUu * Uu - startM) * scale;
+            if (t <= 0f)
+                return 0f;
+            if (t >= 1f)
+                return 1f;
+            return t;
+        }
+
+        Assert.AreEqual(0f, L2ZoneFogMath.FogAmountUu(300f, fog.StartUu, fog.EndUu, Uu), 1e-5f);
+        Assert.AreEqual(0.5f, L2ZoneFogMath.FogAmountUu(5250f, fog.StartUu, fog.EndUu, Uu), 1e-4f);
+        Assert.AreEqual(1f, L2ZoneFogMath.FogAmountUu(20000f, fog.StartUu, fog.EndUu, Uu), 1e-5f);
+        Assert.AreEqual(0f, ShaderFactor(300f), 1e-4f);
+        Assert.AreEqual(0.5f, ShaderFactor(5250f), 1e-4f);
+        Assert.AreEqual(1f, ShaderFactor(20000f), 1e-4f);
+
+        // The grove card is about 28 m in front of the login camera (~1470 UU). Not a full wash.
+        float groveUu = 28f / Uu;
+        float grove = L2ZoneFogMath.FogAmountUu(groveUu, fog.StartUu, fog.EndUu, Uu);
+        Assert.AreEqual(grove, ShaderFactor(groveUu), 1e-4f);
+        Assert.Greater(grove, 0.05f);
+        Assert.Less(grove, 0.2f);
+    }
+
+    [Test]
+    public void Reversed_z_cleared_depth_is_not_a_fogged_world_pixel()
+    {
+        const float near = 0.3f;
+        const float far = 1000f;
+        Vector4 z = L2ZoneFogMath.ZBufferParams(near, far, reversedZ: true);
+        float raw28 = (1f / 28f - z.w) / z.z;
+        float eye28 = L2ZoneFogMath.LinearEyeDepth(raw28, z);
+        Assert.AreEqual(28f, eye28, 0.02f);
+        Assert.IsTrue(L2ZoneFogMath.EyeDepthUsable(eye28, far, farPlaneRaw: false));
+
+        float cleared = L2ZoneFogMath.LinearEyeDepth(0f, z);
+        Assert.AreEqual(far, cleared, 0.05f);
+        Assert.IsTrue(L2ZoneFogMath.IsFarPlaneRaw(0f, reversedZ: true));
+        Assert.IsFalse(L2ZoneFogMath.EyeDepthUsable(cleared, far, farPlaneRaw: true));
+
+        // DrawProcedural without the camera's _ZBufferParams. Any real raw becomes non-finite
+        // and must not be treated as "past FogEnd" (that painted the login frame solid).
+        float broken = L2ZoneFogMath.LinearEyeDepth(raw28, Vector4.zero);
+        Assert.IsFalse(L2ZoneFogMath.EyeDepthUsable(broken, far, farPlaneRaw: false));
+
+        Vector4 forward = L2ZoneFogMath.ZBufferParams(near, far, reversedZ: false);
+        Assert.AreEqual(near, L2ZoneFogMath.LinearEyeDepth(0f, forward), 0.01f);
+        Assert.AreEqual(far, L2ZoneFogMath.LinearEyeDepth(1f, forward), 0.05f);
+        Assert.IsTrue(L2ZoneFogMath.IsFarPlaneRaw(1f, reversedZ: false));
     }
 
     [Test]

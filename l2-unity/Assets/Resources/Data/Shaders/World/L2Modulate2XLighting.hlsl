@@ -12,6 +12,7 @@ float4 _L2StaticMeshAmbient;
 float4 _L2HsvTerrainLight;
 float4 _L2HsvStaticMeshLight;
 float4 _L2FogColor;
+float _L2FogStart;
 float _L2FogEnd;
 float _L2FogScale;
 float _L2FogEnable;
@@ -125,14 +126,15 @@ float3 L2_Modulate2X(float3 albedo, float3 color0)
 // Zone distance fog. The only caller is Hidden/L2/ZoneFog, which runs once
 // on the camera color after the world is drawn. World shaders must not call
 // this or URP Lit trunks stay sharp while these shaders fog twice.
+// factor is the fog amount (0 keeps the pixel, 1 is DistanceFogColor).
+// _L2FogStart and 1/_L2FogScale are meters, UU * L2UuToUnity, matching
+// L2ZoneFogMath.FogAmountMeters.
 float3 L2_LinearFog(float3 rgb, float viewAbsZ)
 {
     if (_L2FogEnable > 0.5)
     {
-        float fogEnd = _L2FogEnd;
-        float fogScale = _L2FogScale;
-        float f = saturate((fogEnd - viewAbsZ) * fogScale);
-        rgb = lerp(_L2FogColor.rgb, rgb, f);
+        float factor = saturate((viewAbsZ - _L2FogStart) * _L2FogScale);
+        rgb = lerp(rgb, _L2FogColor.rgb, factor);
     }
     return rgb;
 }

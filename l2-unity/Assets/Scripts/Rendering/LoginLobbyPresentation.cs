@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 /// <summary>
 /// Login vs account-lobby camera presentation (forest vista vs character select/create).
@@ -41,6 +42,12 @@ public static class LoginLobbyPresentation
         // viewport (Camera25, Tag U2Viewport2). UE2 FovAngle=50 is horizontal
         // (PlayerController.uc default); Unity vertical derives from the live aspect.
         L2Ue2Fov.Apply(loginCamera, L2Ue2Fov.OfficialHfovDeg);
+        if (loginCamera != null)
+        {
+            loginCamera.depthTextureMode |= DepthTextureMode.Depth;
+            UniversalAdditionalCameraData extra = loginCamera.GetUniversalAdditionalCameraData();
+            extra.requiresDepthOption = CameraOverrideOption.On;
+        }
         // ZoneInfo rows on Lobby disagree. The BSP camera-zone table names the
         // one that contains the vista cameras; that DistanceFog is the haze.
         // The same zone's Terrains[] decides whether the heightmap is drawn.

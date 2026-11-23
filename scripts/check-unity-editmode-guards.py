@@ -500,6 +500,47 @@ def check_transform_tex_macro() -> list[str]:
     return errors
 
 
+def check_zone_fog_factor() -> list[str]:
+    """The login wash was a fog factor of 1 on every pixel. The amount has to stay
+    the C# mirror of the shader, and cleared depth must not count as world depth."""
+    errors: list[str] = []
+    hlsl = ASSETS / "Resources/Data/Shaders/World/L2Modulate2XLighting.hlsl"
+    zone = ASSETS / "Resources/Data/Shaders/World/L2ZoneFog.shader"
+    math = ASSETS / "Scripts/Fineage.Game/Rendering/L2ZoneFogMath.cs"
+    test = EDITMODE_TESTS / "L2ZoneRenderEditModeTests.cs"
+    pas = ASSETS / "Scripts/Rendering/L2FxCompositor/L2ZoneFogRenderPass.cs"
+    for path in (hlsl, zone, math, test, pas):
+        if not path.is_file():
+            errors.append(f"missing {path.relative_to(REPO)}")
+    if errors:
+        return errors
+    hlsl_text = hlsl.read_text(encoding="utf-8", errors="replace")
+    if "lerp(rgb, _L2FogColor.rgb, factor)" not in hlsl_text:
+        errors.append("L2_LinearFog must lerp the pixel toward _L2FogColor by the fog factor")
+    if "(viewAbsZ - _L2FogStart) * _L2FogScale" not in hlsl_text:
+        errors.append("L2_LinearFog must use _L2FogStart meters, matching FogAmountMeters")
+    if "rgb * _L2FogColor" in hlsl_text or "rgb + _L2FogColor" in hlsl_text:
+        errors.append("L2_LinearFog must not multiply or add the fog color")
+    zone_text = zone.read_text(encoding="utf-8", errors="replace")
+    for needle in ("_L2ZBufferParams", "_L2ReversedZ", "_L2FogFarClip", "raw <= 1e-6", "LinearEyeDepth(raw, _L2ZBufferParams)"):
+        if needle not in zone_text:
+            errors.append(f"L2ZoneFog.shader does not mention {needle}")
+    if "struct Varyings" in zone_text:
+        errors.append("L2ZoneFog.shader redefines struct Varyings (Blit.hlsl already defines it)")
+    math_text = math.read_text(encoding="utf-8", errors="replace")
+    for needle in ("FogAmountUu", "FogAmountMeters", "ZBufferParams", "LinearEyeDepth", "EyeDepthUsable", "L2UuToUnity"):
+        if needle not in math_text:
+            errors.append(f"L2ZoneFogMath.cs does not mention {needle}")
+    test_text = test.read_text(encoding="utf-8", errors="replace")
+    for needle in ("FogAmountUu(300f", "FogAmountUu(5250f", "FogAmountUu(20000f", "ZBufferParams", "Vector4.zero"):
+        if needle not in test_text:
+            errors.append(f"L2ZoneRenderEditModeTests.cs does not mention {needle}")
+    pas_text = pas.read_text(encoding="utf-8", errors="replace")
+    if "L2ZoneFogMath.ZBufferParams" not in pas_text or "_L2ZBufferParams" not in pas_text:
+        errors.append("L2ZoneFogRenderPass must upload _L2ZBufferParams from L2ZoneFogMath")
+    return errors
+
+
 def main() -> int:
     errors = (
         check_editmode_asmdef_types()
@@ -510,6 +551,7 @@ def main() -> int:
         + check_ambiguous_types()
         + check_anim_keyreduce_probe_registration()
         + check_transform_tex_macro()
+        + check_zone_fog_factor()
     )
     if errors:
         print("Unity EditMode guard failed:", file=sys.stderr)
