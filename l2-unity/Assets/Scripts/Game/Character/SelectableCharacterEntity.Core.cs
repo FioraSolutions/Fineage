@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 using System.Collections;
@@ -11,8 +12,35 @@ public partial class SelectableCharacterEntity : MonoBehaviour
         _destination = transform.position;
         if (_characterController != null)
             _characterController.enabled = false;
-        App.InjectGameObject(gameObject);
+        InjectSharedMotion();
         WireCharacterPacketServices();
+    }
+
+    void InjectSharedMotion()
+    {
+        if (App.Container == null)
+        {
+            throw new InvalidOperationException(
+                "[LobbyMotion] IAnimationManager missing — App.Container is null, so the lobby pawn was not injected.");
+        }
+
+        try
+        {
+            App.Container.InjectGameObject(gameObject);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(
+                "[LobbyMotion] IAnimationManager missing — App.Container could not inject the lobby pawn (" +
+                ex.Message + ").",
+                ex);
+        }
+
+        if (_animations == null)
+        {
+            throw new InvalidOperationException(
+                "[LobbyMotion] IAnimationManager missing — AppLifetimeScope did not register AnimationManager, so the lobby pawn has no motion pipeline.");
+        }
     }
 
     private void Start()

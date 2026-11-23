@@ -137,7 +137,8 @@ public sealed partial class GameLifetimeScope
     }
 
     /// <summary>
-    /// Register the scene <see cref="MoveAllCharacters"/> as <see cref="IMoveRoster"/> (#131 S38l).
+    /// Bind the scene <see cref="MoveAllCharacters"/> into the app-scoped <see cref="SharedMoveRoster"/>.
+    /// Lobby and game resolve the same <see cref="IMoveRoster"/>.
     /// </summary>
     void RegisterMoveRoster(IContainerBuilder builder)
     {
@@ -148,7 +149,37 @@ public sealed partial class GameLifetimeScope
                 "[GameLifetimeScope] IMoveRoster missing — RegisterMoveRoster found no MoveAllCharacters in loaded scenes.");
         }
 
-        builder.RegisterComponent(found).AsSelf().As<IMoveAllCharacters>().As<IMoveRoster>();
+        builder.RegisterComponent(found).AsSelf().As<IMoveAllCharacters>();
+        builder.RegisterBuildCallback(container => BindSharedMoveRoster(container, found));
+    }
+
+    static void BindSharedMoveRoster(IObjectResolver container, MoveAllCharacters scene)
+    {
+        IMoveRoster roster;
+        try
+        {
+            roster = container.Resolve<IMoveRoster>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IMoveRoster))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] IMoveRoster missing — AppLifetimeScope did not register SharedMoveRoster.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        SharedMoveRoster shared = roster as SharedMoveRoster;
+        if (shared == null)
+        {
+            throw new InvalidOperationException(
+                "[GameLifetimeScope] IMoveRoster is not a SharedMoveRoster — AppLifetimeScope did not register SharedMoveRoster.");
+        }
+
+        shared.BindScene(scene);
     }
 
     static void RequireMoveRoster(IObjectResolver container)
@@ -163,18 +194,18 @@ public sealed partial class GameLifetimeScope
             if (ex.InvalidType == typeof(IMoveRoster))
             {
                 throw new InvalidOperationException(
-                    "[GameLifetimeScope] IMoveRoster missing — MoveAllCharacters was not registered as IMoveRoster.",
+                    "[GameLifetimeScope] IMoveRoster missing — AppLifetimeScope did not register SharedMoveRoster.",
                     ex);
             }
 
             throw;
         }
 
-        if (roster is MoveAllCharacters)
+        if (roster is SharedMoveRoster shared && shared.HasScene)
             return;
 
         throw new InvalidOperationException(
-            "[GameLifetimeScope] IMoveRoster is not a MoveAllCharacters — MoveAllCharacters was not registered as IMoveRoster.");
+            "[GameLifetimeScope] IMoveRoster missing — SharedMoveRoster has no MoveAllCharacters bound.");
     }
 
     /// <summary>

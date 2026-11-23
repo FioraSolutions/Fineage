@@ -10,15 +10,17 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
     {
         if (controller == null || string.IsNullOrEmpty(stateOrPrefixWithWeapon))
         {
-            return;
+            throw new InvalidOperationException(
+                "[AnimationManager] PlayLobbyLocomotion missing controller or state '" +
+                (stateOrPrefixWithWeapon ?? "") + "' — the lobby motion was not played.");
         }
 
         AnimationEventForwarder.BindAnimator(controller);
 
         if (!PlayerLocomotionAnim.TryResolve(stateOrPrefixWithWeapon, out string stateName, out PlayerLocomotionFamily family))
         {
-            // Debug.LogWarning(
-                // $"AnimationManager> lobby locomotion unresolved '{stateOrPrefixWithWeapon}'");
+            Debug.LogError(
+                "[AnimationManager] lobby locomotion unresolved '" + stateOrPrefixWithWeapon + "'.");
             return;
         }
 
@@ -28,6 +30,29 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         // Debug.Log(
             // $"AnimationManager> start crossfade lobby {family} state={stateName} " +
             // $"duration={fadeDuration:F3}s");
+    }
+
+    public void PlayMotionClip(IAnimationController controller, AnimationClip clip)
+    {
+        if (controller == null)
+        {
+            throw new InvalidOperationException(
+                "[AnimationManager] PlayMotionClip missing IAnimationController — the motion was not played.");
+        }
+
+        if (clip == null)
+        {
+            throw new InvalidOperationException(
+                "[AnimationManager] PlayMotionClip missing AnimationClip — the motion was not played.");
+        }
+
+        BaseAnimationController body = controller as BaseAnimationController;
+        if (body == null || !body.TryPlayOneShot(clip))
+        {
+            throw new InvalidOperationException(
+                "[AnimationManager] PlayMotionClip could not play '" + clip.name +
+                "' on the shared motion graph.");
+        }
     }
 
     private void HandleAtkWaitCrossFade(

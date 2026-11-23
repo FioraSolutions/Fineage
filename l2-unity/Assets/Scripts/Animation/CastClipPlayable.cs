@@ -14,6 +14,7 @@ public sealed partial class CastClipPlayable
     private AnimationMixerPlayable _mixer;
     private AnimatorControllerPlayable _controllerPlayable;
     private AnimationClipPlayable _clipPlayable;
+    private MotionBoneScale _scaleLock;
     private bool _ready;
 
     private bool _active;

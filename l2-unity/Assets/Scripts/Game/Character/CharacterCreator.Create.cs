@@ -69,10 +69,16 @@ public partial class CharacterCreator : MonoBehaviour
         if (animController != null)
             animController.Initialize();
 
-        if (gear != null && Animations != null && animController != null)
+        if (animController != null)
         {
-            string waitState = AnimationNames.WAIT.ToString() + gear.WeaponAnim;
-            Animations.PlayLobbyLocomotion(animController, waitState);
+            if (Animations == null)
+            {
+                throw new InvalidOperationException(
+                    "[LobbyMotion] IAnimationManager missing — AppLifetimeScope did not register AnimationManager, so the lobby wait pose was not played.");
+            }
+
+            string weapon = gear != null ? gear.WeaponAnim : "";
+            Animations.PlayLobbyLocomotion(animController, AnimationNames.WAIT.ToString() + weapon);
         }
 
         SkinnedMeshSync sync = pawnObject.GetComponentInChildren<SkinnedMeshSync>(true);

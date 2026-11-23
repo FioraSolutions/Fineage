@@ -24,13 +24,14 @@ public sealed partial class AppLifetimeScope : LifetimeScope
 
         builder.Register<EventProcessorApplyPump>(Lifetime.Singleton).As<IMainThreadApplyPump>();
         builder.Register<FineageZoneTransport>(Lifetime.Singleton).As<IZoneTransport>();
-        builder.Register<AnimationManager>(Lifetime.Singleton).As<IAnimationManager>().As<IAnimationRoster>().AsSelf();
+        MotionPipelineRegistration.Register(builder);
         RegisterDatTables(builder);
 
         builder.RegisterBuildCallback(container =>
         {
             AnimationManager animations = RequireAnimationRoster(container);
             RequireAnimationManager(container);
+            RequireSharedMoveRoster(container);
             RequireEventQueue(container);
             RequireGameManager(container);
             AudioSessionBootstrap.EnsureSession();
@@ -129,6 +130,32 @@ public sealed partial class AppLifetimeScope : LifetimeScope
 
         throw new InvalidOperationException(
             "[AppLifetimeScope] IAnimationManager is not an AnimationManager — AnimationManager was not registered as IAnimationManager.");
+    }
+
+    static void RequireSharedMoveRoster(IObjectResolver container)
+    {
+        IMoveRoster roster;
+        try
+        {
+            roster = container.Resolve<IMoveRoster>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IMoveRoster))
+            {
+                throw new InvalidOperationException(
+                    "[AppLifetimeScope] IMoveRoster missing — SharedMoveRoster was not registered as IMoveRoster.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (roster is SharedMoveRoster)
+            return;
+
+        throw new InvalidOperationException(
+            "[AppLifetimeScope] IMoveRoster is not a SharedMoveRoster — SharedMoveRoster was not registered as IMoveRoster.");
     }
 
     static void RequireEventQueue(IObjectResolver container)
