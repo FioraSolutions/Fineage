@@ -412,6 +412,31 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.PartySpelled:
                 _ = (AbnormalStatusUpdateNetMsg)packet.Body;
                 break;
+            case NetOpcode.RestartResponse:
+            {
+                var restart = (RestartResponseMsg)packet.Body;
+                if (restart == null)
+                {
+                    throw new InvalidOperationException(
+                        "[Net] RestartResponse missing body — NetZonePacketDecoder did not decode it.");
+                }
+
+                if (!restart.Ok)
+                {
+                    Debug.LogWarning("[Net] restart refused " + restart.Code);
+                    break;
+                }
+
+                GameManager manager = GamePacketServices.Manager;
+                if (manager == null)
+                {
+                    throw new InvalidOperationException(
+                        "[Net] RestartResponse ok but GameManager is missing, so the client stayed in the world.");
+                }
+
+                manager.RestartToCharacterSelect();
+                break;
+            }
             case NetOpcode.Reject:
             {
                 var reject = (RejectMsg)packet.Body;
