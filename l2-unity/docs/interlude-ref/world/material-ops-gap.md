@@ -12,14 +12,12 @@ The runtime logs `[Ue2Material] material <name> op <class> '<object>' missing pr
 
 | Op | Object | References |
 |---|---|---:|
+| `TexPanner` | `statue_pan` | 6 |
 | `TexPanner` | `evil_fallwater01_pan` | 3 |
-| `TexPanner` | `statue_pan` | 3 |
-| `TexPanner` | `TexPanner1` | 2 |
+| `TexEnvMap` | `statue_sp` | 2 |
 | `Combiner` | `de_fire_glow_s` | 1 |
-| `Combiner` | `reflection` | 1 |
 | `TexEnvMap` | `HighlightEnv01` | 1 |
 | `TexEnvMap` | `spenv` | 1 |
-| `TexEnvMap` | `statue_sp` | 1 |
 | `TexOscillator` | `ssq_water_01_tex` | 1 |
 | `TexPanner` | `DE_panner_01` | 1 |
 | `TexPanner` | `FX_E_under_pan04` | 1 |
@@ -29,7 +27,7 @@ The runtime logs `[Ue2Material] material <name> op <class> '<object>' missing pr
 | `TexPanner` | `pagrio_fx_01_sh` | 1 |
 | `TexPanner` | `sp2f_fire_pan` | 1 |
 
-Missing objects: **16**. References by op (including ones that resolve): Combiner 2, TexEnvMap 3, TexOscillator 1, TexPanner 15.
+Missing objects: **14**. References by op (including ones that resolve): Combiner 4, TexEnvMap 4, TexOscillator 5, TexPanner 26.
 
 TexScaler and FinalBlend are part of the same evaluator. Committed world props do not
 reference them yet; a chain that does is executed when its props are present.

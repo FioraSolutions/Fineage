@@ -28,6 +28,9 @@ bash scripts/check-interlude-javac.sh
 python3 tools/interlude-extract/test_umodel_invoke.py
 python3 tools/interlude-extract/test_export_brush_textures.py
 python3 tools/interlude-extract/test_material_props.py
+python3 tools/interlude-extract/test_lobby_diffuse_closure.py
+python3 tools/interlude-extract/test_build_ue2_material_gap.py
+python3 tools/interlude-extract/build_ue2_material_gap.py --check
 
 python3 scripts/test_asset_import_policy_meta.py
 python3 scripts/check-asset-import-policy.py
