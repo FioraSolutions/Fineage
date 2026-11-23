@@ -66,13 +66,22 @@ public sealed partial class GameLifetimeScope
     }
 
     /// <summary>
-    /// Register the scene <see cref="VisibilityManager"/> as <see cref="IVisibilityRoster"/> (#131 S38h).
+    /// Register <see cref="IVisibilityRoster"/> in this game scope, the scope that injects it into <see cref="World"/>.
+    /// A loaded <see cref="VisibilityManager"/> is reused. Loaded scenes do not contain one, so the scope creates it
+    /// and still registers the interface. Skipping the registration throws
+    /// <c>No such registration of type: IVisibilityRoster</c> when <see cref="World"/> is resolved.
     /// </summary>
     void RegisterVisibilityRoster(IContainerBuilder builder)
     {
         VisibilityManager found = UnityEngine.Object.FindFirstObjectByType<VisibilityManager>(FindObjectsInactive.Include);
-        if (found != null)
-            builder.RegisterComponent(found).AsSelf().As<IVisibilityRoster>();
+        if (found == null)
+        {
+            var host = new GameObject("VisibilityManager");
+            host.transform.SetParent(transform, false);
+            found = host.AddComponent<VisibilityManager>();
+        }
+
+        builder.RegisterComponent(found).AsSelf().As<IVisibilityRoster>();
     }
 
     static void RequireVisibilityRoster(IObjectResolver container)
