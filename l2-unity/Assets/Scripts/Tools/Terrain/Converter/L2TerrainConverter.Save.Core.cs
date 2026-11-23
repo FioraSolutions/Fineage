@@ -36,12 +36,30 @@ public partial class TerrainConverter
                 // Overlay without an official AlphaMap is logged at parse and stays off.
                 bool paint = uvl.texture != null && uvl.alphaMap != null;
                 terrainMat.SetFloat("_Layer_" + i + "_Enabled", paint ? 1.0f : 0.0f);
+            } else if (uvl.texture == null) {
+                // Shader Graphs/TerrainAlphamapDouble samples _Layer_0 as the opaque base.
+                // An empty slot uses the graph default color, which is not the official diffuse.
+                Debug.LogError(
+                    "[TerrainUv] " + mapToConvert + " layer 0 diffuse missing ("
+                    + uvl.diffuseTextureRef
+                    + "). _Layer_0 is left empty; the graph default is not the official base.");
             } else {
-                terrainMat.SetTexture("_Layer_" + i, uvl.texture);
+                terrainMat.SetTexture("_Layer_0", uvl.texture);
             }
 
-            float us = uvl.uScale == 0 ? 1f : uvl.uScale, vs = uvl.vScale == 0 ? 1f : uvl.vScale;
-            terrainMat.SetVector("_Layer_" + i + "_UV", new Vector4(uvl.uScale, uvl.vScale, uvl.uOffset / us, uvl.vOffset / vs));
+            if (i >= L2TerrainLayerUv.ShaderLayerCap) {
+                Debug.LogError("[TerrainUv] layer " + i + " " + uvl.diffuseTextureRef + " exceeds shader property _Layer_" + i);
+                continue;
+            }
+            var repeatErrors = new List<string>();
+            if (!L2TerrainLayerUv.TryRepeat(
+                    uvl.layerScale.x, uvl.layerScale.y, uvl.uScale, uvl.vScale, uvl.uPan, uvl.vPan,
+                    uvl.diffuseTextureRef, repeatErrors, out Vector4 repeat)) {
+                for (int e = 0; e < repeatErrors.Count; e++)
+                    Debug.LogError(repeatErrors[e] + " on " + mapToConvert);
+                continue;
+            }
+            terrainMat.SetVector("_Layer_" + i + "_UV", repeat);
             terrainMat.SetVector("_Layer_" + i + "_Xform", new Vector4(uvl.textureRotation, uvl.textureMapAxis, uvl.useAlpha ? 1f : 0f, 0f));
         }
 

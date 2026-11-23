@@ -53,8 +53,17 @@ public sealed partial class L2TerrainLayerStack
 
     void SyncOverlays(Material src)
     {
-        float worldUv = src.HasProperty("_L2WorldUvPerTileUu") ? src.GetFloat("_L2WorldUvPerTileUu") : 128f;
         float cull = src.HasProperty("_Cull") ? src.GetFloat("_Cull") : 2f;
+        if (src.HasProperty("_Layer_0_UV"))
+        {
+            Vector4 baseRepeat = src.GetVector("_Layer_0_UV");
+            if (baseRepeat.x <= 1e-4f || baseRepeat.y <= 1e-4f)
+                LogRepeatError(src.name + " _Layer_0_UV repeat missing");
+        }
+        else
+        {
+            LogRepeatError(src.name + " _Layer_0_UV missing");
+        }
 
         Texture2DArray layerArray = src.HasProperty("_Layers") ? src.GetTexture("_Layers") as Texture2DArray : null;
         Texture2DArray splatArray = src.HasProperty("_Splatmaps") ? src.GetTexture("_Splatmaps") as Texture2DArray : null;
@@ -122,11 +131,23 @@ public sealed partial class L2TerrainLayerStack
             }
             mat.SetFloat(LayerIndexId, layer);
             mat.SetFloat(SplatSliceId, slice);
-            if (src.HasProperty("_Layer_" + layer + "_UV"))
-                mat.SetVector(LayerUvId, src.GetVector("_Layer_" + layer + "_UV"));
-            else
-                mat.SetVector(LayerUvId, new Vector4(1f, 1f, 0f, 0f));
-            mat.SetFloat(WorldUvId, worldUv);
+            string uvName = "_Layer_" + layer + "_UV";
+            if (!src.HasProperty(uvName))
+            {
+                LogRepeatError(src.name + " " + uvName + " missing");
+                _active[layer] = false;
+                continue;
+            }
+            Vector4 repeat = src.GetVector(uvName);
+            if (repeat.x <= 1e-4f || repeat.y <= 1e-4f)
+            {
+                LogRepeatError(src.name + " " + uvName + " repeat missing");
+                _active[layer] = false;
+                continue;
+            }
+            mat.SetVector(LayerUvId, repeat);
+            string xformName = "_Layer_" + layer + "_Xform";
+            mat.SetVector(LayerXformId, src.HasProperty(xformName) ? src.GetVector(xformName) : Vector4.zero);
             mat.SetFloat(CullId, cull);
             mat.enableInstancing = false;
             _active[layer] = true;
