@@ -92,117 +92,126 @@ public class Model extends Object {
 		this.boundingBox = new Bound(reader);
 		this.boundingSphere = new Sphere(reader);
 
-		int vectorCount = reader.readIndex();
+		// L2 Interlude UModel order (version 123, licensee 16..36, which covers
+		// the 19 and 28 packages the client ships): Vectors, Points, Nodes,
+		// Surfs, Verts, then numSharedSides, numZones, ZoneProperties, Polys,
+		// bounds, leaf hulls, leaves, lights, rootOutside, linked. No light-map
+		// array. Nodes are variable length, so a stride probe cannot read them.
+		// UEViewer splits a later L2 material layout at licensee 37; that body
+		// is not this one.
+		boolean l2 = usesL2Layout(pkg.version, pkg.license);
+		if (pkg.version >= 117 && !l2) {
+			throw new IllegalStateException(
+					"UModel for package version " + pkg.version + " licensee " + pkg.license
+					+ " is not implemented. The L2 layout is version 123, licensee 16 through 36"
+					+ " (Interlude ships 19 and 28). Refusing to guess an FBspNode stride.");
+		}
+
+		int vectorCount = arrayCount(reader, "vectors");
 		this.vectors = new ArrayList<>(vectorCount);
 		for (int i = 0; i < vectorCount; i++) {
 			reader.ensureRemaining(16);
 			vectors.add(new Vector(reader));
 		}
 
-		int pointCount = reader.readIndex();
+		int pointCount = arrayCount(reader, "points");
 		this.points = new ArrayList<>(pointCount);
 		for (int i = 0; i < pointCount; i++) {
 			reader.ensureRemaining(16);
 			points.add(new Vector(reader));
 		}
 
-		int nodeCount = reader.readIndex();
+		int nodeCount = arrayCount(reader, "nodes");
 		this.nodes = new ArrayList<>(nodeCount);
 		for (int i = 0; i < nodeCount; i++) {
-			reader.ensureRemaining(64);
-			if (pkg.version < 117) nodes.add(new Node(reader));
-//			else {
-				// XXX unknown data structures for UE2
-//				new Plane(reader);
-//				reader.readLong();
-//				reader.readInt(); reader.readInt();
-//				reader.readFloat();reader.readFloat(); reader.readFloat();reader.readFloat();
-//				reader.readInt(); reader.readInt();	reader.readInt(); reader.readInt();
-//				reader.readShort();
-//				reader.readByte();
-//				reader.readLong(); reader.readLong();
-//				reader.readInt();
-//			}
+			try {
+				nodes.add(l2 ? Node.readL2(reader) : new Node(reader));
+			} catch (RuntimeException ex) {
+				throw new IllegalStateException(
+						"Model node " + i + " of " + nodeCount + ": " + ex.getMessage(), ex);
+			}
 		}
 
-		int surfCount = reader.readIndex();
+		int surfCount = arrayCount(reader, "surfs");
 		this.surfaces = new ArrayList<>(surfCount);
 		for (int i = 0; i < surfCount; i++) {
-			reader.ensureRemaining(32);
-			if (pkg.version < 117) surfaces.add(new Surface(pkg, reader));
-//			else {
-				// XXX unknown data structures for UE2
-//				reader.readIndex();
-//				reader.readInt();
-//				reader.readIndex();reader.readIndex();reader.readIndex();reader.readIndex();reader.readIndex();
-//				reader.readIndex();
-//				reader.readFloat();reader.readFloat();reader.readFloat();reader.readFloat();reader.readFloat();
-//				Texture INDEX
-//				PolyFlags DWORD
-//				5x INDEX (pBase, vNormal, vTextureU, vTextureV, iLightMap ?)
-//				iBrushPoly INDEX
-//				5x FLOAT
-//			}
+			try {
+				surfaces.add(l2 ? Surface.readL2(pkg, reader) : new Surface(pkg, reader));
+			} catch (RuntimeException ex) {
+				throw new IllegalStateException(
+						"Model surface " + i + " of " + surfCount + ": " + ex.getMessage(), ex);
+			}
 		}
 
-		int vertCount = reader.readIndex();
+		int vertCount = arrayCount(reader, "verts");
 		this.verts = new ArrayList<>(vertCount);
 		for (int i = 0; i < vertCount; i++) {
 			reader.ensureRemaining(8);
 			verts.add(new Vert(reader));
 		}
 
+		reader.ensureRemaining(8);
 		this.numSharedSides = reader.readInt();
 
+		int zoneAt = reader.currentPosition();
 		int zoneCount = reader.readInt();
+		if (zoneCount < 0 || zoneCount > 64) {
+			throw new IllegalStateException("Model num_zones " + zoneCount + " at offset " + zoneAt);
+		}
 		this.zones = new ArrayList<>(zoneCount);
 		for (int i = 0; i < zoneCount; i++) {
-			reader.ensureRemaining(32);
+			reader.ensureRemaining(24);
 			zones.add(new Zone(pkg, reader));
-
-			// extraneous data
-			if (pkg.version < 63) reader.readFloat(); // last render time (?)
-			if (pkg.version >= 117) reader.readInt(); // unknown
+			// UE1 (<63) and L2 ZoneProperties both store a float after the masks.
+			if (pkg.version < 63 || l2) reader.readFloat();
+			else if (pkg.version >= 117) reader.readInt();
 		}
 
 		this.polys = new ObjectReference(pkg, reader.readIndex());
 
-		int lightMapCount = reader.readIndex();
-		this.lightMaps = new ArrayList<>(lightMapCount);
-		for (int i = 0; i < lightMapCount; i++) {
-			reader.ensureRemaining(32);
-			lightMaps.add(new LightMap(pkg, reader));
+		if (l2) {
+			// L2MapExtract's Model body has no LightMap/LightBits arrays here.
+			// A bulk section follows RootOutside/Linked; it is read below.
+			this.lightMaps = List.of();
+			this.lightBits = List.of();
+		} else {
+			int lightMapCount = arrayCount(reader, "lightMaps");
+			this.lightMaps = new ArrayList<>(lightMapCount);
+			for (int i = 0; i < lightMapCount; i++) {
+				reader.ensureRemaining(32);
+				lightMaps.add(new LightMap(pkg, reader));
+			}
+
+			int lightBitCount = arrayCount(reader, "lightBits");
+			this.lightBits = new ArrayList<>(lightBitCount);
+			for (int i = 0; i < lightBitCount; i++) {
+				reader.ensureRemaining(1);
+				lightBits.add(reader.readByte());
+			}
 		}
 
-		int lightBitCount = reader.readIndex();
-		this.lightBits = new ArrayList<>(lightBitCount);
-		for (int i = 0; i < lightBitCount; i++) {
-			reader.ensureRemaining(1);
-			lightBits.add(reader.readByte());
-		}
-
-		int boundCount = reader.readIndex();
+		int boundCount = arrayCount(reader, "bounds");
 		this.bounds = new ArrayList<>(boundCount);
 		for (int i = 0; i < boundCount; i++) {
 			reader.ensureRemaining(25);
 			bounds.add(new Bound(reader));
 		}
 
-		int leafHullsCount = reader.readIndex();
+		int leafHullsCount = arrayCount(reader, "leafHulls");
 		this.leafHulls = new ArrayList<>(leafHullsCount);
 		for (int i = 0; i < leafHullsCount; i++) {
 			reader.ensureRemaining(4);
 			leafHulls.add(reader.readInt());
 		}
 
-		int leavesCount = reader.readIndex();
+		int leavesCount = arrayCount(reader, "leaves");
 		this.leaves = new ArrayList<>(leavesCount);
 		for (int i = 0; i < leavesCount; i++) {
 			reader.ensureRemaining(32);
 			leaves.add(new Leaf(pkg, reader));
 		}
 
-		int lightsCount = reader.readIndex();
+		int lightsCount = arrayCount(reader, "lights");
 		this.lights = new ArrayList<>(lightsCount);
 		for (int i = 0; i < lightsCount; i++) {
 			reader.ensureRemaining(2);
@@ -213,6 +222,245 @@ public class Model extends Object {
 
 		this.rootOutside = reader.readInt();
 		this.linked = reader.readInt();
+
+		if (l2) {
+			// After Linked, L2 writes UnknownStructArray (L2MapExtract): a
+			// compact count of records, each a compact count of
+			// (Vector, Plane, Vector) then an int, a material index, and
+			// three ints. The template comments the array out; on Lobby.unr
+			// the records are real (sub-struct vectors sit on the lobby).
+			int tailCount = arrayCount(reader, "unknownStructs");
+			for (int i = 0; i < tailCount; i++) {
+				int subCount = arrayCount(reader, "unknownStructs[" + i + "].sub");
+				for (int j = 0; j < subCount; j++) {
+					reader.ensureRemaining(40);
+					new Vector(reader);
+					new net.shrimpworks.unreal.packages.entities.objects.geometry.Plane(reader);
+					new Vector(reader);
+				}
+				reader.ensureRemaining(4);
+				reader.readInt();
+				reader.readIndex();
+				reader.ensureRemaining(12);
+				reader.readInt();
+				reader.readInt();
+				reader.readInt();
+			}
+			int limit = export.pos + export.size;
+			try {
+				readL2Remainder(reader, limit, tailCount);
+			} catch (RuntimeException ex) {
+				throw new IllegalStateException(
+						"Model " + export.name.name + " lightmap tail: " + ex.getMessage(), ex);
+			}
+		}
+	}
+
+	/**
+	 * Bytes after UnknownStructArray. An empty brush is two compact zeros.
+	 * The level model is a compact index, a header span, a compact section
+	 * count, that many sections, and a closing int array. Each section is
+	 * the unknown-struct count, the same index, then the ints {@code 0 .. n-1},
+	 * then a payload that runs to the next section. The closing array is that
+	 * index and the same ints, and it ends on the export's last byte.
+	 * UEViewer does not serialize UModel; the frames are the bytes on the
+	 * Interlude level model (package 123/28).
+	 */
+	public static void readL2Remainder(PackageReader reader, int limit, int unknownStructs) {
+		int at = reader.currentPosition();
+		int indexCount = reader.readIndex();
+		if (indexCount == 0) {
+			int sections = reader.readIndex();
+			if (sections != 0 || reader.currentPosition() != limit) {
+				throw new IllegalStateException(
+						"empty lightmap tail at " + at + " left " + (limit - reader.currentPosition())
+						+ " bytes (section count " + sections + ")");
+			}
+			return;
+		}
+		if (indexCount < 0 || indexCount > 100_000) {
+			throw new IllegalStateException("lightmap index count " + indexCount + " at " + at);
+		}
+		int bulkLen = limit - reader.currentPosition();
+		if (bulkLen < 0) {
+			throw new IllegalStateException("lightmap tail starts past the export end");
+		}
+		byte[] bulk = new byte[bulkLen];
+		int off = 0;
+		while (off < bulkLen) {
+			int n = Math.min(4096, bulkLen - off);
+			int got = reader.readBytes(bulk, off, n);
+			if (got != n) {
+				throw new IllegalStateException("short lightmap read at " + off + " (" + got + " of " + n + ")");
+			}
+			off += n;
+		}
+		checkL2LightmapTail(bulk, indexCount, unknownStructs);
+		if (reader.currentPosition() != limit) {
+			throw new IllegalStateException(
+					"lightmap tail ended at " + reader.currentPosition() + ", export ends at " + limit);
+		}
+	}
+
+	static void checkL2LightmapTail(byte[] bulk, int indexCount, int unknownStructs) {
+		int[] frameAt = lightmapFrames(bulk, indexCount, unknownStructs);
+		if (frameAt.length == 0) {
+			throw new IllegalStateException(
+					"no lightmap section in " + bulk.length + " bytes (index " + indexCount
+					+ ", unknown structs " + unknownStructs + ")");
+		}
+		int intsAt = bulk.length - indexCount * 4;
+		if (intsAt < 0 || !identityInts(bulk, intsAt, indexCount)) {
+			throw new IllegalStateException("lightmap tail does not end with ints 0.." + (indexCount - 1));
+		}
+		int closingAt = compactEndingAt(bulk, intsAt, indexCount);
+		if (closingAt < 0) {
+			throw new IllegalStateException("lightmap closing count is not " + indexCount);
+		}
+		int sectionCountAt = compactEndingAt(bulk, frameAt[0], frameAt.length);
+		if (sectionCountAt < 0) {
+			throw new IllegalStateException(
+					"byte before the first lightmap section is not the section count " + frameAt.length);
+		}
+		int previousEnd = 0;
+		for (int i = 0; i < frameAt.length; i++) {
+			if (frameAt[i] < sectionCountAt || frameAt[i] < previousEnd || frameAt[i] >= closingAt) {
+				throw new IllegalStateException(
+						"lightmap section " + i + " at " + frameAt[i] + " overlaps the previous frame or the closing array");
+			}
+			Compact marker = compactAt(bulk, frameAt[i]);
+			Compact count = compactAt(bulk, marker.next);
+			previousEnd = count.next + indexCount * 4;
+		}
+		if (previousEnd > closingAt) {
+			throw new IllegalStateException("last lightmap section runs into the closing int array");
+		}
+	}
+
+	private static int[] lightmapFrames(byte[] bulk, int indexCount, int unknownStructs) {
+		int[] found = new int[64];
+		int n = 0;
+		int i = 0;
+		while (i < bulk.length) {
+			Compact marker = compactAt(bulk, i);
+			if (marker != null && marker.value == unknownStructs) {
+				Compact count = compactAt(bulk, marker.next);
+				if (count != null && count.value == indexCount
+						&& count.next + (long) indexCount * 4 <= bulk.length
+						&& identityInts(bulk, count.next, indexCount)) {
+					if (n == found.length) {
+						int[] grown = new int[found.length * 2];
+						System.arraycopy(found, 0, grown, 0, found.length);
+						found = grown;
+					}
+					found[n++] = i;
+					i = count.next + indexCount * 4;
+					continue;
+				}
+			}
+			i++;
+		}
+		int[] out = new int[n];
+		System.arraycopy(found, 0, out, 0, n);
+		return out;
+	}
+
+	private static boolean identityInts(byte[] bulk, int at, int count) {
+		for (int k = 0; k < count; k++) {
+			int v = (bulk[at] & 0xFF) | ((bulk[at + 1] & 0xFF) << 8)
+					| ((bulk[at + 2] & 0xFF) << 16) | ((bulk[at + 3] & 0xFF) << 24);
+			if (v != k) return false;
+			at += 4;
+		}
+		return true;
+	}
+
+	/** Start of the compact index that ends at {@code end} and equals {@code expected}, or -1. */
+	private static int compactEndingAt(byte[] bulk, int end, int expected) {
+		for (int width = 1; width <= 5 && width <= end; width++) {
+			Compact decoded = compactAt(bulk, end - width);
+			if (decoded != null && decoded.next == end && decoded.value == expected) return end - width;
+		}
+		return -1;
+	}
+
+	private static final class Compact {
+		final int value;
+		final int next;
+
+		Compact(int value, int next) {
+			this.value = value;
+			this.next = next;
+		}
+	}
+
+	/** Same bit layout as {@link PackageReader#readIndex()} for package versions through 178. */
+	private static Compact compactAt(byte[] data, int i) {
+		if (i < 0 || i >= data.length) return null;
+		boolean negative = false;
+		int num = 0;
+		int len = 6;
+		int pos = i;
+		for (int n = 0; n < 5; n++) {
+			if (pos >= data.length) return null;
+			int one = data[pos++] & 0xFF;
+			boolean more;
+			if (n == 0) {
+				negative = (one & 0x80) != 0;
+				more = (one & 0x40) != 0;
+				num = one & 0x3F;
+			} else if (n == 4) {
+				num |= (one & 0x80) << len;
+				more = false;
+			} else {
+				more = (one & 0x80) != 0;
+				num |= (one & 0x7F) << len;
+				len += 7;
+			}
+			if (!more) break;
+		}
+		return new Compact(negative ? -num : num, pos);
+	}
+
+	/**
+	 * Lineage 2 Interlude UModel body. Version 123 with licensee 16 through 36
+	 * is the family UEViewer reads as one L2 layout (the next material body
+	 * starts at licensee 37). Interlude maps are 123/28 and other client
+	 * packages are 123/19; both use this body.
+	 */
+	public static boolean usesL2Layout(int version, int license) {
+		return version == 123 && license >= 16 && license <= 36;
+	}
+
+	private static int arrayCount(PackageReader reader, String field) {
+		int at = reader.currentPosition();
+		int n = reader.readIndex();
+		if (n < 0 || n > 500_000) {
+			throw new IllegalStateException("Model " + field + " count " + n + " at offset " + at);
+		}
+		return n;
+	}
+
+	/**
+	 * Zone number of the leaf containing the point. Front is
+	 * {@code dot(plane, P) - w >= 0}. A negative child is a leaf; zone 1 is
+	 * the front side and zone 0 is the back side.
+	 */
+	public static int pointZone(List<Node> nodes, double x, double y, double z) {
+		if (nodes.isEmpty()) throw new IllegalStateException("Model has no BSP nodes");
+		int idx = 0;
+		for (int guard = 0; guard <= nodes.size(); guard++) {
+			if (idx < 0 || idx >= nodes.size()) {
+				throw new IllegalStateException(
+						"BSP node " + idx + " is outside the node array (" + nodes.size() + ")");
+			}
+			Node node = nodes.get(idx);
+			boolean front = node.plane.x * x + node.plane.y * y + node.plane.z * z - node.plane.w >= 0;
+			int child = front ? node.front : node.back;
+			if (child < 0) return node.zone[front ? 1 : 0];
+			idx = child;
+		}
+		throw new IllegalStateException("BSP walk did not reach a leaf");
 	}
 
 	@Override
