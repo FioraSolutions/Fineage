@@ -9,33 +9,53 @@ using UnityEngine.UIElements.Experimental;
 
 public partial class World
 {
-    public void RegisterPlayer(PlayerEntity player)
+    public void RegisterPlayer(IWorldEntity player)
     {
-        if (player == null || player.Identity == null)
+        PlayerEntity entity = player as PlayerEntity;
+        if (entity == null)
+        {
+            if (player == null || player is PlayerEntity)
+                return;
+
+            throw new InvalidOperationException(
+                "[World] IWorldSpawnRegistration.RegisterPlayer is not a PlayerEntity — the spawner passed a different type, so the local player was not registered.");
+        }
+
+        if (entity.Identity == null)
             return;
 
-        int id = player.Identity.Id;
-        _entities.RegisterPlayer(id, player);
-        _entityWait.Notify(id, player);
-        L2ActorPointLights.TryRegisterActorRoot(player.transform);
-        _visibility.Register(id, player.transform, isLocalPlayer: true);
+        int id = entity.Identity.Id;
+        _entities.RegisterPlayer(id, entity);
+        _entityWait.Notify(id, entity);
+        L2ActorPointLights.TryRegisterActorRoot(entity.transform);
+        _visibility.Register(id, entity.transform, isLocalPlayer: true);
     }
 
-    public void RegisterUser(Entity user)
+    public void RegisterUser(IWorldEntity user)
     {
-        if (user == null || user.Identity == null)
+        Entity entity = user as Entity;
+        if (entity == null)
+        {
+            if (user == null || user is Entity)
+                return;
+
+            throw new InvalidOperationException(
+                "[World] IWorldSpawnRegistration.RegisterUser is not an Entity — the spawner passed a different type, so the user was not registered.");
+        }
+
+        if (entity.Identity == null)
             return;
 
-        int id = user.Identity.Id;
-        if (!_entities.TryRegisterUser(id, user))
+        int id = entity.Identity.Id;
+        if (!_entities.TryRegisterUser(id, entity))
         {
             _entityWait.Notify(id, _entities.GetOrNull(id));
             return;
         }
 
-        _entityWait.Notify(id, user);
-        L2ActorPointLights.TryRegisterActorRoot(user.transform);
-        _visibility.Register(id, user.transform);
+        _entityWait.Notify(id, entity);
+        L2ActorPointLights.TryRegisterActorRoot(entity.transform);
+        _visibility.Register(id, entity.transform);
     }
 
     public void SpawnUser(CharInfoDto info)
