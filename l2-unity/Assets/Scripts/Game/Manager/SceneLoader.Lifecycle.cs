@@ -49,8 +49,37 @@ public partial class SceneLoader : MonoBehaviour
         LobbyBrokenMaterialHider.HideBrokenRenderers("after_l2_lobby");
         L2ZoneTerrainDraw.Apply(LobbyMapInterludeContract.ZoneCatalogMap);
         L2Ue2MaterialRuntime.Ensure();
+        EnsureLobbyOfficials();
         Manager.OnGameLaunched();
         yield return PreloadGameScene();
+    }
+
+    /// World.Start adds the official-effect playbacks in the game world. The
+    /// additive lobby has no World, so its 33 Emitter actors (the vista's
+    /// BeamEmitter light shafts and the fog03 mist) never spawned at login.
+    /// Host the playback on a lobby-scene root: unloading l2_lobby tears it
+    /// down with the scene, so the world never sees a second instance.
+    void EnsureLobbyOfficials()
+    {
+        Scene lobby = SceneManager.GetSceneByName(_lobbyScene);
+        if (!lobby.IsValid() || !lobby.isLoaded)
+            return;
+        GameObject host = null;
+        foreach (GameObject root in lobby.GetRootGameObjects())
+        {
+            if (root.name == "LobbyOfficials")
+            {
+                host = root;
+                break;
+            }
+        }
+        if (host == null)
+        {
+            host = new GameObject("LobbyOfficials");
+            SceneManager.MoveGameObjectToScene(host, lobby);
+        }
+        if (host.GetComponent<OfficialWorldEmitterPlayback>() == null)
+            host.AddComponent<OfficialWorldEmitterPlayback>();
     }
 
     private IEnumerator PreloadGameScene()

@@ -29,6 +29,7 @@ public sealed class OfficialWorldEmitterPlayback : MonoBehaviour
     int _lastTileX = int.MinValue;
     int _lastTileY = int.MinValue;
     string _lastScene;
+    bool _lastLobbyLoaded;
 
     sealed class Instance
     {
@@ -70,13 +71,18 @@ public sealed class OfficialWorldEmitterPlayback : MonoBehaviour
         Vector3 ue = VectorUtils.ConvertPosUnityToL2j(ear.position);
         VectorUtils.GetSwMapTile(ue, out int tileX, out int tileY);
         string scene = SceneManager.GetActiveScene().name;
-        if (tileX == _lastTileX && tileY == _lastTileY && scene == _lastScene && _alive.Count > 0)
+        bool lobbyLoaded = LobbySceneLoaded();
+        if (tileX == _lastTileX && tileY == _lastTileY && scene == _lastScene &&
+            lobbyLoaded == _lastLobbyLoaded && _alive.Count > 0)
             return;
         _lastTileX = tileX;
         _lastTileY = tileY;
         _lastScene = scene;
+        _lastLobbyLoaded = lobbyLoaded;
 
         OfficialWorldEmitterTable.CollectNearby(tileX, tileY, scene, _nearby);
+        if (lobbyLoaded)
+            CollectLobby(_nearby);
         var wanted = new HashSet<string>();
         for (int i = 0; i < _nearby.Count; i++)
         {
@@ -98,6 +104,25 @@ public sealed class OfficialWorldEmitterPlayback : MonoBehaviour
         }
         for (int i = 0; i < dead.Count; i++)
             Despawn(dead[i]);
+    }
+
+    /// The additive lobby (login vista, char select) is never the active scene
+    /// — Menu is — and its map is Lobby.unr, not the scene file name, so the
+    /// scene-name lookup in CollectNearby misses it. Collect by the contract
+    /// the zone fog uses; unloading l2_lobby flips this off and the poll
+    /// despawns the rows.
+    static bool LobbySceneLoaded()
+    {
+        Scene lobby = SceneManager.GetSceneByName(LobbyMapInterludeContract.AdditiveLobbySceneName);
+        return lobby.IsValid() && lobby.isLoaded;
+    }
+
+    public static void CollectLobby(List<OfficialWorldEmitterTable.Emitter> dest)
+    {
+        IReadOnlyList<OfficialWorldEmitterTable.Emitter> rows =
+            OfficialWorldEmitterTable.ForMap(LobbyMapInterludeContract.ZoneCatalogMap);
+        for (int i = 0; i < rows.Count; i++)
+            dest.Add(rows[i]);
     }
 
     bool IsAudible(OfficialWorldEmitterTable.Emitter entry, Vector3 earUnity)

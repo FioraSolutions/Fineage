@@ -48,4 +48,20 @@ public class OfficialWorldEmitterEditModeTests
         OfficialWorldEmitterTable.CollectNearby(17, 25, null, dest);
         Assert.AreEqual(2, dest.Count);
     }
+
+    const string LobbyJson = "{\"emitters\":[{\"map\":\"Lobby\",\"name\":\"Emitter5\",\"tileX\":0,\"tileY\":0,\"location\":{\"x\":-9319.4,\"y\":238524.5,\"z\":-6602.0},\"rotation\":{\"x\":0,\"y\":0,\"z\":0},\"drawScale\":0.1,\"drawScale3D\":{\"x\":1,\"y\":1,\"z\":1},\"prefabClass\":\"we_beam\"},{\"map\":\"17_25\",\"name\":\"Emitter2\",\"tileX\":17,\"tileY\":25,\"location\":{\"x\":0,\"y\":0,\"z\":0},\"rotation\":{\"x\":0,\"y\":0,\"z\":0},\"drawScale\":1,\"drawScale3D\":{\"x\":1,\"y\":1,\"z\":1},\"prefabClass\":\"we_a\"}]}";
+
+    [Test]
+    public void Nearby_with_menu_scene_does_not_pick_lobby_rows()
+    {
+        // The login active scene is Menu and the lobby map name is not a tile
+        // name, so the plain nearby search must stay empty for it: the lobby
+        // rows only come in through CollectLobby (additive l2_lobby loaded).
+        OfficialWorldEmitterTable.LoadFrom(Encoding.UTF8.GetBytes(LobbyJson), "test://lobby");
+        var dest = new System.Collections.Generic.List<OfficialWorldEmitterTable.Emitter>();
+        OfficialWorldEmitterTable.CollectNearby(0, 0, "Menu", dest);
+        Assert.AreEqual(0, dest.Count);
+        OfficialWorldEmitterTable.CollectNearby(0, 0, "l2_lobby", dest);
+        Assert.AreEqual(0, dest.Count);
+    }
 }
