@@ -12,6 +12,8 @@ public class L2TerrainLayer {
     public float vScale { get; set; }
     public float uOffset { get; set; }
     public float vOffset { get; set; }
+    public float uPan { get; set; }
+    public float vPan { get; set; }
     /// <summary>Official TextureRotation in Unreal rotator units (65536 = 360°).</summary>
     public float textureRotation { get; set; }
     /// <summary>0 = TEXMAPAXIS_XY, 1 = XZ, 2 = YZ.</summary>

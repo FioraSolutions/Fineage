@@ -5,13 +5,14 @@ using VContainer.Unity;
 
 public sealed class LoginLifetimeScope : LifetimeScope
 {
-    protected override void Configure(IContainerBuilder builder) => Install(builder);
+    protected override void OnDestroy()
+    {
+        if (Container != null)
+            HierarchyScopeInjection.UnbindLobby(Container);
+        base.OnDestroy();
+    }
 
-    /// <summary>
-    /// Registrations <see cref="Configure"/> uses. EditMode builds from here:
-    /// <see cref="LifetimeScope.Awake"/> can defer <c>Build</c> and leave <c>Container</c> null.
-    /// </summary>
-    public void Install(IContainerBuilder builder)
+    protected override void Configure(IContainerBuilder builder)
     {
         LifetimeScopeMonoRegistration.RegisterIfFound<L2LoginUI>(builder);
         LifetimeScopeMonoRegistration.RegisterIfFound<LoginWindow>(builder);
@@ -29,6 +30,7 @@ public sealed class LoginLifetimeScope : LifetimeScope
         builder.RegisterBuildCallback(container =>
         {
             RequireMotionServices(container);
+            HierarchyScopeInjection.BindLobby(container);
             LoginRuntime loginRuntime = container.Resolve<LoginRuntime>();
             AppLoginSessionApplyIncomingPacketServices.BindLogin(loginRuntime);
             if (App.Container != null)
