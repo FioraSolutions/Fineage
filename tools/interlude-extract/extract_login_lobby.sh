@@ -14,8 +14,10 @@
 #
 # Steps: 1=property dumps, 2=terrain quadvisibility, 3=BSP brushes,
 #        4=Engine/UWindow .uc defaults, 5=sysstring-e.tsv,
-#        6=texture pixels (ExportNamedTextures) and brush/BSP material props
-#          (ExportPackageProperties dump, every Material subclass),
+#        6=texture pixels (ExportNamedTextures), brush/BSP material props
+#          (ExportPackageProperties dump, every Material subclass), and the
+#          diffuse+ops closure (close_diffuse_gaps.py: objects committed props
+#          name but the tree lacks, each classified against the client .utx),
 #        7=G8 meshes (Docker umodel+Blender),
 #        8=camera BSP zones (ZoneAtPoint: which ZoneInfo each Camera sits in),
 #        9=l2_skies material props from the committed property dump.
@@ -226,34 +228,29 @@ if want_step 6; then
       "${BRUSH_ARGS[@]}" --client "$CLIENT" --out "$WORK/mesh-export" \
       --props-out "$WORK/props-export" --jar "$L2JAR"
     # Static-mesh skins and terrain layers name Diffuse textures that brush
-    # faces never mention. Export each missing leaf from its package. A leaf
-    # that is itself a material (it has props) is not a texture.
-    python3 "$ROOT/tools/interlude-extract/lobby_diffuse_closure.py" > "$WORK/missing-diffuses.txt" || true
+    # faces never mention, and committed props name modifier ops (TexPanner,
+    # Combiner, ...) whose props were never dumped. Export/render both from
+    # one classify-then-export pass: the client package decides each object's
+    # class, textures become PNGs, Material subclasses render props from a
+    # property dump, and the chain walk pulls in whatever those reference.
+    # The old per-row ExportNamedTextures loop died on the first Combiner.
+    python3 "$ROOT/tools/interlude-extract/close_diffuse_gaps.py" --list \
+      > "$WORK/missing-diffuses.txt" || true
     if [[ -s "$WORK/missing-diffuses.txt" ]]; then
-      echo "lobby diffuse textures still missing:"
+      echo "lobby diffuse/ops objects still missing:"
       cat "$WORK/missing-diffuses.txt"
-      while read -r line; do
-        pkg="$(sed -n 's/.*package=\([^ ]*\).*/\1/p' <<<"$line")"
-        own="$(sed -n 's/.*own=\([^ ]*\).*/\1/p' <<<"$line")"
-        name="$(sed -n 's/.*name=\([^ ]*\).*/\1/p' <<<"$line")"
-        utx="$(find "$CLIENT/textures" "$CLIENT/systextures" -maxdepth 1 -iname "$pkg.utx" -print -quit 2>/dev/null || true)"
-        out_pkg="$pkg"
-        if [[ -z "$utx" && -n "$own" && "$own" != "$pkg" ]]; then
-          # Group reference printed as Group.Object: the texture is an export
-          # of the material's own package. ExportNamedTextures fails loudly
-          # when the name is not in it.
-          utx="$(find "$CLIENT/textures" "$CLIENT/systextures" -maxdepth 1 -iname "$own.utx" -print -quit 2>/dev/null || true)"
-          out_pkg="$own"
-        fi
-        if [[ -z "$utx" ]]; then
-          echo "ERROR package=$pkg own=$own group= name=$name class=Texture utx missing" >&2
-          exit 2
-        fi
-        java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
-          "$utx" "$WORK/tex/$out_pkg" "$name"
-      done < "$WORK/missing-diffuses.txt"
-      python3 "$ROOT/tools/interlude-extract/place_login_assets.py" textures --src "$WORK/tex"
-      python3 "$ROOT/tools/interlude-extract/lobby_diffuse_closure.py" --verify
+      python3 "$ROOT/tools/interlude-extract/close_diffuse_gaps.py" \
+        --client "$CLIENT" --jar "$L2JAR" --out "$WORK/mesh-export" \
+        --props-out "$WORK/props-export"
+      # Both sources must be satisfied now: a PNG per diffuse leaf and props
+      # per modifier op. Anything left is a real gap, not a warning.
+      python3 "$ROOT/tools/interlude-extract/close_diffuse_gaps.py" --list \
+        > "$WORK/missing-diffuses-after.txt" || true
+      if [[ -s "$WORK/missing-diffuses-after.txt" ]]; then
+        echo "ERROR lobby material gap not closed:" >&2
+        cat "$WORK/missing-diffuses-after.txt" >&2
+        exit 1
+      fi
     fi
     # New textures change the name index and the ops gap the runtime reads.
     # Regenerate both so the committed files match the committed tree.
@@ -366,14 +363,12 @@ Done. Commit the new reference dumps and assets:
           l2-unity/docs/interlude-ref/scripts/Engine.u \\
           l2-unity/docs/interlude-ref/scripts/UWindow.u \\
           l2-unity/docs/interlude-ref/dats/sysstring-e.tsv \\
-          l2-unity/Assets/Resources/Data/Textures/l2_skies \\
+          l2-unity/Assets/Resources/Data/Textures \\
           l2-unity/Assets/StreamingAssets/Data/Meta/Materials/ue2-texture-index.tsv \\
           l2-unity/docs/interlude-ref/world/material-ops-gap.md \\
-          l2-unity/Assets/Resources/Data/Textures/lobby_terrain_t/H_M_05.png* \\
           l2-unity/Assets/Resources/Data/UI/Assets/Login/start_logo-k.png* \\
           l2-unity/Assets/Resources/Data/UI/Assets/Login/start_minilogo-k.png* \\
           l2-unity/Assets/Resources/Data/StaticMeshes/RionSctgart_tree_s \\
-          l2-unity/Assets/Resources/Data/StaticMeshes/field_deco_S \\
-          l2-unity/Assets/Resources/Data/Textures/l2_skies
+          l2-unity/Assets/Resources/Data/StaticMeshes/field_deco_S
   (work-dir sidecars under .work/lobby-extract are build inputs, not committed.)
 EOF
