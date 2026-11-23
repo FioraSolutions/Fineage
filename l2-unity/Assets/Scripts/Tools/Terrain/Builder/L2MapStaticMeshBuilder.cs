@@ -51,6 +51,11 @@ public class L2MapStaticMeshBuilder : MonoBehaviour
 
     public static void BuildSingleStaticMesh(L2StaticMesh staticMesh, GameObject container) {
         Vector3 basePosition = Vector3.zero;
+        if (staticMesh == null || string.IsNullOrEmpty(staticMesh.staticMesh))
+        {
+            Debug.LogError("[StaticMesh] actor has no StaticMesh reference");
+            return;
+        }
         string meshPath = StaticMeshUtils.GetMeshPath(staticMesh.staticMesh);
         GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(meshPath);
         if (go != null) {
@@ -83,7 +88,7 @@ public class L2MapStaticMeshBuilder : MonoBehaviour
 
             instantiated.transform.parent = container.transform;
         } else {
-            // Debug.LogError("Can't find StaticMesh FBX " + staticMesh.staticMesh + " at path " + meshPath);
+            Debug.LogError("[StaticMesh] missing mesh \"" + staticMesh.staticMesh + "\" at " + meshPath);
         }
     }
 }

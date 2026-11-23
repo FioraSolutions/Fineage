@@ -78,12 +78,17 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
                 if (!L2Ue2MaterialChain.CanUpgradeShader(shaderName))
                     continue;
                 if (_props == null || !_props.ContainsKey(name))
+                {
+                    if (L2TwoSidedMaterials.TryResolve(name, out bool sided))
+                        L2TwoSidedMaterials.Apply(source, sided, name);
                     continue;
+                }
                 if (!_evalByName.TryGetValue(name, out L2Ue2MaterialChain.Eval eval))
                 {
                     eval = L2Ue2MaterialChain.Evaluate(name, _props);
                     _evalByName[name] = eval;
                 }
+                L2TwoSidedMaterials.Apply(source, eval.TwoSided, name);
                 if (!L2Ue2MaterialChain.NeedsChainShader(eval))
                     continue;
                 if (!L2Ue2MaterialApply.TexturePackageAgrees(
@@ -120,31 +125,10 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
     {
         if (_props != null)
             return;
+        L2TwoSidedMaterials.EnsureLoaded();
         _props = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var rejected = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        TextAsset[] assets = Resources.LoadAll<TextAsset>("Data/Textures");
-        for (int i = 0; i < assets.Length; i++)
-        {
-            TextAsset asset = assets[i];
-            if (asset == null || asset.name == null || !asset.name.EndsWith(".props", StringComparison.OrdinalIgnoreCase))
-                continue;
-            string key = asset.name.Substring(0, asset.name.Length - ".props".Length);
-            if (rejected.Contains(key))
-                continue;
-            if (_props.TryGetValue(key, out string existing))
-            {
-                if (!string.Equals(existing, asset.text, StringComparison.OrdinalIgnoreCase))
-                {
-                    Debug.LogError(
-                        "[Ue2Material] material " + key + " props ambiguous "
-                        + DiffuseLine(existing) + " vs " + DiffuseLine(asset.text));
-                    _props.Remove(key);
-                    rejected.Add(key);
-                }
-                continue;
-            }
-            _props.Add(key, asset.text);
-        }
+        foreach (KeyValuePair<string, string> pair in L2TwoSidedMaterials.Props)
+            _props.Add(pair.Key, pair.Value);
     }
 
     void EnsureIndex()
@@ -205,18 +189,6 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
         if (tex == null && source.HasProperty("_BaseMap"))
             tex = source.GetTexture("_BaseMap");
         return tex != null ? tex.name : null;
-    }
-
-    static string DiffuseLine(string body)
-    {
-        if (string.IsNullOrEmpty(body))
-            return "Diffuse missing";
-        int i = body.IndexOf("Diffuse", StringComparison.OrdinalIgnoreCase);
-        if (i < 0)
-            return "Diffuse missing";
-        int end = body.IndexOf('\n', i);
-        string line = end > i ? body.Substring(i, end - i) : body.Substring(i);
-        return line.Trim();
     }
 
     static string BaseName(string name)

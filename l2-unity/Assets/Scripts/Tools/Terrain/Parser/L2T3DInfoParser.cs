@@ -97,6 +97,11 @@ public partial class L2T3DInfoParser {
                             mesh.hasDrawScale3D = true;
                         }
                     }
+                    if (string.IsNullOrEmpty(mesh.staticMesh))
+                    {
+                        Debug.LogError("[StaticMesh] actor in " + path + " has no StaticMesh= reference");
+                        continue;
+                    }
                     terrainInfo.staticMeshes.Add(mesh);
                 }
             }

@@ -129,6 +129,37 @@ public static class L2InterludeMaterialBinder
         log.Add("collision-only shader mats: " + FixCollisionOnlyFromProps(props));
         log.Add(L2InterludeStaticMeshColliders.Run(null));
         log.Add(L2InterludeWaterVolumes.Run(null));
+        log.Add("two-sided cull from original props: " + ApplySharedTwoSided(props));
+    }
+
+    /// <summary>
+    /// Textured materials used to skip the binder, so TwoSided stayed at the importer's Cull Back.
+    /// Every material with props takes the shared cull rule, on every map.
+    /// </summary>
+    static int ApplySharedTwoSided(Dictionary<string, string> props)
+    {
+        int n = 0;
+        foreach (string g in AssetDatabase.FindAssets("t:Material", new[] { MeshRoot, TexRoot }))
+        {
+            string mp = AssetDatabase.GUIDToAssetPath(g);
+            Material m = AssetDatabase.LoadAssetAtPath<Material>(mp);
+            if (m == null || !props.ContainsKey(m.name))
+                continue;
+            L2Ue2ShaderProps.PropsInfo info = L2Ue2ShaderProps.Analyze(m.name, props);
+            if (!string.IsNullOrEmpty(info.detail) && info.detail.StartsWith("missing props", StringComparison.Ordinal))
+                continue;
+            float have = m.HasProperty("_Cull") ? m.GetFloat("_Cull") : -1f;
+            float want = L2TwoSidedMaterials.CullFor(info.twoSided);
+            if (Mathf.Abs(have - want) < 0.01f && m.doubleSidedGI == info.twoSided)
+                continue;
+            if (!L2TwoSidedMaterials.Apply(m, info.twoSided, m.name))
+                continue;
+            EditorUtility.SetDirty(m);
+            n++;
+        }
+        if (n > 0)
+            AssetDatabase.SaveAssets();
+        return n;
     }
 
     [MenuItem("Shnok/0.2. [Interlude] Fix water / translucent StaticMesh materials")]

@@ -65,6 +65,34 @@ namespace Fineage.TerrainBsp
       return CollectSubtractVolumesInner(brushes);
     }
 
+    /// <summary>Append this brush when it is a usable CSG_Subtract. Order of calls is the carve order.</summary>
+    public static void AccumulateSubtract(L2BspBrush brush, List<L2BspAabb> into)
+    {
+      if (into == null || brush == null || !string.Equals(brush.csgOper, CsgSubtract, StringComparison.Ordinal))
+        return;
+      if (!BrushUsable(brush))
+        return;
+      L2BspAabb? box = BrushBounds(brush);
+      if (box.HasValue)
+        into.Add(box.Value);
+    }
+
+    /// <summary>Null when the brush can be CSG'd. Otherwise a concrete reason it is dropped.</summary>
+    public static string UnusableReason(L2BspBrush b)
+    {
+      if (b == null)
+        return "null brush";
+      if (b.position == Vector3.zero)
+        return "position is zero";
+      if (b.polygons == null)
+        return "no polygons";
+      if (!L2BspPolyFlags.ShouldRenderBrush(b.polyFlags))
+        return "brush flags not rendered";
+      if (BrushHasHugeVertices(b))
+        return "vertex exceeds 60000";
+      return null;
+    }
+
     static List<L2BspAabb> CollectSubtractVolumesInner(IReadOnlyList<L2BspBrush> brushes)
     {
       var list = new List<L2BspAabb>();
@@ -255,12 +283,7 @@ namespace Fineage.TerrainBsp
       return new[] { c0, c1, c2, c3 };
     }
 
-    public static bool BrushUsable(L2BspBrush b)
-    {
-      if (b == null || b.position == Vector3.zero || b.polygons == null) return false;
-      if (!L2BspPolyFlags.ShouldRenderBrush(b.polyFlags)) return false;
-      return !BrushHasHugeVertices(b);
-    }
+    public static bool BrushUsable(L2BspBrush b) => UnusableReason(b) == null;
 
     /// <summary>AntiPortal doorway brushes are brush-level NotSolid/Invisible in UE2 but still define holes.</summary>
     public static bool BrushUsableForPortalCollection(L2BspBrush b)
