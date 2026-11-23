@@ -61,6 +61,32 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
         get { return _animations; }
     }
 
+    public void RegisterSpawnAnimation(int objectId, ISpawnAnimator animator, IWorldEntity entity)
+    {
+        if (animator == null)
+            return;
+
+        if (animator is not IAnimationController controller)
+        {
+            throw new InvalidOperationException(
+                "[World] IWorldSpawnRegistration.RegisterSpawnAnimation is not an IAnimationController — the spawner passed a different type, so the animation was not registered.");
+        }
+
+        if (entity != null && entity is not Entity)
+        {
+            throw new InvalidOperationException(
+                "[World] IWorldSpawnRegistration.RegisterSpawnAnimation is not an Entity — the spawner passed a different type, so the animation was not registered.");
+        }
+
+        if (_animations == null)
+        {
+            throw new InvalidOperationException(
+                "[World] IAnimationManager missing — AppLifetimeScope did not register AnimationManager, so the spawned animation was not registered.");
+        }
+
+        _animations.RegisterController(objectId, controller, entity as Entity);
+    }
+
     public Transform UsersContainer
     {
         get { return _usersContainer != null ? _usersContainer.transform : null; }
