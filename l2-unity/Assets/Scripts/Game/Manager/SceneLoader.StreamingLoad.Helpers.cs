@@ -27,6 +27,7 @@ public partial class SceneLoader
         }
 
         yield return LoadSceneAdditiveIfNeeded(tile);
+        L2ZoneTerrainDraw.Apply(tile);
         _loadedTiles.Add(tile);
         yield return ResnapActorsAfterTile();
         _streamingBusy = false;

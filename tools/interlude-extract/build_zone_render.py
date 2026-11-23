@@ -26,7 +26,7 @@ HEADER = [
     "fog_start", "fog_end", "fog_r", "fog_g", "fog_b", "fog_a",
     "tex_u_pan", "tex_v_pan", "lens_flares", "lens_offsets", "lens_scales",
     "radius", "limit_max_radius", "b_directional", "draw_scale", "light_brightness",
-    "rot_pitch", "rot_yaw", "rot_roll",
+    "rot_pitch", "rot_yaw", "rot_roll", "terrains",
 ]
 
 
@@ -109,7 +109,39 @@ def rotator_cells(props: dict) -> tuple[str, str, str]:
     return tuple(str(int(rot.get(ch, 0))) for ch in ("pitch", "yaw", "roll"))
 
 
-def row_for(map_name: str, export: dict) -> list[str]:
+def terrain_names(data: dict) -> list[str]:
+    names = []
+    for export in data.get("exports") or []:
+        if export.get("class") == "TerrainInfo":
+            names.append(export.get("name") or "")
+    return names
+
+
+def terrains_cell(map_name: str, export: dict, props: dict, terrains: list[str]) -> str:
+    """ZoneInfo.Terrains lists the TerrainInfo actors this zone draws.
+
+    The dump stores the array size and drops the elements. Every Interlude map
+    has at most one TerrainInfo, so a size of 1 is that actor. Any other size,
+    or more than one TerrainInfo, is a hard error: the name would be a guess.
+    """
+    if export.get("class") not in ("ZoneInfo", "SkyZoneInfo"):
+        return ""
+    prop = first(props, "Terrains")
+    if prop is None:
+        return ""
+    size = int(prop.get("array_size") or 0)
+    if size == 0:
+        return ""
+    if size != 1 or len(terrains) != 1:
+        raise SystemExit(
+            map_name + " " + (export.get("name") or "")
+            + " Terrains array_size " + str(size)
+            + " with TerrainInfo " + ",".join(terrains)
+            + " (dump stores the size, not the elements)")
+    return terrains[0]
+
+
+def row_for(map_name: str, export: dict, terrains: list[str]) -> list[str]:
     props = collect(export)
     r, g, b, a = color_cells(props)
     pitch, yaw, roll = rotator_cells(props)
@@ -134,6 +166,7 @@ def row_for(map_name: str, export: dict) -> list[str]:
         float_cell(props, "DrawScale"),
         float_cell(props, "LightBrightness"),
         pitch, yaw, roll,
+        terrains_cell(map_name, export, props, terrains),
     ]
 
 
@@ -144,10 +177,13 @@ def main() -> None:
             map_name = path.name[: -len(".unr.json.gz")]
             with gzip.open(path, "rt", encoding="utf-8") as handle:
                 data = json.load(handle, parse_float=str)
+            terrains = terrain_names(data)
+            if len(terrains) > 1:
+                raise SystemExit(map_name + " has " + str(len(terrains)) + " TerrainInfo exports")
             for export in data.get("exports") or []:
                 if export.get("class") not in CLASSES:
                     continue
-                rows.append(row_for(map_name, export))
+                rows.append(row_for(map_name, export, terrains))
     rows.sort(key=lambda r: (r[0], r[1], r[2]))
     body = "\t".join(HEADER) + "\n" + "".join("\t".join(r) + "\n" for r in rows)
     DOCS.parent.mkdir(parents=True, exist_ok=True)
@@ -171,6 +207,13 @@ def main() -> None:
             "Disc direction and color stay on the day/night LUT. `Radius` is a light radius;",
             "the runtime scales the captured disc by `tileRadius / catalogMode`.",
             "`Engine.Flare*` textures are not in Resources. A missing flare is logged by name.",
+            "",
+            "`terrains` is the TerrainInfo a ZoneInfo lists in `Terrains[]`.",
+            "The dump stores `array_size` and not the elements. A size of 1 with the map's",
+            "single TerrainInfo is that actor. An empty cell means the zone lists none",
+            "(`b_terrain_zone` alone does not). BSP zone-portal neighbors are not in the",
+            "property dump. The runtime adds them from `zone-portals/<map>.tsv` when that",
+            "file exists (`from`, `to`: the camera zone also draws terrain owned by `to`).",
             "",
         ]),
         encoding="utf-8",

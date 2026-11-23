@@ -47,6 +47,7 @@ public partial class SceneLoader : MonoBehaviour
         // Lobby meshes exist only after additive load — hide magenta/error mats here.
         yield return null;
         LobbyBrokenMaterialHider.HideBrokenRenderers("after_l2_lobby");
+        L2ZoneTerrainDraw.Apply(LobbyMapInterludeContract.ZoneCatalogMap);
         Manager.OnGameLaunched();
         yield return PreloadGameScene();
     }

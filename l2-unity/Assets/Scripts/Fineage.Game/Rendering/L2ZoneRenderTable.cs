@@ -33,6 +33,15 @@ public sealed class L2ZoneRenderTable
         public string PanV;
         public string LensFlares;
         public string Radius;
+        /// <summary>TerrainInfo this zone lists in Terrains[]. Empty means it lists none.</summary>
+        public string Terrains;
+    }
+
+    public enum TerrainDraw
+    {
+        Unknown = 0,
+        Draw = 1,
+        Hide = 2,
     }
 
     public struct DistanceFog
@@ -49,7 +58,7 @@ public sealed class L2ZoneRenderTable
         public int A;
     }
 
-    const int Columns = 25;
+    const int Columns = 26;
 
     readonly Dictionary<string, List<Actor>> _byMap = new Dictionary<string, List<Actor>>(StringComparer.OrdinalIgnoreCase);
     readonly List<Actor> _all = new List<Actor>();
@@ -94,6 +103,7 @@ public sealed class L2ZoneRenderTable
                 PanV = cells[13],
                 LensFlares = cells[14],
                 Radius = cells[17],
+                Terrains = cells[25],
             };
             table._all.Add(actor);
             if (!table._byMap.TryGetValue(actor.Map, out List<Actor> list))
@@ -139,6 +149,71 @@ public sealed class L2ZoneRenderTable
             TryByte(selected.FogB, out fog.B) && TryByte(selected.FogA, out fog.A))
             fog.HasColor = true;
         return true;
+    }
+
+    /// <summary>
+    /// Draw the map terrain when the camera zone, or a zone visible through a
+    /// portal, lists a TerrainInfo. An empty camera zone is Unknown: the caller
+    /// leaves the mesh as placed. bTerrainZone without a Terrains entry does not own one.
+    /// </summary>
+    public TerrainDraw TerrainDrawFor(string map, string cameraZone, IList<string> portalZones, List<string> errors)
+    {
+        if (string.IsNullOrEmpty(cameraZone))
+            return TerrainDraw.Unknown;
+        if (string.IsNullOrEmpty(map) || !_byMap.TryGetValue(map, out List<Actor> rows))
+        {
+            errors?.Add("[ZoneTerrain] map " + map + " missing");
+            return TerrainDraw.Unknown;
+        }
+        if (!ZoneListed(rows, cameraZone))
+        {
+            errors?.Add("[ZoneTerrain] map " + map + " camera zone " + cameraZone + " missing");
+            return TerrainDraw.Unknown;
+        }
+        if (ZoneListsTerrain(rows, cameraZone))
+            return TerrainDraw.Draw;
+        if (portalZones != null)
+        {
+            for (int i = 0; i < portalZones.Count; i++)
+            {
+                string seen = portalZones[i];
+                if (string.IsNullOrEmpty(seen))
+                    continue;
+                if (!ZoneListed(rows, seen))
+                {
+                    errors?.Add("[ZoneTerrain] map " + map + " portal zone " + seen + " missing");
+                    continue;
+                }
+                if (ZoneListsTerrain(rows, seen))
+                    return TerrainDraw.Draw;
+            }
+        }
+        return TerrainDraw.Hide;
+    }
+
+    static bool ZoneListed(List<Actor> rows, string actorName)
+    {
+        for (int i = 0; i < rows.Count; i++)
+        {
+            if (!string.Equals(rows[i].Name, actorName, StringComparison.Ordinal))
+                continue;
+            if (rows[i].ClassName == "ZoneInfo" || rows[i].ClassName == "SkyZoneInfo")
+                return true;
+        }
+        return false;
+    }
+
+    static bool ZoneListsTerrain(List<Actor> rows, string actorName)
+    {
+        for (int i = 0; i < rows.Count; i++)
+        {
+            if (!string.Equals(rows[i].Name, actorName, StringComparison.Ordinal))
+                continue;
+            if (rows[i].ClassName != "ZoneInfo" && rows[i].ClassName != "SkyZoneInfo")
+                continue;
+            return !string.IsNullOrEmpty(rows[i].Terrains);
+        }
+        return false;
     }
 
     /// <summary>

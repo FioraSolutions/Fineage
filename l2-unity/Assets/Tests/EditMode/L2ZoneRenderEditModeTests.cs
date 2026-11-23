@@ -190,6 +190,46 @@ public class L2ZoneRenderEditModeTests
         Assert.AreEqual(196, fog.B);
     }
 
+    [Test]
+    public void Lobby_eye_zone_lists_TerrainInfo0_and_a_portal_can_add_one()
+    {
+        L2ZoneRenderTable table = Load();
+        L2ZoneRenderTable.Actor eye = Zone(table, "ZoneInfo0");
+        L2ZoneRenderTable.Actor flagged = Zone(table, "ZoneInfo1");
+        L2ZoneRenderTable.Actor bare = Zone(table, "ZoneInfo2");
+        Assert.AreEqual("1", eye.TerrainZone);
+        Assert.AreEqual("TerrainInfo0", eye.Terrains);
+        Assert.AreEqual("1", flagged.TerrainZone);
+        Assert.AreEqual("", flagged.Terrains);
+        Assert.AreEqual("", bare.TerrainZone);
+        Assert.AreEqual("", bare.Terrains);
+
+        var errors = new List<string>();
+        Assert.AreEqual(L2ZoneRenderTable.TerrainDraw.Draw,
+            table.TerrainDrawFor("Lobby", "ZoneInfo0", null, errors));
+        Assert.AreEqual(L2ZoneRenderTable.TerrainDraw.Hide,
+            table.TerrainDrawFor("Lobby", "ZoneInfo1", null, errors));
+        Assert.AreEqual(L2ZoneRenderTable.TerrainDraw.Hide,
+            table.TerrainDrawFor("Lobby", "ZoneInfo2", null, errors));
+        Assert.AreEqual(L2ZoneRenderTable.TerrainDraw.Draw,
+            table.TerrainDrawFor("Lobby", "ZoneInfo2", new[] { "ZoneInfo0" }, errors));
+        Assert.AreEqual(L2ZoneRenderTable.TerrainDraw.Unknown,
+            table.TerrainDrawFor("Lobby", "", null, errors));
+        Assert.AreEqual(0, errors.Count);
+    }
+
+    static L2ZoneRenderTable.Actor Zone(L2ZoneRenderTable table, string name)
+    {
+        for (int i = 0; i < table.Actors.Count; i++)
+        {
+            L2ZoneRenderTable.Actor actor = table.Actors[i];
+            if (actor.Map == "Lobby" && actor.ClassName == "ZoneInfo" && actor.Name == name)
+                return actor;
+        }
+        Assert.Fail(name);
+        return default;
+    }
+
     static L2ZoneRenderTable Load()
     {
         string docs = File.ReadAllText(Path.Combine(Application.dataPath, "../docs/interlude-ref/world/zone-render.tsv"));
@@ -222,12 +262,12 @@ public class L2ZoneRenderEditModeTests
 
     static string Header()
     {
-        return "map\tclass\tname\tzone_tag\tb_distance_fog\tb_terrain_zone\tfog_start\tfog_end\tfog_r\tfog_g\tfog_b\tfog_a\ttex_u_pan\ttex_v_pan\tlens_flares\tlens_offsets\tlens_scales\tradius\tlimit_max_radius\tb_directional\tdraw_scale\tlight_brightness\trot_pitch\trot_yaw\trot_roll";
+        return "map\tclass\tname\tzone_tag\tb_distance_fog\tb_terrain_zone\tfog_start\tfog_end\tfog_r\tfog_g\tfog_b\tfog_a\ttex_u_pan\ttex_v_pan\tlens_flares\tlens_offsets\tlens_scales\tradius\tlimit_max_radius\tb_directional\tdraw_scale\tlight_brightness\trot_pitch\trot_yaw\trot_roll\tterrains";
     }
 
     static string TsvRow(string map, string cls, string name, string tag, string fog, string terrain, string start, string end, string r, string g, string b, string a, string panU, string panV, string radius)
     {
-        var cells = new string[25];
+        var cells = new string[26];
         for (int i = 0; i < cells.Length; i++)
             cells[i] = "";
         cells[0] = map;

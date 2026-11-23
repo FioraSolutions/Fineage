@@ -15,6 +15,7 @@ public static class L2ZoneRender
     static bool _loadAttempted;
     static string _active;
     static string _zoneActor;
+    static L2ZoneRenderTable.TerrainDraw _terrainDraw;
     static bool _hasFog;
     static L2ZoneRenderTable.DistanceFog _fog;
     static bool _hasSky;
@@ -25,6 +26,13 @@ public static class L2ZoneRender
     static readonly HashSet<string> _logged = new HashSet<string>(StringComparer.Ordinal);
 
     public static string ActiveMap => _active;
+
+    public static string ActiveZone => _zoneActor;
+
+    /// <summary>
+    /// Draw, hide, or leave the active map's terrain. Unknown until the camera zone is set.
+    /// </summary>
+    public static L2ZoneRenderTable.TerrainDraw ActiveTerrainDraw => _terrainDraw;
 
     public static void SetActiveMap(string map)
     {
@@ -42,6 +50,7 @@ public static class L2ZoneRender
             return;
         _active = map;
         _zoneActor = zoneActor ?? "";
+        _terrainDraw = L2ZoneRenderTable.TerrainDraw.Unknown;
         if (string.IsNullOrEmpty(map))
             return;
         EnsureTable();
@@ -57,6 +66,8 @@ public static class L2ZoneRender
         _hasFog = string.IsNullOrEmpty(zoneActor)
             ? _table.TryDistanceFog(map, out _fog, errors)
             : _table.TryNamedDistanceFog(map, zoneActor, out _fog, errors);
+        if (!string.IsNullOrEmpty(zoneActor))
+            _terrainDraw = _table.TerrainDrawFor(map, zoneActor, PortalZones(map, zoneActor), errors);
         _hasSky = _table.TrySkyPan(map, out _panU, out _panV, errors);
         _sunScale = _table.BodyRadiusScale(map, "NSun", errors);
         _moonScale = _table.BodyRadiusScale(map, "NMoon", errors);
@@ -122,6 +133,35 @@ public static class L2ZoneRender
             }
         }
         return agreed;
+    }
+
+    /// <summary>
+    /// Zones the camera zone can see through a portal, from
+    /// Data/Meta/World/zone-portals/&lt;map&gt;.tsv (`from`, `to`). The property dump
+    /// has no BSP portal graph, so a missing file means the camera zone only.
+    /// </summary>
+    static List<string> PortalZones(string map, string cameraZone)
+    {
+        var seen = new List<string>();
+        string path = Path.Combine(Application.streamingAssetsPath, "Data/Meta/World/zone-portals", map + ".tsv");
+        if (!File.Exists(path))
+            return seen;
+        string[] lines = File.ReadAllText(path).Split('\n');
+        for (int i = 1; i < lines.Length; i++)
+        {
+            string line = lines[i].TrimEnd('\r');
+            if (line.Length == 0)
+                continue;
+            string[] cells = line.Split('\t');
+            if (cells.Length < 2 || string.IsNullOrEmpty(cells[0]) || string.IsNullOrEmpty(cells[1]))
+            {
+                LogOnce("[ZoneTerrain] map " + map + " zone-portals row " + (i + 1) + " needs from and to");
+                continue;
+            }
+            if (string.Equals(cells[0], cameraZone, StringComparison.Ordinal))
+                seen.Add(cells[1]);
+        }
+        return seen;
     }
 
     static void EnsureTable()
