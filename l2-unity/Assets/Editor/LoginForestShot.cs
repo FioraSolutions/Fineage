@@ -454,7 +454,7 @@ public static class LoginForestShot
     // laid out wider than 200px.
     static bool LoginWindowShown()
     {
-        UIDocument[] docs = Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        UIDocument[] docs = UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         bool loginShown = false;
         for (int d = 0; d < docs.Length; d++)
         {
