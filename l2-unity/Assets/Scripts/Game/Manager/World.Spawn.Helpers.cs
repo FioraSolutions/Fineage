@@ -15,29 +15,49 @@ public partial class World
             _userSpawner.UpdateInfo(entity, info);
     }
 
-    public void RegisterNpc(Entity npc)
+    public void RegisterNpc(IWorldEntity npc)
     {
-        if (npc == null || npc.Identity == null)
+        Entity entity = npc as Entity;
+        if (entity == null)
+        {
+            if (npc == null || npc is Entity)
+                return;
+
+            throw new InvalidOperationException(
+                "[World] IWorldSpawnRegistration.RegisterNpc is not an Entity — the spawner passed a different type, so the npc was not registered.");
+        }
+
+        if (entity.Identity == null)
             return;
 
-        int id = npc.Identity.Id;
-        _entities.RegisterNpc(id, npc);
-        _entityWait.Notify(id, npc);
-        if (npc is MonsterEntity or NpcEntity)
+        int id = entity.Identity.Id;
+        _entities.RegisterNpc(id, entity);
+        _entityWait.Notify(id, entity);
+        if (entity is MonsterEntity or NpcEntity)
         {
-            L2ActorPointLights.TryRegisterActorRoot(npc.transform);
-            _visibility.Register(id, npc.transform);
+            L2ActorPointLights.TryRegisterActorRoot(entity.transform);
+            _visibility.Register(id, entity.transform);
         }
     }
 
-    public void RegisterItem(ItemEntity item)
+    public void RegisterItem(IWorldEntity item)
     {
-        if (item == null || item.Identity == null)
+        ItemEntity entity = item as ItemEntity;
+        if (entity == null)
+        {
+            if (item == null || item is ItemEntity)
+                return;
+
+            throw new InvalidOperationException(
+                "[World] IWorldSpawnRegistration.RegisterItem is not an ItemEntity — the spawner passed a different type, so the item was not registered.");
+        }
+
+        if (entity.Identity == null)
             return;
 
-        int id = item.Identity.Id;
-        _entities.RegisterItem(id, item);
-        _entityWait.Notify(id, item);
+        int id = entity.Identity.Id;
+        _entities.RegisterItem(id, entity);
+        _entityWait.Notify(id, entity);
     }
 
     public void SpawnOrUpdateGroundItem(
