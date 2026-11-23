@@ -60,7 +60,6 @@ public partial class SceneLoader
         yield return UnloadSceneCompleted(tile);
 
         _loadedTiles.Remove(tile);
-        _missedTiles.Remove(tile);
         _streamingBusy = false;
     }
 
@@ -68,11 +67,12 @@ public partial class SceneLoader
     {
         if (_lastTilePresent)
         {
-            _missedTiles.Remove(tile);
             _loadedTiles.Add(tile);
             return;
         }
 
-        _missedTiles.Add(tile);
+        _worldStreaming = false;
+        _streamingBusy = false;
+        throw MapTileLoadPolicy.Missing(tile);
     }
 }

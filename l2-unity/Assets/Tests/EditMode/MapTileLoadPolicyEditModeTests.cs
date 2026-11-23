@@ -3,27 +3,35 @@ using NUnit.Framework;
 public sealed class MapTileLoadPolicyEditModeTests
 {
     [Test]
-    public void PrefabOnlyFieldTileIsStillAttempted()
+    public void CatalogTileLoadsFromThePrefab()
     {
-        // Giran 22_22 is a Resources map prefab and is not a Build Settings scene.
         Assert.IsTrue(MapTileLoadPolicy.IsMapTileName("22_22"));
-        Assert.IsTrue(MapTileLoadPolicy.ShouldAttempt("22_22", sceneInBuild: false, manifestListed: false));
+        Assert.IsTrue(MapTileLoadPolicy.ShouldAttempt("22_22", sceneInBuild: false, manifestListed: true));
+        Assert.AreEqual("Data/Maps/22_22/22_22", MapTileLoadPolicy.ExpectedPrefabResourcePath("22_22"));
     }
 
     [Test]
-    public void BuildSceneDoesNotExemptAMapTileFromThePrefabPass()
+    public void BuildSceneDoesNotLoadAMapTile()
     {
-        // Gludio 19_21 is in Build Settings as a stub. The streamer must still load it,
-        // and the loader pairs that scene with Resources/Data/Maps/19_21.
-        Assert.IsTrue(MapTileLoadPolicy.ShouldAttempt("19_21", sceneInBuild: true, manifestListed: false));
-    }
-
-    [Test]
-    public void NonTileNameWithoutASceneIsNotAMapLoad()
-    {
+        Assert.IsFalse(MapTileLoadPolicy.ShouldAttempt("19_21", sceneInBuild: true, manifestListed: false));
+        Assert.IsTrue(MapTileLoadPolicy.ShouldAttempt("Game", sceneInBuild: true, manifestListed: false));
         Assert.IsFalse(MapTileLoadPolicy.IsMapTileName("Game"));
         Assert.IsFalse(MapTileLoadPolicy.ShouldAttempt("not_a_tile", sceneInBuild: false, manifestListed: false));
-        Assert.IsTrue(MapTileLoadPolicy.ShouldAttempt("Game", sceneInBuild: true, manifestListed: false));
+    }
+
+    [Test]
+    public void MissingTileThrowsNamingTheCatalog()
+    {
+        MapTileMissingException ex = Assert.Throws<MapTileMissingException>(() =>
+        {
+            throw MapTileLoadPolicy.Missing("99_99");
+        });
+        Assert.AreEqual("99_99", ex.TileId);
+        Assert.AreEqual("Data/Maps/99_99/99_99", ex.ExpectedPath);
+        Assert.AreEqual(MapTileLoadPolicy.Catalog, ex.Catalog);
+        StringAssert.Contains("99_99", ex.Message);
+        StringAssert.Contains("Data/Maps/99_99/99_99", ex.Message);
+        StringAssert.Contains(MapTileLoadPolicy.Catalog, ex.Message);
     }
 
     [Test]

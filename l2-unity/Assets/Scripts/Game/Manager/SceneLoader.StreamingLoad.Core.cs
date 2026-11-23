@@ -19,7 +19,8 @@ public partial class SceneLoader
         int standX;
         int standY;
         VectorUtils.GetSwMapTile(l2Pos, out standX, out standY);
-        L2ZoneRender.SetActiveMap(VectorUtils.FormatSwMapName(standX, standY));
+        string standing = VectorUtils.FormatSwMapName(standX, standY);
+        L2ZoneRender.SetActiveMap(standing);
         List<string> wanted = ResolveSeamlessTiles(l2Pos);
         if (wanted.Count == 0)
         {
@@ -30,20 +31,23 @@ public partial class SceneLoader
         {
             string tile = wanted[i];
             if (_loadedTiles.Contains(tile))
+                continue;
+
+            if (!CanLoadTile(tile))
             {
-                if (!_prefabTiles.ContainsKey(tile))
-                    SetSceneRootsActive(tile, true);
+                // The tile under the player is a catalog miss. Neighbors outside the
+                // catalog are not authored maps, so they are not requested.
+                if (tile == standing)
+                {
+                    _worldStreaming = false;
+                    throw MapTileLoadPolicy.Missing(tile);
+                }
                 continue;
             }
-
-            if (_missedTiles.Contains(tile) || !CanLoadTile(tile))
-                continue;
 
             StartCoroutine(EventLoadSWMap(tile));
             return;
         }
-
-        ForgetMissesOutside(wanted);
 
         foreach (string loaded in _loadedTiles)
         {
@@ -108,21 +112,5 @@ public partial class SceneLoader
         }
 
         return wanted;
-    }
-
-    void ForgetMissesOutside(List<string> wanted)
-    {
-        if (_missedTiles.Count == 0)
-            return;
-
-        _missScratch.Clear();
-        foreach (string missed in _missedTiles)
-        {
-            if (!wanted.Contains(missed))
-                _missScratch.Add(missed);
-        }
-
-        for (int i = 0; i < _missScratch.Count; i++)
-            _missedTiles.Remove(_missScratch[i]);
     }
 }

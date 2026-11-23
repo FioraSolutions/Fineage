@@ -26,10 +26,9 @@ public partial class SceneLoader
         GameObject terrain = terrainReq.asset as GameObject;
         if (terrain == null)
         {
-            FineageLog.Error(
-                FineageLogCategory.World,
-                "LoadSWMap: tile '" + tile + "' Resources prefab missing at '" + terrainPath + "'");
-            yield break;
+            _worldStreaming = false;
+            _streamingBusy = false;
+            throw MapTileLoadPolicy.Missing(tile);
         }
 
         var root = new GameObject(tile);

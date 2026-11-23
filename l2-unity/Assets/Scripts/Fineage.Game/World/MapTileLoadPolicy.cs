@@ -1,12 +1,14 @@
 using System;
 
 /// <summary>
-/// Which map ids the world streamer must try to show.
-/// A Build Settings scene is not a substitute for the Resources map prefab:
-/// several town scenes are stubs, and several field tiles exist only as prefabs.
+/// Map tiles load from Resources/Data/Maps/{id}. A Build Settings scene is not a tile.
+/// The catalog is <see cref="Catalog"/>.
 /// </summary>
 public static class MapTileLoadPolicy
 {
+    public const string Catalog = "Resources/Settings/TileStreamingManifest";
+    public const string MapRoot = "Resources/Data/Maps";
+
     public static bool IsMapTileName(string name)
     {
         if (string.IsNullOrEmpty(name) || name.Length != 5 || name[2] != '_')
@@ -15,17 +17,26 @@ public static class MapTileLoadPolicy
             && char.IsDigit(name[3]) && char.IsDigit(name[4]);
     }
 
+    public static string ExpectedPrefabResourcePath(string tileId)
+    {
+        return "Data/Maps/" + tileId + "/" + tileId;
+    }
+
     /// <summary>
-    /// True when streaming should start a load. Map tile ids are always attempted;
-    /// the loader logs a concrete error if neither a scene nor a Resources prefab exists.
+    /// A map tile loads only when the catalog lists it. Other scenes load from the build.
     /// </summary>
     public static bool ShouldAttempt(string tile, bool sceneInBuild, bool manifestListed)
     {
         if (string.IsNullOrEmpty(tile))
             return false;
-        if (sceneInBuild || manifestListed)
-            return true;
-        return IsMapTileName(tile);
+        if (IsMapTileName(tile))
+            return manifestListed;
+        return sceneInBuild || manifestListed;
+    }
+
+    public static MapTileMissingException Missing(string tileId)
+    {
+        return new MapTileMissingException(tileId, ExpectedPrefabResourcePath(tileId), Catalog);
     }
 
     /// <summary>

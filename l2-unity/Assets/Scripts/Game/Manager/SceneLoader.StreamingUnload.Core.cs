@@ -18,37 +18,41 @@ public partial class SceneLoader
     private IEnumerator LoadSceneAdditiveIfNeeded(string sceneName)
     {
         _lastTilePresent = false;
-        Scene existing = SceneManager.GetSceneByName(sceneName);
-        bool sceneLoaded = existing.IsValid() && existing.isLoaded;
 
-        // A Build Settings scene is not the map. Town scenes such as 19_21 are stubs;
-        // the geometry lives in Resources/Data/Maps. Load the scene when it exists,
-        // then still place the prefab. Skipping the prefab because the scene loaded
-        // is what left Gludio dark and empty (#1843) and left prefab-only tiles as
-        // sky (#1842) when the manifest allow-list did not name them.
-        if (!sceneLoaded && Application.CanStreamedLevelBeLoaded(sceneName))
+        // Map tiles have one source: Resources/Data/Maps/{id}. There is no XX_YY scene.
+        if (MapTileLoadPolicy.IsMapTileName(sceneName))
         {
-            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-            if (asyncLoad == null)
-            {
-                FineageLog.Error(
-                    FineageLogCategory.World,
-                    "LoadSWMap: LoadSceneAsync returned null for '" + sceneName + "'");
-            }
-            else
-            {
-                while (!asyncLoad.isDone)
-                    yield return null;
-                sceneLoaded = true;
-            }
+            if (!_prefabTiles.ContainsKey(sceneName))
+                yield return InstantiateMapTilePrefabsAsync(sceneName);
+            _lastTilePresent = _prefabTiles.ContainsKey(sceneName);
+            yield break;
         }
 
-        if (sceneLoaded)
+        Scene existing = SceneManager.GetSceneByName(sceneName);
+        if (existing.IsValid() && existing.isLoaded)
+        {
             SetSceneRootsActive(sceneName, true);
+            _lastTilePresent = true;
+            yield break;
+        }
 
-        if (MapTileLoadPolicy.IsMapTileName(sceneName) && !_prefabTiles.ContainsKey(sceneName))
-            yield return InstantiateMapTilePrefabsAsync(sceneName);
+        if (!Application.CanStreamedLevelBeLoaded(sceneName))
+            yield break;
 
-        _lastTilePresent = sceneLoaded || _prefabTiles.ContainsKey(sceneName);
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+        if (asyncLoad == null)
+        {
+            _worldStreaming = false;
+            _streamingBusy = false;
+            throw new MapTileMissingException(
+                sceneName,
+                "Assets/Resources/Scenes/" + sceneName + ".unity",
+                MapTileLoadPolicy.Catalog);
+        }
+
+        while (!asyncLoad.isDone)
+            yield return null;
+        SetSceneRootsActive(sceneName, true);
+        _lastTilePresent = true;
     }
 }
