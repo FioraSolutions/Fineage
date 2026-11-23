@@ -382,6 +382,11 @@ def apply_owner(owner_path: Path, bmp_path: Path, dump_path: Path | None, actor:
     origin_y = float(loc[1]) - (n / 2.0) * float(scale[1])
     if grid is None:
         print("[TerrainMap] no n*n vector grid in the TerrainInfo export; using the referenced G16")
+        head = info[:96].hex(" ")
+        tail_off = max(0, len(info) - 64)
+        tail = info[tail_off:].hex(" ")
+        print(f"[TerrainMap] terrain-info.bin is {len(info)} bytes; head: {head}")
+        print(f"[TerrainMap] tail at +{tail_off}: {tail}")
     else:
         align, start, sign = grid
         origin_x, origin_y = grid_origin(info, align, start, n, sign)
