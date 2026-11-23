@@ -19,7 +19,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
             return;
         }
 
-        DiBootstrap.EnsureGameScope();
+        DiBootstrap.EnsureGameScope(this);
         _playerPlaceholder = Resources.Load<GameObject>("Prefab/Player_FDarkElf");
         _userPlaceholder = Resources.Load<GameObject>("Prefab/User_FDarkElf");
         _npcPlaceHolder = Resources.Load<GameObject>("Prefab/Npc");

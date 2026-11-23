@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using NUnit.Framework;
 using UnityEngine;
 using VContainer;
@@ -32,36 +33,59 @@ public sealed class GameLifetimeScopeCycleEditModeTests
     [Test]
     public void Game_scope_builds_without_a_click_target_cycle()
     {
-        Plant<SceneLoader>();
-        Plant<GameManager>();
-        Plant<VisibilityManager>();
-        Plant<EffectManager>();
-        Plant<MoveAllCharacters>();
-        Plant<NameplatesManager>();
-        Plant<InputManager>();
-        Plant<ClickManager>();
-        Plant<TargetManager>();
-        Plant<CameraController>();
-        Plant<CharacterInfoWindow>();
-        Plant<CharacterBuilder>();
-        Plant<Geodata>();
-        Plant<WorldCombat>();
-        Plant<ObjectPoolManager>();
-        Plant<GravityNpc>();
-        Plant<DeadManager>();
-
+        // EditMode does not run BeforeSceneLoad, so the play-mode startup hook is unset.
+        // GameManager.Awake builds the app scope on this object the same way a player run does.
+        Action<GameObject> previousEnsure = AppScopeStartup.Ensure;
+        AppScopeStartup.Ensure = DiBootstrap.EnsureAppScope;
+        var logs = new StringBuilder();
+        Application.LogCallback onLog = (condition, stackTrace, type) =>
+        {
+            if (type == LogType.Error || type == LogType.Exception || type == LogType.Assert)
+                logs.AppendLine(condition);
+        };
+        Application.logMessageReceived += onLog;
         try
         {
-            _root.AddComponent<World>();
+            Plant<SceneLoader>();
+            Plant<LoginClient>();
+            Plant<GameClient>();
+            Plant<GameManager>();
+            Plant<VisibilityManager>();
+            Plant<EffectManager>();
+            Plant<MoveAllCharacters>();
+            Plant<NameplatesManager>();
+            Plant<InputManager>();
+            Plant<ClickManager>();
+            Plant<TargetManager>();
+            Plant<CameraController>();
+            Plant<CharacterInfoWindow>();
+            Plant<CharacterBuilder>();
+            Plant<Geodata>();
+            Plant<WorldCombat>();
+            Plant<ObjectPoolManager>();
+            Plant<GravityNpc>();
+            Plant<DeadManager>();
+
+            try
+            {
+                _root.AddComponent<World>();
+            }
+            catch (Exception ex)
+            {
+                if (MentionsCycle(ex))
+                    Assert.Fail(ex + "\n" + logs);
+                throw;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            if (MentionsCycle(ex))
-                Assert.Fail(ex.ToString());
-            throw;
+            Application.logMessageReceived -= onLog;
+            AppScopeStartup.Ensure = previousEnsure;
         }
 
-        Assert.IsNotNull(App.GameContainer, "GameLifetimeScope did not publish App.GameContainer.");
+        Assert.IsNotNull(
+            App.GameContainer,
+            "GameLifetimeScope did not publish App.GameContainer.\n" + logs);
         Assert.IsNotNull(App.GameContainer.Resolve<World>());
         Assert.IsNotNull(App.GameContainer.Resolve<ClickManager>());
         Assert.IsNotNull(App.GameContainer.Resolve<TargetManager>());

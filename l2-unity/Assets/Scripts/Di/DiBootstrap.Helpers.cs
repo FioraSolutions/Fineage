@@ -4,9 +4,11 @@ using VContainer.Unity;
 
 public static partial class DiBootstrap
 {
-    public static void EnsureGameScope()
+    public static void EnsureGameScope(World world = null)
     {
-        World world = Object.FindFirstObjectByType<World>(FindObjectsInactive.Include);
+        // EditMode Find misses a component inside its own Awake. The owner passes itself.
+        if (world == null)
+            world = Object.FindFirstObjectByType<World>(FindObjectsInactive.Include);
         GameLifetimeScope existing = Object.FindFirstObjectByType<GameLifetimeScope>(FindObjectsInactive.Include);
 
         if (existing != null)
@@ -25,7 +27,13 @@ public static partial class DiBootstrap
             return;
 
         EnsureAppScope();
-        AppLifetimeScope app = Object.FindFirstObjectByType<AppLifetimeScope>();
+        AppLifetimeScope app = _ensuredApp;
+        if (app == null)
+        {
+            throw new System.InvalidOperationException(
+                "[DiBootstrap] AppLifetimeScope missing — EnsureAppScope did not leave an app scope, so the game scope was not built.");
+        }
+
         GameObject go = new GameObject("GameLifetimeScope");
         using (LifetimeScope.EnqueueParent(app))
             go.AddComponent<GameLifetimeScope>();
