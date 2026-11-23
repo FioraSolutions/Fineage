@@ -66,11 +66,19 @@ public class ZoneAtPoint {
                     if (e == null || !"Model".equals(e.classIndex.get().name().name)) continue;
                     if (modelExport == null || e.size > modelExport.size) modelExport = e;
                 }
-                if (modelExport == null) {
-                    System.err.println("ERROR no Model export in " + a[0]);
-                    System.exit(2);
-                }
-                var loaded = p.object(modelExport);
+				if (modelExport == null) {
+					System.err.println("ERROR no Model export in " + a[0]);
+					System.exit(2);
+				}
+				for (ExportedObject e : p.objects) {
+					if (e == null || !"Model".equals(e.classIndex.get().name().name)) continue;
+					var any = p.object(e);
+					if (!(any instanceof Model)) {
+						System.err.println("ERROR Model " + e.name.name + " did not parse as UModel");
+						System.exit(2);
+					}
+				}
+				var loaded = p.object(modelExport);
                 if (!(loaded instanceof Model)) {
                     System.err.println("ERROR Model " + modelExport.name.name + " did not parse as UModel");
                     System.exit(2);
@@ -85,6 +93,7 @@ public class ZoneAtPoint {
 
                 Map<String, Pt> byName = new LinkedHashMap<>();
                 List<Pt> queried = new ArrayList<>();
+                int unplaced = 0;
                 for (ExportedObject e : p.objects) {
                     if (e == null) continue;
                     String cls = e.classIndex.get().name().name;
@@ -98,9 +107,16 @@ public class ZoneAtPoint {
                         if (pr instanceof StructProperty.PointRegionProperty r && pr.name.name.equals("Region"))
                             region = r;
                     }
-                    if (loc == null || region == null) {
-                        System.err.println("ERROR " + cls + " " + e.name.name + " is missing Location or Region");
+                    if (region == null) {
+                        System.err.println("ERROR " + cls + " " + e.name.name + " is missing Region");
                         System.exit(2);
+                    }
+                    if (loc == null) {
+                        // Editor browsers (TextureBrowser, MeshViewer, …) store no
+                        // Location. Actor's default is the origin, which is not a
+                        // placed lobby camera, so they are not zoned.
+                        unplaced++;
+                        continue;
                     }
                     String regionZone = region.zone.index == 0 ? null : region.zone.get().name().name;
                     Pt pt = new Pt(cls, e.name.name, loc[0], loc[1], loc[2], region.zoneNumber & 0xff, regionZone);
@@ -113,6 +129,7 @@ public class ZoneAtPoint {
                 }
 
                 List<String> errors = new ArrayList<>();
+                int placedRows = 0;
                 for (int i = 0; i < model.zones.size(); i++) {
                     String owner = zoneActorName(model, i);
                     if (owner == null) continue;
@@ -135,18 +152,21 @@ public class ZoneAtPoint {
                     int got = Model.pointZone(model.nodes, pt.x, pt.y, pt.z);
                     String actor = zoneActorName(model, got);
                     boolean placed = pt.cls.equals("Camera") || pt.cls.equals("InterpolationPoint");
-                    boolean numberMismatch = got != pt.zoneNumber;
-                    boolean nameMismatch = placed && (actor == null || pt.regionZone == null || !pt.regionZone.equals(actor));
-                    if (numberMismatch || nameMismatch) {
+                    if (placed && (got < 0 || got >= model.zones.size() || actor == null)) {
                         errors.add(pt.cls + " " + pt.name + " at ("
                                 + fmt(pt.x) + ", " + fmt(pt.y) + ", " + fmt(pt.z)
-                                + ") BSP zone " + got + " (" + (actor == null ? "no actor in Model.zones" : actor) + ")"
-                                + "; Region.ZoneNumber is " + pt.zoneNumber
-                                + " and Region.Zone is " + (pt.regionZone == null ? "none" : pt.regionZone));
+                                + ") BSP zone " + got + " (" + (actor == null ? "no actor in Model.zones" : actor) + ")");
                     } else if (placed) {
+                        // PointRegion on this package is 13 bytes. The UE2 reader
+                        // takes a compact index, an int, and one byte, then skips
+                        // the other 7. That byte is 32..72 while NumZones is 5, and
+                        // the index resolves to TerrainInfo0, so it is not the BSP
+                        // slot. The slot is the walk, checked above against each
+                        // zone actor's own Location.
                         out.append(pt.name).append('\t')
                            .append(fmt(pt.x)).append('\t').append(fmt(pt.y)).append('\t').append(fmt(pt.z)).append('\t')
                            .append(actor).append('\n');
+                        placedRows++;
                     }
                 }
                 if (!errors.isEmpty()) {
@@ -162,12 +182,14 @@ public class ZoneAtPoint {
                 }
                 Files.writeString(Path.of(a[1]), out.toString());
                 System.out.println("zones self-checked on Model " + modelExport.name.name
-                        + " nodes=" + model.nodes.size() + " zones=" + model.zones.size());
+                        + " nodes=" + model.nodes.size() + " zones=" + model.zones.size()
+                        + " placed=" + placedRows
+                        + (unplaced == 0 ? "" : " unplaced=" + unplaced));
                 System.out.print(out);
             }
         } catch (Exception ex) {
-            String msg = ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage();
-            System.err.println("ERROR " + msg);
+            System.err.println("ERROR " + causeChain(ex));
+            ex.printStackTrace(System.err);
             System.exit(2);
         } finally {
             if (tmp != null) {
@@ -189,4 +211,17 @@ public class ZoneAtPoint {
     }
 
     static String fmt(double v) { return String.format(Locale.ROOT, "%.3f", v); }
+
+    static String causeChain(Throwable ex) {
+        StringBuilder chain = new StringBuilder();
+        Throwable cur = ex;
+        while (cur != null) {
+            if (chain.length() > 0) chain.append(" caused by ");
+            String msg = cur.getMessage();
+            chain.append(cur.getClass().getSimpleName());
+            if (msg != null && !msg.isEmpty()) chain.append(": ").append(msg);
+            cur = cur.getCause();
+        }
+        return chain.toString();
+    }
 }

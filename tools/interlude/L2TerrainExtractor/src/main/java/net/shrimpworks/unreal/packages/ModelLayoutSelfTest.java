@@ -44,7 +44,56 @@ public final class ModelLayoutSelfTest {
 		if (Model.usesL2Layout(123, 15) || Model.usesL2Layout(123, 37) || Model.usesL2Layout(126, 28)) {
 			fail("UModel layout range accepted a package outside version 123 licensee 16..36");
 		}
+		emptyTail();
+		oneSectionTail();
+		try {
+			Model.readL2Remainder(readerOf(new byte[]{0x01, 0x00}), 2, 0);
+			fail("a non-empty index with no section frame was accepted");
+		} catch (IllegalStateException expected) {
+			if (expected.getMessage() == null || !expected.getMessage().contains("lightmap")) {
+				fail("unexpected tail error: " + expected.getMessage());
+			}
+		}
 		System.out.println("ModelLayoutSelfTest ok");
+	}
+
+	/** Two compact zeros, the brush-model tail. */
+	static void emptyTail() {
+		PackageReader reader = readerOf(new byte[]{0, 0});
+		Model.readL2Remainder(reader, 2, 0);
+		if (reader.currentPosition() != 2) fail("empty tail consumed " + reader.currentPosition());
+	}
+
+	/**
+	 * Index 2, one header byte, section count 1, one section (marker 3, the
+	 * ints 0 and 1, one payload byte), then the closing ints 0 and 1.
+	 */
+	static void oneSectionTail() {
+		ByteBuffer buf = ByteBuffer.allocate(64).order(ByteOrder.LITTLE_ENDIAN);
+		buf.put((byte) 2); // index count
+		buf.put((byte) 0x11); // header
+		buf.put((byte) 1); // one section
+		buf.put((byte) 3); // unknown-struct count
+		buf.put((byte) 2); // index count again
+		buf.putInt(0);
+		buf.putInt(1);
+		buf.put((byte) 0x5A); // payload
+		buf.put((byte) 2);
+		buf.putInt(0);
+		buf.putInt(1);
+		byte[] raw = new byte[buf.position()];
+		buf.flip();
+		buf.get(raw);
+		PackageReader reader = readerOf(raw);
+		Model.readL2Remainder(reader, raw.length, 3);
+		if (reader.currentPosition() != raw.length) fail("section tail consumed " + reader.currentPosition());
+	}
+
+	static PackageReader readerOf(byte[] raw) {
+		PackageReader reader = new PackageReader(new Bytes(raw));
+		reader.version = 123;
+		reader.moveTo(0);
+		return reader;
 	}
 
 	static byte[] node(float nx, float ny, float nz, float w, int back, int front, int zoneBack, int zoneFront) {

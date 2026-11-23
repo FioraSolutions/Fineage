@@ -90,12 +90,19 @@ Step 8 (camera BSP zones) walks the level `UModel` with the same reader the
 terrain jar uses. The L2 body is package version 123, licensee 16 through 36
 (UEViewer's L2 family; the next material layout starts at licensee 37).
 Interlude ships 19 and 28 in that band. Order is Vectors, Points, Nodes,
-Surfs, Verts, then the zone list. `ZoneAtPoint.java` does not probe FVert
-sizes. A failed walk exits with ZoneAtPoint's status and does not write
-`world/env/Lobby.camera-zones.tsv`. It does not invent a zone. The script's
+Surfs, Verts, then the zone list. Node and surface records are the L2 forms
+(no lightmap index on the surface). After `Linked` the level model has the
+L2MapExtract unknown-struct array and a lightmap tail; an empty brush is two
+compact zeros. The export must end on its last byte. `ZoneAtPoint.java` does
+not probe FVert sizes. A failed walk prints the cause chain and exits with
+ZoneAtPoint's status; it does not write `world/env/Lobby.camera-zones.tsv`
+and it does not invent a zone. The script's
 own status is the line `extract_login_lobby exit=N` (a pipe into `tee`
-followed by `$(date)` would otherwise report tee's 0). The login fog still
-comes from InterpolationPoint5's stored `Region.Zone` (`ZoneInfo0`).
+followed by `$(date)` would otherwise report tee's 0). InterpolationPoint5
+and Camera25 (the UnrealEd viewport beside it) both walk to BSP zone
+`ZoneInfo0`. PointRegion on this package is 13 bytes; its leading object
+index is `TerrainInfo0` and the UE2 zone byte is not a slot in the 5-zone
+model, so the TSV zone is the BSP walk.
 
 Step 9 (l2_skies material chains): the skybox brushes reference
 `L2_Skies.Shaders.*` (`Cloud_Final`, `HazeRing_Final`, `SkybackgroundColor` +
