@@ -24,9 +24,9 @@ public sealed partial class L2TerrainLayerStack : MonoBehaviour
     static readonly int SplatmapsId = Shader.PropertyToID("_Splatmaps");
     static readonly int UseSplatArraysId = Shader.PropertyToID("_UseSplatArrays");
     static readonly int LayerUvId = Shader.PropertyToID("_LayerUV");
+    static readonly int LayerXformId = Shader.PropertyToID("_LayerXform");
     static readonly int SplatSliceId = Shader.PropertyToID("_SplatSlice");
     static readonly int LayerIndexId = Shader.PropertyToID("_LayerIndex");
-    static readonly int WorldUvId = Shader.PropertyToID("_L2WorldUvPerTileUu");
     static readonly int CullId = Shader.PropertyToID("_Cull");
     static readonly List<L2TerrainLayerStack> Active = new List<L2TerrainLayerStack>(8);
 

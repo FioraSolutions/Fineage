@@ -40,8 +40,19 @@ public partial class TerrainConverter
                 terrainMat.SetTexture("_Layer_" + i, uvl.texture);
             }
 
-            float us = uvl.uScale == 0 ? 1f : uvl.uScale, vs = uvl.vScale == 0 ? 1f : uvl.vScale;
-            terrainMat.SetVector("_Layer_" + i + "_UV", new Vector4(uvl.uScale, uvl.vScale, uvl.uOffset / us, uvl.vOffset / vs));
+            if (i >= L2TerrainLayerUv.ShaderLayerCap) {
+                Debug.LogError("[TerrainUv] layer " + i + " " + uvl.diffuseTextureRef + " exceeds shader property _Layer_" + i);
+                continue;
+            }
+            var repeatErrors = new List<string>();
+            if (!L2TerrainLayerUv.TryRepeat(
+                    uvl.layerScale.x, uvl.layerScale.y, uvl.uScale, uvl.vScale, uvl.uPan, uvl.vPan,
+                    uvl.diffuseTextureRef, repeatErrors, out Vector4 repeat)) {
+                for (int e = 0; e < repeatErrors.Count; e++)
+                    Debug.LogError(repeatErrors[e] + " on " + mapToConvert);
+                continue;
+            }
+            terrainMat.SetVector("_Layer_" + i + "_UV", repeat);
             terrainMat.SetVector("_Layer_" + i + "_Xform", new Vector4(uvl.textureRotation, uvl.textureMapAxis, uvl.useAlpha ? 1f : 0f, 0f));
         }
 

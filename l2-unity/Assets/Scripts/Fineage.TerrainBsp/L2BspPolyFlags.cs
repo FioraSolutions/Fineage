@@ -96,11 +96,17 @@ namespace Fineage.TerrainBsp
 
         static bool IsEtcPortalCap(string texture) => IsPortalCapTexture(texture);
 
+        public static bool IsSkyZoneTexture(string texture)
+        {
+            return !string.IsNullOrEmpty(texture)
+                && texture.StartsWith("L2_Skies", StringComparison.OrdinalIgnoreCase);
+        }
+
         public static bool IsBrushTextureRenderable(string texture)
         {
             if (string.IsNullOrEmpty(texture))
                 return false;
-            if (texture.StartsWith("L2_Skies", StringComparison.OrdinalIgnoreCase))
+            if (IsSkyZoneTexture(texture))
                 return false;
             if (texture.StartsWith("L2_ETC_Textures", StringComparison.OrdinalIgnoreCase))
                 return false;

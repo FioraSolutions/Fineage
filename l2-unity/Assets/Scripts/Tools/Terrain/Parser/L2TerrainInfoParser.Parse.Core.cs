@@ -74,7 +74,7 @@ public partial class L2TerrainInfoParser
         layer.uScale = uScale;
         layer.vScale = vScale;
 
-        // TerrainMatrix WPlane X/Y = UV offset of the tile matrix (TI bake stores offset/scale in _Layer_N_UV.zw)
+        // TerrainMatrix WPlane is the tile matrix origin. Color pan is UPan/VPan.
         var wm = System.Text.RegularExpressions.Regex.Match(line, @"WPlane=\(W=[-0-9.]+,X=([-0-9.]+),Y=([-0-9.]+)");
         if (wm.Success) {
             layer.uOffset = float.Parse(wm.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
@@ -84,10 +84,10 @@ public partial class L2TerrainInfoParser
         var up = System.Text.RegularExpressions.Regex.Match(line, @"UPan=([-0-9.]+)");
         var vp = System.Text.RegularExpressions.Regex.Match(line, @"VPan=([-0-9.]+)");
         if (up.Success) {
-            layer.uOffset += float.Parse(up.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+            layer.uPan = float.Parse(up.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
         }
         if (vp.Success) {
-            layer.vOffset += float.Parse(vp.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+            layer.vPan = float.Parse(vp.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
         }
 
         var tr = System.Text.RegularExpressions.Regex.Match(line, @"TextureRotation=([-0-9.]+)");
