@@ -155,7 +155,7 @@ Shader "L2/World/ActorEnvAdd"
                 half4 tex = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
                 float alpha = tex.a * _BaseColor.a * _ActorAlpha;
                 L2_ActorClip(tex.a * _BaseColor.a);
-                float3 rgb = L2_LinearFog(L2_Modulate2X(tex.rgb * _BaseColor.rgb, IN.color0), IN.viewAbsZ);
+                float3 rgb = L2_Modulate2X(tex.rgb * _BaseColor.rgb, IN.color0);
                 return half4(rgb, saturate(alpha));
             }
             ENDHLSL

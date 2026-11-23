@@ -148,7 +148,7 @@ Shader "L2/World/StaticMeshModulate2X"
                     float3 color0 = _L2HasSunMask > 0.5
                         ? saturate(ambient * 0.5 + IN.sun)
                         : saturate(IN.color.rgb * ambient * 0.5);
-                    rgb = L2_LinearFog(L2_Modulate2X(tex.rgb * _BaseColor.rgb, color0), IN.viewAbsZ);
+                    rgb = L2_Modulate2X(tex.rgb * _BaseColor.rgb, color0);
                     if (_L2SunMaskDebug > 0.5 && _L2HasSunMask > 0.5)
                         rgb = lerp(IN.sunDebug, tex.rgb * _BaseColor.rgb, 0.18);
                 }

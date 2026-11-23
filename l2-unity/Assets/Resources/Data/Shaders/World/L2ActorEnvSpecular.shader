@@ -177,7 +177,7 @@ Shader "L2/World/ActorEnvSpecular"
                 float2 envUv = L2_CameraEnvUv(IN.positionVS, IN.normalWS);
                 float4 rgba = L2_ActorEnvRgba(IN.uv, envUv, IN.color0);
                 L2_ActorClip(rgba.a);
-                float3 rgb = L2_LinearFog(rgba.rgb, IN.viewAbsZ);
+                float3 rgb = rgba.rgb;
                 return half4(rgb, saturate(rgba.a * _ActorAlpha));
             }
             ENDHLSL

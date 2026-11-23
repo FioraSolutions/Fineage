@@ -6,20 +6,15 @@ using UnityEngine;
 
 public static class L2ShaderCompileCheck
 {
-    static readonly string[] Shaders =
-    {
-        "Assets/Resources/Data/Shaders/World/L2ActorEnvSpecular.shader",
-        "Assets/Resources/Data/Shaders/World/L2ActorEnvAdd.shader",
-        "Assets/Resources/Data/Shaders/World/L2ActorModulate2X.shader",
-    };
-
     [MenuItem("L2/Shaders/Check World Shaders")]
     public static void Check()
     {
         int failed = 0;
         var report = new StringBuilder();
-        foreach (string path in Shaders)
+        string[] guids = AssetDatabase.FindAssets("t:Shader", new[] { "Assets/Resources/Data/Shaders/World" });
+        foreach (string guid in guids)
         {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
             Shader shader = AssetDatabase.LoadAssetAtPath<Shader>(path);
             if (shader == null)
             {

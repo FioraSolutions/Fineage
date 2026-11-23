@@ -12,6 +12,8 @@ public sealed partial class L2FxCompositorRendererFeature : ScriptableRendererFe
             postShader = Shader.Find("Hidden/L2/FxPostBloomContrast");
         if (yebisShader == null)
             yebisShader = Shader.Find("Hidden/L2/YebisPost");
+        if (zoneFogShader == null)
+            zoneFogShader = Shader.Find("Hidden/L2/ZoneFog");
 
         if (transferShader != null)
         {
@@ -31,6 +33,12 @@ public sealed partial class L2FxCompositorRendererFeature : ScriptableRendererFe
                 _yebisMaterial = CoreUtils.CreateEngineMaterial(yebisShader);
         }
 
+        if (zoneFogShader != null)
+        {
+            if (_zoneFogMaterial == null || _zoneFogMaterial.shader != zoneFogShader)
+                _zoneFogMaterial = CoreUtils.CreateEngineMaterial(zoneFogShader);
+        }
+
         _skyPass?.Dispose();
         _pass?.Dispose();
         _yebisPass?.Dispose();
@@ -42,6 +50,7 @@ public sealed partial class L2FxCompositorRendererFeature : ScriptableRendererFe
                 ? settings.renderPassEvent
                 : RenderPassEvent.BeforeRenderingPostProcessing
         };
+        _zoneFogPass = new L2ZoneFogRenderPass(_zoneFogMaterial);
         _yebisPass = new L2YebisPostRenderPass(settings, _yebisMaterial)
         {
             renderPassEvent = settings != null

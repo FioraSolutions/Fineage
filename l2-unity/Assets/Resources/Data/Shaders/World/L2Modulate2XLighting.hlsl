@@ -122,6 +122,9 @@ float3 L2_Modulate2X(float3 albedo, float3 color0)
     return saturate(albedo * color0 * 2.0);
 }
 
+// Zone distance fog. The only caller is Hidden/L2/ZoneFog, which runs once
+// on the camera color after the world is drawn. World shaders must not call
+// this or URP Lit trunks stay sharp while these shaders fog twice.
 float3 L2_LinearFog(float3 rgb, float viewAbsZ)
 {
     if (_L2FogEnable > 0.5)
@@ -136,7 +139,7 @@ float3 L2_LinearFog(float3 rgb, float viewAbsZ)
 
 float3 L2_Modulate2XFog(float3 albedo, float3 vertexColor, float3 ambient, float viewAbsZ, float intensity01)
 {
-    return L2_LinearFog(L2_Modulate2X(albedo, L2_TerrainColor0(vertexColor, ambient, intensity01)), viewAbsZ);
+    return L2_Modulate2X(albedo, L2_TerrainColor0(vertexColor, ambient, intensity01));
 }
 
 #endif

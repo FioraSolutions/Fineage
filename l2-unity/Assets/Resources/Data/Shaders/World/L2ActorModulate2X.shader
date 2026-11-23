@@ -135,7 +135,7 @@ Shader "L2/World/ActorModulate2X"
                 half4 tex = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
                 float alpha = tex.a * _BaseColor.a;
                 L2_ActorClip(alpha);
-                float3 rgb = L2_LinearFog(L2_Modulate2X(tex.rgb * _BaseColor.rgb, IN.color0), IN.viewAbsZ);
+                float3 rgb = L2_Modulate2X(tex.rgb * _BaseColor.rgb, IN.color0);
                 return half4(rgb, saturate(alpha * _ActorAlpha));
             }
             ENDHLSL

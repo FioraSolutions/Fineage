@@ -12,6 +12,11 @@ public sealed partial class L2FxCompositorRendererFeature : ScriptableRendererFe
         if (_terrainOverlayPass != null)
             renderer.EnqueuePass(_terrainOverlayPass);
 
+        // Zone fog is the one path for every world material, including URP Lit
+        // and the login camera. It does not wait on the D3D9 compositor.
+        if (_zoneFogPass != null && _zoneFogMaterial != null)
+            renderer.EnqueuePass(_zoneFogPass);
+
         bool yebis = WantYebis(ref renderingData);
         L2YebisPostRuntime.WillFlushNameplates = yebis;
 

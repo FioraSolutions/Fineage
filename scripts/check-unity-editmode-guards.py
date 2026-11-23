@@ -414,6 +414,70 @@ def check_anim_keyreduce_probe_registration() -> list[str]:
     return errors
 
 
+_TRANSFORM_TEX = re.compile(r"TRANSFORM_TEX\s*\(")
+
+
+def _transform_tex_first_arg(text: str, open_paren: int) -> str | None:
+    depth = 0
+    start = open_paren + 1
+    for index in range(start, len(text)):
+        char = text[index]
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            if depth == 0:
+                return text[start:index]
+            depth -= 1
+        elif char == "," and depth == 0:
+            return text[start:index]
+    return None
+
+
+def check_transform_tex_macro() -> list[str]:
+    """TRANSFORM_TEX pastes .xy onto its first argument.
+
+    `TRANSFORM_TEX(uv * max(scale, 0.001), _Map)` becomes `max(...).xy` and
+    fails to compile on Metal. The first argument has to be a value that
+    already has .xy, not an expression.
+    """
+    errors: list[str] = []
+    for path in sorted(ASSETS.rglob("*")):
+        if path.suffix not in {".shader", ".hlsl", ".cginc"}:
+            continue
+        text = path.read_text(encoding="utf-8-sig", errors="replace")
+        for match in _TRANSFORM_TEX.finditer(text):
+            arg = _transform_tex_first_arg(text, match.end() - 1)
+            if arg is None:
+                continue
+            if re.search(r"\*|max\s*\(", arg):
+                line_no = text.count("\n", 0, match.start()) + 1
+                errors.append(
+                    f"{path.relative_to(REPO)}:{line_no}: TRANSFORM_TEX first argument "
+                    f"must not be an expression ({arg.strip()})"
+                )
+    test = EDITMODE_TESTS / "L2WorldShaderCompileTests.cs"
+    if not test.is_file():
+        errors.append("missing Assets/Tests/EditMode/L2WorldShaderCompileTests.cs")
+    else:
+        body = test.read_text(encoding="utf-8-sig", errors="replace")
+        for needle in (
+            "L2/World/Ue2Chain",
+            "ShaderCompilerPlatform.Metal",
+            "ShaderCompilerPlatform.Vulkan",
+            "ShaderCompilerPlatform.D3D",
+            "CompileVariant",
+        ):
+            if needle not in body and needle != "L2/World/Ue2Chain":
+                errors.append(f"L2WorldShaderCompileTests.cs does not mention {needle}")
+        # The compile test discovers shaders by folder. The chain shader must stay in that folder.
+        chain = ASSETS / "Resources/Data/Shaders/World/L2Ue2Chain.shader"
+        if not chain.is_file():
+            errors.append("missing L2Ue2Chain.shader")
+        elif 'Shader "L2/World/Ue2Chain"' not in chain.read_text(encoding="utf-8", errors="replace"):
+            errors.append("L2Ue2Chain.shader is not Shader \"L2/World/Ue2Chain\"")
+    return errors
+
+
 def main() -> int:
     errors = (
         check_editmode_asmdef_types()
@@ -423,6 +487,7 @@ def main() -> int:
         + check_cs9_syntax()
         + check_ambiguous_types()
         + check_anim_keyreduce_probe_registration()
+        + check_transform_tex_macro()
     )
     if errors:
         print("Unity EditMode guard failed:", file=sys.stderr)

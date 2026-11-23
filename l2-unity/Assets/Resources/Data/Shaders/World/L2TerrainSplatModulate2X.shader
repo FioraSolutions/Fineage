@@ -177,7 +177,7 @@ Shader "L2/World/TerrainBaseModulate2X"
                     return half4(L2_TerrainLightDebugColor(IN.worldUu), 1);
                 float2 uv = L2_TerrainLayerUv(IN.worldUu, _Layer_0_UV, _L2WorldUvPerTileUu);
                 half3 albedo = SAMPLE_TEXTURE2D(_Layer_0, sampler_Layer_0, uv).rgb;
-                float3 rgb = L2_LinearFog(L2_Modulate2X(albedo, IN.color0), IN.viewAbsZ);
+                float3 rgb = L2_Modulate2X(albedo, IN.color0);
                 return half4(rgb, 1);
             }
             ENDHLSL

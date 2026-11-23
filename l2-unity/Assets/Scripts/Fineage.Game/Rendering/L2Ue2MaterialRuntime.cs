@@ -28,6 +28,9 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
         new Dictionary<string, L2Ue2MaterialChain.Eval>(StringComparer.OrdinalIgnoreCase);
     readonly HashSet<string> _logged = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     Dictionary<string, string> _props;
+    Dictionary<string, string> _sources;
+    readonly Dictionary<string, List<L2Ue2PropsIndex.Entry>> _byShort =
+        new Dictionary<string, List<L2Ue2PropsIndex.Entry>>(StringComparer.OrdinalIgnoreCase);
     string _resolvingMaterial;
     Driven[] _driven = Array.Empty<Driven>();
 
@@ -98,12 +101,15 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
                 string shaderName = source.shader != null ? source.shader.name : null;
                 if (!L2Ue2MaterialChain.CanUpgradeShader(shaderName))
                     continue;
-                if (_props == null || !_props.ContainsKey(name))
+                if (!TryPropsFor(source, name, out IReadOnlyDictionary<string, string> props, out string package))
                     continue;
-                if (!_evalByName.TryGetValue(name, out L2Ue2MaterialChain.Eval eval))
+                string cacheKey = _props.ContainsKey(name)
+                    ? name
+                    : name + "\n" + (CurrentTextureName(source) ?? "");
+                if (!_evalByName.TryGetValue(cacheKey, out L2Ue2MaterialChain.Eval eval))
                 {
-                    eval = L2Ue2MaterialChain.Evaluate(name, _props);
-                    _evalByName[name] = eval;
+                    eval = L2Ue2MaterialChain.Evaluate(name, props, package, _sources);
+                    _evalByName[cacheKey] = eval;
                 }
                 if (!L2Ue2MaterialChain.NeedsChainShader(eval))
                     continue;
@@ -142,6 +148,70 @@ public sealed class L2Ue2MaterialRuntime : MonoBehaviour
         if (_props != null)
             return;
         _props = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        _sources = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        List<L2Ue2PropsIndex.Entry> files = L2Ue2PropsIndex.Load(L2Ue2PropsIndex.TexturesRoot());
+        if (files.Count == 0)
+        {
+            LoadPropsWithoutPaths();
+            return;
+        }
+        var conflicts = new List<string>();
+        L2Ue2PropsIndex.AddKeys(files, _props, _sources, conflicts);
+        for (int i = 0; i < conflicts.Count; i++)
+            Debug.LogError("[Ue2Material] props key rejected " + conflicts[i]);
+        for (int i = 0; i < files.Count; i++)
+        {
+            L2Ue2PropsIndex.Entry file = files[i];
+            if (!_byShort.TryGetValue(file.Name, out List<L2Ue2PropsIndex.Entry> list))
+            {
+                list = new List<L2Ue2PropsIndex.Entry>();
+                _byShort[file.Name] = list;
+            }
+            list.Add(file);
+        }
+    }
+
+    bool TryPropsFor(Material source, string name, out IReadOnlyDictionary<string, string> props, out string package)
+    {
+        props = _props;
+        package = null;
+        if (_props != null && _props.ContainsKey(name))
+        {
+            if (_sources != null && _sources.TryGetValue(name, out string path))
+                package = PackageOf(path);
+            return true;
+        }
+        if (_byShort == null || !_byShort.TryGetValue(name, out List<L2Ue2PropsIndex.Entry> candidates))
+            return false;
+        L2Ue2PropsIndex.Entry chosen = L2Ue2PropsIndex.Choose(
+            candidates, CurrentTextureName(source), _names, _packages, out string reason);
+        if (chosen == null)
+        {
+            if (_logged.Add("props:" + name))
+                Debug.LogError(
+                    "[Ue2Material] material " + name + " props ambiguous "
+                    + L2Ue2PropsIndex.DescribePaths(candidates));
+            return false;
+        }
+        if (_logged.Add("props:" + name + "\n" + chosen.RelativePath))
+            Debug.Log("[Ue2Material] props " + name + " -> " + chosen.RelativePath + " (" + reason + ")");
+        var overlay = new Dictionary<string, string>(_props, StringComparer.OrdinalIgnoreCase);
+        overlay[name] = chosen.Text;
+        props = overlay;
+        package = chosen.Package;
+        return true;
+    }
+
+    static string PackageOf(string relativePath)
+    {
+        if (string.IsNullOrEmpty(relativePath))
+            return null;
+        int slash = relativePath.IndexOf('/');
+        return slash > 0 ? relativePath.Substring(0, slash) : null;
+    }
+
+    void LoadPropsWithoutPaths()
+    {
         var rejected = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         TextAsset[] assets = Resources.LoadAll<TextAsset>("Data/Textures");
         for (int i = 0; i < assets.Length; i++)

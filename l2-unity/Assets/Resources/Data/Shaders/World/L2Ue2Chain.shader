@@ -213,7 +213,10 @@ Shader "L2/World/Ue2Chain"
                 }
                 if (_HasDetail > 0.5)
                 {
-                    float2 duv = TRANSFORM_TEX(IN.uv * max(_DetailScale, 0.001), _DetailMap);
+                    // TRANSFORM_TEX appends .xy. A scalar max() in the first argument
+                    // is an invalid Metal subscript. Scale first, then transform.
+                    float2 detailUv = IN.uv * max(_DetailScale, 0.001);
+                    float2 duv = TRANSFORM_TEX(detailUv, _DetailMap);
                     diff.rgb *= SAMPLE_TEXTURE2D(_DetailMap, sampler_DetailMap, duv).rgb;
                 }
 
@@ -252,7 +255,6 @@ Shader "L2/World/Ue2Chain"
                     rgb += spec;
                 }
 
-                rgb = L2_LinearFog(rgb, IN.viewAbsZ);
                 return half4(rgb, alpha);
             }
             ENDHLSL

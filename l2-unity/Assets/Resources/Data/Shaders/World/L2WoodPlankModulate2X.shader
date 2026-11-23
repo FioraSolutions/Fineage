@@ -116,7 +116,7 @@ Shader "L2/World/WoodPlankModulate2X"
                     color0 = saturate(ambient * 0.5 + IN.sun);
                 else if (_L2UseVertexLight > 0.5)
                     color0 = L2_StaticMeshColor0(IN.color.rgb, ambient);
-                float3 rgb = L2_LinearFog(L2_Modulate2X(tex.rgb * _BaseColor.rgb, color0), IN.viewAbsZ);
+                float3 rgb = L2_Modulate2X(tex.rgb * _BaseColor.rgb, color0);
                 if (_L2SunMaskDebug > 0.5 && _L2HasSunMask > 0.5)
                     rgb = lerp(IN.sunDebug, tex.rgb * _BaseColor.rgb, 0.18);
                 return half4(rgb, 1);

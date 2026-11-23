@@ -77,7 +77,7 @@ Shader "L2/World/WaterModulate2X"
                 half4 baseMap = SAMPLE_TEXTURE2D(_DetailMap, sampler_DetailMap, float2(0.5, 0.5));
                 half4 water = L2_WaterCombine(c0, c1, baseMap, c1, L2_WaterFactor());
                 clip(water.a - (half)_Cutoff - 1e-5);
-                float3 rgb = L2_LinearFog(water.rgb, IN.viewAbsZ);
+                float3 rgb = water.rgb;
                 return half4(rgb, water.a);
             }
             ENDHLSL

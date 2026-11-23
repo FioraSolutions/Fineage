@@ -15,13 +15,18 @@ public sealed partial class L2FxCompositorRendererFeature : ScriptableRendererFe
     [SerializeField]
     Shader yebisShader;
 
+    [SerializeField]
+    Shader zoneFogShader;
+
     Material _transferMaterial;
     Material _postMaterial;
     Material _yebisMaterial;
+    Material _zoneFogMaterial;
     L2SkyRenderPass _skyPass;
     L2FxCompositorRenderPass _pass;
     L2YebisPostRenderPass _yebisPass;
     L2TerrainOverlayRenderPass _terrainOverlayPass;
+    L2ZoneFogRenderPass _zoneFogPass;
 
 
 

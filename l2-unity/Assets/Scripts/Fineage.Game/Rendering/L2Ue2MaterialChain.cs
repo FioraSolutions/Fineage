@@ -199,6 +199,15 @@ public static class L2Ue2MaterialChain
 
     public static Eval Evaluate(string materialName, IReadOnlyDictionary<string, string> propsByName)
     {
+        return Evaluate(materialName, propsByName, null, null);
+    }
+
+    public static Eval Evaluate(
+        string materialName,
+        IReadOnlyDictionary<string, string> propsByName,
+        string package,
+        IReadOnlyDictionary<string, string> sources)
+    {
         var eval = new Eval { MaterialName = materialName ?? "" };
         if (string.IsNullOrEmpty(materialName) || propsByName == null ||
             !TryGet(propsByName, materialName, out string stored))
@@ -208,7 +217,11 @@ public static class L2Ue2MaterialChain
         }
 
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var ctx = new Ctx(materialName, propsByName, seen, eval);
+        var ctx = new Ctx(materialName, propsByName, seen, eval)
+        {
+            Package = package,
+            Sources = sources,
+        };
         ExecuteRoot(ctx, materialName, Body(stored), eval);
         ApplyBlend(eval);
         return eval;
@@ -312,6 +325,8 @@ public static class L2Ue2MaterialChain
         public readonly HashSet<string> Seen;
         public readonly Eval Eval;
         public int Depth;
+        public string Package;
+        public IReadOnlyDictionary<string, string> Sources;
 
         public Ctx(string root, IReadOnlyDictionary<string, string> props, HashSet<string> seen, Eval eval)
         {
@@ -486,7 +501,38 @@ public static class L2Ue2MaterialChain
         }
         // Full path first: Shaders.TexPanner0 and moon.TexPanner0 are different
         // exports. A short name is used only when that name is unique.
-        bool have = TryGet(ctx.Props, full, out string stored) || TryGet(ctx.Props, shortName, out stored);
+        // A package-scoped key is the one distinct export in the material's package
+        // when the group directory was not written (moon.TexOscillator0).
+        bool qualified = full.IndexOf('.') >= 0;
+        bool have = TryGet(ctx.Props, full, out string stored);
+        string via = full;
+        if (!have && !string.IsNullOrEmpty(ctx.Package))
+        {
+            string packaged = ctx.Package + "." + full;
+            if (TryGet(ctx.Props, packaged, out stored))
+            {
+                have = true;
+                via = packaged;
+            }
+        }
+        if (!have && !string.IsNullOrEmpty(ctx.Package))
+        {
+            string scoped = ctx.Package + L2Ue2PropsIndex.PackageScope + shortName;
+            if (TryGet(ctx.Props, scoped, out stored))
+            {
+                have = true;
+                via = scoped;
+            }
+        }
+        if (!have && TryGet(ctx.Props, shortName, out stored))
+        {
+            have = true;
+            via = shortName;
+        }
+        bool shortIsThis = have && TryGet(ctx.Props, shortName, out string shortBody)
+            && string.Equals(shortBody, stored, StringComparison.Ordinal);
+        if (have && qualified && ctx.Sources != null && !shortIsThis)
+            LogPropsChoice(full, via, ctx);
         if (!have)
         {
             if (!KnownOps.Contains(op))
@@ -1307,6 +1353,20 @@ public static class L2Ue2MaterialChain
             return true;
         string t = raw.Trim();
         return t.Equals("None", StringComparison.OrdinalIgnoreCase) || t == "none";
+    }
+
+    static readonly HashSet<string> LoggedPropsChoices = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    static void LogPropsChoice(string reference, string via, Ctx ctx)
+    {
+        if (ctx.Sources == null || !ctx.Sources.TryGetValue(via, out string path) || string.IsNullOrEmpty(path))
+            return;
+        if (!LoggedPropsChoices.Add(reference + "\n" + via))
+            return;
+        string note = via.IndexOf(L2Ue2PropsIndex.PackageScope) >= 0
+            ? " (package " + ctx.Package + " has one " + ShortName(reference) + ")"
+            : "";
+        Debug.Log("[Ue2Material] props " + reference + " -> " + path + note);
     }
 
     static bool TryGet(IReadOnlyDictionary<string, string> props, string name, out string stored)

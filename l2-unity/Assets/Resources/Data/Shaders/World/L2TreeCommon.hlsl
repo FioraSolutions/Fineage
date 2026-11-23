@@ -39,7 +39,7 @@ float3 L2_TreeColorRgb(float3 texRgb, float3 vertexRgb, float3 sun, float viewAb
 {
     float3 ambient = L2_OrWhite(_L2StaticMeshAmbient.rgb);
     float3 color0 = saturate(vertexRgb * (ambient * 0.5 + sun));
-    return L2_LinearFog(L2_Modulate2X(texRgb * _BaseColor.rgb, color0), viewAbsZ);
+    return L2_Modulate2X(texRgb * _BaseColor.rgb, color0);
 }
 
 #endif

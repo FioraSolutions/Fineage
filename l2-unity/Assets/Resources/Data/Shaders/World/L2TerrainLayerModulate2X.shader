@@ -129,7 +129,7 @@ Shader "L2/World/TerrainLayerModulate2X"
                     albedo = SAMPLE_TEXTURE2D(_LayerTex, sampler_LayerTex, colorUv).rgb;
                     alpha = SAMPLE_TEXTURE2D_BIAS(_LayerMask, sampler_LinearClamp, maskUv, -0.5).r;
                 }
-                float3 rgb = L2_LinearFog(L2_Modulate2X(albedo, IN.color0), IN.viewAbsZ);
+                float3 rgb = L2_Modulate2X(albedo, IN.color0);
                 return half4(rgb, alpha);
             }
             ENDHLSL
