@@ -21,11 +21,7 @@ public partial class TargetManager
             return;
         }
 
-        World world = GameWorld;
-        if (world == null)
-        {
-            return;
-        }
+        RequireSpawned();
 
         if (kind != _cycleKind)
         {
@@ -35,7 +31,7 @@ public partial class TargetManager
         }
         else if (_cycleLastObjectId > 0)
         {
-            Entity last = world.GetEntityNoLockSync(_cycleLastObjectId);
+            Entity last = _spawned.Find(_cycleLastObjectId);
             if (last != null && last.transform != null)
             {
                 _cycleLastDistance = VectorUtils.Distance2D(_playerTransform.position, last.transform.position);
@@ -47,15 +43,15 @@ public partial class TargetManager
             }
         }
 
-        Entity next = GetNextObject(world, kind, _maximumTargetDistance, _cycleLastDistance, _cycleLastObjectId);
+        Entity next = GetNextObject(kind, _maximumTargetDistance, _cycleLastDistance, _cycleLastObjectId);
         if (next == null)
         {
-            next = GetNextObject(world, kind, _maximumTargetDistance, 0f, _cycleLastObjectId);
+            next = GetNextObject(kind, _maximumTargetDistance, 0f, _cycleLastObjectId);
         }
 
         if (next == null)
         {
-            next = GetNextObject(world, kind, _maximumTargetDistance, 0f, -1);
+            next = GetNextObject(kind, _maximumTargetDistance, 0f, -1);
         }
 
         if (next == null || next.Identity == null || next.transform == null)
@@ -72,8 +68,8 @@ public partial class TargetManager
 
     public void NextTargetById(int id , string hexColor)
     {
-        World world = GameWorld;
-        Entity found = world != null ? world.GetEntityNoLockSync(id) : null;
+        RequireSpawned();
+        Entity found = _spawned.Find(id);
         if (found == null &&
             DomainPacketServices.LocalPlayer != null &&
             DomainPacketServices.LocalPlayer.Identity != null &&

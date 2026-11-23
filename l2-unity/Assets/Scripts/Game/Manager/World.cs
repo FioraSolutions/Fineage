@@ -114,7 +114,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     public static readonly TimeSpan EntityWaitTimeout = TimeSpan.FromMilliseconds(150);
 
     readonly ObjectIdWaitMap<Entity> _entityWait = new ObjectIdWaitMap<Entity>();
-    readonly WorldEntityRegistry<Entity> _entities = new WorldEntityRegistry<Entity>();
+    [Inject] WorldEntityRegistry<Entity> _entities;
 
 
     [Header("Layer Masks")]
