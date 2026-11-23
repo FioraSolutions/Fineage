@@ -16,7 +16,7 @@ Material:
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
@@ -25,7 +25,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _Layer_0:
-        m_Texture: {fileID: 2800000, guid: 2ada2bdf5604cb84e8762bf8ee95a8f0, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layers:
@@ -62,7 +62,7 @@ Material:
     - _Layer_19_Enabled: 1
     - _Layer_1_Enabled: 1
     - _Layer_20_Enabled: 1
-    - _Layer_21_Enabled: 0
+    - _Layer_21_Enabled: 1
     - _Layer_22_Enabled: 0
     - _Layer_2_Enabled: 1
     - _Layer_3_Enabled: 1
@@ -75,7 +75,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     m_Colors:
-    - _Global_UV_Size: {r: 80, g: 80, b: 0, a: 0}
+    - _Global_UV_Size: {r: 150, g: 150, b: 0, a: 0}
     - _Layer_0_UV: {r: 1, g: 1, b: 0, a: 0}
     - _Layer_10_UV: {r: 1, g: 1, b: 0, a: 0}
     - _Layer_11_UV: {r: 1, g: 1, b: 0, a: 0}
@@ -89,7 +89,7 @@ Material:
     - _Layer_19_UV: {r: 0.5, g: 0.5, b: 0, a: 0}
     - _Layer_1_UV: {r: 1, g: 1, b: 0, a: 0}
     - _Layer_20_UV: {r: 0.6, g: 0.6, b: 0, a: 0}
-    - _Layer_21_UV: {r: 1, g: 1, b: 0, a: 0}
+    - _Layer_21_UV: {r: 0.6, g: 0.6, b: 0, a: 0}
     - _Layer_22_UV: {r: 1, g: 1, b: 0, a: 0}
     - _Layer_2_UV: {r: 2, g: 2, b: 0, a: 0}
     - _Layer_3_UV: {r: 2, g: 2, b: 0, a: 0}
@@ -101,7 +101,7 @@ Material:
     - _Layer_9_UV: {r: 1, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &5845777498707897711
+--- !u!114 &1077394127717754518
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -112,5 +112,5 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
   version: 10
