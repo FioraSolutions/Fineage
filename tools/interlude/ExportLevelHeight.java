@@ -7,6 +7,7 @@
 // the package is not used. The TerrainInfo export bytes are written beside the
 // G16 so the vertex grid in that export can replace a stale texture.
 import io.github.l2terrain.crypto.L2Decryptor;
+import io.github.l2terrain.utils.TextureUtils;
 import io.github.l2terrain.utils.UnrealPackageUtils;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
@@ -19,14 +20,13 @@ import net.shrimpworks.unreal.packages.entities.Named;
 import net.shrimpworks.unreal.packages.entities.ObjectReference;
 import net.shrimpworks.unreal.packages.entities.objects.Texture;
 import net.shrimpworks.unreal.packages.entities.objects.TextureBase;
+import net.shrimpworks.unreal.packages.entities.properties.ByteProperty;
+import net.shrimpworks.unreal.packages.entities.properties.EnumProperty;
+import net.shrimpworks.unreal.packages.entities.properties.IntegerProperty;
 import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 import net.shrimpworks.unreal.packages.entities.properties.StructProperty;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferUShort;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -120,21 +120,38 @@ public class ExportLevelHeight {
                         fail("TerrainMap " + qualified + " export " + exportIndex
                             + " format " + texture.format() + " is not G16");
                     }
-                    Texture.MipMap[] mips = texture.mipMaps();
-                    if (mips.length == 0) fail("TerrainMap " + qualified + " has no mip");
-                    BufferedImage image = mips[0].get();
-                    if (image.getType() != BufferedImage.TYPE_USHORT_GRAY) {
-                        fail("TerrainMap " + qualified + " mip is not 16-bit gray");
+                    // UE2 UTexture serializes the mip array plus a Format/UBits/
+                    // VBits/USize/VSize/UClamp/VClamp tail after the property
+                    // tags. The library's mipMaps() guesses the count width from
+                    // the package version and loses the array; findMip walks the
+                    // tail and validates every field instead.
+                    int width = intProp(loadedTex, "USize", qualified);
+                    int height = intProp(loadedTex, "VSize", qualified);
+                    int uBits = byteProp(loadedTex, "UBits", qualified);
+                    int vBits = byteProp(loadedTex, "VBits", qualified);
+                    int formatByte = byteProp(loadedTex, "Format", qualified);
+                    byte[] exportBytes = UnrealPackageUtils.readExportData(texture, texObj);
+                    StringBuilder diag = new StringBuilder();
+                    TextureUtils.TextureMip mip = TextureUtils.findMip(
+                        exportBytes, width, height, formatByte, uBits, vBits, diag);
+                    if (mip == null) {
+                        System.err.print(diag);
+                        System.err.println(TextureUtils.dumpHeadTail(exportBytes, 96, 64));
+                        fail("TerrainMap " + qualified + " export " + exportIndex
+                            + " mip layout not recognized (USize=" + width + " VSize=" + height
+                            + " UBits=" + uBits + " VBits=" + vBits + " Format=" + formatByte
+                            + " serial " + texObj.pos + "+" + texObj.size
+                            + " pkg.version " + texPkg.version + ")");
                     }
-                    short[] pixels = ((DataBufferUShort) image.getRaster().getDataBuffer()).getData();
-                    int width = image.getWidth();
-                    int height = image.getHeight();
-                    if (pixels.length != width * height) {
-                        fail("TerrainMap " + qualified + " mip " + width + "x" + height
-                            + " has " + pixels.length + " samples");
+                    if (mip.size != width * height * 2) {
+                        fail("TerrainMap " + qualified + " mip0 is " + mip.size
+                            + " bytes, want " + (width * height * 2) + " for G16 " + width + "x" + height);
                     }
-                    byte[] raw = new byte[pixels.length * 2];
-                    ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(pixels);
+                    byte[] raw = java.util.Arrays.copyOfRange(exportBytes, mip.dataOffset, mip.dataOffset + mip.size);
+                    System.out.println("[TerrainMap] mip0 " + width + "x" + height + " G16 at export+"
+                        + mip.dataOffset + " (" + mip.size + " bytes, " + mip.mipCount
+                        + " mip, " + (mip.wideCount ? "int" : "byte") + "-count at export+"
+                        + mip.arrayStart + ")");
                     Path g16 = out.resolve("g16.raw");
                     Files.write(g16, raw);
                     byte[] info = UnrealPackageUtils.readExportData(pkg, terrainObj);
@@ -155,6 +172,27 @@ public class ExportLevelHeight {
         } finally {
             Files.deleteIfExists(mapTmp);
         }
+    }
+
+    static int intProp(net.shrimpworks.unreal.packages.entities.objects.Object loaded,
+                       String name, String qualified) {
+        for (Property prop : loaded.properties) {
+            if (prop instanceof IntegerProperty ip && name.equals(prop.name.name)) return ip.value;
+        }
+        fail("TerrainMap " + qualified + " has no " + name + " property");
+        return 0;
+    }
+
+    static int byteProp(net.shrimpworks.unreal.packages.entities.objects.Object loaded,
+                        String name, String qualified) {
+        for (Property prop : loaded.properties) {
+            if (prop instanceof ByteProperty bp && name.equals(prop.name.name)) return bp.value & 0xFF;
+            if (prop instanceof EnumProperty ep && "Format".equals(name)) {
+                return TextureBase.Format.forFormatName(ep.value.name).ordinal();
+            }
+        }
+        fail("TerrainMap " + qualified + " has no " + name + " byte property");
+        return 0;
     }
 
     static ExportedObject asObject(Export exp) {

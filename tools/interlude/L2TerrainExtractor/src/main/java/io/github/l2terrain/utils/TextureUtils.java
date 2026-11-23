@@ -414,6 +414,161 @@ public final class TextureUtils {
         return decompressDXT5(dxtData, width, height);
     }
     
+    // ==================== UE2 UTexture mip tail ====================
+
+    /** Bytes after the last mip: Format, UBits, VBits (1 each), USize, VSize, UClamp, VClamp (4 each). */
+    private static final int UTEXTURE_TAIL_BYTES = 19;
+
+    /** One validated mip-0 level inside a UE2 UTexture export. */
+    public static final class TextureMip {
+        /** Pixel data offset inside the export bytes. */
+        public final int dataOffset;
+        /** Pixel data byte count. */
+        public final int size;
+        public final int width;
+        public final int height;
+        /** Total mip levels the export carries. */
+        public final int mipCount;
+        /** Offset of the mip-count field (diagnostics). */
+        public final int arrayStart;
+        /** true: the count is an INT32; false: a single BYTE. */
+        public final boolean wideCount;
+
+        private TextureMip(int dataOffset, int size, int width, int height, int mipCount, int arrayStart, boolean wideCount) {
+            this.dataOffset = dataOffset;
+            this.size = size;
+            this.width = width;
+            this.height = height;
+            this.mipCount = mipCount;
+            this.arrayStart = arrayStart;
+            this.wideCount = wideCount;
+        }
+    }
+
+    /**
+     * Locate mip0 inside a UE2 UTexture export.
+     *
+     * <p>After the property tags the package stores the mip array — a count,
+     * then per mip: INT32 widthOffset, compact-index byte size, pixel data,
+     * INT32 USize, INT32 VSize, BYTE UBits, BYTE VBits — and then the tail
+     * fields Format, UBits, VBits, USize, VSize, UClamp, VClamp. The count is
+     * an INT32 on some package versions and a BYTE on others, so both widths
+     * are tried at every plausible start offset. A candidate is accepted only
+     * when it consumes the export exactly and every field matches the texture
+     * properties. Zero or several survivors is a null result with the reasons
+     * in diag — never a silent first fit.</p>
+     */
+    public static TextureMip findMip(byte[] export, int width, int height, int formatByte,
+                                     int uBits, int vBits, StringBuilder diag) {
+        int limit = Math.min(export.length, 4096);
+        TextureMip found = null;
+        for (int start = 0; start < limit; start++) {
+            for (int mode = 0; mode < 2; mode++) {
+                boolean wide = mode == 0;
+                TextureMip mip = walkMipArray(export, start, wide, width, height, formatByte, uBits, vBits);
+                if (mip == null) continue;
+                if (found == null) {
+                    found = mip;
+                } else if (found.dataOffset != mip.dataOffset || found.size != mip.size) {
+                    diag.append("findMip: ambiguous — a second layout validates at export+")
+                        .append(start).append(wide ? " int-count" : " byte-count").append('\n');
+                    return null;
+                }
+            }
+        }
+        if (found == null) {
+            diag.append("findMip: no mip array layout validates against USize=").append(width)
+                .append(" VSize=").append(height).append(" Format=").append(formatByte)
+                .append(" UBits=").append(uBits).append(" VBits=").append(vBits)
+                .append(" export bytes=").append(export.length).append('\n');
+        }
+        return found;
+    }
+
+    /**
+     * Walk one candidate mip array. Every check is structural; the caller
+     * enumerates starts and count widths, so a null here just means the next
+     * candidate is tried.
+     */
+    private static TextureMip walkMipArray(byte[] export, int start, boolean wideCount,
+                                           int width, int height, int formatByte, int uBits, int vBits) {
+        int p = start;
+        long count;
+        if (wideCount) {
+            if (p + 4 > export.length) return null;
+            count = readUInt32(export, p);
+            p += 4;
+        } else {
+            if (p >= export.length) return null;
+            count = export[p] & 0xFF;
+            p += 1;
+        }
+        if (count < 1 || count > 64) return null;
+        int dataOffset = -1;
+        int dataSize = -1;
+        for (int m = 0; m < count; m++) {
+            if (p + 4 > export.length) return null;
+            p += 4; // widthOffset: absolute file offset of the data end; pixel read does not need it
+            if (p >= export.length) return null;
+            int size = readCompactIndex(export, p);
+            if (size <= 0) return null;
+            int indexLen = compactIndexLength(size);
+            if (p + indexLen + size + 10 > export.length) return null;
+            p += indexLen;
+            int off = p;
+            p += size;
+            int mipW = readInt32(export, p);
+            int mipH = readInt32(export, p + 4);
+            p += 10; // + UBits + VBits bytes
+            if (m == 0) {
+                if (mipW != width || mipH != height) return null;
+                dataOffset = off;
+                dataSize = size;
+            } else if (mipW < 1 || mipH < 1 || mipW > width || mipH > height) {
+                return null;
+            }
+        }
+        if (p != export.length - UTEXTURE_TAIL_BYTES) return null;
+        if ((export[p] & 0xFF) != formatByte) return null;
+        if ((export[p + 1] & 0xFF) != uBits) return null;
+        if ((export[p + 2] & 0xFF) != vBits) return null;
+        if (readInt32(export, p + 3) != width) return null;
+        if (readInt32(export, p + 7) != height) return null;
+        return new TextureMip(dataOffset, dataSize, width, height, (int) count, start, wideCount);
+    }
+
+    /** Head and tail hex dump of an export for a failed parse. */
+    public static String dumpHeadTail(byte[] data, int head, int tail) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("head ").append(Math.min(head, data.length)).append(" bytes: ")
+            .append(hex(data, 0, Math.min(head, data.length))).append('\n');
+        int from = Math.max(0, data.length - tail);
+        sb.append("tail ").append(data.length - from).append(" bytes at +").append(from).append(": ")
+            .append(hex(data, from, data.length - from));
+        return sb.toString();
+    }
+
+    public static String hex(byte[] data, int offset, int length) {
+        StringBuilder sb = new StringBuilder(length * 3);
+        for (int i = 0; i < length; i++) {
+            if (i > 0) sb.append(' ');
+            sb.append(Character.forDigit((data[offset + i] >> 4) & 0xF, 16));
+            sb.append(Character.forDigit(data[offset + i] & 0xF, 16));
+        }
+        return sb.toString();
+    }
+
+    public static int readInt32(byte[] data, int offset) {
+        return (data[offset] & 0xFF)
+            | ((data[offset + 1] & 0xFF) << 8)
+            | ((data[offset + 2] & 0xFF) << 16)
+            | ((data[offset + 3] & 0xFF) << 24);
+    }
+
+    public static long readUInt32(byte[] data, int offset) {
+        return readInt32(data, offset) & 0xFFFFFFFFL;
+    }
+
     // ==================== Color Conversion Helpers ====================
     
     /**

@@ -51,6 +51,10 @@ if [[ ${#tool_sources[@]} -eq 0 ]]; then
 fi
 javac --release 17 -encoding UTF-8 -d "$work/tools" -cp "$work/classes:$lzo_jar" "${tool_sources[@]}"
 
+# findMip parses UTexture tails; a silent wrong offset ships bad heights. The
+# synthetic layouts must all pass before any real package is touched.
+java -cp "$work/classes:$work/tools" TextureTailSelfTest
+
 if [[ ${#extract_plain[@]} -eq 0 ]]; then
   echo "check-interlude-javac: no tools/interlude-extract/*.java without Cruma" >&2
   exit 1
