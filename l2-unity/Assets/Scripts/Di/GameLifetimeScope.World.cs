@@ -7,6 +7,8 @@ public sealed partial class GameLifetimeScope
 {
     void RegisterWorldServices(IContainerBuilder builder)
     {
+        builder.Register<WorldEntityRegistry<Entity>>(Lifetime.Singleton);
+        builder.Register<SpawnedEntityCatalog>(Lifetime.Singleton).As<ISpawnedEntities>();
         GameScopePlayerControllerRegistration.Register(builder);
         RegisterWorld(builder);
         RegisterIfFound<WorldCombat>(builder);
@@ -316,6 +318,32 @@ public sealed partial class GameLifetimeScope
 
         throw new InvalidOperationException(
             "[GameLifetimeScope] ILocalPlayerSlot is not a LocalPlayerSlot — LocalPlayerSlot was not registered as ILocalPlayerSlot.");
+    }
+
+    static void RequireSpawnedEntities(IObjectResolver container)
+    {
+        ISpawnedEntities spawned;
+        try
+        {
+            spawned = container.Resolve<ISpawnedEntities>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(ISpawnedEntities))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] ISpawnedEntities missing — SpawnedEntityCatalog was not registered as ISpawnedEntities.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (spawned is SpawnedEntityCatalog)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] ISpawnedEntities is not a SpawnedEntityCatalog — SpawnedEntityCatalog was not registered as ISpawnedEntities.");
     }
 
     /// <summary>

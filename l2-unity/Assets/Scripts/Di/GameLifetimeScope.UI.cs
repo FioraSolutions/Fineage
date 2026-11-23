@@ -92,6 +92,7 @@ public sealed partial class GameLifetimeScope
 
         builder.RegisterBuildCallback(container =>
         {
+            RequireSpawnedEntities(container);
             RequireVisibilityRoster(container);
             RequireEntityActionRoster(container);
             RequireMoveRoster(container);

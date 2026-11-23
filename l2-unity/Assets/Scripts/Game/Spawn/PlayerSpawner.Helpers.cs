@@ -106,7 +106,6 @@ public sealed partial class PlayerSpawner
             PlayerStatePacketServices.PlayerState.Player = player;
 
         world.RegisterPlayer(player);
-        DiBootstrap.EnsureGameScope();
         return player;
     }
 

@@ -1,10 +1,18 @@
 using System;
 using UnityEngine;
-using VContainer;
 
 public partial class TargetManager
 {
-    private Entity GetNextObject(World world, int kind, float radius, float minDistanceExclusive, int excludeId)
+    void RequireSpawned()
+    {
+        if (_spawned == null)
+        {
+            throw new InvalidOperationException(
+                "[TargetManager] ISpawnedEntities missing — GameLifetimeScope did not register SpawnedEntityCatalog, so targets were not scanned.");
+        }
+    }
+
+    private Entity GetNextObject(int kind, float radius, float minDistanceExclusive, int excludeId)
     {
         _scanKind = kind;
         _scanSelfId = DomainPacketServices.LocalPlayer.Identity.Id;
@@ -13,7 +21,7 @@ public partial class TargetManager
         _scanBestDistance = radius;
         _scanOrigin = _playerTransform.position;
         _scanBest = null;
-        world.ForEachEntity(_considerCandidate);
+        _spawned.ForEach(_considerCandidate);
         return _scanBest;
     }
 

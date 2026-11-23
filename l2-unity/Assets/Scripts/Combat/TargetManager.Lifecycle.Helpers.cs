@@ -61,12 +61,11 @@ public partial class TargetManager
             return true;
         }
 
-        // Local player is never registered in World as a target candidate;
-        // anything else must still exist in the world registry.
-        World world = GameWorld;
-        if (entity != DomainPacketServices.LocalPlayer &&
-            world != null &&
-            world.GetEntityNoLockSync(entity.Identity != null ? entity.Identity.Id : 0) == null)
+        // Local player is never registered in the spawned catalog;
+        // anything else must still be in that catalog.
+        RequireSpawned();
+        int id = entity.Identity != null ? entity.Identity.Id : 0;
+        if (entity != DomainPacketServices.LocalPlayer && _spawned.Find(id) == null)
         {
             return true;
         }
