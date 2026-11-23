@@ -431,10 +431,12 @@ public final class TextureUtils {
         public final int mipCount;
         /** Offset of the mip-count field (diagnostics). */
         public final int arrayStart;
-        /** true: the count is an INT32; false: a single BYTE. */
+        /** true: the count is an INT32; false: a single BYTE. Meaningless for layout "chain". */
         public final boolean wideCount;
+        /** Which validated family matched: "int-count", "byte-count", or "chain". */
+        public final String layout;
 
-        private TextureMip(int dataOffset, int size, int width, int height, int mipCount, int arrayStart, boolean wideCount) {
+        private TextureMip(int dataOffset, int size, int width, int height, int mipCount, int arrayStart, boolean wideCount, String layout) {
             this.dataOffset = dataOffset;
             this.size = size;
             this.width = width;
@@ -442,36 +444,43 @@ public final class TextureUtils {
             this.mipCount = mipCount;
             this.arrayStart = arrayStart;
             this.wideCount = wideCount;
+            this.layout = layout;
         }
     }
 
     /**
      * Locate mip0 inside a UE2 UTexture export.
      *
-     * <p>After the property tags the package stores the mip array — a count,
-     * then per mip: INT32 widthOffset, compact-index byte size, pixel data,
-     * INT32 USize, INT32 VSize, BYTE UBits, BYTE VBits — and then the tail
-     * fields Format, UBits, VBits, USize, VSize, UClamp, VClamp. The count is
-     * an INT32 on some package versions and a BYTE on others, so both widths
-     * are tried at every plausible start offset. A candidate is accepted only
-     * when it consumes the export exactly and every field matches the texture
-     * properties. Zero or several survivors is a null result with the reasons
-     * in diag — never a silent first fit.</p>
+     * <p>Two families are tried at every plausible start offset. "Count": a
+     * mip-array count (INT32 or BYTE), then per mip INT32 widthOffset,
+     * compact-index byte size, pixel data, INT32 USize, INT32 VSize, BYTE
+     * UBits, BYTE VBits, closed by the 19-byte Format/UBits/VBits/USize/
+     * VSize/UClamp/VClamp tail. "Chain" (pkg.version 123, the Interlude
+     * layout): no count and no offset table — [compact-index size][data]
+     * [USize][VSize][UBits][VBits] repeated to EOF. A candidate is accepted
+     * only when it consumes the export exactly and every field matches the
+     * texture properties (and, for the chain, the halved mip dims and the
+     * format's size law). Zero or several survivors is a null result with
+     * the reasons in diag — never a silent first fit.</p>
      */
     public static TextureMip findMip(byte[] export, int width, int height, int formatByte,
                                      int uBits, int vBits, StringBuilder diag) {
         int limit = Math.min(export.length, 4096);
         TextureMip found = null;
         for (int start = 0; start < limit; start++) {
-            for (int mode = 0; mode < 2; mode++) {
-                boolean wide = mode == 0;
-                TextureMip mip = walkMipArray(export, start, wide, width, height, formatByte, uBits, vBits);
+            for (int mode = 0; mode < 3; mode++) {
+                TextureMip mip;
+                if (mode == 2) {
+                    mip = walkMipChain(export, start, width, height, formatByte, uBits, vBits);
+                } else {
+                    mip = walkMipArray(export, start, mode == 0, width, height, formatByte, uBits, vBits);
+                }
                 if (mip == null) continue;
                 if (found == null) {
                     found = mip;
                 } else if (found.dataOffset != mip.dataOffset || found.size != mip.size) {
                     diag.append("findMip: ambiguous — a second layout validates at export+")
-                        .append(start).append(wide ? " int-count" : " byte-count").append('\n');
+                        .append(start).append(' ').append(mip.layout).append('\n');
                     return null;
                 }
             }
@@ -534,7 +543,94 @@ public final class TextureUtils {
         if ((export[p + 2] & 0xFF) != vBits) return null;
         if (readInt32(export, p + 3) != width) return null;
         if (readInt32(export, p + 7) != height) return null;
-        return new TextureMip(dataOffset, dataSize, width, height, (int) count, start, wideCount);
+        return new TextureMip(dataOffset, dataSize, width, height, (int) count, start, wideCount,
+            wideCount ? "int-count" : "byte-count");
+    }
+
+    /**
+     * Walk the pkg-123 bare mip chain: no array count and no per-mip offset
+     * table — just [compact-index byte size][pixel data][INT32 USize]
+     * [INT32 VSize][BYTE UBits][BYTE VBits] repeated until the export ends.
+     * Proven against live Interlude exports (e.g. Lobby_terrain_t.Height:
+     * 55-byte native prefix after the None tag, then a single 256x256 G16
+     * block whose size index is the 3 bytes 40 80 10, dims after the data,
+     * EOF right after VBits). Every block must match the halved mip dims and,
+     * for formats with a known size law, the exact byte count; the chain must
+     * consume the export exactly. Anything unexplained is a null here, never
+     * a partial fit.
+     */
+    private static TextureMip walkMipChain(byte[] export, int start,
+                                           int width, int height, int formatByte, int uBits, int vBits) {
+        int p = start;
+        int dataOffset = -1;
+        int dataSize = -1;
+        int count = 0;
+        for (int m = 0; m < 64; m++) {
+            int mipW = Math.max(1, width >> m);
+            int mipH = Math.max(1, height >> m);
+            if (p >= export.length) return null;
+            int size = readCompactIndex(export, p);
+            if (size <= 0) return null;
+            int indexLen = compactIndexLength(size);
+            int expect = expectedMipBytes(mipW, mipH, formatByte);
+            if (expect >= 0 && size != expect) return null;
+            if (p + indexLen + size + 10 > export.length) return null;
+            p += indexLen;
+            int off = p;
+            p += size;
+            if (readInt32(export, p) != mipW) return null;
+            if (readInt32(export, p + 4) != mipH) return null;
+            int mipUBits = export[p + 8] & 0xFF;
+            int mipVBits = export[p + 9] & 0xFF;
+            if (mipUBits != log2(mipW) || mipVBits != log2(mipH)) return null;
+            p += 10;
+            if (m == 0) {
+                if (mipUBits != uBits || mipVBits != vBits) return null;
+                dataOffset = off;
+                dataSize = size;
+            }
+            count++;
+            if (p == export.length) {
+                return new TextureMip(dataOffset, dataSize, width, height, count, start, false, "chain");
+            }
+            if (mipW == 1 && mipH == 1) return null; // trailing bytes after the 1x1 mip are unexplained
+        }
+        return null;
+    }
+
+    /**
+     * Serialized bytes of one mip level for an ETextureFormat byte, or -1
+     * when the format has no enforced size law (NODATA or an enum value this
+     * parser does not know — the chain then validates structurally).
+     */
+    private static int expectedMipBytes(int mipW, int mipH, int formatByte) {
+        switch (formatByte) {
+            case 0:  // TXF_P8
+            case 9:  // TXF_L8
+                return mipW * mipH;
+            case 1:  // TXF_RGBA7
+            case 2:  // TXF_RGB16
+            case 10: // TXF_G16
+            case 11: // TXF_R16f
+                return mipW * mipH * 2;
+            case 4:  // TXF_RGB8
+                return mipW * mipH * 3;
+            case 5:  // TXF_RGBA8
+                return mipW * mipH * 4;
+            case 3:  // TXF_DXT1
+                return Math.max(1, (mipW + 3) / 4) * Math.max(1, (mipH + 3) / 4) * 8;
+            case 7:  // TXF_DXT3
+            case 8:  // TXF_DXT5
+                return Math.max(1, (mipW + 3) / 4) * Math.max(1, (mipH + 3) / 4) * 16;
+            default:
+                return -1;
+        }
+    }
+
+    private static int log2(int v) {
+        int n = 0;
+        while ((1 << n) < v) n++;
+        return n;
     }
 
     /** Head and tail hex dump of an export for a failed parse. */

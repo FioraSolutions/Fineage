@@ -120,11 +120,13 @@ public class ExportLevelHeight {
                         fail("TerrainMap " + qualified + " export " + exportIndex
                             + " format " + texture.format() + " is not G16");
                     }
-                    // UE2 UTexture serializes the mip array plus a Format/UBits/
-                    // VBits/USize/VSize/UClamp/VClamp tail after the property
-                    // tags. The library's mipMaps() guesses the count width from
-                    // the package version and loses the array; findMip walks the
-                    // tail and validates every field instead.
+                    // UE2 UTexture serializes the mips after the property tags —
+                    // either a counted array closed by a Format/UBits/VBits/
+                    // USize/VSize/UClamp/VClamp tail, or (pkg.version 123, the
+                    // Interlude layout) a bare chain of [compact size][data]
+                    // [USize][VSize][UBits][VBits] blocks to EOF. The library's
+                    // mipMaps() guesses the count width from the package version
+                    // and loses the array; findMip validates every field instead.
                     int width = intProp(loadedTex, "USize", qualified);
                     int height = intProp(loadedTex, "VSize", qualified);
                     int uBits = byteProp(loadedTex, "UBits", qualified);
@@ -150,8 +152,7 @@ public class ExportLevelHeight {
                     byte[] raw = java.util.Arrays.copyOfRange(exportBytes, mip.dataOffset, mip.dataOffset + mip.size);
                     System.out.println("[TerrainMap] mip0 " + width + "x" + height + " G16 at export+"
                         + mip.dataOffset + " (" + mip.size + " bytes, " + mip.mipCount
-                        + " mip, " + (mip.wideCount ? "int" : "byte") + "-count at export+"
-                        + mip.arrayStart + ")");
+                        + " mip, " + mip.layout + " at export+" + mip.arrayStart + ")");
                     Path g16 = out.resolve("g16.raw");
                     Files.write(g16, raw);
                     byte[] info = UnrealPackageUtils.readExportData(pkg, terrainObj);

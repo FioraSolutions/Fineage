@@ -63,6 +63,38 @@ public class TextureTailSelfTest {
         check(mip != null && mip.size == 131072 && mip.dataOffset == 29 + 4 + 4 + 3,
             "H: 256x256 " + (mip == null ? "null" : mip.size + "@" + mip.dataOffset));
 
+        // I: the live Lobby_terrain_t.Height layout (pkg.version 123) — the 59
+        // head bytes below are byte-identical to the Mac dump: a None tag, the
+        // 55-byte native prefix, then the size index 40 80 10 at +56. No array
+        // count, no per-mip offset, dims after the data, EOF after VBits.
+        byte[] i = buildChain(LOBBY_HEIGHT_HEAD, new int[][]{{256, 256}}, 10, 8, 8);
+        check(i.length == 131141, "I: fixture bytes " + i.length);
+        mip = TextureUtils.findMip(i, 256, 256, 10, 8, 8, new StringBuilder());
+        check(mip != null && "chain".equals(mip.layout) && mip.dataOffset == 59
+                && mip.size == 131072 && mip.mipCount == 1,
+            "I: lobby chain " + (mip == null ? "null" : mip.layout + " " + mip.size + "@" + mip.dataOffset));
+
+        // J: chain with three mips down to 1x1, junk prefix, EOF end.
+        byte[] j = buildChain(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, new int[][]{{4, 4}, {2, 2}, {1, 1}}, 10, 2, 2);
+        mip = TextureUtils.findMip(j, 4, 4, 10, 2, 2, new StringBuilder());
+        check(mip != null && "chain".equals(mip.layout) && mip.mipCount == 3 && mip.size == 32,
+            "J: 3-mip chain " + (mip == null ? "null" : mip.mipCount + "/" + mip.size));
+
+        // K: the lobby bytes with the wrong format must not validate (P8 size
+        // law wants 65536, the chain says 131072).
+        check(TextureUtils.findMip(i, 256, 256, 0, 8, 8, new StringBuilder()) == null,
+            "K: P8 claim on a G16 chain accepted");
+
+        // L: one trailing byte after VBits — no family may consume it exactly.
+        byte[] l = Arrays.copyOf(i, i.length + 1);
+        check(TextureUtils.findMip(l, 256, 256, 10, 8, 8, new StringBuilder()) == null,
+            "L: trailing byte accepted");
+
+        // M: chain dims disagree with the properties — reject, never first-fit.
+        check(TextureUtils.findMip(i, 128, 128, 10, 7, 7, new StringBuilder()) == null,
+            "M: dim mismatch on chain accepted");
+
         if (failures > 0) {
             System.err.println("TextureTailSelfTest: " + failures + " failure(s)");
             System.exit(1);
@@ -75,6 +107,55 @@ public class TextureTailSelfTest {
             failures++;
             System.err.println("  FAIL " + label);
         }
+    }
+
+    /** Head of the live Lobby_terrain_t.Height export (Mac dump 2026-11-23):
+     * None tag + 55-byte native prefix + the 131072 size index 40 80 10. */
+    static final byte[] LOBBY_HEIGHT_HEAD = {
+        0x00, 0x22, (byte) 0xf3, (byte) 0xfa, 0x23, 0x77, 0x00, (byte) 0xa2,
+        0x01, 0x42, 0x03, 0x70, 0x41, 0x0c, 0x01, 0x0a,
+        0x06, 0x01, 0x08, 0x05, 0x01, 0x08, 0x07, 0x22,
+        0x00, 0x01, 0x00, 0x00, 0x03, 0x22, 0x00, 0x01,
+        0x00, 0x00, 0x08, 0x22, 0x00, 0x01, 0x00, 0x00,
+        0x04, 0x22, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x00, 0x01, 0x44, (byte) 0xb0, 0x46, 0x00,
+        0x40, (byte) 0x80, 0x10,
+    };
+
+    /**
+     * Serialize a pkg-123 bare chain export: the head bytes (which already end
+     * at mip0's size index for the single-mip case are NOT assumed — the head
+     * is followed by the full chain), then per mip [compact size][data]
+     * [INT32 USize][INT32 VSize][BYTE UBits][BYTE VBits], EOF. When the head
+     * already ends with mip0's size index (the lobby bytes), that index is
+     * used; otherwise one is appended per mip. Pixel bytes repeat bd 4f —
+     * plausible G16 heights that form no valid candidate inside the data.
+     */
+    static byte[] buildChain(byte[] head, int[][] mips, int format, int uBits, int vBits) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.writeBytes(head);
+        for (int m = 0; m < mips.length; m++) {
+            int w = mips[m][0];
+            int h = mips[m][1];
+            int size = w * h * 2;
+            if (!(m == 0 && endsWithSizeIndex(head, size))) out.writeBytes(compact(size));
+            for (int k = 0; k < size; k++) out.write((k & 1) == 0 ? 0xbd : 0x4f);
+            writeInt32(out, w);
+            writeInt32(out, h);
+            out.write(log2(w));
+            out.write(log2(h));
+        }
+        return out.toByteArray();
+    }
+
+    /** True when the head's trailing bytes are exactly compact(size). */
+    static boolean endsWithSizeIndex(byte[] head, int size) {
+        byte[] want = compact(size);
+        if (head.length < want.length) return false;
+        for (int k = 0; k < want.length; k++) {
+            if (head[head.length - want.length + k] != want[k]) return false;
+        }
+        return true;
     }
 
     /**
