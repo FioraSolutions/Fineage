@@ -5,7 +5,13 @@ using VContainer.Unity;
 
 public sealed class LoginLifetimeScope : LifetimeScope
 {
-    protected override void Configure(IContainerBuilder builder)
+    protected override void Configure(IContainerBuilder builder) => Install(builder);
+
+    /// <summary>
+    /// Registrations <see cref="Configure"/> uses. EditMode builds from here:
+    /// <see cref="LifetimeScope.Awake"/> can defer <c>Build</c> and leave <c>Container</c> null.
+    /// </summary>
+    public void Install(IContainerBuilder builder)
     {
         LifetimeScopeMonoRegistration.RegisterIfFound<L2LoginUI>(builder);
         LifetimeScopeMonoRegistration.RegisterIfFound<LoginWindow>(builder);
