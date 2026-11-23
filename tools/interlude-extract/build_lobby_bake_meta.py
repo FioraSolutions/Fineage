@@ -411,6 +411,7 @@ def main() -> int:
     tm_stem = f"Height.{tm_parts[-1]}".lower()
     if not (tm_folder and any(p.stem.lower() == tm_stem for p in tm_folder.glob("*.bmp"))):
         missing.append(f"heightmap {terrain_map} (want {TEX}/<case-insensitive {tm_parts[0]}>/{tm_stem}.bmp)")
+    # Outer package is the package_index chain (lobby_mesh_resolve via full_name).
     for full in sorted(set(individuals) | deco_meshes):
         parts = full.split(".")
         pkg, name = parts[0], parts[-1]

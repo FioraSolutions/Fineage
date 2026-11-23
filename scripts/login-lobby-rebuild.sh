@@ -8,8 +8,17 @@
 #   L2_UMODEL_EXPORT_DIR="/path/to/umodel-export" \
 #   bash scripts/login-lobby-rebuild.sh
 #
-# Skip a fresh client extract when the committed dump is already current:
+# Skip a fresh client extract when the committed dump is already current.
+# Placement still runs: files already dumped under .work/lobby-extract
+# (H_M_05.png, mesh FBX, props) are copied into Unity. --skip-extract does
+# not re-run umodel or the Java exporters.
 #   bash scripts/login-lobby-rebuild.sh --skip-extract
+#
+# Mesh extract needs the umodel linux binary at
+# l2-unity/External/UEViewer/umodel. That directory is gitignored
+# (l2-unity/External/), so a checkout does not contain it. A run that extracts
+# fails here, before the client dump, when the binary is missing.
+# https://www.gildor.org/downloads — linux/amd64 inside Docker on Apple Silicon.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -25,9 +34,21 @@ for arg in "$@"; do
   esac
 done
 
+UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
 if [[ "$SKIP_EXTRACT" -eq 0 ]]; then
+  if [[ ! -x "$UMODEL" ]]; then
+    echo "ERROR: umodel linux binary missing at $UMODEL" >&2
+    echo "l2-unity/External/ is gitignored, so a clean checkout does not contain it." >&2
+    echo "Get UE Viewer (linux build) from https://www.gildor.org/downloads and" >&2
+    echo "place the binary there before extracting. --skip-extract still places" >&2
+    echo "assets already dumped under .work/lobby-extract and does not need umodel." >&2
+    exit 2
+  fi
   echo "== extract Lobby.unr (fails if the client or Cruma is missing) =="
   bash tools/interlude-extract/extract_login_lobby.sh
+else
+  echo "== skip client extract; place assets already dumped under .work/lobby-extract =="
+  bash tools/interlude-extract/extract_login_lobby.sh --place-only
 fi
 
 if [[ ! -f l2-unity/docs/interlude-ref/world/env/Lobby.json ]]; then
