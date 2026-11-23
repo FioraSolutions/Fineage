@@ -208,6 +208,16 @@ if want_step 6; then
       "$CLIENT/systextures/L2Font.utx" "$WORK/tex/L2Font" "start_logo-k,start_minilogo-k"
     java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
       "$CLIENT/textures/Lobby_terrain_t.utx" "$WORK/tex/Lobby_terrain_t" "H_M_05"
+    # TerrainMap is an object reference. Export that texture (mip0 G16, not the
+    # first G16 in the package) plus the TerrainInfo bytes, then replace the
+    # height BMP only when the level's vertex grid disagrees with the texture.
+    java -cp "$L2JAR" "$ROOT/tools/interlude/ExportLevelHeight.java" \
+      "$CLIENT" "$CLIENT/maps/Lobby.unr" "$WORK/height"
+    python3 "$ROOT/tools/interlude-extract/terrain_map_ref.py" apply \
+      --owner "$WORK/height/owner.json" \
+      --bmp "$ROOT/l2-unity/Assets/Resources/Data/Textures/lobby_terrain_t/Height.Height.bmp" \
+      --dump "$WORLD/env/Lobby.unr.json.gz" \
+      --actor InterpolationPoint5
     # PNGs land in Unity (Textures/l2_skies/*, Textures/lobby_terrain_t/H_M_05.png,
     # Data/UI/Assets/Login/start_logo-k.png + start_minilogo-k.png), .meta cloned
     # from existing siblings. Missing exports are ERRORs.

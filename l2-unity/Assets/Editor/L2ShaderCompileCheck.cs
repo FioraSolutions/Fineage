@@ -11,7 +11,7 @@ public static class L2ShaderCompileCheck
     {
         int failed = 0;
         var report = new StringBuilder();
-        string[] guids = AssetDatabase.FindAssets("t:Shader", new[] { "Assets/Resources/Data/Shaders/World" });
+        string[] guids = AssetDatabase.FindAssets("t:Shader", new[] { "Assets/Resources/Data/Shaders" });
         foreach (string guid in guids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
@@ -21,6 +21,12 @@ public static class L2ShaderCompileCheck
                 report.AppendLine("missing " + path);
                 failed++;
                 continue;
+            }
+
+            if (ShaderUtil.ShaderHasError(shader))
+            {
+                report.AppendLine(path + " ShaderUtil.ShaderHasError");
+                failed++;
             }
 
             var messages = ShaderUtil.GetShaderMessages(shader);

@@ -8,6 +8,7 @@ import json
 import re
 import shutil
 import struct
+import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -106,10 +107,33 @@ def load_quad_visibility(path: Path) -> list[int] | None:
         words.append(int(s))
     return words
 
-def build_terrain_info0(tile_id: str, meta: dict, tile_tex_pkg: str) -> str:
+def terrain_map_for_tile(tile_id: str, tile_tex: str) -> tuple[str, str]:
+    """(qualified TerrainMap, height object name).
+
+    The level names the texture. T_{tile}.Height.{tile} is only the fallback
+    when that map has no committed dump. A dump whose package is not tile_tex
+    is an error: the raw next to this tile is not the height the level uses.
+    """
+    dump = UNITY / "docs/interlude-ref/world/maps" / f"{tile_id}.unr.json.gz"
+    if not dump.is_file():
+        return f"{tile_tex}.Height.{tile_id}", tile_id
+    extract = REPO_ROOT / "tools/interlude-extract"
+    if str(extract) not in sys.path:
+        sys.path.insert(0, str(extract))
+    import terrain_map_ref as height_ref
+
+    ref = height_ref.one_terrain_map(height_ref.load_doc(dump))
+    height_ref.assert_height_package(ref, tile_tex, str(dump))
+    qualified = ref.qualified
+    print(f"[TerrainMap] {tile_id} {qualified} index {ref.index} ({ref.kind}) -> Height.{ref.name}.bmp")
+    return qualified, ref.name
+
+
+def build_terrain_info0(tile_id: str, meta: dict, tile_tex_pkg: str, terrain_map: str | None = None) -> str:
     # Layer 0 uses shared base; splat layers use T_XX_YY ground + Height alphas.
+    height_ref = terrain_map or f"{tile_tex_pkg}.Height.{tile_id}"
     lines = [
-        f"TerrainMap=Texture'{tile_tex_pkg}.Height.{tile_id}'",
+        f"TerrainMap=Texture'{height_ref}'",
         "TerrainScale=(X=128.000000,Y=128.000000,Z=76.000000)",
     ]
     layer0 = (
@@ -296,7 +320,8 @@ def main() -> None:
     tex_dir = TEXTURES / tile_tex
     tex_dir.mkdir(parents=True, exist_ok=True)
 
-    write_height_bmp(raw_path, tex_dir / f"Height.{tile_id}.bmp")
+    terrain_map, height_name = terrain_map_for_tile(tile_id, tile_tex)
+    write_height_bmp(raw_path, tex_dir / f"Height.{height_name}.bmp")
 
     for layer_num, ground, _ in meta["splats"]:
         splat_file = src / f"{tile_id}_splatmap{layer_num}_layer{layer_num}.png"
@@ -326,7 +351,7 @@ def main() -> None:
                 f"{args.extract_dir / 'terraintextures'} and no {ground_png}"
             )
 
-    terrain_info0 = build_terrain_info0(tile_id, meta, tile_tex)
+    terrain_info0 = build_terrain_info0(tile_id, meta, tile_tex, terrain_map)
     (meta_dir / "TerrainInfo0.txt").write_text(terrain_info0, encoding="utf-8")
 
     t3d_body, individuals = build_t3d(tile_id, terrain_info0, static_meshes)

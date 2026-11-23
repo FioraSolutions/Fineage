@@ -550,9 +550,13 @@ def main() -> int:
     map_package = args.dump.name.split(".")[0]
 
     # --- TerrainInfo0.txt ---
-    terrain_map = full_name(imps, prop(ti, "TerrainMap"), "Texture")
+    terrain_prop = prop(ti, "TerrainMap")
+    terrain_map = full_name(imps, terrain_prop, "Texture")
     if not terrain_map:
         raise SystemExit("ERROR TerrainInfo has no TerrainMap ref")
+    tm_index = int((terrain_prop or {}).get("index") or 0)
+    tm_kind = "export" if tm_index > 0 else "import"
+    print(f"[TerrainMap] {terrain_map} index {tm_index} ({tm_kind})")
     scale = (prop(ti, "TerrainScale") or {}).get("vector") or {}
     loc = (prop(ti, "Location") or {}).get("vector") or {}
     draw = (prop(ti, "DrawScale") or {}).get("value")

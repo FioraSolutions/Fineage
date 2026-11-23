@@ -101,16 +101,8 @@ float3 L2_TerrainLightDebugColor(float2 worldUu)
     return float3(0.05, saturate(sampleUv.r * 2.0), 0.06);
 }
 
-float2 L2_TerrainLayerUv(float2 worldUu, float4 uvScale, float tileUu)
-{
-    return L2_TerrainLayerUv(worldUu, uvScale, tileUu, 0.0, 0.0);
-}
-
-float2 L2_TerrainLayerUv(float2 worldUu, float4 uvScale, float tileUu, float4 xform)
-{
-    return L2_TerrainLayerUv(worldUu, uvScale, tileUu, xform.x, xform.y);
-}
-
+// The 5-argument function is the implementation. Metal does not see a
+// function that is defined later in the file, so the short overloads follow it.
 // worldUu is official UU on Unity XZ (already * 52.5): .x = Unity X = UE Y, .y = Unity Z = UE X.
 // texRotUu is TextureRotation (65536 = 360°). axis is TEXMAPAXIS_XY/XZ/YZ (0/1/2).
 // Axis 1/2 also need world height; callers that only have XZ pass y=0 and those layers stay XY-projected.
@@ -139,6 +131,16 @@ float2 L2_TerrainLayerUv(float2 worldUu, float4 uvScale, float tileUu, float tex
         uv = float2(uv.x * c - uv.y * srot, uv.x * srot + uv.y * c);
     }
     return uv;
+}
+
+float2 L2_TerrainLayerUv(float2 worldUu, float4 uvScale, float tileUu, float4 xform)
+{
+    return L2_TerrainLayerUv(worldUu, uvScale, tileUu, xform.x, xform.y);
+}
+
+float2 L2_TerrainLayerUv(float2 worldUu, float4 uvScale, float tileUu)
+{
+    return L2_TerrainLayerUv(worldUu, uvScale, tileUu, 0.0, 0.0);
 }
 
 float2 L2_TerrainSplatUv(float2 meshUv)

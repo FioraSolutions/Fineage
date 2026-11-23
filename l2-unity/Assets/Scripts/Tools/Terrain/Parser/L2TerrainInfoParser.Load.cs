@@ -25,6 +25,16 @@ public partial class L2TerrainInfoParser
                 line = line.Trim();
                 if (line.StartsWith("TerrainMap=")) {
                     terrainInfo.terrainMapPath = TextureUtils.GetHeightMapPath(line);
+                    string[] named = L2MetaDataUtils.GetFolderAndFileFromInfo(line);
+                    string folder = Path.GetFileName(Path.GetDirectoryName(terrainInfo.terrainMapPath) ?? "");
+                    if (!string.Equals(folder, named[0], StringComparison.OrdinalIgnoreCase)) {
+                        Debug.LogError(
+                            "[TerrainMap] " + mapID + " reference " + named[0] + "." + named[1]
+                            + " resolved to " + terrainInfo.terrainMapPath + " (package " + folder + ")");
+                    } else {
+                        Debug.Log("[TerrainMap] " + mapID + " " + named[0] + "." + named[1]
+                            + " -> " + terrainInfo.terrainMapPath);
+                    }
                 } else if (line.StartsWith("GeneratedSectorCounter=")) {
                     terrainInfo.generatedSectorCounter = ParseGeneratedSectorCounter(line);
                 } else if (line.StartsWith("TerrainScale=")) {

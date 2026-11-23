@@ -17,10 +17,17 @@ public class L2WorldShaderCompileTests
     [Test]
     public void World_shaders_compile_for_Metal_Vulkan_and_D3D()
     {
-        string[] guids = AssetDatabase.FindAssets("t:Shader", new[] { "Assets/Resources/Data/Shaders/World" });
-        Assert.Greater(guids.Length, 0, "no world shaders");
+        // Every shader under Data/Shaders, including Hidden/L2/* (ZoneFog lives here).
+        // ShaderHasError / GetShaderMessages are the importer errors the editor console
+        // shows. CompileVariant is per pass, so a pass that only fails when Metal
+        // concatenates the shader is still reported by ShaderHasError.
+        string[] guids = AssetDatabase.FindAssets("t:Shader", new[] { "Assets/Resources/Data/Shaders" });
+        Assert.Greater(guids.Length, 0, "no shaders under Assets/Resources/Data/Shaders");
         var failures = new StringBuilder();
         int compiled = 0;
+        bool sawZoneFog = false;
+        bool sawTerrainLayer = false;
+        bool sawTerrainBase = false;
         for (int i = 0; i < guids.Length; i++)
         {
             string path = AssetDatabase.GUIDToAssetPath(guids[i]);
@@ -30,8 +37,29 @@ public class L2WorldShaderCompileTests
                 failures.AppendLine(path + " did not load");
                 continue;
             }
+            if (shader.name == "Hidden/L2/ZoneFog")
+                sawZoneFog = true;
+            if (shader.name == "L2/World/TerrainLayerModulate2X")
+                sawTerrainLayer = true;
+            if (shader.name == "L2/World/TerrainBaseModulate2X")
+                sawTerrainBase = true;
+
+            if (ShaderUtil.ShaderHasError(shader))
+                failures.AppendLine(path + " ShaderUtil.ShaderHasError");
+
+            foreach (ShaderMessage message in ShaderUtil.GetShaderMessages(shader))
+            {
+                if (message.severity != ShaderCompilerMessageSeverity.Error)
+                    continue;
+                failures.AppendLine(path + ":" + message.line + " " + message.message);
+            }
+
             ShaderData data = ShaderUtil.GetShaderData(shader);
-            Assert.NotNull(data, path);
+            if (data == null)
+            {
+                failures.AppendLine(path + " ShaderUtil.GetShaderData returned null");
+                continue;
+            }
             for (int s = 0; s < data.SubshaderCount; s++)
             {
                 ShaderData.Subshader sub = data.GetSubshader(s);
@@ -40,19 +68,16 @@ public class L2WorldShaderCompileTests
                     ShaderData.Pass pass = sub.GetPass(p);
                     for (int t = 0; t < Targets.Length; t++)
                     {
-                        compiled += Compile(path, pass, ShaderType.Vertex, Targets[t].Platform, Targets[t].Target, failures);
-                        compiled += Compile(path, pass, ShaderType.Fragment, Targets[t].Platform, Targets[t].Target, failures);
+                        compiled += Compile(path, shader.name, pass, ShaderType.Vertex, Targets[t].Platform, Targets[t].Target, failures);
+                        compiled += Compile(path, shader.name, pass, ShaderType.Fragment, Targets[t].Platform, Targets[t].Target, failures);
                     }
                 }
             }
-
-            foreach (ShaderMessage message in ShaderUtil.GetShaderMessages(shader))
-            {
-                if (message.severity != ShaderCompilerMessageSeverity.Error)
-                    continue;
-                failures.AppendLine(path + ":" + message.line + " " + message.message);
-            }
         }
+        if (!sawZoneFog)
+            failures.AppendLine("Hidden/L2/ZoneFog was not in Assets/Resources/Data/Shaders");
+        if (!sawTerrainLayer || !sawTerrainBase)
+            failures.AppendLine("L2/World/TerrainLayerModulate2X and TerrainBaseModulate2X were not both compiled");
         Assert.Greater(compiled, 0, "no shader variant compiled");
         if (failures.Length > 0)
             Assert.Fail(failures.ToString());
@@ -60,6 +85,7 @@ public class L2WorldShaderCompileTests
 
     static int Compile(
         string path,
+        string shaderName,
         ShaderData.Pass pass,
         ShaderType stage,
         ShaderCompilerPlatform platform,
@@ -87,7 +113,7 @@ public class L2WorldShaderCompileTests
         if (real.Count == 0 && !info.Success)
             real.Add("compile failed");
         for (int i = 0; i < real.Count; i++)
-            failures.AppendLine(path + " " + platform + " " + stage + ": " + real[i]);
+            failures.AppendLine(path + " " + shaderName + " " + platform + " " + stage + ": " + real[i]);
         return 0;
     }
 

@@ -461,14 +461,36 @@ def check_transform_tex_macro() -> list[str]:
     else:
         body = test.read_text(encoding="utf-8-sig", errors="replace")
         for needle in (
-            "L2/World/Ue2Chain",
             "ShaderCompilerPlatform.Metal",
             "ShaderCompilerPlatform.Vulkan",
             "ShaderCompilerPlatform.D3D",
             "CompileVariant",
+            "ShaderUtil.ShaderHasError",
+            "ShaderUtil.GetShaderMessages",
+            "Assets/Resources/Data/Shaders",
+            "Hidden/L2/ZoneFog",
+            "L2/World/TerrainLayerModulate2X",
         ):
-            if needle not in body and needle != "L2/World/Ue2Chain":
+            if needle not in body:
                 errors.append(f"L2WorldShaderCompileTests.cs does not mention {needle}")
+        # Metal compiles every pass of a shader as one translation unit. A second
+        # `struct Varyings` next to Blit.hlsl's Varyings is the ZoneFog failure.
+        zone = ASSETS / "Resources/Data/Shaders/World/L2ZoneFog.shader"
+        if zone.is_file():
+            zone_text = zone.read_text(encoding="utf-8", errors="replace")
+            if zone_text.count("struct Varyings") != 0:
+                errors.append("L2ZoneFog.shader redefines struct Varyings (Blit.hlsl already defines it)")
+        common = ASSETS / "Resources/Data/Shaders/World/L2TerrainCommon.hlsl"
+        if common.is_file():
+            common_text = common.read_text(encoding="utf-8", errors="replace")
+            impl = common_text.find(
+                "float2 L2_TerrainLayerUv(float2 worldUu, float4 uvScale, float tileUu, float texRotUu, float axis)"
+            )
+            call = common_text.find("L2_TerrainLayerUv(worldUu, uvScale, tileUu, 0.0, 0.0)")
+            if impl < 0 or call < 0 or call < impl:
+                errors.append(
+                    "L2_TerrainLayerUv 5-argument implementation must be defined before the 3-argument overload calls it"
+                )
         # The compile test discovers shaders by folder. The chain shader must stay in that folder.
         chain = ASSETS / "Resources/Data/Shaders/World/L2Ue2Chain.shader"
         if not chain.is_file():

@@ -64,28 +64,43 @@ public class HeightmapExtractor {
      */
     private TerrainTile extractFromDecryptedPackage(Path packagePath, TileCoordinates coords, String sourceFilename) throws IOException {
         try (Package pkg = new Package(new PackageReader(packagePath))) {
+            int g16Count = 0;
+            ExportedObject chosenObj = null;
+            Texture chosen = null;
+            StringBuilder names = new StringBuilder();
             for (ExportedObject obj : pkg.objects) {
                 if (obj == null) continue;
-                
+
                 String cls = obj.classIndex.get().name().name;
                 if (!cls.equals("Texture")) continue;
-                
+
                 net.shrimpworks.unreal.packages.entities.objects.Object texObj = pkg.object(obj);
                 if (!(texObj instanceof Texture tex)) continue;
                 if (!tex.format().name().equals("G16")) continue;
-                
-                int[] dimensions = getTextureDimensions(tex);
-                int[] heightData = extractHeightData(tex, obj, dimensions[0] * dimensions[1]);
-                
-                return new TerrainTile(coords, dimensions[0], dimensions[1], heightData, sourceFilename);
+
+                if (names.length() > 0) names.append(", ");
+                names.append(obj.name().name);
+                g16Count++;
+                chosenObj = obj;
+                chosen = tex;
             }
+            if (g16Count == 0) {
+                throw new IOException("No G16 texture found in file: " + sourceFilename);
+            }
+            if (g16Count != 1) {
+                throw new IOException(
+                    "TerrainMap G16 ambiguous in " + sourceFilename + " (" + names
+                        + ") — refusing the first match. Export the object the map's TerrainMap names.");
+            }
+            System.out.println("[TerrainMap] " + sourceFilename + " -> " + chosenObj.name().name);
+            int[] dimensions = getTextureDimensions(chosen);
+            int[] heightData = extractHeightData(chosen, chosenObj, dimensions[0] * dimensions[1]);
+            return new TerrainTile(coords, dimensions[0], dimensions[1], heightData, sourceFilename);
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
             throw new IOException("Failed to parse package: " + sourceFilename, e);
         }
-        
-        throw new IOException("No G16 texture found in file: " + sourceFilename);
     }
     
     /**
