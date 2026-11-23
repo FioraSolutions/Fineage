@@ -5,6 +5,13 @@ using VContainer.Unity;
 
 public sealed class LoginLifetimeScope : LifetimeScope
 {
+    protected override void OnDestroy()
+    {
+        if (Container != null)
+            HierarchyScopeInjection.UnbindLobby(Container);
+        base.OnDestroy();
+    }
+
     protected override void Configure(IContainerBuilder builder)
     {
         LifetimeScopeMonoRegistration.RegisterIfFound<L2LoginUI>(builder);
@@ -23,6 +30,7 @@ public sealed class LoginLifetimeScope : LifetimeScope
         builder.RegisterBuildCallback(container =>
         {
             RequireMotionServices(container);
+            HierarchyScopeInjection.BindLobby(container);
             LoginRuntime loginRuntime = container.Resolve<LoginRuntime>();
             AppLoginSessionApplyIncomingPacketServices.BindLogin(loginRuntime);
             if (App.Container != null)
