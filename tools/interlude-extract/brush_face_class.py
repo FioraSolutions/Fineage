@@ -75,6 +75,28 @@ class ExportIndex:
     def has_package(self, package: str) -> bool:
         return (package.lower() + ".utx") in self.package_files
 
+    def add_live(self, package: str, rows: list[tuple[str, str, str]]) -> None:
+        """Learn one package's exports from a live DescribeExports run.
+
+        The committed table only covers dumped packages; the diffuse closure
+        names packages it does not (Deco_T, Flameset). The client is the
+        source of truth, so rows from the package itself classify exactly
+        like committed rows. Group is not needed for classification.
+        """
+        file_name = package.lower() + ".utx"
+        self.package_files.add(file_name)
+        for name, ue_class, _group in rows:
+            self.by_name.setdefault((file_name, name.lower()), set()).add(ue_class)
+
+    def add_dump(self, dump) -> None:
+        """Learn one package's exports from a property dump json."""
+        file_name = str(dump.package).lower() + ".utx"
+        self.package_files.add(file_name)
+        for exp in dump.exports:
+            self.by_name.setdefault(
+                (file_name, str(exp.get("name", "")).lower()), set()
+            ).add(str(exp.get("class", "")))
+
     def ancestors(self, ue_class: str) -> list[str]:
         out: list[str] = []
         seen: set[str] = set()

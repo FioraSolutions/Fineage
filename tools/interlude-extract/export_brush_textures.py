@@ -153,16 +153,18 @@ def dump_packages(client: Path, packages: list[str], dest: Path) -> None:
 def expand_chain(
     roots: list[Face],
     read_props,
-) -> tuple[list[Face], list[Face], list[str]]:
+) -> tuple[list[Face], list[Face], list[Face]]:
     """Split a face closure into textures and materials.
 
     read_props(face) returns the props text of a material, or None when it
     has not been exported yet. Materials with no props stay in `materials`
-    so the caller can export them and call again.
+    so the caller can export them and call again. The third value is the
+    unresolvable faces themselves: a caller with a client can learn their
+    packages live and re-walk instead of failing on the first absence.
     """
     textures: list[Face] = []
     materials: list[Face] = []
-    errors: list[str] = []
+    errors: list[Face] = []
     seen: set[tuple[str, str, str]] = set()
     queue = list(roots)
     while queue:
@@ -171,13 +173,13 @@ def expand_chain(
             continue
         seen.add(face.key())
         if face.kind in (KIND_ABSENT, KIND_AMBIGUOUS, KIND_OTHER):
-            errors.append(face.format())
+            errors.append(face)
             continue
         if face.kind == KIND_TEXTURE:
             textures.append(face)
             continue
         if face.kind != KIND_MATERIAL:
-            errors.append(face.format())
+            errors.append(face)
             continue
         materials.append(face)
         text = read_props(face)
@@ -337,12 +339,33 @@ def material_plan(
 
     _textures, materials, chain_errors = expand_chain(roots, read_props)
     if chain_errors:
-        raise SystemExit("brush material chain missing:\n" + "\n".join(chain_errors))
+        raise SystemExit(
+            "brush material chain missing:\n"
+            + "\n".join(face.format() for face in chain_errors)
+        )
     return [(face, material_status(face, props_roots, dumps)) for face in materials]
 
 
 def format_plan(rows: list[tuple[Face, str]]) -> str:
     return "\n".join(f"{status} {face.format()}" for face, status in rows)
+
+
+def _hydrate_group(face: Face, rows: list[tuple[str, str, str]]) -> Face:
+    """Fill the group from the package when the reference omitted it.
+
+    Package.Object refs carry no group; the export has one. Two exports can
+    share a name in different groups, so placement keys on the real group
+    instead of writing a group-less file next to grouped ones.
+    """
+    if face.group:
+        return face
+    groups = {grp for name, _cls, grp in rows if name.lower() == face.name.lower()}
+    if len(groups) != 1:
+        return face
+    group = next(iter(groups))
+    if not group:
+        return face
+    return Face(face.package, group, face.name, face.full, face.ue_class, face.kind)
 
 
 def export_faces(
@@ -354,13 +377,13 @@ def export_faces(
     dump_dir: Path | None = None,
 ) -> None:
     idx = index()
+    live: dict[str, list[tuple[str, str, str]]] = {}
     roots = [classify(ref, idx) for ref in refs]
-    errors = [face.format() for face in roots if face.kind in (KIND_ABSENT, KIND_AMBIGUOUS, KIND_OTHER)]
-    if errors:
-        raise SystemExit("brush face class unresolved:\n" + "\n".join(errors))
-
     if client is not None and jar is not None:
-        live: dict[str, list[tuple[str, str, str]]] = {}
+        # The committed export table only covers dumped packages; the diffuse
+        # closure names packages it does not (Deco_T, Flameset, ...). Classify
+        # from the client first — it is the source of truth — then validate
+        # every face against the live package like before.
         for package in sorted({face.package for face in roots}):
             utx = find_utx(client, package)
             if utx is None:
@@ -368,12 +391,17 @@ def export_faces(
                     f"package={package} group= name= class=absent utx missing under textures/ and systextures/"
                 )
             live[package.lower()] = describe_package(jar, utx)
+            idx.add_live(package, live[package.lower()])
+        roots = [classify(ref, idx) for ref in refs]
+        roots = [_hydrate_group(face, live[face.package.lower()]) for face in roots]
+    errors = [face.format() for face in roots if face.kind in (KIND_ABSENT, KIND_AMBIGUOUS, KIND_OTHER)]
+    if client is not None and jar is not None:
         for face in roots:
             problem = confirm_live(face, live[face.package.lower()])
             if problem:
                 errors.append(problem)
-        if errors:
-            raise SystemExit("brush face class unresolved:\n" + "\n".join(errors))
+    if errors:
+        raise SystemExit("brush face class unresolved:\n" + "\n".join(errors))
 
     work_dumps = dump_dir or (props_out.parent / "property-dumps")
     extra = [work_dumps]
@@ -393,6 +421,7 @@ def export_faces(
         if child is None:
             return None
         dumps[face.package.lower()] = child
+        idx.add_dump(child)
         return render_face(child, face)
 
     materials: list[Face] = []
@@ -400,8 +429,28 @@ def export_faces(
     missing: list[Face] = []
     while True:
         textures, materials, chain_errors = expand_chain(roots, read_props)
+        if chain_errors and client is not None and jar is not None:
+            # A chain face in a package nothing described yet (a freshly
+            # rendered props can name a package the roots never touched):
+            # learn it from the client and re-walk. An absence that survives
+            # a live describe is real and fails below.
+            learned = False
+            for face in chain_errors:
+                if face.kind != KIND_ABSENT or face.package.lower() in live:
+                    continue
+                utx = find_utx(client, face.package)
+                if utx is None:
+                    continue
+                live[face.package.lower()] = describe_package(jar, utx)
+                idx.add_live(face.package, live[face.package.lower()])
+                learned = True
+            if learned:
+                continue
         if chain_errors:
-            raise SystemExit("brush material chain missing:\n" + "\n".join(chain_errors))
+            raise SystemExit(
+                "brush material chain missing:\n"
+                + "\n".join(face.format() for face in chain_errors)
+            )
         for face in textures:
             all_textures.setdefault(face.key(), face)
         missing = [face for face in materials if read_props(face) is None]
@@ -418,9 +467,18 @@ def export_faces(
                 dump = load_dump(package, extra)
                 if dump is not None:
                     dumps[package.lower()] = dump
+                    idx.add_dump(dump)
             continue
         break
 
+    # Chain faces came from props tokens without a live describe of their
+    # own; place them by their real group like the roots.
+    materials = [
+        _hydrate_group(face, live[face.package.lower()])
+        if face.package.lower() in live
+        else face
+        for face in materials
+    ]
     for face in materials:
         if find_props(face, props_roots) is not None:
             continue
