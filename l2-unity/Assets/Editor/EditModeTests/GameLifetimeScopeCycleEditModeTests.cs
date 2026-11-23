@@ -49,8 +49,10 @@ public sealed class GameLifetimeScopeCycleEditModeTests
     public void Game_scope_builds_without_a_click_target_cycle()
     {
         _root = new GameObject("GameScopeCycleTest");
-        // Awake binds SystemUIPacketServices. GameRuntime.Ui reads that, and the scope logs an error when it is null.
-        Plant<L2GameUI>();
+        // EditMode AddComponent does not run Awake, so bind the same way L2GameUI.Awake does.
+        // GameRuntime.Ui reads SystemUIPacketServices, and the scope logs an error when that is null.
+        L2GameUI gameUi = _root.AddComponent<L2GameUI>();
+        SystemUIPacketServices.Bind(ui: gameUi);
         Plant<EffectManager>();
         Plant<MoveAllCharacters>();
         Plant<NameplatesManager>();
