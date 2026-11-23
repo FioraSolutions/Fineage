@@ -38,18 +38,19 @@ public sealed class SharedMotionPipelineEditModeTests
     [Test]
     public void Lobby_and_game_scopes_share_the_motion_pipeline_and_a_clip_keeps_bone_scale()
     {
+        // EditMode does not publish LifetimeScope from Awake, so the container comes from Build.
         _host = new GameObject("motion-app");
+        _host.SetActive(false);
         MotionHostScope app = _host.AddComponent<MotionHostScope>();
+        app.autoRun = false;
+        _host.SetActive(true);
+        app.Build();
+        Assert.IsNotNull(app.Container, "motion app scope did not build");
 
         _lobby = new GameObject("motion-lobby");
-        LoginLifetimeScope lobby;
-        using (LifetimeScope.EnqueueParent(app))
-            lobby = _lobby.AddComponent<LoginLifetimeScope>();
-
+        GameMotionChildScope lobby = BuildChild(_lobby, app);
         _game = new GameObject("motion-game");
-        GameMotionChildScope game;
-        using (LifetimeScope.EnqueueParent(app))
-            game = _game.AddComponent<GameMotionChildScope>();
+        GameMotionChildScope game = BuildChild(_game, app);
 
         IAnimationManager lobbyAnimations = lobby.Container.Resolve<IAnimationManager>();
         IAnimationManager gameAnimations = game.Container.Resolve<IAnimationManager>();
@@ -74,6 +75,23 @@ public sealed class SharedMotionPipelineEditModeTests
         Assert.AreEqual(scaleBefore.y, bone.localScale.y, 0.02f);
         Assert.AreEqual(scaleBefore.z, bone.localScale.z, 0.02f);
         Assert.AreEqual(BindScale, bone.localScale.x, 0.02f);
+    }
+
+    static GameMotionChildScope BuildChild(GameObject host, LifetimeScope parent)
+    {
+        host.SetActive(false);
+        GameMotionChildScope child;
+        using (LifetimeScope.EnqueueParent(parent))
+        {
+            child = host.AddComponent<GameMotionChildScope>();
+            child.autoRun = false;
+            host.SetActive(true);
+            if (child.Container == null)
+                child.Build();
+        }
+
+        Assert.IsNotNull(child.Container, host.name + " scope did not build");
+        return child;
     }
 
     Transform BuildPawn()
