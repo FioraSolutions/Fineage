@@ -49,6 +49,8 @@ public sealed class GameLifetimeScopeCycleEditModeTests
     public void Game_scope_builds_without_a_click_target_cycle()
     {
         _root = new GameObject("GameScopeCycleTest");
+        // Awake binds SystemUIPacketServices. GameRuntime.Ui reads that, and the scope logs an error when it is null.
+        Plant<L2GameUI>();
         Plant<EffectManager>();
         Plant<MoveAllCharacters>();
         Plant<NameplatesManager>();
