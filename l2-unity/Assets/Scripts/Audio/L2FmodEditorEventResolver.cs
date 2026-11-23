@@ -22,7 +22,7 @@ public static class L2FmodEditorEventResolver
         string actor = string.IsNullOrEmpty(actorName) ? "(unnamed)" : actorName;
         if (string.IsNullOrEmpty(eventPath))
         {
-            Debug.LogError("[FmodEvent] event path empty actor=" + actor);
+            UnityEngine.Debug.LogError("[FmodEvent] event path empty actor=" + actor);
             return new EventReference();
         }
 
@@ -33,7 +33,7 @@ public static class L2FmodEditorEventResolver
         }
         catch (Exception e)
         {
-            Debug.LogError(
+            UnityEngine.Debug.LogError(
                 "[FmodEvent] editor cache lookup failed path=" + eventPath
                 + " actor=" + actor + " (" + e.GetType().Name + ": " + e.Message + ")");
             return new EventReference { Path = eventPath };
@@ -41,7 +41,7 @@ public static class L2FmodEditorEventResolver
 
         if (guid == null)
         {
-            Debug.LogError("[FmodEvent] event missing path=" + eventPath + " actor=" + actor);
+            UnityEngine.Debug.LogError("[FmodEvent] event missing path=" + eventPath + " actor=" + actor);
             return new EventReference { Path = eventPath };
         }
 

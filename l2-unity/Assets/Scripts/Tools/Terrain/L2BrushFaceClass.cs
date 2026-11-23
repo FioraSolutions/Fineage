@@ -73,7 +73,7 @@ public static class L2BrushFaceClass
     public static string FindProps(Face face)
     {
         string textures = Path.Combine(Application.dataPath, "Resources", "Data", "Textures");
-        string pkg = FindChild(textures, face.Package, directory: true);
+        string pkg = FindChild(textures, face.Package, directoryChild: true);
         if (pkg == null)
         {
             return null;
@@ -210,7 +210,7 @@ public static class L2BrushFaceClass
         {
             return false;
         }
-        string pkg = FindChild(exportRoot, face.Package, directory: true);
+        string pkg = FindChild(exportRoot, face.Package, directoryChild: true);
         return pkg != null && FindNamedFile(pkg, face.Name + ".png") != null;
     }
 
@@ -342,7 +342,7 @@ public static class L2BrushFaceClass
     static string FindUnderPackage(Face face, string relative)
     {
         string textures = Path.Combine(Application.dataPath, "Resources", "Data", "Textures");
-        string pkg = FindChild(textures, face.Package, directory: true);
+        string pkg = FindChild(textures, face.Package, directoryChild: true);
         if (pkg == null)
         {
             return null;
@@ -357,7 +357,7 @@ public static class L2BrushFaceClass
             // of a props search walks the package tree.
             if (!last || relative.IndexOf('/') >= 0)
             {
-                cur = FindChild(cur, relParts[i], directory: !last);
+                cur = FindChild(cur, relParts[i], directoryChild: !last);
                 if (cur == null)
                 {
                     return null;

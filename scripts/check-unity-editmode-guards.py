@@ -328,21 +328,62 @@ def check_cs9_syntax() -> list[str]:
     return errors
 
 
-def check_ambiguous_system_object() -> list[str]:
-    """Files with both `using System` and `using UnityEngine` must not bare-qualify `Object.`."""
+_USING_NS = re.compile(r"^\s*using\s+([A-Za-z_][\w.]*)\s*;", re.MULTILINE)
+_USING_ALIAS = re.compile(r"^\s*using\s+(Object|Debug)\s*=", re.MULTILINE)
+_BARE_OBJECT = re.compile(r"(?<![\w.])Object\.")
+_BARE_DEBUG = re.compile(r"(?<![\w.])Debug\.")
+# Namespaces that publish a type also named Debug. `using FMOD;` imports
+# FMOD.Debug; `using FMODUnity` and `using FMOD.Studio` do not.
+_DEBUG_CLASH_USINGS = frozenset({"FMOD", "System.Diagnostics"})
+
+
+def _using_namespaces(text: str) -> set[str]:
+    return {match.group(1) for match in _USING_NS.finditer(text)}
+
+
+def _aliased_names(text: str) -> set[str]:
+    return {match.group(1) for match in _USING_ALIAS.finditer(text)}
+
+
+def check_ambiguous_types() -> list[str]:
+    """Bare names that resolve to two imported types.
+
+    `Object` with `using System` and `using UnityEngine`.
+    `Debug` with `using UnityEngine` and either `using FMOD` or
+    `using System.Diagnostics`. A `using Object = ...` or `using Debug = ...`
+    alias picks one, so the bare name is legal.
+    """
     errors: list[str] = []
-    pattern = re.compile(r"\bObject\.")
-    for path in sorted(SCRIPTS.rglob("*.cs")):
+    roots = [SCRIPTS, ASSETS / "Editor", ASSETS / "Tests"]
+    paths: list[Path] = []
+    for root in roots:
+        if root.is_dir():
+            paths.extend(root.rglob("*.cs"))
+    for path in sorted(set(paths)):
+        if "Plugins" in path.parts:
+            continue
         text = path.read_text(encoding="utf-8-sig", errors="replace")
-        if not re.search(r"^\s*using\s+System\s*;", text, re.MULTILINE):
+        usings = _using_namespaces(text)
+        aliases = _aliased_names(text)
+        has_unity = "UnityEngine" in usings
+        check_object = has_unity and "System" in usings and "Object" not in aliases
+        check_debug = (
+            has_unity
+            and bool(usings & _DEBUG_CLASH_USINGS)
+            and "Debug" not in aliases
+        )
+        if not check_object and not check_debug:
             continue
-        if not re.search(r"^\s*using\s+UnityEngine\s*;", text, re.MULTILINE):
-            continue
+        rel = path.relative_to(REPO)
         for line_no, line in enumerate(text.splitlines(), start=1):
             code = _code_fragment(line)
-            if pattern.search(code) and "UnityEngine.Object." not in code:
+            if check_object and _BARE_OBJECT.search(code):
                 errors.append(
-                    f"{path.relative_to(REPO)}:{line_no}: `Object.` is ambiguous with System + UnityEngine — use UnityEngine.Object"
+                    f"{rel}:{line_no}: `Object.` is ambiguous with System + UnityEngine — use UnityEngine.Object"
+                )
+            if check_debug and _BARE_DEBUG.search(code):
+                errors.append(
+                    f"{rel}:{line_no}: `Debug.` is ambiguous with UnityEngine and FMOD or System.Diagnostics — use UnityEngine.Debug"
                 )
     return errors
 
@@ -380,7 +421,7 @@ def main() -> int:
         + check_asmdef_references_editor_scripts()
         + check_asmdef_missing_unityengine_usings()
         + check_cs9_syntax()
-        + check_ambiguous_system_object()
+        + check_ambiguous_types()
         + check_anim_keyreduce_probe_registration()
     )
     if errors:
