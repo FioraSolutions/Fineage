@@ -100,7 +100,8 @@ public static class L2Ue2MaterialChain
 
     static readonly HashSet<string> KnownOps = new HashSet<string>(StringComparer.Ordinal)
     {
-        "Texture", "Shader", "Combiner", "FinalBlend", "TexPanner", "TexOscillator", "TexEnvMap", "TexScaler",
+        "Texture", "Shader", "Combiner", "FinalBlend", "TexPanner", "TexPannerTriggered",
+        "TexOscillator", "TexOscillatorTriggered", "TexEnvMap", "TexScaler",
     };
 
     static readonly HashSet<string> ShaderProps = new HashSet<string>(StringComparer.Ordinal)
@@ -133,7 +134,7 @@ public static class L2Ue2MaterialChain
     {
         "Material", "UOscillationRate", "VOscillationRate", "UOscillationPhase", "VOscillationPhase",
         "UOscillationAmplitude", "VOscillationAmplitude", "UOscillationType", "VOscillationType",
-        "UOffset", "VOffset",
+        "UOffset", "VOffset", "StopAfterPeriod",
     };
 
     static readonly HashSet<string> EnvProps = new HashSet<string>(StringComparer.Ordinal)
@@ -442,9 +443,11 @@ public static class L2Ue2MaterialChain
         switch (op)
         {
             case "TexPanner":
+            case "TexPannerTriggered":
                 slot = ResolvePanner(ctx, props);
                 break;
             case "TexOscillator":
+            case "TexOscillatorTriggered":
                 slot = ResolveOscillator(ctx, props);
                 break;
             case "TexScaler":
@@ -477,15 +480,13 @@ public static class L2Ue2MaterialChain
     static Slot ResolvePanner(Ctx ctx, Dictionary<string, string> props)
     {
         Slot slot = Child(ctx, props, "TexPanner");
-        if (!props.TryGetValue("PanRate", out string rateRaw) ||
-            !float.TryParse(rateRaw, NumberStyles.Float, CultureInfo.InvariantCulture, out float rate))
+        // Engine.u/TexPanner.uc defaultproperties: PanRate=0.1.
+        // The dump stores only non-default tags. Absent PanDirection means yaw 0.
+        float rate = PropFloat(ctx, props, "TexPanner", "PanRate", 0.1f);
+        int yaw = 0;
+        if (props.TryGetValue("PanDirection", out string dirRaw) && !TryYaw(dirRaw, out yaw))
         {
-            Error(ctx.Eval, ctx.Root, "TexPanner", "property PanRate missing");
-            return slot;
-        }
-        if (!props.TryGetValue("PanDirection", out string dirRaw) || !TryYaw(dirRaw, out int yaw))
-        {
-            Error(ctx.Eval, ctx.Root, "TexPanner", "property PanDirection missing");
+            Error(ctx.Eval, ctx.Root, "TexPanner", "property PanDirection unparseable: " + dirRaw);
             return slot;
         }
         Vector2 vel = PanVelocity(rate, yaw);
@@ -497,14 +498,16 @@ public static class L2Ue2MaterialChain
     static Slot ResolveOscillator(Ctx ctx, Dictionary<string, string> props)
     {
         Slot slot = Child(ctx, props, "TexOscillator");
-        if (!TryFloat(props, "UOscillationRate", out float ur) || !TryFloat(props, "VOscillationRate", out float vr) ||
-            !TryFloat(props, "UOscillationPhase", out float up) || !TryFloat(props, "VOscillationPhase", out float vp) ||
-            !TryFloat(props, "UOscillationAmplitude", out float ua) || !TryFloat(props, "VOscillationAmplitude", out float va) ||
-            !TryOscType(props, "UOscillationType", out int ut) || !TryOscType(props, "VOscillationType", out int vt))
-        {
-            Error(ctx.Eval, ctx.Root, "TexOscillator", "oscillation property missing");
-            return slot;
-        }
+        // Engine.u/TexOscillator.uc defaultproperties: rates 1.0, phases 0,
+        // amplitudes 0.1, types OT_Pan. Absent keys mean those defaults.
+        float ur = PropFloat(ctx, props, "TexOscillator", "UOscillationRate", 1f);
+        float vr = PropFloat(ctx, props, "TexOscillator", "VOscillationRate", 1f);
+        float up = PropFloat(ctx, props, "TexOscillator", "UOscillationPhase", 0f);
+        float vp = PropFloat(ctx, props, "TexOscillator", "VOscillationPhase", 0f);
+        float ua = PropFloat(ctx, props, "TexOscillator", "UOscillationAmplitude", 0.1f);
+        float va = PropFloat(ctx, props, "TexOscillator", "VOscillationAmplitude", 0.1f);
+        int ut = PropOscType(ctx, props, "TexOscillator", "UOscillationType");
+        int vt = PropOscType(ctx, props, "TexOscillator", "VOscillationType");
         TryFloat(props, "UOffset", out float uo);
         TryFloat(props, "VOffset", out float vo);
         slot.Uv.Oscillate = true;
@@ -524,11 +527,9 @@ public static class L2Ue2MaterialChain
     static Slot ResolveScaler(Ctx ctx, Dictionary<string, string> props)
     {
         Slot slot = Child(ctx, props, "TexScaler");
-        if (!TryFloat(props, "UScale", out float us) || !TryFloat(props, "VScale", out float vs))
-        {
-            Error(ctx.Eval, ctx.Root, "TexScaler", "property UScale/VScale missing");
-            return slot;
-        }
+        // Engine.u/TexScaler.uc defaultproperties: UScale=1.0, VScale=1.0.
+        float us = PropFloat(ctx, props, "TexScaler", "UScale", 1f);
+        float vs = PropFloat(ctx, props, "TexScaler", "VScale", 1f);
         TryFloat(props, "UOffset", out float uo);
         TryFloat(props, "VOffset", out float vo);
         slot.Uv.ScaleU *= us;
@@ -808,8 +809,10 @@ public static class L2Ue2MaterialChain
             case "Shader": return ShaderProps;
             case "Combiner": return CombinerProps;
             case "FinalBlend": return FinalBlendProps;
-            case "TexPanner": return PannerProps;
-            case "TexOscillator": return OscProps;
+            case "TexPanner":
+            case "TexPannerTriggered": return PannerProps;
+            case "TexOscillator":
+            case "TexOscillatorTriggered": return OscProps;
             case "TexEnvMap": return EnvProps;
             case "TexScaler": return ScalerProps;
             default: return null;
@@ -948,6 +951,29 @@ public static class L2Ue2MaterialChain
         value = 0f;
         return props.TryGetValue(key, out string raw) &&
                float.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
+    }
+
+    // The props dump stores only non-default tags, so an absent key means the
+    // official class default (Engine.u/*.uc defaultproperties). A key that is
+    // present but unparseable is corrupt data and stays a loud error.
+    static float PropFloat(Ctx ctx, Dictionary<string, string> props, string op, string key, float fallback)
+    {
+        if (!props.TryGetValue(key, out string raw))
+            return fallback;
+        if (float.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out float value))
+            return value;
+        Error(ctx.Eval, ctx.Root, op, "property " + key + " unparseable: " + raw);
+        return fallback;
+    }
+
+    static int PropOscType(Ctx ctx, Dictionary<string, string> props, string op, string key)
+    {
+        if (!props.ContainsKey(key))
+            return 0; // OT_Pan
+        if (TryOscType(props, key, out int type))
+            return type;
+        Error(ctx.Eval, ctx.Root, op, "property " + key + " unparseable: " + props[key]);
+        return 0;
     }
 
     static bool Bool(Dictionary<string, string> props, string key)

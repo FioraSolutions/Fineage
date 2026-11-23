@@ -170,7 +170,7 @@ public class L2InterludeAutoBakeWindow : EditorWindow
             ok = r.success;
             Log(tile + ": pipeline " + (ok ? "OK" : "FAIL"));
             var mlog = new List<string>();
-            L2InterludeMaterialBinder.Bind(Directory.Exists(exportDir) ? new[] { exportDir } : null, mlog);
+            L2InterludeMaterialBinder.Bind(Directory.Exists(exportDir) ? new[] { exportDir } : null, mlog, tile);
             foreach (string l in mlog) Log("  materials: " + l);
         }
         if (runScene && ok)
