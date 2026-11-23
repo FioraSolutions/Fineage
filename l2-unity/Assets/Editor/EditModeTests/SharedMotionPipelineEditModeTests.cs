@@ -19,19 +19,10 @@ public sealed class SharedMotionPipelineEditModeTests
     GameObject _game;
     GameObject _pawn;
     string _controllerPath;
-    Container _appContainer;
-    IScopedObjectResolver _lobbyScope;
-    IScopedObjectResolver _gameScope;
 
     [TearDown]
     public void TearDown()
     {
-        if (_gameScope != null)
-            _gameScope.Dispose();
-        if (_lobbyScope != null)
-            _lobbyScope.Dispose();
-        if (_appContainer != null)
-            _appContainer.Dispose();
         if (_game != null)
             UnityEngine.Object.DestroyImmediate(_game);
         if (_lobby != null)
@@ -47,34 +38,24 @@ public sealed class SharedMotionPipelineEditModeTests
     [Test]
     public void Lobby_and_game_scopes_share_the_motion_pipeline_and_a_clip_keeps_bone_scale()
     {
-        // EditMode AddComponent does not finish LifetimeScope.Awake, so Container stays null.
+        // EditMode does not publish LifetimeScope from Awake, so the container comes from Build.
         _host = new GameObject("motion-app");
         _host.SetActive(false);
         MotionHostScope app = _host.AddComponent<MotionHostScope>();
         app.autoRun = false;
+        _host.SetActive(true);
+        app.Build();
+        Assert.IsNotNull(app.Container, "motion app scope did not build");
 
         _lobby = new GameObject("motion-lobby");
-        _lobby.SetActive(false);
-        LoginLifetimeScope lobby = _lobby.AddComponent<LoginLifetimeScope>();
-        lobby.autoRun = false;
-
+        GameMotionChildScope lobby = BuildChild(_lobby, app);
         _game = new GameObject("motion-game");
-        _game.SetActive(false);
-        GameMotionChildScope game = _game.AddComponent<GameMotionChildScope>();
-        game.autoRun = false;
+        GameMotionChildScope game = BuildChild(_game, app);
 
-        var appBuilder = new ContainerBuilder();
-        app.Install(appBuilder);
-        _appContainer = appBuilder.Build() as Container;
-        Assert.IsNotNull(_appContainer, "MotionHostScope.Install did not build a container");
-
-        _lobbyScope = _appContainer.CreateScope(builder => lobby.Install(builder));
-        _gameScope = _appContainer.CreateScope(builder => game.Install(builder));
-
-        IAnimationManager lobbyAnimations = _lobbyScope.Resolve<IAnimationManager>();
-        IAnimationManager gameAnimations = _gameScope.Resolve<IAnimationManager>();
-        IMoveRoster lobbyMoves = _lobbyScope.Resolve<IMoveRoster>();
-        IMoveRoster gameMoves = _gameScope.Resolve<IMoveRoster>();
+        IAnimationManager lobbyAnimations = lobby.Container.Resolve<IAnimationManager>();
+        IAnimationManager gameAnimations = game.Container.Resolve<IAnimationManager>();
+        IMoveRoster lobbyMoves = lobby.Container.Resolve<IMoveRoster>();
+        IMoveRoster gameMoves = game.Container.Resolve<IMoveRoster>();
 
         Assert.IsInstanceOf<AnimationManager>(lobbyAnimations);
         Assert.AreSame(lobbyAnimations, gameAnimations);
@@ -94,6 +75,23 @@ public sealed class SharedMotionPipelineEditModeTests
         Assert.AreEqual(scaleBefore.y, bone.localScale.y, 0.02f);
         Assert.AreEqual(scaleBefore.z, bone.localScale.z, 0.02f);
         Assert.AreEqual(BindScale, bone.localScale.x, 0.02f);
+    }
+
+    static GameMotionChildScope BuildChild(GameObject host, LifetimeScope parent)
+    {
+        host.SetActive(false);
+        GameMotionChildScope child;
+        using (LifetimeScope.EnqueueParent(parent))
+        {
+            child = host.AddComponent<GameMotionChildScope>();
+            child.autoRun = false;
+            host.SetActive(true);
+            if (child.Container == null)
+                child.Build();
+        }
+
+        Assert.IsNotNull(child.Container, host.name + " scope did not build");
+        return child;
     }
 
     Transform BuildPawn()
@@ -136,9 +134,7 @@ public sealed class SharedMotionPipelineEditModeTests
 /// <summary>Parent scope that registers the same motion services as the app scope.</summary>
 public sealed class MotionHostScope : LifetimeScope
 {
-    protected override void Configure(IContainerBuilder builder) => Install(builder);
-
-    public void Install(IContainerBuilder builder)
+    protected override void Configure(IContainerBuilder builder)
     {
         MotionPipelineRegistration.Register(builder);
     }
@@ -149,9 +145,7 @@ public sealed class MotionHostScope : LifetimeScope
 /// </summary>
 public sealed class GameMotionChildScope : LifetimeScope
 {
-    protected override void Configure(IContainerBuilder builder) => Install(builder);
-
-    public void Install(IContainerBuilder builder)
+    protected override void Configure(IContainerBuilder builder)
     {
     }
 }
