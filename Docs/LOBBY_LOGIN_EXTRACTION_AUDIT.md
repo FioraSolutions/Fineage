@@ -87,16 +87,15 @@ import's `package_index` chain). `--check` fails if any import does not resolve
 to a package path.
 
 Step 8 (camera BSP zones) walks the level `UModel` with the same reader the
-terrain jar uses (`Model`, package 123 / licensee 19: Vectors, Points, Nodes,
-Surfs, Verts, then the zone list). `ZoneAtPoint.java` does not probe FVert
-sizes. The login shot does not read `world/env/Lobby.camera-zones.tsv`:
-`build_login_vista.py` takes InterpolationPoint5's stored `Region.Zone`
-(`ZoneInfo0` in this dump; fog 500–10000). Camera25's Tag is `U2Viewport2`,
-the UnrealEd viewport, and its stored region is the same zone. A failed walk
-logs `ZoneAtPoint exited N` and the name of the missing file, and the extract
-continues. It does not invent a zone. The script's own status is the line
-`extract_login_lobby exit=N` (a pipe into `tee` followed by `$(date)` would
-otherwise report tee's 0).
+terrain jar uses. The L2 body is package version 123, licensee 16 through 36
+(UEViewer's L2 family; the next material layout starts at licensee 37).
+Interlude ships 19 and 28 in that band. Order is Vectors, Points, Nodes,
+Surfs, Verts, then the zone list. `ZoneAtPoint.java` does not probe FVert
+sizes. A failed walk exits with ZoneAtPoint's status and does not write
+`world/env/Lobby.camera-zones.tsv`. It does not invent a zone. The script's
+own status is the line `extract_login_lobby exit=N` (a pipe into `tee`
+followed by `$(date)` would otherwise report tee's 0). The login fog still
+comes from InterpolationPoint5's stored `Region.Zone` (`ZoneInfo0`).
 
 Step 9 (l2_skies material chains): the skybox brushes reference
 `L2_Skies.Shaders.*` (`Cloud_Final`, `HazeRing_Final`, `SkybackgroundColor` +

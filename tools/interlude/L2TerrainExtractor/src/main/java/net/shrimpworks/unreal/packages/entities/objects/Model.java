@@ -92,18 +92,19 @@ public class Model extends Object {
 		this.boundingBox = new Bound(reader);
 		this.boundingSphere = new Sphere(reader);
 
-		// L2 Interlude is version 123, licensee 19. Its UModel order is
-		// Vectors, Points, Nodes, Surfs, Verts, then numSharedSides, numZones,
-		// ZoneProperties (actor, connectivity, visibility, last render time),
-		// Polys, bounds, leaf hulls, leaves, lights, rootOutside, linked.
-		// There is no light-map array. Node and surface records are variable
-		// length (compact indices), so a stride probe cannot read them.
-		boolean l2 = pkg.license == 19 && pkg.version >= 117 && pkg.version < 178;
+		// L2 Interlude UModel order (version 123, licensee 16..36, which covers
+		// the 19 and 28 packages the client ships): Vectors, Points, Nodes,
+		// Surfs, Verts, then numSharedSides, numZones, ZoneProperties, Polys,
+		// bounds, leaf hulls, leaves, lights, rootOutside, linked. No light-map
+		// array. Nodes are variable length, so a stride probe cannot read them.
+		// UEViewer splits a later L2 material layout at licensee 37; that body
+		// is not this one.
+		boolean l2 = usesL2Layout(pkg.version, pkg.license);
 		if (pkg.version >= 117 && !l2) {
 			throw new IllegalStateException(
 					"UModel for package version " + pkg.version + " licensee " + pkg.license
-					+ " is not implemented. L2 Interlude is version 123 licensee 19;"
-					+ " refusing to guess an FBspNode stride.");
+					+ " is not implemented. The L2 layout is version 123, licensee 16 through 36"
+					+ " (Interlude ships 19 and 28). Refusing to guess an FBspNode stride.");
 		}
 
 		int vectorCount = arrayCount(reader, "vectors");
@@ -228,6 +229,16 @@ public class Model extends Object {
 						"Model " + export.name.name + " parse ended at " + end + ", export ends at " + limit);
 			}
 		}
+	}
+
+	/**
+	 * Lineage 2 Interlude UModel body. Version 123 with licensee 16 through 36
+	 * is the family UEViewer reads as one L2 layout (the next material body
+	 * starts at licensee 37). Interlude maps are 123/28 and other client
+	 * packages are 123/19; both use this body.
+	 */
+	public static boolean usesL2Layout(int version, int license) {
+		return version == 123 && license >= 16 && license <= 36;
 	}
 
 	private static int arrayCount(PackageReader reader, String field) {

@@ -13,6 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DUMP = ROOT / "l2-unity/docs/interlude-ref/world/env/Lobby.json"
+T3D = ROOT / "l2-unity/Assets/Resources/Data/Maps/l2_lobby/Meta/l2_lobby.t3d"
+ENGINE = ROOT / "l2-unity/docs/interlude-ref/scripts/Engine.u"
 SHOT = ROOT / "l2-unity/Assets/Scripts/Rendering/L2LoginVista.cs"
 SCRIPTS = ROOT / "l2-unity/Assets/Scripts"
 
@@ -79,7 +81,43 @@ def main() -> None:
     if hits:
         die("shot scripts reference camera-zones: " + ", ".join(hits))
 
-    print("lobby camera zone: InterpolationPoint5 Region.Zone=ZoneInfo0; shot does not read camera-zones.tsv")
+    no_fov = []
+    for export in data["exports"]:
+        if export.get("class") != "Camera":
+            continue
+        if not any(p.get("name") == "FovAngle" for p in export.get("properties") or []):
+            no_fov.append(export["name"])
+    if len(no_fov) != 13:
+        die(f"expected 13 cameras with no FovAngle, found {len(no_fov)}: {', '.join(no_fov)}")
+    camera_uc = (ENGINE / "Camera.uc").read_text(encoding="utf-8", errors="replace")
+    if "FovAngle" in camera_uc:
+        die("Camera.uc sets FovAngle; the class default must be re-read from that file")
+    if not camera_uc.startswith("class Camera extends PlayerController"):
+        die("Camera.uc does not extend PlayerController")
+    player = (ENGINE / "PlayerController.uc").read_text(encoding="utf-8", errors="replace")
+    if "FovAngle=50.0000000" not in player:
+        die("PlayerController.uc defaultproperties has no FovAngle=50.0000000")
+
+    actor = by_name.get("StaticMeshActor487")
+    if actor is None:
+        die("StaticMeshActor487 is not in Lobby.json")
+    names = {p.get("name") for p in actor.get("properties") or []}
+    if "StaticMesh" in names:
+        die("StaticMeshActor487 has a StaticMesh property; the bake skip is no longer the right handling")
+    flags = {p.get("name"): p.get("value") for p in actor.get("properties") or []}
+    if flags.get("bDeleteMe") is not True or flags.get("bPendingDelete") is not True:
+        die("StaticMeshActor487 is no longer bDeleteMe and bPendingDelete")
+    if not T3D.is_file():
+        die(f"missing {T3D}")
+    t3d = T3D.read_text(encoding="utf-8")
+    if "Begin Actor Class=StaticMeshActor Name=StaticMeshActor487\n    StaticMesh=None\n" not in t3d:
+        die("l2_lobby.t3d does not record StaticMesh=None on StaticMeshActor487")
+
+    print(
+        "lobby camera zone: InterpolationPoint5 Region.Zone=ZoneInfo0; "
+        "13 cameras inherit PlayerController.uc FovAngle=50.0000000; "
+        "StaticMeshActor487 has no StaticMesh"
+    )
 
 
 if __name__ == "__main__":

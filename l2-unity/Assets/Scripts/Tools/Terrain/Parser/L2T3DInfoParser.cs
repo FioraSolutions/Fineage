@@ -67,12 +67,22 @@ public partial class L2T3DInfoParser {
                 line = line.Trim();
                 L2StaticMesh mesh = new L2StaticMesh();
                 if (line.StartsWith("Begin Actor Class=StaticMeshActor Name=")) {
+                    mesh.actorName = line.Substring("Begin Actor Class=StaticMeshActor Name=".Length).Trim();
                     bool hasSway = false;
+                    bool sawStaticMesh = false;
                     while ((line = reader.ReadLine()) != null && !line.Contains("End Actor")) {
                         line = line.Trim();
 
-                        if (line.StartsWith("StaticMesh=StaticMesh'")) {
-                            mesh.staticMesh = line.Replace("StaticMesh=StaticMesh'", "").Replace("'", "");
+                        if (line.StartsWith("StaticMesh=")) {
+                            sawStaticMesh = true;
+                            const string quoted = "StaticMesh=StaticMesh'";
+                            if (line == "StaticMesh=None") {
+                                mesh.staticMesh = null;
+                            } else if (line.StartsWith(quoted) && line.EndsWith("'") && line.Length > quoted.Length + 1) {
+                                mesh.staticMesh = line.Substring(quoted.Length, line.Length - quoted.Length - 1);
+                            } else {
+                                mesh.unparsedStaticMesh = line;
+                            }
                         }
 
                         if (line.StartsWith("SwayRotationOrig=")) {
@@ -106,6 +116,9 @@ public partial class L2T3DInfoParser {
                             mesh.drawScale3D = L2MetaDataUtils.ParseVector3(line);
                             mesh.hasDrawScale3D = true;
                         }
+                    }
+                    if (!sawStaticMesh) {
+                        mesh.staticMesh = null;
                     }
                     terrainInfo.staticMeshes.Add(mesh);
                 }

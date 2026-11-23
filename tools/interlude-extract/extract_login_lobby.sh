@@ -16,8 +16,9 @@
 # Steps: 1=property dumps, 2=terrain quadvisibility, 3=BSP brushes,
 #        4=Engine/UWindow .uc defaults, 5=sysstring-e.tsv,
 #        6=texture pixels (java, no umodel), 7=G8 meshes (Docker umodel+Blender),
-#        8=camera BSP zones (ZoneAtPoint). The shot does not read the TSV;
-#          a parse failure is logged with ZoneAtPoint's exit code and the step continues.
+#        8=camera BSP zones (ZoneAtPoint). Writes Lobby.camera-zones.tsv.
+#          A failed walk exits with ZoneAtPoint's status. L2 packages are
+#          version 123, licensee 16..36 (Interlude ships 19 and 28).
 #        9=l2_skies material chains (.props.txt via Docker umodel).
 #
 # Prerequisites (already needed by other extraction tools):
@@ -264,11 +265,9 @@ fi
 
 if want_step 8; then
   echo "== [8/9] Camera BSP zones (UModel point-zone query) =="
-  # The login shot does not read this file. build_login_vista.py takes
-  # InterpolationPoint5's stored Region.Zone (ZoneInfo0 in this dump).
-  # Camera25 is the UnrealEd viewport (Tag U2Viewport2), not the shot camera.
-  # A failed walk must not invent a zone: ZoneAtPoint's own message names the
-  # model or the actor, and this step logs that process's exit code and continues.
+  # Lobby.camera-zones.tsv is this step's output. ZoneAtPoint names the model
+  # or the actor when the walk fails and does not invent a zone. The status is
+  # captured before any later command so the script exits with ZoneAtPoint's code.
   l2_jar
   set +e
   java -cp "$L2JAR" "$ROOT/tools/interlude/ZoneAtPoint.java" \
@@ -277,11 +276,13 @@ if want_step 8; then
   set -e
   if [[ "$zone_status" -ne 0 ]]; then
     echo "ERROR: ZoneAtPoint exited $zone_status. Lobby.camera-zones.tsv was not written." >&2
-    echo "ERROR: missing Lobby.camera-zones.tsv (BSP zone of each Camera and InterpolationPoint)." >&2
-    echo "ERROR: the login shot does not read that file. LoginVista.json zoneActor is InterpolationPoint5's stored Region.Zone." >&2
-  else
-    echo "camera zones -> $WORLD/env/Lobby.camera-zones.tsv"
+    exit "$zone_status"
   fi
+  if [[ ! -f "$WORLD/env/Lobby.camera-zones.tsv" ]]; then
+    echo "ERROR: ZoneAtPoint exited 0 but did not write $WORLD/env/Lobby.camera-zones.tsv" >&2
+    exit 2
+  fi
+  echo "camera zones -> $WORLD/env/Lobby.camera-zones.tsv"
 fi
 
 if want_step 9; then

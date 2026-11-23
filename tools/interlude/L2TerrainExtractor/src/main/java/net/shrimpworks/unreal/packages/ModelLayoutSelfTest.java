@@ -38,6 +38,12 @@ public final class ModelLayoutSelfTest {
 		if (onFront != 3) fail("point on +X returned zone " + onFront + " (expected 3, the child leaf's front zone)");
 		int onBack = Model.pointZone(nodes, -1, 0, 0);
 		if (onBack != 9) fail("point on -X returned zone " + onBack + " (expected 9, node0's back zone)");
+		if (!Model.usesL2Layout(123, 19) || !Model.usesL2Layout(123, 28)) {
+			fail("version 123 licensees 19 and 28 must use the L2 UModel layout");
+		}
+		if (Model.usesL2Layout(123, 15) || Model.usesL2Layout(123, 37) || Model.usesL2Layout(126, 28)) {
+			fail("UModel layout range accepted a package outside version 123 licensee 16..36");
+		}
 		System.out.println("ModelLayoutSelfTest ok");
 	}
 

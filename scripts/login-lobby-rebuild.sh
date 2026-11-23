@@ -35,7 +35,7 @@ SHOT="${SHOT:-$HOME/Desktop/fineage-login-forest-proof.png}"
 for arg in "$@"; do
   case "$arg" in
     --skip-extract) SKIP_EXTRACT=1 ;;
-    *) echo "ERROR: unknown arg '$arg' (want --skip-extract)" >&2; exit 2 ;;
+    *) echo "ERROR: login-lobby-rebuild.sh: unknown argument '$arg'. Known arguments: --skip-extract." >&2; exit 2 ;;
   esac
 done
 

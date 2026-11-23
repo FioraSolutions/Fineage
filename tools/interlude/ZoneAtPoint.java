@@ -1,5 +1,6 @@
 // Resolves which BSP zone a point sits in, using the level UModel.
-// The reader is Model (package version 123, licensee 19): Vectors, Points,
+// The reader is Model for L2 version 123, licensee 16..36 (Interlude ships
+// 19 and 28): Vectors, Points,
 // Nodes, Surfs, Verts, then the zone list. Node records are variable length,
 // so this does not probe FVert or FBspNode sizes.
 //
@@ -54,9 +55,10 @@ public class ZoneAtPoint {
             tmp = Files.createTempFile("l2zone_", ".u");
             L2Decryptor.decryptFile(Path.of(a[0]), tmp);
             try (var p = new net.shrimpworks.unreal.packages.Package(new PackageReader(tmp))) {
-                if (p.license != 19 || p.version < 117 || p.version >= 178) {
+                if (!Model.usesL2Layout(p.version, p.license)) {
                     System.err.println("ERROR " + a[0] + " is package " + p.version + "/" + p.license
-                            + "; UModel zone walk is implemented for licensee 19 (L2 Interlude is 123/19)");
+                            + "; UModel zone walk is the L2 layout for version 123, licensee 16 through 36"
+                            + " (Interlude ships 19 and 28). Refusing to guess a node stride.");
                     System.exit(2);
                 }
                 ExportedObject modelExport = null;

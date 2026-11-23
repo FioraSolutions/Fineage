@@ -2,7 +2,10 @@
 using UnityEngine;
 
 public class L2StaticMesh {
+    public string actorName { get; set; }
     public string staticMesh { get; set; }
+    // A StaticMesh= line that is neither StaticMesh'...' nor None.
+    public string unparsedStaticMesh { get; set; }
     public string actorClass { get; set; }
     public float y { get; set; }
     public float x { get; set; }

@@ -43,6 +43,16 @@ public class L2MapStaticMeshBuilder : MonoBehaviour
     }
 
     public static void BuildSingleStaticMesh(L2StaticMesh staticMesh, GameObject container) {
+        string who = string.IsNullOrEmpty(staticMesh.actorName) ? "StaticMeshActor" : staticMesh.actorName;
+        if (!string.IsNullOrEmpty(staticMesh.unparsedStaticMesh)) {
+            Debug.LogError("[StaticMesh] " + who + " has an unparsed StaticMesh line: "
+                + staticMesh.unparsedStaticMesh + ". Skipping this actor.");
+            return;
+        }
+        if (string.IsNullOrEmpty(staticMesh.staticMesh)) {
+            Debug.LogError("[StaticMesh] " + who + " has no StaticMesh. Skipping this actor.");
+            return;
+        }
         string meshPath = StaticMeshUtils.GetMeshPath(staticMesh.staticMesh);
         GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(meshPath);
         if (go == null) {

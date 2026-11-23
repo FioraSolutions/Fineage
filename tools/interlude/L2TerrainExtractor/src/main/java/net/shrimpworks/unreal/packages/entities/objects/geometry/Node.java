@@ -103,7 +103,7 @@ public class Node {
 	}
 
 	/**
-	 * Lineage 2 BSP node (package version 123, licensee 19).
+	 * Lineage 2 BSP node (package version 123, licensee 16 through 36).
 	 * Zone index 0 is the back side and zone index 1 is the front side.
 	 */
 	public static Node readL2(PackageReader reader) {
