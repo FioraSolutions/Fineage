@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using VContainer;
 
-public partial class CameraController : MonoBehaviour
+public partial class CameraController : MonoBehaviour, ICameraCollisionMask
 {
     // L2 rotator: 65536 = 360°. CameraPitch hardcoded -2700 (= -14.83° in UE).
     // Unity Euler X is inverted vs UE pitch: negative UE pitch (look down) → positive Unity X.

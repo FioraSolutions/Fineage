@@ -36,8 +36,6 @@ public sealed partial class GameLifetimeScope
             return GameWindowPacketServices.Html as T;
         if (typeof(T) == typeof(SystemMessageWindow))
             return SystemMessagePacketServices.Window as T;
-        if (typeof(T) == typeof(CameraController))
-            return CameraPacketServices.Controller as T;
         if (typeof(T) == typeof(CombatFacingService))
             return CombatPacketServices.Facing as T;
         if (typeof(T) == typeof(CharacterBuilder))
