@@ -77,7 +77,7 @@ public partial class PlayerController : MonoBehaviour
         {
              //Debug.Log("IsMoveToPawn мы на месте " + VectorUtils.Distance2D(characterPosition, targetPosition));
              SetPositionServer(_movementTarget, targetPosition);
-             NotifyEvent(PlayerStatePacketServices.PlayerState.State);
+             NotifyEvent(PawnIntention.State);
              StopMove();
 
            // Debug.Log("IsMoveToPawn запуск повтора т.е StopMove " + PlayerStatePacketServices.PlayerState.IsMoveToPawn + " state " + PlayerStatePacketServices.PlayerState.State);
@@ -86,13 +86,7 @@ public partial class PlayerController : MonoBehaviour
 
     private void NotifyEvent(PlayerState state)
     {
-        PlayerStateMachine stateMachine = PlayerStatePacketServices.PlayerState;
-        if (stateMachine == null)
-            return;
-
         if (state == PlayerState.RUNNING | state == PlayerState.WALKING)
-        {
-            stateMachine.NotifyEvent(Event.ARRIVED);
-        }
+            PawnIntention.NotifyEvent(Event.ARRIVED);
     }
 }

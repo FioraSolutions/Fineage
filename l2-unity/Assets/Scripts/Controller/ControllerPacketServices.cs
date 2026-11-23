@@ -163,6 +163,21 @@ public sealed partial class PlayerController
     [Inject] PlayerPositionSender _injectedPositionSender;
     [Inject] ClickManager _packetClicks;
     [Inject] L2PawnYaw _pawnYaw;
+    [Inject] IPlayerIntention _intention;
+
+    IPlayerIntention PawnIntention
+    {
+        get
+        {
+            if (_intention == null)
+            {
+                throw new InvalidOperationException(
+                    "[PlayerController] IPlayerIntention missing — GameLifetimeScope did not register PlayerIntentionSlot, so the pawn intention was not applied.");
+            }
+
+            return _intention;
+        }
+    }
 
     void WireControllerPacketServices()
     {

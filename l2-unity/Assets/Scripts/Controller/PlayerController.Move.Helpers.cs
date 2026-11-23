@@ -37,7 +37,7 @@ public partial class PlayerController
     {
         //PlayerStatePacketServices.PlayerState.IsMoveToPawn = true;
         
-        PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_MOVE_TO_PAWN, model);
+        PawnIntention.ChangeIntention(Intention.INTENTION_MOVE_TO_PAWN, model);
     }
 
     public void InitMoveToPawn(MoveToPawnDto moveToPawnPacket)

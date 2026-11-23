@@ -6,11 +6,10 @@ public partial class PlayerController
 {
     public void RestartMoveElseMoveToPawnTrue(ref bool _isMove)
     {
-        PlayerStateMachine stateMachine = PlayerStatePacketServices.PlayerState;
-        if (stateMachine == null || _movementTarget == null)
+        if (_movementTarget == null)
             return;
 
-        if (stateMachine.IsMoveToPawn & _isMove == false)
+        if (PawnIntention.IsMoveToPawn & _isMove == false)
         {
             Vector3 targetPosition = VectorUtils.To2D(_movementTarget.GetTarget());
             float distance = VectorUtils.Distance2D(transform.position, targetPosition);
@@ -39,11 +38,8 @@ public partial class PlayerController
             return;
 
         _switchWalkToRun = true;
-        PlayerStateMachine stateMachine = PlayerStatePacketServices.PlayerState;
-        if (stateMachine == null)
-            return;
-        stateMachine.ChangeState(PlayerState.RUNNING);
-        stateMachine.NotifyEvent(Event.MOVE_TO);
+        PawnIntention.ChangeState(PlayerState.RUNNING);
+        PawnIntention.NotifyEvent(Event.MOVE_TO);
     }
 
     private bool RunMode()
