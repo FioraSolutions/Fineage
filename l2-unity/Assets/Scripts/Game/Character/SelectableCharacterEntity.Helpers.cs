@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 using System.Collections;
@@ -14,18 +15,26 @@ public partial class SelectableCharacterEntity : MonoBehaviour
 
     private void StartWalking() {
         _walking = true;
-        IAnimationManager animations = Animations;
-        if (animations != null)
-            animations.PlayLobbyLocomotion(
-                _baseAnimationController, AnimationNames.WALK.ToString() + WeaponAnim);
+        RequireAnimations().PlayLobbyLocomotion(
+            _baseAnimationController, AnimationNames.WALK.ToString() + WeaponAnim);
     }
 
     private void StopWalking() {
         _walking = false;
+        RequireAnimations().PlayLobbyLocomotion(
+            _baseAnimationController, AnimationNames.WAIT.ToString() + WeaponAnim);
+    }
+
+    IAnimationManager RequireAnimations()
+    {
         IAnimationManager animations = Animations;
-        if (animations != null)
-            animations.PlayLobbyLocomotion(
-                _baseAnimationController, AnimationNames.WAIT.ToString() + WeaponAnim);
+        if (animations == null)
+        {
+            throw new InvalidOperationException(
+                "[LobbyMotion] IAnimationManager missing — AppLifetimeScope did not register AnimationManager, so the lobby motion was not played.");
+        }
+
+        return animations;
     }
 
     public bool TryPlayVictory() {
@@ -47,15 +56,15 @@ public partial class SelectableCharacterEntity : MonoBehaviour
             race + "_m000_b.ao_Social_Victory_" + race,
             race + "_M000_b.ao_Social_Victory_" + race,
         };
+        IAnimationManager animations = RequireAnimations();
         for (int i = 0; i < names.Length; i++) {
             AnimationClip clip = Resources.Load<AnimationClip>(folder + names[i]);
             if (clip != null) {
-                // Gesture channel: CastClipPlayable one-shot at AnimPlayback.GestureRate.
-                _baseAnimationController.TryPlayOneShot(clip);
+                animations.PlayMotionClip(_baseAnimationController, clip);
                 return;
             }
         }
-        Debug.Log("[LobbyVictory] no Social_victory clip for " + race + " in " + folder);
+        Debug.LogError("[LobbyVictory] no Social_victory clip for " + race + " in " + folder);
     }
 
     public void SetDestination(Logongrp destination) {

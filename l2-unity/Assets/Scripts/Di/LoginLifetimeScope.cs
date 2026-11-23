@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -21,6 +22,7 @@ public sealed class LoginLifetimeScope : LifetimeScope
 
         builder.RegisterBuildCallback(container =>
         {
+            RequireMotionServices(container);
             LoginRuntime loginRuntime = container.Resolve<LoginRuntime>();
             AppLoginSessionApplyIncomingPacketServices.BindLogin(loginRuntime);
             if (App.Container != null)
@@ -51,6 +53,55 @@ public sealed class LoginLifetimeScope : LifetimeScope
                     "[LoginLifetimeScope] App.Container missing — lobby wire skipped (AppLifetimeScope not ready)");
             }
         });
+    }
+
+    static void RequireMotionServices(IObjectResolver container)
+    {
+        IAnimationManager animations;
+        try
+        {
+            animations = container.Resolve<IAnimationManager>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IAnimationManager))
+            {
+                throw new InvalidOperationException(
+                    "[LoginLifetimeScope] IAnimationManager missing — AppLifetimeScope did not register AnimationManager.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (animations is not AnimationManager)
+        {
+            throw new InvalidOperationException(
+                "[LoginLifetimeScope] IAnimationManager is not an AnimationManager — AppLifetimeScope did not register AnimationManager.");
+        }
+
+        IMoveRoster moves;
+        try
+        {
+            moves = container.Resolve<IMoveRoster>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IMoveRoster))
+            {
+                throw new InvalidOperationException(
+                    "[LoginLifetimeScope] IMoveRoster missing — AppLifetimeScope did not register SharedMoveRoster.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (moves is not SharedMoveRoster)
+        {
+            throw new InvalidOperationException(
+                "[LoginLifetimeScope] IMoveRoster is not a SharedMoveRoster — AppLifetimeScope did not register SharedMoveRoster.");
+        }
     }
 
 }

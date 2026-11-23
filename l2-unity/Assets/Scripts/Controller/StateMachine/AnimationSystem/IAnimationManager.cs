@@ -49,6 +49,10 @@ public interface IAnimationManager : IAnimationRoster
     float ApplyLinearMeleePAtkSpeed(int objectId, string animName, float clipLengthSec);
     void SetPAtkSpeed(int objectId, float patkspd);
     void PlayLobbyLocomotion(IAnimationController controller, string stateOrPrefixWithWeapon);
+    /// <summary>
+    /// Play a clip on the shared motion graph. Bone scale stays at the bind pose captured when the graph binds.
+    /// </summary>
+    void PlayMotionClip(IAnimationController controller, AnimationClip clip);
     /// <summary>Raw animator state (death/rebirth/etc). Prefer <see cref="PlayGesture"/> for social/pickup.</summary>
     float PlayExactAnimatorState(int objectId, string stateName, bool snapToEnd = false);
 

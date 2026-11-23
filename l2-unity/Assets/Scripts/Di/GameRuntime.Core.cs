@@ -1,3 +1,4 @@
+using System;
 using VContainer;
 
 public sealed partial class GameRuntime
@@ -10,8 +11,16 @@ public sealed partial class GameRuntime
         GameManager manager,
         IGameEventBus gameEvents,
         World world,
-        PlayerController player)
+        PlayerController player,
+        IAnimationManager animations)
     {
+        if (animations == null)
+        {
+            throw new InvalidOperationException(
+                "[GameRuntime] IAnimationManager missing — AppLifetimeScope did not register AnimationManager.");
+        }
+
+        _animations = animations;
         if (events != null)
             _events = events;
         if (gameEvents != null)
