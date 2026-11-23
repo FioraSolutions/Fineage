@@ -74,6 +74,8 @@ public partial class MapWindow : L2PopupWindow
         if (_mapTemplate != null)
             host.Add(_mapTemplate.Instantiate());
 
+        BindWorldMap(host);
+
         VisualElement viewport = host.Q("viewport");
         if (viewport != null)
         {
@@ -112,6 +114,36 @@ public partial class MapWindow : L2PopupWindow
         yield return new WaitForEndOfFrame();
 
   
+    }
+
+    const string WorldMapResource = "Data/UI/Map/WorldMap_Black";
+
+    static void BindWorldMap(VisualElement host)
+    {
+        VisualElement map = host.Q("map");
+        if (map == null)
+        {
+            Debug.LogError("[MapWindow] map element is missing from MapAdenTemplate.");
+            return;
+        }
+
+        // right/bottom together with left/top stretch the 1812×2620 art into the
+        // 328 hole, and resource() on the multi-sprite import paints nothing.
+        map.style.right = StyleKeyword.Auto;
+        map.style.bottom = StyleKeyword.Auto;
+        map.style.position = Position.Absolute;
+
+        Texture2D texture = Resources.Load<Texture2D>(WorldMapResource);
+        if (texture == null)
+        {
+            Debug.LogError("[MapWindow] world map texture '" + WorldMapResource + "' did not load.");
+            return;
+        }
+
+        map.style.backgroundImage = new StyleBackground(texture);
+        map.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
+        map.style.width = texture.width;
+        map.style.height = texture.height;
     }
 
     public void LateUpdate()

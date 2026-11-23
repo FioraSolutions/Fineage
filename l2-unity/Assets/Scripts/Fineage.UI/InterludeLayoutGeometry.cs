@@ -105,17 +105,20 @@ public static class InterludeLayoutGeometry
                 }
             }
 
+            string parentAnchor;
+            string thisAnchor;
+            ReadingOrder(control.anchorParent, control.anchorThis, out parentAnchor, out thisAnchor);
             float thisX;
             float thisY;
             float parentX;
             float parentY;
-            if (!TryAnchor(control.anchorThis, out thisX, out thisY))
+            if (!TryAnchor(thisAnchor, out thisX, out thisY))
             {
                 error = "control '" + control.name + "' anchor '" + control.anchorThis + "' is not an extracted alignment";
                 return false;
             }
 
-            if (!TryAnchor(control.anchorParent, out parentX, out parentY))
+            if (!TryAnchor(parentAnchor, out parentX, out parentY))
             {
                 error = "control '" + control.name + "' anchor '" + control.anchorParent + "' is not an extracted alignment";
                 return false;
@@ -151,6 +154,23 @@ public static class InterludeLayoutGeometry
         if (value <= 0f)
             return parent + value;
         return value;
+    }
+
+    /// <summary>
+    /// xdat stores the next text box as this=TOP_RIGHT on parent=TOP_LEFT, which
+    /// parks it on the left of the previous control. The line reads left to right.
+    /// </summary>
+    public static void ReadingOrder(string parentPoint, string thisPoint, out string parentAnchor, out string thisAnchor)
+    {
+        parentAnchor = parentPoint;
+        thisAnchor = thisPoint;
+        if (parentPoint == "TOP_LEFT" && thisPoint == "TOP_RIGHT"
+            || parentPoint == "CENTER_LEFT" && thisPoint == "CENTER_RIGHT"
+            || parentPoint == "BOTTOM_LEFT" && thisPoint == "BOTTOM_RIGHT")
+        {
+            parentAnchor = thisPoint;
+            thisAnchor = parentPoint;
+        }
     }
 
     public static bool TryAnchor(string name, out float x, out float y)
@@ -256,4 +276,5 @@ public class InterludeLayoutControl
     public string fontColor;
     public int fontType;
     public int maxLength;
+    public int autosize;
 }
