@@ -29,14 +29,21 @@ public partial class SceneLoader
         for (int i = 0; i < wanted.Count; i++)
         {
             string tile = wanted[i];
-            if (_loadedTiles.Contains(tile) || !CanLoadTile(tile))
+            if (_loadedTiles.Contains(tile))
             {
+                if (!_prefabTiles.ContainsKey(tile))
+                    SetSceneRootsActive(tile, true);
                 continue;
             }
+
+            if (_missedTiles.Contains(tile) || !CanLoadTile(tile))
+                continue;
 
             StartCoroutine(EventLoadSWMap(tile));
             return;
         }
+
+        ForgetMissesOutside(wanted);
 
         foreach (string loaded in _loadedTiles)
         {
@@ -101,5 +108,21 @@ public partial class SceneLoader
         }
 
         return wanted;
+    }
+
+    void ForgetMissesOutside(List<string> wanted)
+    {
+        if (_missedTiles.Count == 0)
+            return;
+
+        _missScratch.Clear();
+        foreach (string missed in _missedTiles)
+        {
+            if (!wanted.Contains(missed))
+                _missScratch.Add(missed);
+        }
+
+        for (int i = 0; i < _missScratch.Count; i++)
+            _missedTiles.Remove(_missScratch[i]);
     }
 }

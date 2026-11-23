@@ -20,23 +20,15 @@ public partial class SceneLoader
 
     IEnumerator InstantiateMapTilePrefabsCoreAsync(string tile)
     {
-        if (!TileStreamingManifest.Contains(tile))
-        {
-            FineageLog.Error(
-                FineageLogCategory.World,
-                "LoadSWMap: tile '" + tile + "' not in TileStreamingManifest and no additive scene.");
-            yield break;
-        }
-
         string terrainPath = "Data/Maps/" + tile + "/" + tile;
         ResourceRequest terrainReq = Resources.LoadAsync<GameObject>(terrainPath);
         yield return terrainReq;
         GameObject terrain = terrainReq.asset as GameObject;
         if (terrain == null)
         {
-            FineageLog.Warn(
+            FineageLog.Error(
                 FineageLogCategory.World,
-                "LoadSWMap: manifest lists tile '" + tile + "' but Resources missing '" + terrainPath + "'");
+                "LoadSWMap: tile '" + tile + "' Resources prefab missing at '" + terrainPath + "'");
             yield break;
         }
 

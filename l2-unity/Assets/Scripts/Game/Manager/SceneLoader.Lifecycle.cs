@@ -26,6 +26,7 @@ public partial class SceneLoader : MonoBehaviour
         _worldStreaming = false;
         _streamingBusy = false;
         _loadedTiles.Clear();
+        _missedTiles.Clear();
         DestroyAllPrefabTiles();
         Manager.OnStartingGame();
         if (SceneManager.GetActiveScene().name != _menuScene)

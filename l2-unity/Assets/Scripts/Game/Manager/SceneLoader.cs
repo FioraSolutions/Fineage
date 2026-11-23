@@ -13,9 +13,12 @@ public partial class SceneLoader : MonoBehaviour, ISceneLoader
     [SerializeField] private float _tilePreloadDistance = 80f;
 
     private readonly HashSet<string> _loadedTiles = new HashSet<string>();
+    private readonly HashSet<string> _missedTiles = new HashSet<string>();
+    private readonly List<string> _missScratch = new List<string>();
     private readonly Dictionary<string, GameObject> _prefabTiles = new Dictionary<string, GameObject>();
     private bool _worldStreaming;
     private bool _streamingBusy;
+    private bool _lastTilePresent;
 
     GameManager _gameManager;
 

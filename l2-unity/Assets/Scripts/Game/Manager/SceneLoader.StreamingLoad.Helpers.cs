@@ -27,8 +27,9 @@ public partial class SceneLoader
         }
 
         yield return LoadSceneAdditiveIfNeeded(tile);
-        _loadedTiles.Add(tile);
-        yield return ResnapActorsAfterTile();
+        NoteTileLoad(tile);
+        if (_lastTilePresent)
+            yield return ResnapActorsAfterTile();
         _streamingBusy = false;
     }
 
@@ -50,17 +51,28 @@ public partial class SceneLoader
         _streamingBusy = true;
         // Debug.Log("UnloadSWMap tile='" + tile + "'");
         if (_prefabTiles.ContainsKey(tile))
-        {
             DestroyPrefabTile(tile);
-        }
-        else
-        {
-            SetSceneRootsActive(tile, false);
-            UnloadScene(tile);
-        }
+
+        // Deactivate immediately, then wait for the async unload. Returning while
+        // the scene is still loaded made the next visit treat it as present and
+        // leave the roots inactive.
+        SetSceneRootsActive(tile, false);
+        yield return UnloadSceneCompleted(tile);
 
         _loadedTiles.Remove(tile);
+        _missedTiles.Remove(tile);
         _streamingBusy = false;
-        yield break;
+    }
+
+    void NoteTileLoad(string tile)
+    {
+        if (_lastTilePresent)
+        {
+            _missedTiles.Remove(tile);
+            _loadedTiles.Add(tile);
+            return;
+        }
+
+        _missedTiles.Add(tile);
     }
 }

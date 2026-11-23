@@ -9,45 +9,46 @@ public partial class SceneLoader
 {
     private static bool CanLoadTile(string tile)
     {
-        if (Application.CanStreamedLevelBeLoaded(tile))
-            return true;
-        return TileStreamingManifest.Contains(tile);
+        return MapTileLoadPolicy.ShouldAttempt(
+            tile,
+            Application.CanStreamedLevelBeLoaded(tile),
+            TileStreamingManifest.Contains(tile));
     }
 
     private IEnumerator LoadSceneAdditiveIfNeeded(string sceneName)
     {
+        _lastTilePresent = false;
         Scene existing = SceneManager.GetSceneByName(sceneName);
-        if (existing.IsValid() && existing.isLoaded)
-        {
-            // Debug.Log("Skipping scene load " + sceneName);
-            yield break;
-        }
+        bool sceneLoaded = existing.IsValid() && existing.isLoaded;
 
-        if (_prefabTiles.ContainsKey(sceneName))
-            yield break;
-
-        if (Application.CanStreamedLevelBeLoaded(sceneName))
+        // A Build Settings scene is not the map. Town scenes such as 19_21 are stubs;
+        // the geometry lives in Resources/Data/Maps. Load the scene when it exists,
+        // then still place the prefab. Skipping the prefab because the scene loaded
+        // is what left Gludio dark and empty (#1843) and left prefab-only tiles as
+        // sky (#1842) when the manifest allow-list did not name them.
+        if (!sceneLoaded && Application.CanStreamedLevelBeLoaded(sceneName))
         {
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
             if (asyncLoad == null)
-                yield break;
-
-            while (!asyncLoad.isDone)
-                yield return null;
-            yield break;
+            {
+                FineageLog.Error(
+                    FineageLogCategory.World,
+                    "LoadSWMap: LoadSceneAsync returned null for '" + sceneName + "'");
+            }
+            else
+            {
+                while (!asyncLoad.isDone)
+                    yield return null;
+                sceneLoaded = true;
+            }
         }
 
-        // Orc Immortal Plateau (18_14), DE (20_18), Dwarf (23_12) ship as map prefabs but
-        // often lack Build Settings scenes — without this fallback the world is a white void.
-        if (IsMapTileName(sceneName))
-            yield return InstantiateMapTilePrefabsAsync(sceneName);
-    }
+        if (sceneLoaded)
+            SetSceneRootsActive(sceneName, true);
 
-    static bool IsMapTileName(string name)
-    {
-        if (string.IsNullOrEmpty(name) || name.Length != 5 || name[2] != '_')
-            return false;
-        return char.IsDigit(name[0]) && char.IsDigit(name[1])
-            && char.IsDigit(name[3]) && char.IsDigit(name[4]);
+        if (MapTileLoadPolicy.IsMapTileName(sceneName) && !_prefabTiles.ContainsKey(sceneName))
+            yield return InstantiateMapTilePrefabsAsync(sceneName);
+
+        _lastTilePresent = sceneLoaded || _prefabTiles.ContainsKey(sceneName);
     }
 }
