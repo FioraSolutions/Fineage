@@ -32,8 +32,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class ExportLevelHeight {
     public static void main(String[] args) throws Exception {
@@ -226,13 +228,33 @@ public class ExportLevelHeight {
                 }
             }
         }
-        if (hits.isEmpty()) {
+        List<Path> unique = distinctFiles(hits);
+        if (unique.isEmpty()) {
             fail("TerrainMap package " + packageName + " has no " + packageName + ".utx under " + client);
         }
-        if (hits.size() > 1) {
-            fail("TerrainMap package " + packageName + " matches more than one utx: " + hits);
+        if (unique.size() > 1) {
+            fail("TerrainMap package " + packageName + " matches more than one utx: " + unique);
         }
-        return hits.get(0);
+        return unique.get(0);
+    }
+
+    /**
+     * Case-insensitive volumes list the same file under textures/ and Textures/.
+     * Identity is the real path's device and inode. Two different files still fail.
+     */
+    static List<Path> distinctFiles(List<Path> hits) throws Exception {
+        Map<String, Path> byId = new LinkedHashMap<>();
+        for (Path hit : hits) {
+            Path real = hit.toRealPath();
+            byId.putIfAbsent(fileIdentity(real), real);
+        }
+        return new ArrayList<>(byId.values());
+    }
+
+    static String fileIdentity(Path real) throws Exception {
+        long dev = ((Number) Files.getAttribute(real, "unix:dev")).longValue();
+        long ino = ((Number) Files.getAttribute(real, "unix:ino")).longValue();
+        return dev + ":" + ino;
     }
 
     static String sha256(byte[] raw) throws Exception {

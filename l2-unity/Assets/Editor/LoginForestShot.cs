@@ -1,7 +1,11 @@
+using System;
 using System.IO;
+using System.Text;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -23,6 +27,7 @@ public static class LoginForestShot
     static string _shotPath;
     static int _captureReadyFrames;
     static bool _captureRequested;
+    static DateTime _captureRequestedUtc;
 
     static LoginForestShot()
     {
@@ -103,17 +108,33 @@ public static class LoginForestShot
                     _captureReadyFrames = 0;
                 if (_captureReadyFrames >= 3)
                 {
+                    LogCaptureSurface();
+                    WriteSceneOnlyProof(SceneProofPath(_shotPath));
+                    try
+                    {
+                        if (File.Exists(_shotPath))
+                            File.Delete(_shotPath);
+                    }
+                    catch (IOException ex)
+                    {
+                        Debug.LogError("[LoginForest] could not clear previous proof: " + ex.Message);
+                    }
+
                     _captureRequested = true;
+                    _captureRequestedUtc = DateTime.UtcNow;
                     ScreenCapture.CaptureScreenshot(_shotPath);
                 }
             }
 
-            if (File.Exists(_shotPath))
+            if (_captureRequested && File.Exists(_shotPath))
             {
-                long size = new FileInfo(_shotPath).Length;
-                if (size > 10000)
+                var info = new FileInfo(_shotPath);
+                info.Refresh();
+                bool writtenAfterRequest = info.LastWriteTimeUtc >= _captureRequestedUtc.AddSeconds(-2);
+                if (info.Length > 10000 && writtenAfterRequest)
                 {
-                    Debug.Log("[LoginForest] proof shot ready bytes=" + size);
+                    Debug.Log("[LoginForest] proof shot ready bytes=" + info.Length +
+                        " scene=" + SceneProofPath(_shotPath));
                     try
                     {
                         if (File.Exists(ShotPathFile))
@@ -153,6 +174,279 @@ public static class LoginForestShot
         {
             Debug.LogError("[LoginForest] play mode did not start");
             Exit(1);
+        }
+    }
+
+    static string SceneProofPath(string shotPath)
+    {
+        string dir = Path.GetDirectoryName(shotPath) ?? "";
+        string name = Path.GetFileNameWithoutExtension(shotPath);
+        return Path.Combine(dir, name + "-3d.png");
+    }
+
+    static void LogCaptureSurface()
+    {
+        var scenes = new StringBuilder();
+        bool lobbyLoaded = false;
+        for (int i = 0; i < SceneManager.sceneCount; i++)
+        {
+            Scene scene = SceneManager.GetSceneAt(i);
+            if (scenes.Length > 0)
+                scenes.Append(", ");
+            scenes.Append(scene.name);
+            scenes.Append(scene.isLoaded ? "=loaded" : "=unloaded");
+            if (scene.isLoaded && scene.name == LobbyMapInterludeContract.AdditiveLobbySceneName)
+                lobbyLoaded = true;
+        }
+
+        Debug.Log("[LoginForest] scenes " + scenes + " lobbyLoaded=" + lobbyLoaded);
+
+        Camera[] cameras = UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            Camera cam = cameras[i];
+            if (cam == null)
+                continue;
+            string target = cam.targetTexture != null ? cam.targetTexture.name : "(none)";
+            Debug.Log("[LoginForest] camera name=" + cam.name +
+                " enabled=" + cam.enabled +
+                " depth=" + cam.depth.ToString("0.###") +
+                " targetTexture=" + target +
+                " cullingMask=0x" + cam.cullingMask.ToString("X8"));
+        }
+
+        Canvas[] canvases = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        int overlayCount = 0;
+        int coverCount = 0;
+        for (int i = 0; i < canvases.Length; i++)
+        {
+            Canvas canvas = canvases[i];
+            if (canvas == null || canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                continue;
+            overlayCount++;
+            Debug.Log("[LoginForest] overlay canvas name=" + canvas.name +
+                " enabled=" + canvas.enabled +
+                " active=" + canvas.gameObject.activeInHierarchy);
+            coverCount += LogCoveringGraphics(canvas);
+        }
+
+        Debug.Log("[LoginForest] overlay canvases=" + overlayCount + " coveringImages=" + coverCount);
+        LogToolkitCovers();
+    }
+
+    static int LogCoveringGraphics(Canvas canvas)
+    {
+        int covers = 0;
+        Image[] images = canvas.GetComponentsInChildren<Image>(true);
+        for (int i = 0; i < images.Length; i++)
+        {
+            if (!CoversScreen(images[i].rectTransform))
+                continue;
+            covers++;
+            string sprite = images[i].sprite != null ? images[i].sprite.name : "(none)";
+            Debug.Log("[LoginForest] overlay image name=" + images[i].name +
+                " sprite=" + sprite +
+                " color=" + ColorRgb(images[i].color) +
+                " enabled=" + images[i].enabled);
+        }
+
+        RawImage[] raws = canvas.GetComponentsInChildren<RawImage>(true);
+        for (int i = 0; i < raws.Length; i++)
+        {
+            if (!CoversScreen(raws[i].rectTransform))
+                continue;
+            covers++;
+            string texture = raws[i].texture != null ? raws[i].texture.name : "(none)";
+            Debug.Log("[LoginForest] overlay raw name=" + raws[i].name +
+                " texture=" + texture +
+                " color=" + ColorRgb(raws[i].color) +
+                " enabled=" + raws[i].enabled);
+        }
+
+        return covers;
+    }
+
+    static bool CoversScreen(RectTransform rect)
+    {
+        if (rect == null)
+            return false;
+        Vector3[] corners = new Vector3[4];
+        rect.GetWorldCorners(corners);
+        float minX = corners[0].x;
+        float maxX = corners[0].x;
+        float minY = corners[0].y;
+        float maxY = corners[0].y;
+        for (int i = 1; i < 4; i++)
+        {
+            minX = Mathf.Min(minX, corners[i].x);
+            maxX = Mathf.Max(maxX, corners[i].x);
+            minY = Mathf.Min(minY, corners[i].y);
+            maxY = Mathf.Max(maxY, corners[i].y);
+        }
+
+        float sw = Mathf.Max(Screen.width, 1);
+        float sh = Mathf.Max(Screen.height, 1);
+        return (maxX - minX) >= sw * 0.9f && (maxY - minY) >= sh * 0.9f;
+    }
+
+    static void LogToolkitCovers()
+    {
+        UIDocument[] docs = UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < docs.Length; i++)
+        {
+            if (docs[i] == null || docs[i].rootVisualElement == null)
+                continue;
+            VisualElement root = docs[i].rootVisualElement;
+            float panelW = root.resolvedStyle.width;
+            float panelH = root.resolvedStyle.height;
+            Debug.Log("[LoginForest] uitk document=" + docs[i].name +
+                " enabled=" + docs[i].enabled +
+                " panel=" + panelW.ToString("0") + "x" + panelH.ToString("0"));
+            LogToolkitCover(root, panelW, panelH, 0);
+        }
+    }
+
+    static void LogToolkitCover(VisualElement el, float panelW, float panelH, int depth)
+    {
+        if (el == null || depth > 12 || panelW < 1f || panelH < 1f)
+            return;
+        if (el.resolvedStyle.display == DisplayStyle.None)
+            return;
+
+        float w = el.resolvedStyle.width;
+        float h = el.resolvedStyle.height;
+        if (w >= panelW * 0.9f && h >= panelH * 0.9f)
+        {
+            Background bg = el.resolvedStyle.backgroundImage;
+            Color color = el.resolvedStyle.backgroundColor;
+            string image = BackgroundName(bg);
+            if (image != "(none)" || color.a > 0.05f)
+            {
+                Debug.Log("[LoginForest] uitk cover name=" + el.name +
+                    " image=" + image +
+                    " color=" + ColorRgb(color) +
+                    " alpha=" + color.a.ToString("0.###") +
+                    " size=" + w.ToString("0") + "x" + h.ToString("0"));
+            }
+        }
+
+        for (int i = 0; i < el.hierarchy.childCount; i++)
+            LogToolkitCover(el.hierarchy[i], panelW, panelH, depth + 1);
+    }
+
+    static string BackgroundName(Background bg)
+    {
+        if (bg.texture != null)
+            return bg.texture.name;
+        if (bg.sprite != null)
+            return bg.sprite.name;
+        if (bg.renderTexture != null)
+            return bg.renderTexture.name;
+        if (bg.vectorImage != null)
+            return bg.vectorImage.name;
+        return "(none)";
+    }
+
+    static string ColorRgb(Color color)
+    {
+        return Mathf.RoundToInt(color.r * 255f) + "," +
+            Mathf.RoundToInt(color.g * 255f) + "," +
+            Mathf.RoundToInt(color.b * 255f);
+    }
+
+    static void WriteSceneOnlyProof(string path)
+    {
+        Camera[] cameras = UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        Camera login = null;
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            if (cameras[i] != null && cameras[i].name == "Login")
+            {
+                login = cameras[i];
+                break;
+            }
+        }
+
+        if (login == null)
+        {
+            Debug.LogError("[LoginForest] no camera named Login; scene proof not written");
+            return;
+        }
+
+        UIDocument[] docs = UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        bool[] docOn = new bool[docs.Length];
+        for (int i = 0; i < docs.Length; i++)
+        {
+            docOn[i] = docs[i] != null && docs[i].enabled;
+            if (docs[i] != null)
+                docs[i].enabled = false;
+        }
+
+        Canvas[] canvases = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        bool[] canvasOn = new bool[canvases.Length];
+        for (int i = 0; i < canvases.Length; i++)
+        {
+            canvasOn[i] = canvases[i] != null && canvases[i].enabled;
+            if (canvases[i] != null)
+                canvases[i].enabled = false;
+        }
+
+        RenderTexture rt = null;
+        Texture2D tex = null;
+        RenderTexture prevTarget = login.targetTexture;
+        RenderTexture prevActive = RenderTexture.active;
+        int prevMask = login.cullingMask;
+        try
+        {
+            int ui = LayerMask.NameToLayer("UI");
+            if (ui >= 0)
+                login.cullingMask &= ~(1 << ui);
+            int w = login.pixelWidth > 16 ? login.pixelWidth : Mathf.Max(Screen.width, 1280);
+            int h = login.pixelHeight > 16 ? login.pixelHeight : Mathf.Max(Screen.height, 720);
+            rt = new RenderTexture(w, h, 24, RenderTextureFormat.ARGB32);
+            rt.Create();
+            login.targetTexture = rt;
+            login.Render();
+            RenderTexture.active = rt;
+            tex = new Texture2D(w, h, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+            tex.Apply();
+            byte[] png = tex.EncodeToPNG();
+            string dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(dir))
+                Directory.CreateDirectory(dir);
+            File.WriteAllBytes(path, png);
+            Debug.Log("[LoginForest] scene proof " + path + " bytes=" + png.Length +
+                " camera=" + login.name + " " + w + "x" + h);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("[LoginForest] scene proof failed: " + ex);
+        }
+        finally
+        {
+            login.targetTexture = prevTarget;
+            login.cullingMask = prevMask;
+            RenderTexture.active = prevActive;
+            if (tex != null)
+                UnityEngine.Object.Destroy(tex);
+            if (rt != null)
+            {
+                rt.Release();
+                UnityEngine.Object.Destroy(rt);
+            }
+
+            for (int i = 0; i < docs.Length; i++)
+            {
+                if (docs[i] != null)
+                    docs[i].enabled = docOn[i];
+            }
+
+            for (int i = 0; i < canvases.Length; i++)
+            {
+                if (canvases[i] != null)
+                    canvases[i].enabled = canvasOn[i];
+            }
         }
     }
 
