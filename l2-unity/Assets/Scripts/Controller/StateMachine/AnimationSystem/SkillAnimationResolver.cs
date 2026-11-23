@@ -14,6 +14,43 @@ public static class SkillAnimationResolver
 
     static readonly HashSet<string> MixMissLogged = new HashSet<string>(StringComparer.Ordinal);
 
+    /// <summary>Skill currently resolving a clip. Callers set this before GetOverrideClip.</summary>
+    public static int ActiveSkillId { get; private set; }
+
+    public static void SetActiveSkill(int skillId)
+    {
+        ActiveSkillId = skillId < 0 ? 0 : skillId;
+    }
+
+    /// <summary>Body token (MFighter, FDarkElf, …) → Interlude race and sex.</summary>
+    public static void DescribeBody(string bodyName, out string race, out string sex)
+    {
+        race = bodyName ?? "";
+        sex = "?";
+        if (string.IsNullOrEmpty(bodyName))
+            return;
+
+        if (HasBodyToken(bodyName, "FDarkElf")) { race = "DarkElf"; sex = "F"; return; }
+        if (HasBodyToken(bodyName, "MDarkElf")) { race = "DarkElf"; sex = "M"; return; }
+        if (HasBodyToken(bodyName, "FShaman")) { race = "Orc"; sex = "F"; return; }
+        if (HasBodyToken(bodyName, "MShaman")) { race = "Orc"; sex = "M"; return; }
+        if (HasBodyToken(bodyName, "FFighter")) { race = "Human"; sex = "F"; return; }
+        if (HasBodyToken(bodyName, "MFighter")) { race = "Human"; sex = "M"; return; }
+        if (HasBodyToken(bodyName, "FMagic")) { race = "Human"; sex = "F"; return; }
+        if (HasBodyToken(bodyName, "MMagic")) { race = "Human"; sex = "M"; return; }
+        if (HasBodyToken(bodyName, "FElf")) { race = "Elf"; sex = "F"; return; }
+        if (HasBodyToken(bodyName, "MElf")) { race = "Elf"; sex = "M"; return; }
+        if (HasBodyToken(bodyName, "FDwarf")) { race = "Dwarf"; sex = "F"; return; }
+        if (HasBodyToken(bodyName, "MDwarf")) { race = "Dwarf"; sex = "M"; return; }
+        if (HasBodyToken(bodyName, "FOrc")) { race = "Orc"; sex = "F"; return; }
+        if (HasBodyToken(bodyName, "MOrc")) { race = "Orc"; sex = "M"; return; }
+    }
+
+    static bool HasBodyToken(string bodyName, string token)
+    {
+        return bodyName.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
     /// <summary>
     /// Returns cleaned SpAtk stem names for each combo phase (e.g. SpAtk08, SpAtk13, SpAtk22), or null.
     /// </summary>
@@ -135,7 +172,10 @@ public static class SkillAnimationResolver
 
         string oneHs = stem + "1HS";
         if (!string.Equals(oneHs, stateName, StringComparison.Ordinal) && hasState(oneHs))
+        {
+            LogWeaponStateFallback(skillId, raceName, stateName, oneHs);
             return oneHs;
+        }
 
         return stateName;
     }
@@ -160,14 +200,34 @@ public static class SkillAnimationResolver
             path = "Resources/" + resourcesPath;
         }
 
+        DescribeBody(raceName, out string race, out string sex);
         Debug.LogError(
             "[SkillAnimation] clip missing skillId=" + skillId +
-            " race=" + raceName +
+            " race=" + race +
+            " sex=" + sex +
+            " body=" + raceName +
             " weapon=" + weapon +
-            " expectedClipStem=" + clipStem +
+            " expectedClip=" + clipStem +
             " path=" + path +
             " animatorState=" + stateName +
             " (InterludeAnimResourceTake.tsv → Resources; no substitute swing).");
+    }
+
+    static void LogWeaponStateFallback(int skillId, string raceName, string requested, string used)
+    {
+        string key = skillId + "|" + (raceName ?? "") + "|" + requested + ">" + used;
+        if (!MixMissLogged.Add(key))
+            return;
+
+        DescribeBody(raceName, out string race, out string sex);
+        Debug.LogError(
+            "[SkillAnimation] weapon-state fallback skillId=" + skillId +
+            " race=" + race +
+            " sex=" + sex +
+            " body=" + raceName +
+            " expected=" + requested +
+            " used=" + used +
+            " (animator has no requested state).");
     }
 
     static readonly HashSet<string> SpAtk06HandLogged = new HashSet<string>(StringComparer.Ordinal);
@@ -233,13 +293,20 @@ public static class SkillAnimationResolver
 
     public static void LogMissingOverrideClip(string slotName, string raceName)
     {
-        string key = (slotName ?? "") + "|" + (raceName ?? "");
+        int skillId = ActiveSkillId;
+        string key = skillId + "|" + (slotName ?? "") + "|" + (raceName ?? "");
         if (!OverrideMissLogged.Add(key))
             return;
 
+        DescribeBody(raceName, out string race, out string sex);
+        string expected = ExpectedOverridePath(slotName, raceName);
         Debug.LogError(
-            "[SkillAnimation] override unresolved slot=" + slotName +
-            " race=" + raceName +
+            "[SkillAnimation] override unresolved skillId=" + skillId +
+            " race=" + race +
+            " sex=" + sex +
+            " body=" + raceName +
+            " slot=" + slotName +
+            " expected=" + expected +
             " (SkillAnimationDatabase.GetOverrideClip; import clip or add trigger).");
     }
 
@@ -249,15 +316,31 @@ public static class SkillAnimationResolver
         string raceName,
         string loadedClipName)
     {
-        string key = requestedSlot + ">" + fallbackSlot + "|" + raceName;
+        int skillId = ActiveSkillId;
+        string key = skillId + "|" + requestedSlot + ">" + fallbackSlot + "|" + raceName;
         if (!OverrideFallbackLogged.Add(key))
             return;
 
+        DescribeBody(raceName, out string race, out string sex);
+        string expected = ExpectedOverridePath(requestedSlot, raceName);
         Debug.LogError(
-            "[SkillAnimation] override completion fallback requested=" + requestedSlot +
+            "[SkillAnimation] override completion fallback skillId=" + skillId +
+            " race=" + race +
+            " sex=" + sex +
+            " body=" + raceName +
+            " expected=" + expected +
+            " requested=" + requestedSlot +
             " used=" + fallbackSlot +
-            " race=" + raceName +
             " clip=" + loadedClipName +
-            " (import dedicated take or accept shared mid/shot clip).");
+            " (import the dedicated take; shared mid/shot is not the original).");
+    }
+
+    static string ExpectedOverridePath(string slotName, string raceName)
+    {
+        string path;
+        if (SkillAnimationDatabase.TryGetOverrideResourcePath(slotName, raceName, out path)
+            && !string.IsNullOrEmpty(path))
+            return "Resources/" + path;
+        return (slotName ?? "") + "_" + (raceName ?? "");
     }
 }

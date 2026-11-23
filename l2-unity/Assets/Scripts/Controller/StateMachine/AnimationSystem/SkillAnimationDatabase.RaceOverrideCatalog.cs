@@ -150,15 +150,20 @@ public partial class SkillAnimationDatabase
         string expectedPath,
         string reason)
     {
-        string key = requestedSlot + "|" + raceName + "|" + normalizedSlot;
+        int skillId = SkillAnimationResolver.ActiveSkillId;
+        string key = skillId + "|" + requestedSlot + "|" + raceName + "|" + normalizedSlot;
         if (!RaceOverrideMissLogged.Add(key))
             return;
 
+        SkillAnimationResolver.DescribeBody(raceName, out string race, out string sex);
         Debug.LogError(
-            "[SkillAnimation] override clip missing slot=" + requestedSlot
+            "[SkillAnimation] override clip missing skillId=" + skillId
+            + " race=" + race
+            + " sex=" + sex
+            + " body=" + raceName
+            + " slot=" + requestedSlot
             + " normalized=" + normalizedSlot
-            + " race=" + raceName
-            + (string.IsNullOrEmpty(expectedPath) ? "" : " expectedPath=" + expectedPath)
+            + (string.IsNullOrEmpty(expectedPath) ? "" : " expected=" + expectedPath)
             + " reason=" + reason + ".");
     }
 
