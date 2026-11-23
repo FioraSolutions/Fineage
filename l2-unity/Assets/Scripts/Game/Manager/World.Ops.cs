@@ -39,8 +39,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
             _geodata.ObstacleMask = _obstacleMask;
         LayerMask dropMask = _dropLayers != null ? _dropLayers.Mask : 0;
         _clicks.SetMasks(_entityClickAreaMask | dropMask, _clickThroughMask);
-        if (_camera != null)
-            _camera.SetMask(_obstacleMask);
+        _camera.SetMask(_obstacleMask);
     }
 
     public void ClearEntities() {

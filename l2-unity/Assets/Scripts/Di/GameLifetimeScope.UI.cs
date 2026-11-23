@@ -97,6 +97,7 @@ public sealed partial class GameLifetimeScope
             RequireMoveRoster(container);
             RequireNameplateRoster(container);
             RequireClickMasks(container);
+            RequireCameraCollision(container);
             RequireCharacterInfo(container);
             RequirePlayerRebirth(container);
             RequireLocalPlayer(container);
