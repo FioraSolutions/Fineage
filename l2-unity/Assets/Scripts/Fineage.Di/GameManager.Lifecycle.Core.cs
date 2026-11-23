@@ -21,6 +21,12 @@ public partial class GameManager : MonoBehaviour, IGameManager
         AppScopeStartup.Run(gameObject);
     }
 
+    void OnDestroy()
+    {
+        if (_instance == this)
+            _instance = null;
+    }
+
     /// <summary>
     /// Dials whichever backend <see cref="FineageServerProfile"/> resolves: the shared
     /// remote playtest by default, the local Fineage-Backend when the run asks for it

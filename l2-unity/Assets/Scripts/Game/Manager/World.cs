@@ -30,7 +30,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     [Inject] private GravityNpc _gravityNpc;
     [Inject] private DeadManager _deadManager;
     [Inject] private AppearFadeService _appearFade;
-    [Inject] private CameraController _camera;
+    [Inject] private ICameraCollisionMask _camera;
     [Inject] private IAnimationManager _animations;
     [Inject] private IAnimationRoster _animationRoster;
     [Inject] private IVisibilityRoster _visibility;
@@ -114,7 +114,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     public static readonly TimeSpan EntityWaitTimeout = TimeSpan.FromMilliseconds(150);
 
     readonly ObjectIdWaitMap<Entity> _entityWait = new ObjectIdWaitMap<Entity>();
-    readonly WorldEntityRegistry<Entity> _entities = new WorldEntityRegistry<Entity>();
+    [Inject] WorldEntityRegistry<Entity> _entities;
 
 
     [Header("Layer Masks")]

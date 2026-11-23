@@ -7,6 +7,8 @@ public sealed partial class GameLifetimeScope
 {
     void RegisterWorldServices(IContainerBuilder builder)
     {
+        builder.Register<WorldEntityRegistry<Entity>>(Lifetime.Singleton);
+        builder.Register<SpawnedEntityCatalog>(Lifetime.Singleton).As<ISpawnedEntities>();
         GameScopePlayerControllerRegistration.Register(builder);
         RegisterWorld(builder);
         RegisterIfFound<WorldCombat>(builder);
@@ -24,7 +26,7 @@ public sealed partial class GameLifetimeScope
         RegisterLiveMono<EffectManager>(builder);
         RegisterIfFound<ProjectileManager>(builder);
         RegisterIfFound<ObjectPoolManager>(builder);
-        RegisterLiveMono<CameraController>(builder);
+        RegisterCameraCollision(builder);
         RegisterIfFound<InputManager>(builder);
         RegisterIfFound<PositionValidationController>(builder);
         RegisterIfFound<SkillExecutor>(builder);
@@ -316,6 +318,73 @@ public sealed partial class GameLifetimeScope
 
         throw new InvalidOperationException(
             "[GameLifetimeScope] ILocalPlayerSlot is not a LocalPlayerSlot — LocalPlayerSlot was not registered as ILocalPlayerSlot.");
+    }
+
+    static void RequireSpawnedEntities(IObjectResolver container)
+    {
+        ISpawnedEntities spawned;
+        try
+        {
+            spawned = container.Resolve<ISpawnedEntities>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(ISpawnedEntities))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] ISpawnedEntities missing — SpawnedEntityCatalog was not registered as ISpawnedEntities.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (spawned is SpawnedEntityCatalog)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] ISpawnedEntities is not a SpawnedEntityCatalog — SpawnedEntityCatalog was not registered as ISpawnedEntities.");
+    }
+
+    /// <summary>
+    /// Register the scene <see cref="CameraController"/> as <see cref="ICameraCollisionMask"/> (#131 S39a).
+    /// </summary>
+    void RegisterCameraCollision(IContainerBuilder builder)
+    {
+        CameraController found = UnityEngine.Object.FindFirstObjectByType<CameraController>(FindObjectsInactive.Include);
+        if (found == null)
+        {
+            throw new InvalidOperationException(
+                "[GameLifetimeScope] ICameraCollisionMask missing — RegisterCameraCollision found no CameraController in loaded scenes.");
+        }
+
+        builder.RegisterComponent(found).AsSelf().As<ICameraCollisionMask>();
+    }
+
+    static void RequireCameraCollision(IObjectResolver container)
+    {
+        ICameraCollisionMask mask;
+        try
+        {
+            mask = container.Resolve<ICameraCollisionMask>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(ICameraCollisionMask))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] ICameraCollisionMask missing — CameraController was not registered as ICameraCollisionMask.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (mask is CameraController)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] ICameraCollisionMask is not a CameraController — CameraController was not registered as ICameraCollisionMask.");
     }
 
     /// <summary>

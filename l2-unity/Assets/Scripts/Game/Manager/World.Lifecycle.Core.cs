@@ -11,18 +11,6 @@ using VContainer;
 
 public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntityLookup
 {
-    static bool ShouldEnsureGameScope()
-    {
-        if (SystemUIPacketServices.Ui != null)
-            return true;
-
-        GameManager manager = WorldPacketServices.Manager ?? GamePacketServices.Manager;
-        if (manager != null && manager.GameState == GameState.LOGIN_SCREEN)
-            return false;
-
-        return true;
-    }
-
     private void Awake() {
         if (_instance == null) {
             _instance = this;
@@ -31,8 +19,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
             return;
         }
 
-        if (ShouldEnsureGameScope())
-            DiBootstrap.EnsureGameScope();
+        DiBootstrap.EnsureGameScope();
         _playerPlaceholder = Resources.Load<GameObject>("Prefab/Player_FDarkElf");
         _userPlaceholder = Resources.Load<GameObject>("Prefab/User_FDarkElf");
         _npcPlaceHolder = Resources.Load<GameObject>("Prefab/Npc");

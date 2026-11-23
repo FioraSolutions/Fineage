@@ -10,7 +10,6 @@ public partial class L2GameUI : L2UI
         if (_instance == null)
         {
             _instance = this;
-            DiBootstrap.EnsureGameScope();
             WireSystemUIPacketServices();
         }
         else
