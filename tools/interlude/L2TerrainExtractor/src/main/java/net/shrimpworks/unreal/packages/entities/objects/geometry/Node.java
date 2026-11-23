@@ -23,6 +23,13 @@ import net.shrimpworks.unreal.packages.PackageReader;
  *   - [byte] num vertices
  *   - [[int, int]] leaf (?)
  * </pre>
+ * <p>
+ * Lineage 2 (package 123, licensee 19) writes a longer node. {@link #readL2}
+ * follows that order: plane, zone mask, flags, then compact vert pool, surf,
+ * <em>back</em>, <em>front</em>, plane, collision bound, render bound, an
+ * unknown vector and id, connectivity and visibility masks, two compact zone
+ * indices (0 = back, 1 = front), vertex count, two leaf ints, and 12 unknown
+ * bytes. A fixed stride cannot describe it because the indices are compact.
  */
 
 //		Plane := Read_Struct_Plane(owner, buffer,name+'.Plane');                  xxx Plane
@@ -63,13 +70,13 @@ public class Node {
 	public final int iPlane;
 	public final int collisionBound;
 	public final int renderBound;
-	public final byte[] zone;
+	public final int[] zone;
 	public final byte numVertices;
 	public final int[] leaf;
 
 	public Node(
 			Plane plane, long zoneMask, byte nodeFlags, int vertPool, int surf, int front, int back, int iPlane,
-			int collisionBound, int renderBound, byte[] zone, byte numVertices, int[] leaf) {
+			int collisionBound, int renderBound, int[] zone, byte numVertices, int[] leaf) {
 		this.plane = plane;
 		this.zoneMask = zoneMask;
 		this.nodeFlags = nodeFlags;
@@ -90,8 +97,43 @@ public class Node {
 			 reader.readLong(), reader.readByte(),
 			 reader.readIndex(), reader.readIndex(), reader.readIndex(), reader.readIndex(), reader.readIndex(), reader.readIndex(),
 			 reader.readIndex(),
-			 new byte[] { reader.readByte(), reader.readByte() }, reader.readByte(), new int[] { reader.readInt(), reader.readInt() }
+			 new int[] { reader.readByte() & 0xff, reader.readByte() & 0xff }, reader.readByte(),
+			 new int[] { reader.readInt(), reader.readInt() }
 		);
+	}
+
+	/**
+	 * Lineage 2 BSP node (package version 123, licensee 16 through 36).
+	 * Zone index 0 is the back side and zone index 1 is the front side.
+	 */
+	public static Node readL2(PackageReader reader) {
+		reader.ensureRemaining(16);
+		Plane plane = new Plane(reader);
+		reader.ensureRemaining(9);
+		long zoneMask = reader.readLong();
+		byte nodeFlags = reader.readByte();
+		int vertPool = reader.readIndex();
+		int surf = reader.readIndex();
+		int back = reader.readIndex();
+		int front = reader.readIndex();
+		int iPlane = reader.readIndex();
+		int collisionBound = reader.readIndex();
+		int renderBound = reader.readIndex();
+		reader.ensureRemaining(12);
+		new Vector(reader);
+		reader.ensureRemaining(4);
+		reader.readInt();
+		reader.ensureRemaining(16);
+		reader.readLong();
+		reader.readLong();
+		int zoneBack = reader.readIndex();
+		int zoneFront = reader.readIndex();
+		reader.ensureRemaining(21);
+		byte numVertices = reader.readByte();
+		int[] leaf = { reader.readInt(), reader.readInt() };
+		for (int i = 0; i < 12; i++) reader.readByte();
+		return new Node(plane, zoneMask, nodeFlags, vertPool, surf, front, back, iPlane, collisionBound, renderBound,
+						new int[] { zoneBack, zoneFront }, numVertices, leaf);
 	}
 
 	@Override
