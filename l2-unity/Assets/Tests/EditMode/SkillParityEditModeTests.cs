@@ -6,9 +6,10 @@ using UnityEngine;
 
 /// <summary>
 /// Learnable player skills must keep a resolvable original motion for every
-/// race and sex that can learn them. Known gaps (the Interlude ukx has no take,
-/// or a clip is not imported yet) live in skill-parity-known-gaps.txt, which
-/// tools/skill-parity/generate_skill_parity.py rewrites. A new miss fails.
+/// race and sex that can learn them. Known gaps (no ukx sequence and no
+/// verified LineageWarrior.int alias, or a clip not imported yet) live in
+/// skill-parity-known-gaps.txt, which tools/skill-parity/generate_skill_parity.py
+/// rewrites. A new miss fails.
 /// </summary>
 public sealed class SkillParityEditModeTests
 {

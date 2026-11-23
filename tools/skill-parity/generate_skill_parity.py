@@ -39,6 +39,7 @@ PLACEMENT = REF / "skills" / "skill-effect-placement.tsv"
 COMBO = UNITY / "Assets/StreamingAssets/Data/Meta/AnimationCombo_Interlude.txt"
 TWEEN = UNITY / "Assets/StreamingAssets/Data/Meta/AnimTween.txt"
 ALIAS = UNITY / "Assets/StreamingAssets/Data/Meta/InterludeAnimResourceTake.tsv"
+WARRIOR_ALIAS = UNITY / "Assets/StreamingAssets/Data/Meta/LineageWarriorAnimAlias.tsv"
 ANIM_ROOT = UNITY / "Assets/Resources/Data/Animations"
 EFFECT_PREFABS = UNITY / "Assets/StreamingAssets/Data/Meta/SkillVisual/effect-prefabs.txt"
 RESOURCES = UNITY / "Assets/Resources"
@@ -311,6 +312,21 @@ def load_alias() -> dict[tuple[str, str], str]:
     return out
 
 
+def load_warrior_alias() -> dict[tuple[str, int, str], str]:
+    """(body, spatk number, weapon) → ukx sequence. Empty when the int extract is absent."""
+    out: dict[tuple[str, int, str], str] = {}
+    if not WARRIOR_ALIAS.is_file():
+        return out
+    for line in WARRIOR_ALIAS.read_text(encoding="utf-8", errors="replace").splitlines():
+        if not line.strip() or line.startswith("#") or line.startswith("body\t"):
+            continue
+        cols = line.split("\t")
+        if len(cols) < 4 or not cols[1].strip().isdigit():
+            continue
+        out[(cols[0].strip(), int(cols[1]), cols[2].strip().lower())] = cols[3].strip()
+    return out
+
+
 def load_shipped() -> set[str]:
     found = set()
     ao = re.compile(r"\.ao_([^./\\]+)\.anim$", re.IGNORECASE)
@@ -367,7 +383,29 @@ def sound_stem(token: str) -> str:
     return token.split(".")[-1].strip().lower()
 
 
-def classify_motion(token: str, body: str, tween, alias, shipped) -> list[dict]:
+def no_take_detail(number: int, body: str, mesh: str) -> str:
+    if number in (9, 26) and body in {"MDarkElf", "FDarkElf"}:
+        return (
+            f"{mesh} has no SpAtk{number:02d} sequence. Every dumped ukx was scanned; "
+            f"spatk{number:02d} exists only as SpAtk{number:02d}_Hand on Orc.ukx (FOrc/MOrc/Skirt_FOrc). "
+            "LineageWarrior.int [MFighter] does not set this slot for dual (weapon index 3), "
+            "and substituting the body suffix on the slots it does set does not name a sequence in DarkElf.ukx."
+        )
+    if number == 3 and body in {"MElf", "FElf", "MShaman", "FShaman"}:
+        return (
+            f"{mesh} has no SpAtk03 sequence (Elf.ukx and Shaman.ukx have none; "
+            "spatk03 in the other dumps is Fighter/DarkElf/Dwarf/Orc and raid meshes). "
+            "LineageWarrior.int [MFighter] names SpAtk03_*_MFighter for 1HS/2HS/dual/pole; "
+            "that name is not in this body's ukx, so the suffix copy is not applied. "
+            "The per-race int section is not in the local client dump."
+        )
+    return (
+        f"{mesh} ukx has no SpAtk{number:02d} sequence and LineageWarriorAnimAlias.tsv "
+        "has no verified sequence for this body."
+    )
+
+
+def classify_motion(token: str, body: str, tween, alias, shipped, warrior) -> list[dict]:
     """One row per official take the resolver must load for this phase."""
     info = BODIES[body]
     mesh = info["mesh"]
@@ -380,29 +418,36 @@ def classify_motion(token: str, body: str, tween, alias, shipped) -> list[dict]:
     rows = []
     if number is not None:
         official = []
+        mesh_l = mesh.lower()
         for weapon in WEAPONS:
             query = f"spatk{number:02d}_{weapon}_{body}".lower()
-            if (mesh.lower(), query) in tween:
-                official.append(weapon)
+            if (mesh_l, query) in tween:
+                official.append((weapon, tween[(mesh_l, query)], "ukx"))
+                continue
+            aliased = warrior.get((body, number, weapon))
+            if aliased and (mesh_l, aliased.lower()) in tween:
+                official.append((weapon, tween[(mesh_l, aliased.lower())], "int"))
         if not official:
             rows.append({
                 "kind": "no_original_take",
                 "expected": f"spatk{number:02d}_*_{body}",
-                "detail": f"{mesh} ukx has no SpAtk{number:02d} sequence",
+                "detail": no_take_detail(number, body, mesh),
             })
             return rows
-        for weapon in official:
-            query = f"spatk{number:02d}_{weapon}_{body}".lower()
-            seq = tween[(mesh.lower(), query)]
-            take = alias.get((mesh.lower(), seq.lower()), seq)
+        for weapon, seq, via in official:
+            take = alias.get((mesh_l, seq.lower()), seq)
+            if via == "int":
+                detail = f"weapon={weapon}; LineageWarrior.int -> {seq}"
+            else:
+                detail = f"weapon={weapon}"
             if take.lower() in shipped:
-                rows.append({"kind": "ok", "expected": take, "detail": f"weapon={weapon}"})
+                rows.append({"kind": "ok", "expected": take, "detail": detail})
             else:
                 rows.append({
                     "kind": "missing_import",
                     "expected": take,
-                    "detail": f"AnimTween {seq} on {mesh}; resolver loads {take}; file absent. "
-                              "Runtime logs and does not play SpAtk01.",
+                    "detail": f"sequence {seq} on {mesh}; resolver loads {take}; file absent. "
+                              "Runtime logs and does not play SpAtk01. " + detail,
                 })
         return rows
 
@@ -490,6 +535,7 @@ def main() -> int:
 
     combos = load_combos()
     tween, tween_source = load_tween()
+    warrior = load_warrior_alias()
     alias = load_alias()
     shipped = load_shipped()
     effect_prefabs = load_effect_prefabs()
@@ -561,6 +607,7 @@ def main() -> int:
     missing_effect = 0
     missing_sound = 0
     no_original = 0
+    int_aliased = 0
     skills_with_sound_row = 0
     sound_tokens_checked = 0
 
@@ -581,7 +628,6 @@ def main() -> int:
             missing_motion += 1
             continue
         tag = (row.get("ani_char") or "").strip()
-        effect_class = (visuals.get(sid) or {}).get("effect_class", "").strip()
         desc = (row.get("desc") or "").strip()
         class_ids = learned[sid]
         bodies = []
@@ -616,11 +662,11 @@ def main() -> int:
             if not eclass or eclass.isdigit():
                 continue
             named.append((label, eclass))
-        if not named and (visuals.get(sid) or {}).get("resolution") == "effect_class_by_name":
-            for piece in (effect_class or "").split(","):
-                piece = piece.strip()
-                if piece and not piece.isdigit():
-                    named.append(("effect", piece))
+        # effect_class_by_name is a skill-name guess (extract_all._match_effect_classes).
+        # skill.usk SkillVisualEffect and skillgrp.desc are the retail bindings.
+        # at_power_strike_cs and wh_bless_shield_ta exist as lineageeffect Emitter
+        # classes, but skill.usk has no SkillVisualEffect named 3 or 1243 and does
+        # not reference either class, and both skillgrp rows have an empty desc.
         seen_effect = set()
         for label, eclass in named:
             key = eclass.lower()
@@ -707,9 +753,11 @@ def main() -> int:
                     info = BODIES[body]
                     body_bad = False
                     for phase in phases:
-                        for result in classify_motion(phase, body, tween, alias, shipped):
+                        for result in classify_motion(phase, body, tween, alias, shipped, warrior):
                             kind = result["kind"]
                             if kind == "ok":
+                                if "LineageWarrior.int" in result.get("detail", ""):
+                                    int_aliased += 1
                                 motion_rows.append(f"{sid}\t{body}\t{result['expected']}\tok\t{phase}")
                                 continue
                             body_bad = True
@@ -780,6 +828,7 @@ def main() -> int:
         "missingMotion": missing_motion,
         "silentFallback": silent,
         "noOriginalTake": no_original,
+        "intAliased": int_aliased,
         "missingEffect": missing_effect,
         "missingSound": missing_sound,
         "soundTokensChecked": sound_tokens_checked,
@@ -815,7 +864,8 @@ def main() -> int:
         f"- Skills with an animation tag: **{headline['skillsWithAnimation']}**",
         f"- Missing motion (import or silent fallback): **{headline['missingMotion']}**",
         f"- Silent fallback (different clip than the original): **{headline['silentFallback']}**",
-        f"- Original ukx has no take for that body: **{headline['noOriginalTake']}**",
+        f"- Original ukx has no take and no verified int alias: **{headline['noOriginalTake']}**",
+        f"- SpAtk phase×weapon rows resolved through LineageWarrior.int (clip already shipped, literal sequence absent): **{headline['intAliased']}**",
         f"- Missing effect: **{headline['missingEffect']}**",
         f"- Missing sound: **{headline['missingSound']}** ({headline['soundTokensChecked']} skillsoundgrp tokens, {headline['skillsWithSoundRow']} skills have a row)",
         "",
@@ -848,8 +898,12 @@ def main() -> int:
         "names the substitute. `GetOverrideClip` still completes a cast on the shared mid/shot clip",
         "when CastLong, CastShort, MagicNoTarget, or MagicThrow is absent; that path logs skill id,",
         "race, sex, and the expected clip, and is counted as a silent fallback above.",
-        "Rows marked `no_original_take` are sequences the Interlude race package does not contain.",
-        "Retail has the same hole. They are not an import skip and not a generic-motion substitute.",
+        "A `SpAtkNN` token is a pawn variable (`GetSpAtkNNAnimName` → `SpAtkNNAnimName[CurWeaponType]`),",
+        "filled from `system/LineageWarrior.int`, not a sequence literally named `spatkNN`.",
+        "`LineageWarriorAnimAlias.tsv` applies that table when the body's ukx has no literal take",
+        "and the substituted sequence is in the ukx and in `AnimTween.txt`. The clip is logged",
+        "(`[SkillAnimation] LineageWarrior.int alias`) and is not an SpAtk01 fallback.",
+        "Rows marked `no_original_take` are slots with no literal sequence and no verified int alias.",
         "",
     ]
     motion_gaps = [g for g in gaps if g["category"] == "motion"]
@@ -864,6 +918,16 @@ def main() -> int:
             lines.append(
                 f"| {gap['skillId']} | {gap['name']} | {gap['body']} | {gap['sex']} | {gap['kind']} | `{gap['expected']}` |"
             )
+        lines.append("")
+        lines.append("Evidence for each remaining row:")
+        lines.append("")
+        seen_evidence = set()
+        for gap in motion_gaps:
+            key = (gap["expected"], gap["detail"])
+            if key in seen_evidence:
+                continue
+            seen_evidence.add(key)
+            lines.append(f"- `{gap['skillId']}` {gap['name']} {gap['body']} `{gap['expected']}`: {gap['detail']}")
 
     lines += [
         "",
@@ -873,6 +937,17 @@ def main() -> int:
         "`CastingActions` / `ShotActions` / `ExplosionActions`). `skillgrp.desc` `skill.<group>.<id>`",
         "follows that skill's phases. A class is wired when `effect-prefabs.txt` names it and the",
         "prefab file exists. `extra_eff` is a numeric flag, not an effect class.",
+        "A skill-name guess (`effect_class_by_name` in `skill-visuals.tsv`) is not a binding.",
+        "",
+        "`at_power_strike_cs` (lineageeffect.u export 24, Emitter, DrawScale 0.05, two MeshEmitters",
+        "and one SpriteEmitter) and `wh_bless_shield_ta` (export 1546, Emitter, DrawScale 0.25,",
+        "two MeshEmitters and three SpriteEmitters) are real classes. `skill.usk` has 238",
+        "`SkillVisualEffect` objects (ids 4–5204) and neither id 3 nor id 1243. The package",
+        "does not reference either class name or export. `skillgrp` desc is empty and `extra_eff`",
+        "is 0 for both skills. They are not the retail visual for Power Strike or Bless Shield,",
+        "so they are not imported as those skills' prefabs. GlobalEffect id 3 points at",
+        "`it_power_striker_composite` and id 1243 at `m_u044_a_v1243_composite`; those are",
+        "separate catalog entries, not these emitters.",
         "",
     ]
     effect_gaps = [g for g in gaps if g["category"] == "effect"]
