@@ -18,9 +18,11 @@ Known non-blocking gaps (extraction list in Docs/LOBBY_LOGIN_EXTRACTION_AUDIT.md
   - EdgeTurnBitmap bits are not extracted for any map (only counts).
 
 Class-default resolutions come from the committed Engine.u .uc dump (gap G1):
-cameras without a stored FovAngle (e.g. Camera25, the login vista camera)
-inherit the class default walked up the extends chain (Camera.uc does not
-override; PlayerController.uc FovAngle=50.0), and AmbientSoundType bytes are
+cameras without a stored FovAngle inherit the class default walked up
+the extends chain (Camera.uc does not override; PlayerController.uc
+FovAngle=50.0). Camera25 is the UnrealEd viewport (Tag=U2Viewport2), not
+the login camera. The login camera is resolved by build_login_vista.py.
+AmbientSoundType bytes are
 mapped through AmbientSoundObject.uc enum ASType1. A missing .uc dump or
 missing property is a hard error, never a guessed value.
 
