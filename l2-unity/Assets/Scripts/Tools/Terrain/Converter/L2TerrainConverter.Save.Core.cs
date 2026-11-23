@@ -36,8 +36,15 @@ public partial class TerrainConverter
                 // Overlay without an official AlphaMap is logged at parse and stays off.
                 bool paint = uvl.texture != null && uvl.alphaMap != null;
                 terrainMat.SetFloat("_Layer_" + i + "_Enabled", paint ? 1.0f : 0.0f);
+            } else if (uvl.texture == null) {
+                // Shader Graphs/TerrainAlphamapDouble samples _Layer_0 as the opaque base.
+                // An empty slot uses the graph default color, which is not the official diffuse.
+                Debug.LogError(
+                    "[TerrainUv] " + mapToConvert + " layer 0 diffuse missing ("
+                    + uvl.diffuseTextureRef
+                    + "). _Layer_0 is left empty; the graph default is not the official base.");
             } else {
-                terrainMat.SetTexture("_Layer_" + i, uvl.texture);
+                terrainMat.SetTexture("_Layer_0", uvl.texture);
             }
 
             if (i >= L2TerrainLayerUv.ShaderLayerCap) {
