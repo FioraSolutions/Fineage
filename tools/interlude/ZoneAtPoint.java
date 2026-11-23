@@ -1,180 +1,227 @@
-// Resolves which BSP zone each Camera actor of an Interlude map (.unr) sits in.
-// The login vista fog is the fog of Camera25's zone, and Lobby has three
-// ZoneInfo actors with disagreeing ranges, so a per-map heuristic cannot pick
-// one — only the BSP point-zone query the engine itself runs is authoritative.
+// Resolves which BSP zone a point sits in, using the level UModel.
+// The reader is Model for L2 version 123, licensee 16..36 (Interlude ships
+// 19 and 28): Vectors, Points,
+// Nodes, Surfs, Verts, then the zone list. Node records are variable length,
+// so this does not probe FVert or FBspNode sizes.
 //
-// The level's UModel serializes (same layout BrushDump relies on for brushes):
-//   None(1) BoundingBox(25) BoundingSphere(16)
-//   TArray Vectors | TArray Points | TArray Verts | TArray Nodes | TArray Surfs
-//   NumSharedSides(4) NumZones(4) Zones[nz](compact object refs) Polys(compact)
-// Nodes are walked: d = dot(plane, P) - w; side front when d >= 0; descend
-// iFront/iBack while >= 0, else the leaf zone is iZone[side].
-//
-// FVert and FBspNode serialized sizes are not taken on faith: the tool tries
-// candidate sizes and self-checks by querying every ZoneInfo-family actor at
-// its own stored Location — UnrealEd places that point inside its zone, so a
-// correct layout must return the zone index that actor back-references. Zone
-// index -> actor name comes from the model's Zones[] ref list, read after
-// NumSharedSides/NumZones; finding it needs Surfs skipped, and FBspSurf has
-// variable-length object refs, so instead the self-check pairs each distinct
-// leaf index with the ZoneInfo whose Location produced it. No candidate
-// passing => hard error with diagnostics, never a guessed zone.
+// The login shot does not read the TSV this writes. LoginVista.json zoneActor
+// is InterpolationPoint5's stored Region.Zone. Camera25 (Tag U2Viewport2) is
+// the UnrealEd viewport. A failed parse exits 2 and names the model; it does
+// not invent a zone.
 //
 // Run: java -cp L2TerrainExtractor-all.jar ZoneAtPoint.java <map.unr> <out.tsv>
 import io.github.l2terrain.crypto.L2Decryptor;
 import net.shrimpworks.unreal.packages.PackageReader;
-import net.shrimpworks.unreal.packages.entities.*;
-import net.shrimpworks.unreal.packages.entities.properties.*;
-import java.nio.*; import java.nio.file.*; import java.util.*;
+import net.shrimpworks.unreal.packages.entities.ExportedObject;
+import net.shrimpworks.unreal.packages.entities.objects.Model;
+import net.shrimpworks.unreal.packages.entities.objects.geometry.Zone;
+import net.shrimpworks.unreal.packages.entities.properties.Property;
+import net.shrimpworks.unreal.packages.entities.properties.StructProperty;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class ZoneAtPoint {
-    static byte[] raw;
-
-    static int compactAt(int[] P) {
-        int b0 = raw[P[0]++] & 0xff; boolean neg = (b0 & 0x80) != 0; int v = b0 & 0x3f;
-        if ((b0 & 0x40) != 0) { int sh = 6; int b; do { b = raw[P[0]++] & 0xff; v |= (b & 0x7f) << sh; sh += 7; } while ((b & 0x80) != 0 && sh < 32); }
-        return neg ? -v : v;
-    }
-    static int i32At(int[] P) { int v = ByteBuffer.wrap(raw, P[0], 4).order(ByteOrder.LITTLE_ENDIAN).getInt(); P[0] += 4; return v; }
-    static float f32At(int[] P) { return Float.intBitsToFloat(i32At(P)); }
-
     static final class Pt {
-        final String name; final double x, y, z;
-        Pt(String name, double x, double y, double z) { this.name = name; this.x = x; this.y = y; this.z = z; }
+        final String cls;
+        final String name;
+        final double x, y, z;
+        final int zoneNumber;
+        final String regionZone;
+
+        Pt(String cls, String name, double x, double y, double z, int zoneNumber, String regionZone) {
+            this.cls = cls;
+            this.name = name;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.zoneNumber = zoneNumber;
+            this.regionZone = regionZone;
+        }
     }
 
-    static final class Layout {
-        int nodeStart, nodeCount, nodeStride;
-        boolean invertSides;
-    }
-
-    public static void main(String[] a) throws Exception {
-        Path tmp = Files.createTempFile("l2zone_", ".u");
+    public static void main(String[] a) {
+        if (a.length != 2) {
+            System.err.println("ERROR usage: ZoneAtPoint <map.unr> <out.tsv>");
+            System.exit(2);
+        }
+        Path tmp = null;
         try {
+            tmp = Files.createTempFile("l2zone_", ".u");
             L2Decryptor.decryptFile(Path.of(a[0]), tmp);
-            raw = Files.readAllBytes(tmp);
             try (var p = new net.shrimpworks.unreal.packages.Package(new PackageReader(tmp))) {
-                // Level BSP model: the Model export with real payload (brush shells are tiny).
-                ExportedObject model = null;
-                for (ExportedObject e : p.objects)
-                    if (e != null && "Model".equals(e.classIndex.get().name().name))
-                        if (model == null || e.size > model.size) model = e;
-                if (model == null) throw new IllegalStateException("no Model export in " + a[0]);
-
-                List<Pt> zones = new ArrayList<>(), cams = new ArrayList<>();
+                if (!Model.usesL2Layout(p.version, p.license)) {
+                    System.err.println("ERROR " + a[0] + " is package " + p.version + "/" + p.license
+                            + "; UModel zone walk is the L2 layout for version 123, licensee 16 through 36"
+                            + " (Interlude ships 19 and 28). Refusing to guess a node stride.");
+                    System.exit(2);
+                }
+                ExportedObject modelExport = null;
                 for (ExportedObject e : p.objects) {
-                    if (e == null) continue;
-                    String cls = e.classIndex.get().name().name;
-                    boolean isZone = "ZoneInfo".equals(cls) || "SkyZoneInfo".equals(cls);
-                    if (!isZone && !"Camera".equals(cls)) continue;
-                    float[] L = null;
-                    for (Property pr : p.object(e).properties)
-                        if (pr instanceof StructProperty.VectorProperty v && pr.name.name.equals("Location"))
-                            L = new float[]{v.x, v.y, v.z};
-                    if (L == null) continue;
-                    (isZone ? zones : cams).add(new Pt(e.name.name, L[0], L[1], L[2]));
+                    if (e == null || !"Model".equals(e.classIndex.get().name().name)) continue;
+                    if (modelExport == null || e.size > modelExport.size) modelExport = e;
                 }
-                if (zones.isEmpty()) throw new IllegalStateException("no ZoneInfo with Location found");
-                if (cams.isEmpty()) System.err.println("WARN no Camera with Location found");
-
-                // Header: None byte + BoundingBox + BoundingSphere, then
-                // Vectors(12/item), Points(12/item), Verts(candidate), Nodes(candidate).
-                int[] P = {model.pos + 1 + 25 + 16};
-                int nv = compactAt(P); P[0] += nv * 12;
-                int np = compactAt(P); P[0] += np * 12;
-                int nverts = compactAt(P);
-                int afterVertsPos = P[0];
-                long modelEnd = (long) model.pos + model.size;
-
-                int[] vertSizes = {12, 24, 16, 20};
-                int[] nodeStrides = {59, 63, 67, 61, 55, 51};
-                Layout hit = null;
-                List<String> attempts = new ArrayList<>();
-                for (int vs : vertSizes) {
-                    int nodesAt = afterVertsPos + nverts * vs;
-                    if (nodesAt + 1 >= modelEnd) { attempts.add("verts=" + vs + ": past model end"); continue; }
-                    int[] Q = {nodesAt};
-                    int nn = compactAt(Q);
-                    if (nn <= 0 || nn > 500000) { attempts.add("verts=" + vs + ": bad node count " + nn); continue; }
-                    for (int stride : nodeStrides) {
-                        if (nodesAt + (long) nn * stride > modelEnd) continue;
-                        for (boolean inv : new boolean[]{false, true}) {
-                            Layout L = new Layout();
-                            L.nodeStart = Q[0]; L.nodeCount = nn; L.nodeStride = stride; L.invertSides = inv;
-                            String why = selfCheck(L, zones);
-                            if (why == null) { hit = L; break; }
-                            if (attempts.size() < 12) attempts.add("verts=" + vs + " stride=" + stride + (inv ? " inv" : "") + ": " + why);
-                        }
-                        if (hit != null) break;
-                    }
-                    if (hit != null) break;
+				if (modelExport == null) {
+					System.err.println("ERROR no Model export in " + a[0]);
+					System.exit(2);
+				}
+				for (ExportedObject e : p.objects) {
+					if (e == null || !"Model".equals(e.classIndex.get().name().name)) continue;
+					var any = p.object(e);
+					if (!(any instanceof Model)) {
+						System.err.println("ERROR Model " + e.name.name + " did not parse as UModel");
+						System.exit(2);
+					}
+				}
+				var loaded = p.object(modelExport);
+                if (!(loaded instanceof Model)) {
+                    System.err.println("ERROR Model " + modelExport.name.name + " did not parse as UModel");
+                    System.exit(2);
                 }
-                if (hit == null) {
-                    System.err.println("ERROR no FBspNode/FVert layout passed the ZoneInfo self-check.");
-                    System.err.println("vectors=" + nv + " points=" + np + " verts=" + nverts);
-                    for (String s : attempts) System.err.println("  " + s);
+                Model model = (Model) loaded;
+                if (model.nodes.isEmpty()) {
+                    System.err.println("ERROR Model " + modelExport.name.name + " has no BSP nodes"
+                            + " (vectors=" + model.vectors.size() + " points=" + model.points.size()
+                            + " surfs=" + model.surfaces.size() + " verts=" + model.verts.size() + ")");
                     System.exit(2);
                 }
 
-                Map<Integer, String> zoneNames = new LinkedHashMap<>();
-                for (Pt z : zones) zoneNames.putIfAbsent(query(hit, z.x, z.y, z.z), z.name);
+                Map<String, Pt> byName = new LinkedHashMap<>();
+                List<Pt> queried = new ArrayList<>();
+                int unplaced = 0;
+                for (ExportedObject e : p.objects) {
+                    if (e == null) continue;
+                    String cls = e.classIndex.get().name().name;
+                    if (!cls.equals("ZoneInfo") && !cls.equals("SkyZoneInfo")
+                            && !cls.equals("Camera") && !cls.equals("InterpolationPoint")) continue;
+                    float[] loc = null;
+                    StructProperty.PointRegionProperty region = null;
+                    for (Property pr : p.object(e).properties) {
+                        if (pr instanceof StructProperty.VectorProperty v && pr.name.name.equals("Location"))
+                            loc = new float[]{v.x, v.y, v.z};
+                        if (pr instanceof StructProperty.PointRegionProperty r && pr.name.name.equals("Region"))
+                            region = r;
+                    }
+                    if (region == null) {
+                        System.err.println("ERROR " + cls + " " + e.name.name + " is missing Region");
+                        System.exit(2);
+                    }
+                    if (loc == null) {
+                        // Editor browsers (TextureBrowser, MeshViewer, …) store no
+                        // Location. Actor's default is the origin, which is not a
+                        // placed lobby camera, so they are not zoned.
+                        unplaced++;
+                        continue;
+                    }
+                    String regionZone = region.zone.index == 0 ? null : region.zone.get().name().name;
+                    Pt pt = new Pt(cls, e.name.name, loc[0], loc[1], loc[2], region.zoneNumber & 0xff, regionZone);
+                    byName.put(pt.name, pt);
+                    queried.add(pt);
+                }
+                if (queried.isEmpty()) {
+                    System.err.println("ERROR no ZoneInfo, Camera, or InterpolationPoint with Location and Region in " + a[0]);
+                    System.exit(2);
+                }
+
+                List<String> errors = new ArrayList<>();
+                int placedRows = 0;
+                for (int i = 0; i < model.zones.size(); i++) {
+                    String owner = zoneActorName(model, i);
+                    if (owner == null) continue;
+                    Pt pt = byName.get(owner);
+                    if (pt == null) {
+                        errors.add("Model " + modelExport.name.name + " zone " + i
+                                + " actor " + owner + " has no Location in the map");
+                        continue;
+                    }
+                    int got = Model.pointZone(model.nodes, pt.x, pt.y, pt.z);
+                    if (got != i) {
+                        errors.add(owner + " at (" + fmt(pt.x) + ", " + fmt(pt.y) + ", " + fmt(pt.z)
+                                + ") is Model zone " + i + " but the BSP walk returned " + got
+                                + " (" + nameOrMissing(model, got) + ")");
+                    }
+                }
 
                 StringBuilder out = new StringBuilder("point\tx\ty\tz\tzone_actor\n");
-                for (Pt c : cams) {
-                    int zi = query(hit, c.x, c.y, c.z);
-                    String zn = zoneNames.get(zi);
-                    out.append(c.name).append('\t')
-                       .append(fmt(c.x)).append('\t').append(fmt(c.y)).append('\t').append(fmt(c.z)).append('\t')
-                       .append(zn != null ? zn : "zone#" + zi).append('\n');
+                for (Pt pt : queried) {
+                    int got = Model.pointZone(model.nodes, pt.x, pt.y, pt.z);
+                    String actor = zoneActorName(model, got);
+                    boolean placed = pt.cls.equals("Camera") || pt.cls.equals("InterpolationPoint");
+                    if (placed && (got < 0 || got >= model.zones.size() || actor == null)) {
+                        errors.add(pt.cls + " " + pt.name + " at ("
+                                + fmt(pt.x) + ", " + fmt(pt.y) + ", " + fmt(pt.z)
+                                + ") BSP zone " + got + " (" + (actor == null ? "no actor in Model.zones" : actor) + ")");
+                    } else if (placed) {
+                        // PointRegion on this package is 13 bytes. The UE2 reader
+                        // takes a compact index, an int, and one byte, then skips
+                        // the other 7. That byte is 32..72 while NumZones is 5, and
+                        // the index resolves to TerrainInfo0, so it is not the BSP
+                        // slot. The slot is the walk, checked above against each
+                        // zone actor's own Location.
+                        out.append(pt.name).append('\t')
+                           .append(fmt(pt.x)).append('\t').append(fmt(pt.y)).append('\t').append(fmt(pt.z)).append('\t')
+                           .append(actor).append('\n');
+                        placedRows++;
+                    }
+                }
+                if (!errors.isEmpty()) {
+                    System.err.println("ERROR BSP zone walk failed " + errors.size()
+                            + " check(s) on Model " + modelExport.name.name
+                            + " (nodes=" + model.nodes.size() + " zones=" + model.zones.size() + ")");
+                    int shown = Math.min(errors.size(), 30);
+                    for (int i = 0; i < shown; i++) System.err.println("ERROR " + errors.get(i));
+                    if (errors.size() > shown) {
+                        System.err.println("ERROR ... and " + (errors.size() - shown) + " more");
+                    }
+                    System.exit(2);
                 }
                 Files.writeString(Path.of(a[1]), out.toString());
-                System.out.println("zones self-checked: " + zoneNames.values() + " (node stride " + hit.nodeStride + (hit.invertSides ? ", inverted sides" : "") + ")");
+                System.out.println("zones self-checked on Model " + modelExport.name.name
+                        + " nodes=" + model.nodes.size() + " zones=" + model.zones.size()
+                        + " placed=" + placedRows
+                        + (unplaced == 0 ? "" : " unplaced=" + unplaced));
                 System.out.print(out);
             }
-        } finally { Files.deleteIfExists(tmp); }
+        } catch (Exception ex) {
+            System.err.println("ERROR " + causeChain(ex));
+            ex.printStackTrace(System.err);
+            System.exit(2);
+        } finally {
+            if (tmp != null) {
+                try { Files.deleteIfExists(tmp); } catch (Exception ignored) { }
+            }
+        }
+    }
+
+    static String zoneActorName(Model model, int zi) {
+        if (zi < 0 || zi >= model.zones.size()) return null;
+        Zone zone = model.zones.get(zi);
+        if (zone.zoneActor == null || zone.zoneActor.index == 0) return null;
+        return zone.zoneActor.get().name().name;
+    }
+
+    static String nameOrMissing(Model model, int zi) {
+        String name = zoneActorName(model, zi);
+        return name == null ? "no actor in Model.zones[" + zi + "]" : name;
     }
 
     static String fmt(double v) { return String.format(Locale.ROOT, "%.3f", v); }
 
-    // Walk nodes from the root; leaf zone index, or -1 when the walk leaves the model.
-    static int query(Layout L, double x, double y, double z) {
-        int idx = 0;
-        for (int guard = 0; guard < 100000; guard++) {
-            long off = (long) L.nodeStart + (long) idx * L.nodeStride;
-            if (off < 0 || off + L.nodeStride > raw.length) return -1;
-            int[] P = {(int) off};
-            float nx = f32At(P), ny = f32At(P), nz = f32At(P), w = f32At(P);
-            P[0] += 8; // ZoneMask
-            int z0 = i32At(P), z1 = i32At(P);
-            P[0] += 8; // iSurf, iVertPool
-            int iFront = i32At(P), iBack = i32At(P);
-            double d = nx * x + ny * y + nz * z - w;
-            boolean front = d >= 0;
-            if (L.invertSides) front = !front;
-            int child = front ? iFront : iBack;
-            if (child >= 0) {
-                if (child >= L.nodeCount) return -1;
-                idx = child;
-            } else {
-                return front ? z0 : z1;
-            }
+    static String causeChain(Throwable ex) {
+        StringBuilder chain = new StringBuilder();
+        Throwable cur = ex;
+        while (cur != null) {
+            if (chain.length() > 0) chain.append(" caused by ");
+            String msg = cur.getMessage();
+            chain.append(cur.getClass().getSimpleName());
+            if (msg != null && !msg.isEmpty()) chain.append(": ").append(msg);
+            cur = cur.getCause();
         }
-        return -1;
-    }
-
-    // Every ZoneInfo at its own Location must resolve to a valid leaf zone
-    // (UE2 caps zones at MAX_MODELZONES=64), and a multi-zone map must yield
-    // more than one distinct index — a wrong node stride collapses the walks
-    // into out-of-range indices or a single degenerate leaf.
-    static String selfCheck(Layout L, List<Pt> zones) {
-        Set<Integer> seen = new HashSet<>();
-        for (Pt z : zones) {
-            int zi = query(L, z.x, z.y, z.z);
-            if (zi < 0) return z.name + " walk failed";
-            if (zi >= 64) return z.name + " zone index " + zi + " out of range";
-            seen.add(zi);
-        }
-        if (zones.size() >= 2 && seen.size() < 2) return "all zone queries collapsed to zone " + seen;
-        return null;
+        return chain.toString();
     }
 }

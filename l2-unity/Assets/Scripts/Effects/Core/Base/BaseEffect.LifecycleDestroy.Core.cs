@@ -6,6 +6,13 @@ public abstract partial class BaseEffect
 {
     public void DestoryEffect(EffectSettings settings, MagicCastData castData = null)
     {
+        if (settings == null)
+        {
+            Debug.LogError("[BaseEffect] DestoryEffect on '" + name
+                + "' called with null EffectSettings; the effect was played without Setup or BindLifetimeToHost");
+            return;
+        }
+
         float fadeOutTime = Mathf.Max(0, settings.defaultLifeTime - settings.hideTime);
         _scheduledLifeTime = settings.defaultLifeTime;
         _scheduledDestroyAt = Time.time + _scheduledLifeTime;

@@ -31,10 +31,30 @@ public static class L2InterludeMaterialBinder
     }
 
     /// <param name="exportRoots">umodel export dirs; null = all .work/umodel-export-*</param>
-    public static void Bind(IEnumerable<string> exportRoots, List<string> log)
+    /// <param name="tileScope">when set, only materials of packages this tile
+    /// references (its t3d/StaticMeshActor mesh packages + Brushes.json texture
+    /// packages) are bound, and collider/water post-steps touch only this tile.
+    /// A tile bake must not load other tiles' prefabs: a stale committed prefab
+    /// with dead PPtr guids would fail this tile's bake, and other tiles' real
+    /// material gaps would surface as this tile's errors.</param>
+    public static void Bind(IEnumerable<string> exportRoots, List<string> log, string tileScope = null)
     {
         var roots = (exportRoots ?? Directory.GetDirectories(Path.Combine(RepoRoot, ".work"), "umodel-export-*"))
             .Where(Directory.Exists).ToList();
+
+        HashSet<string> scope = null;
+        if (!string.IsNullOrEmpty(tileScope))
+        {
+            scope = LoadTileScopePackages(tileScope);
+            if (scope == null)
+            {
+                Debug.LogError("[MatBinder] tile scope for " + tileScope + " has no Meta sources " +
+                               "(t3d / StaticMeshActor.json / Brushes.json); bind nothing");
+                log.Add("ERROR: tile scope load failed for " + tileScope);
+                return;
+            }
+            log.Add("tile scope " + tileScope + ": " + scope.Count + " packages");
+        }
 
         int copied = CopyTextures(roots);
         log.Add("textures copied into Assets: " + copied);
@@ -64,6 +84,7 @@ public static class L2InterludeMaterialBinder
             foreach (var g in AssetDatabase.FindAssets("t:Material", new[] { MeshRoot, TexRoot }))
             {
                 string mp = AssetDatabase.GUIDToAssetPath(g);
+                if (scope != null && !InTileScope(mp, scope)) continue;
                 var m = AssetDatabase.LoadAssetAtPath<Material>(mp);
                 if (m == null) continue;
                 bool hasBase = m.HasProperty("_BaseMap") && m.GetTexture("_BaseMap") != null;
@@ -127,8 +148,39 @@ public static class L2InterludeMaterialBinder
         log.Add("translucent (water) materials fixed: " + FixTranslucent(props));
         log.Add("SpeedTree->Lit opaque shader mats fixed: " + FixSpeedTreeOpaque(props));
         log.Add("collision-only shader mats: " + FixCollisionOnlyFromProps(props));
-        log.Add(L2InterludeStaticMeshColliders.Run(null));
-        log.Add(L2InterludeWaterVolumes.Run(null));
+        IEnumerable<string> postTiles = scope != null ? new[] { tileScope } : null;
+        log.Add(L2InterludeStaticMeshColliders.Run(postTiles));
+        log.Add(L2InterludeWaterVolumes.Run(postTiles));
+    }
+
+    static bool InTileScope(string assetPath, HashSet<string> scope)
+    {
+        // Assets/Resources/Data/{StaticMeshes,Textures}/<package>/...
+        string[] seg = assetPath.Split('/');
+        return seg.Length > 5 && scope.Contains(seg[4]);
+    }
+
+    static readonly Regex T3dMeshRe = new Regex(@"StaticMesh=StaticMesh'([A-Za-z0-9_]+)\.", RegexOptions.Compiled);
+    static readonly Regex JsonRefRe = new Regex(@"""(?:texture|staticMesh)""\s*:\s*""([A-Za-z0-9_]+)\.", RegexOptions.Compiled);
+
+    static HashSet<string> LoadTileScopePackages(string tile)
+    {
+        string meta = Path.Combine("Assets", "Resources", "Data", "Maps", tile, "Meta");
+        var scope = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        bool anySource = false;
+        foreach (string file in Directory.Exists(meta) ? Directory.GetFiles(meta) : new string[0])
+        {
+            string name = Path.GetFileName(file);
+            bool t3d = name.EndsWith(".t3d", StringComparison.OrdinalIgnoreCase);
+            bool json = name.Equals("Brushes.json", StringComparison.OrdinalIgnoreCase) ||
+                        name.Equals("StaticMeshActor.json", StringComparison.OrdinalIgnoreCase);
+            if (!t3d && !json) continue;
+            anySource = true;
+            string text = File.ReadAllText(file);
+            foreach (Match m in (t3d ? T3dMeshRe : JsonRefRe).Matches(text))
+                scope.Add(m.Groups[1].Value);
+        }
+        return anySource && scope.Count > 0 ? scope : null;
     }
 
     [MenuItem("Shnok/0.2. [Interlude] Fix water / translucent StaticMesh materials")]

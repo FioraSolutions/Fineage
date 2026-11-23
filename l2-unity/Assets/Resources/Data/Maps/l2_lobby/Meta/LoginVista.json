@@ -1,0 +1,54 @@
+{
+  "cameraActor": "InterpolationPoint5",
+  "cameraReason": "SceneManager0 Tag=Logon_Warp Actions has array_size but no object_array. InterpolationPoint5 is the only InterpolationPoint whose horizontal forward aims at StaticMeshActor73 lobby_back within 3 deg (error 1.98 deg, distance 1474 UU). Camera25 Tag=U2Viewport2 is the UnrealEd viewport and is not a candidate.",
+  "actionsObjectArray": false,
+  "zoneActor": "ZoneInfo0",
+  "horizontalFov": 50.0,
+  "fovSource": "Engine.u/PlayerController.uc defaultproperties FovAngle=50. Camera.uc does not override it. UE FovAngle is horizontal; Unity Camera.fieldOfView is the vertical conversion at the view aspect. Camera25 stores FovAngle=50 in l2_lobby.t3d but its Tag is U2Viewport2.",
+  "location": {
+    "x": -8316.73828,
+    "y": 238312.094,
+    "z": -6687.98975
+  },
+  "rotationUu": {
+    "pitch": 65508,
+    "yaw": 98304,
+    "roll": 0
+  },
+  "fog": {
+    "r": 210,
+    "g": 208,
+    "b": 196,
+    "startUu": 500.0,
+    "endUu": 10000.0
+  },
+  "sun": {
+    "name": "NMovableSunLight0",
+    "pitch": -8846,
+    "yaw": 25324,
+    "roll": 0,
+    "brightness": 70.0,
+    "hue": 0,
+    "saturation": 255
+  },
+  "ambient": {
+    "r": 0.0456994809,
+    "g": 0.0456994809,
+    "b": 0.0456994809,
+    "brightness": 1.0
+  },
+  "terrain": {
+    "location": {
+      "x": -16384.0,
+      "y": 245760.0,
+      "z": 160.651276
+    },
+    "scale": {
+      "x": 64.0,
+      "y": 64.0,
+      "z": 128.0
+    },
+    "sectors": 256,
+    "drawScaleIgnored": 10.0
+  }
+}
