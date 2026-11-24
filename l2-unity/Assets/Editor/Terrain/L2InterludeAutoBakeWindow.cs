@@ -17,7 +17,7 @@ using Debug = UnityEngine.Debug;
 ///   1. Phase A (shell)  : tools/interlude/run_mac_tile_bake.sh phase-a  -> Maps/XX_YY/Meta/*.t3d + .work/interlude-extract
 ///   2. Meshes (shell)   : run_mac_tile_bake.sh meshes  (umodel via Docker + Blender psk->fbx) -> .work/umodel-export-XX_YY
 ///   3. Unity pipeline   : L2InterludeTileBakePipeline.DefaultSteps (+materials once) with that export root
-///   4. Scene            : L2InterludeTileSceneCli.BuildScene -> Assets/Resources/Scenes/XX_YY.unity + Build Settings
+///   4. Prefab           : L2InterludeTileSceneCli.BuildScene verifies Resources/Data/Maps/XX_YY/XX_YY.prefab
 ///   5. Diagnostics      : t3d StaticMeshActor count vs StaticMeshes.prefab, per-package FBX coverage, alphamap sanity.
 /// Big generated assets stay local (no LFS); nothing is committed by this tool.
 /// </summary>
@@ -72,7 +72,7 @@ public class L2InterludeAutoBakeWindow : EditorWindow
         runMeshes = EditorGUILayout.Toggle("2. Meshes (umodel+Blender)", runMeshes);
         forceShell = EditorGUILayout.Toggle("   force shell steps", forceShell);
         runUnity = EditorGUILayout.Toggle("3. Unity bake steps", runUnity);
-        runScene = EditorGUILayout.Toggle("4. Build tile scene", runScene);
+        runScene = EditorGUILayout.Toggle("4. Verify tile prefab", runScene);
 
         using (new EditorGUI.DisabledScope(Application.isBatchMode))
         {
@@ -176,7 +176,7 @@ public class L2InterludeAutoBakeWindow : EditorWindow
         if (runScene && ok)
         {
             bool s = L2InterludeTileSceneCli.BuildScene(tile);
-            Log(tile + ": scene " + (s ? "OK" : "FAIL"));
+            Log(tile + ": prefab " + (s ? "OK" : "FAIL"));
         }
         Log(Diagnose(tile));
         return withMaterials && runUnity;
