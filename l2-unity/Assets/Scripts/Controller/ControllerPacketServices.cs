@@ -164,6 +164,7 @@ public sealed partial class PlayerController
     [Inject] ClickManager _packetClicks;
     [Inject] L2PawnYaw _pawnYaw;
     [Inject] IWorldPlacement _placement;
+    [Inject] ISpawnedEntities _spawned;
 
     IWorldPlacement Placement
     {
@@ -176,6 +177,20 @@ public sealed partial class PlayerController
             }
 
             return _placement;
+        }
+    }
+
+    ISpawnedEntities Spawned
+    {
+        get
+        {
+            if (_spawned == null)
+            {
+                throw new InvalidOperationException(
+                    "[PlayerController] ISpawnedEntities missing — GameLifetimeScope did not register SpawnedEntityCatalog, so the pawn target was not found.");
+            }
+
+            return _spawned;
         }
     }
 

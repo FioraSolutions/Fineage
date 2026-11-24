@@ -151,6 +151,41 @@ public static class L2InterludeMaterialBinder
         IEnumerable<string> postTiles = scope != null ? new[] { tileScope } : null;
         log.Add(L2InterludeStaticMeshColliders.Run(postTiles));
         log.Add(L2InterludeWaterVolumes.Run(postTiles));
+        log.Add("two-sided cull from original props: " + ApplySharedTwoSided(props, scope));
+    }
+
+    /// <summary>
+    /// Textured materials used to skip the binder, so TwoSided stayed at the importer's Cull Back.
+    /// Every material with props takes the shared cull rule, on every map.
+    /// </summary>
+    /// <param name="scope">when set, only this tile's material packages are touched, matching
+    /// the collider and water post-steps; null = every map.</param>
+    static int ApplySharedTwoSided(Dictionary<string, string> props, HashSet<string> scope)
+    {
+        int n = 0;
+        foreach (string g in AssetDatabase.FindAssets("t:Material", new[] { MeshRoot, TexRoot }))
+        {
+            string mp = AssetDatabase.GUIDToAssetPath(g);
+            Material m = AssetDatabase.LoadAssetAtPath<Material>(mp);
+            if (m == null || !props.ContainsKey(m.name))
+                continue;
+            if (scope != null && !InTileScope(mp, scope))
+                continue;
+            L2Ue2ShaderProps.PropsInfo info = L2Ue2ShaderProps.Analyze(m.name, props);
+            if (!string.IsNullOrEmpty(info.detail) && info.detail.StartsWith("missing props", StringComparison.Ordinal))
+                continue;
+            float have = m.HasProperty("_Cull") ? m.GetFloat("_Cull") : -1f;
+            float want = L2TwoSidedMaterials.CullFor(info.twoSided);
+            if (Mathf.Abs(have - want) < 0.01f && m.doubleSidedGI == info.twoSided)
+                continue;
+            if (!L2TwoSidedMaterials.Apply(m, info.twoSided, m.name))
+                continue;
+            EditorUtility.SetDirty(m);
+            n++;
+        }
+        if (n > 0)
+            AssetDatabase.SaveAssets();
+        return n;
     }
 
     static bool InTileScope(string assetPath, HashSet<string> scope)

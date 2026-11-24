@@ -86,6 +86,7 @@ public partial class SceneLoader
             GameObject go = UnityEngine.Object.Instantiate(prefab, root.transform);
             go.name = prefab.name;
             go.transform.SetPositionAndRotation(prefab.transform.position, prefab.transform.rotation);
+            L2TwoSidedMaterials.BindHierarchy(go, logIfPropsMissing: false, "map tile " + tile);
             placed++;
         }
 
