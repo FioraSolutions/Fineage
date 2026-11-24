@@ -46,22 +46,24 @@ public static class OfficialWorldEmitterTable
                 ? null
                 : "Data/Effects/world/" + prefabClass + "/" + prefabClass;
 
-        public Vector3 UnityPosition => VectorUtils.ConvertPosToUnity(location);
+        public L2Ue2ActorXform.Pose UnityPose =>
+            L2Ue2ActorXform.Evaluate(
+                location,
+                rotation,
+                Vector3.zero,
+                drawScale,
+                drawScale3D,
+                hasDrawScale3D,
+                0f,
+                Quaternion.identity,
+                Vector3.one,
+                (map ?? "") + ":" + (name ?? ""));
 
-        public Quaternion UnityRotation =>
-            Quaternion.Euler(VectorUtils.ConvertRotToUnity(rotation));
+        public Vector3 UnityPosition => UnityPose.position;
 
-        public Vector3 UnityScale
-        {
-            get
-            {
-                float s = drawScale != 0f ? drawScale : 1f;
-                if (!hasDrawScale3D)
-                    return Vector3.one * s;
-                // UE actor-local X/Y/Z == Unity Z/X/Y (same swap as positions).
-                return new Vector3(drawScale3D.y, drawScale3D.z, drawScale3D.x) * s;
-            }
-        }
+        public Quaternion UnityRotation => UnityPose.rotation;
+
+        public Vector3 UnityScale => UnityPose.localScale;
     }
 
     public static Func<byte[]> BytesOverride;
@@ -156,11 +158,25 @@ public static class OfficialWorldEmitterTable
                 dest.AddRange(list);
         }
 
-        if (!string.IsNullOrEmpty(sceneName) && ByMap.TryGetValue(sceneName, out List<Emitter> env))
-        {
-            for (int i = 0; i < env.Count; i++)
-                dest.Add(env[i]);
-        }
+        AddMap(sceneName, dest);
+    }
+
+    public static void CollectNearby(int tileX, int tileY, string sceneName, string extraMap, List<Emitter> dest)
+    {
+        CollectNearby(tileX, tileY, sceneName, dest);
+        if (string.IsNullOrEmpty(extraMap) || extraMap == sceneName)
+            return;
+        AddMap(extraMap, dest);
+    }
+
+    static void AddMap(string map, List<Emitter> dest)
+    {
+        if (string.IsNullOrEmpty(map) || dest == null)
+            return;
+        if (!ByMap.TryGetValue(map, out List<Emitter> env))
+            return;
+        for (int i = 0; i < env.Count; i++)
+            dest.Add(env[i]);
     }
 
     static void EnsureLoaded()

@@ -24,6 +24,12 @@ public sealed class OfficialWorldEmitterPlayback : MonoBehaviour
         public float Volume;
         public string Reason;
     }
+    /// <summary>
+    /// Env package (Lobby) whose emitters sit in this scene even when the
+    /// active scene is not named after the package. Null on world tiles.
+    /// </summary>
+    public static string ActiveEnvMap;
+
     Transform _root;
     float _nextPoll;
     int _lastTileX = int.MinValue;
@@ -76,7 +82,12 @@ public sealed class OfficialWorldEmitterPlayback : MonoBehaviour
         _lastTileY = tileY;
         _lastScene = scene;
 
-        OfficialWorldEmitterTable.CollectNearby(tileX, tileY, scene, _nearby);
+        OfficialWorldEmitterTable.CollectNearby(tileX, tileY, scene, ActiveEnvMap, _nearby);
+        if (!string.IsNullOrEmpty(ActiveEnvMap) && OfficialWorldEmitterTable.ForMap(ActiveEnvMap).Count == 0)
+        {
+            LogOnce("env:" + ActiveEnvMap, "OfficialWorldEmitterPlayback: env map '" + ActiveEnvMap
+                + "' has no official emitter rows");
+        }
         var wanted = new HashSet<string>();
         for (int i = 0; i < _nearby.Count; i++)
         {
@@ -136,7 +147,10 @@ public sealed class OfficialWorldEmitterPlayback : MonoBehaviour
 
         L2Particle particle = instance.GetComponent<L2Particle>();
         if (particle != null)
+        {
+            particle.BindLifetimeToHost();
             particle.Play();
+        }
 
         AttachSpawnSounds(instance, entry);
         _alive[entry.Id] = new Instance { Object = instance, Particle = particle };

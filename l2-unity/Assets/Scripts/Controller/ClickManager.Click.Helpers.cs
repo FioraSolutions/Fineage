@@ -8,7 +8,7 @@ public partial class ClickManager : MonoBehaviour, IClickMasks
     void Update()
     {
         Camera cam = ResolvePickCamera();
-        if (cam == null)
+        if (!EntityPick.IsWorldView(cam))
         {
             _hoverObjectData = null;
             return;
@@ -58,7 +58,8 @@ public partial class ClickManager : MonoBehaviour, IClickMasks
             return;
         }
 
-        if (EntityPick.TryPickMove(ray, MousePickDistance, _clickThroughMask, out hit))
+        if (EntityPick.TryPickMove(ray, MousePickDistance, _clickThroughMask, out hit)
+            && !EntityPick.IsLobbyPresentation(hit.collider))
         {
             _hoverObjectData = new ObjectData(hit.collider.gameObject);
             if (GameInput != null &&

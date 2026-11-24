@@ -52,12 +52,11 @@ public sealed partial class NetSession
             MaxHp = maxHp,
             MaxMp = 0,
             MaxCp = 0,
-            Karma = spawn.Karma,
-            BaseRunSpeed = Mathf.RoundToInt(spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f),
-            BaseWalkingSpeed = Mathf.RoundToInt(spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f),
-            RunRealSpeed = spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f,
-            WalkRealSpeed = spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f
+            Karma = spawn.Karma
         };
+        // First sight of this pawn: the packet speed is the template. A missing
+        // speed stays 0 (logged above) instead of a silent 120.
+        PawnMoveSpeed.Apply(stats, spawn.RunSpeed, spawn.WalkSpeed, templateChanged: true);
 
         var appearance = new PlayerAppearance
         {
@@ -120,12 +119,7 @@ public sealed partial class NetSession
             ? (int)BaseClass.MMagic
             : (int)BaseClass.Fighter;
         dto.Appearance.Running = spawn.Running;
-        float run = spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f;
-        float walk = spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f;
-        dto.Stats.BaseRunSpeed = Mathf.RoundToInt(run);
-        dto.Stats.BaseWalkingSpeed = Mathf.RoundToInt(walk);
-        dto.Stats.RunRealSpeed = run;
-        dto.Stats.WalkRealSpeed = walk;
+        PawnMoveSpeed.Apply(dto.Stats, spawn.RunSpeed, spawn.WalkSpeed, templateChanged: true);
         dto.Stats.Level = spawn.Level > 0 ? spawn.Level : 1;
         int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         if (spawn.MaxHp <= 0)

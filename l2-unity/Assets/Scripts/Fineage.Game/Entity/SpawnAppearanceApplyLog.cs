@@ -14,7 +14,8 @@ public static class SpawnAppearanceApplyLog
         FineageLog.Error(
             FineageLogCategory.Net,
             "EntitySpawn: missing run/walk speed for objectId=" + entityId +
-            " (run=" + runSpeed + " walk=" + walkSpeed + "); using 120/80 defaults");
+            " (run=" + runSpeed + " walk=" + walkSpeed +
+            "); template speed left unset, locomotion playback stays 0 until a speed packet");
     }
 
     public static void LogRaceDerivedFromClass(int entityId, int spawnRace, int classId)

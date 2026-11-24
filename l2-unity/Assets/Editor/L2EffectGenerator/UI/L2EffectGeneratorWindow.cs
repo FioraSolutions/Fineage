@@ -679,12 +679,15 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
     /// World map emitters: one official definition → one L2Particle under
     /// Resources/Data/Effects/world. No skill id, no composite.
     /// Unity.exe -batchmode -nographics -quit -executeMethod L2EffectGeneratorWindow.GenerateWorldMapEmittersCli
-    /// Optional: -worldEmitterName we_&lt;hash&gt; to build one class; otherwise every subfolder.
+    /// Optional: -worldEmitterName we_&lt;hash&gt; to build one class;
+    /// -worldEmitterMap &lt;map&gt; to build only the classes that map's official
+    /// rows reference; otherwise every subfolder (whole world).
     /// </summary>
     public static void GenerateWorldMapEmittersCli()
     {
         const string worldRoot = "Assets/Resources/Data/Effects/world";
         string only = ReadNamedArg("-worldEmitterName");
+        string map = ReadNamedArg("-worldEmitterMap");
         AssetDatabase.Refresh();
         if (!AssetDatabase.IsValidFolder(worldRoot))
         {
@@ -703,6 +706,41 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
                 return;
             }
             Debug.Log("[L2EffectGenerator][world] generated " + only);
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(map))
+        {
+            OfficialWorldEmitterTable.ClearForTests();
+            OfficialWorldEmitterTable.Load();
+            IReadOnlyList<OfficialWorldEmitterTable.Emitter> rows = OfficialWorldEmitterTable.ForMap(map);
+            if (rows == null || rows.Count == 0)
+            {
+                Debug.LogError("[L2EffectGenerator][world] map '" + map + "' has no official world emitter rows");
+                EditorApplication.Exit(1);
+                return;
+            }
+            var classes = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (OfficialWorldEmitterTable.Emitter row in rows)
+                if (!string.IsNullOrEmpty(row.prefabClass))
+                    classes.Add(row.prefabClass);
+            foreach (string name in classes)
+            {
+                if (!AssetDatabase.IsValidFolder(worldRoot + "/" + name))
+                {
+                    Debug.LogError("[L2EffectGenerator][world] map " + map + " references class " + name +
+                                   " but " + worldRoot + "/" + name + " is missing");
+                    fail++;
+                    continue;
+                }
+                if (!GenerateDeco(worldRoot + "/" + name, name))
+                    fail++;
+                else
+                    ok++;
+            }
+            Debug.Log("[L2EffectGenerator][world] GenerateWorldMapEmittersCli map=" + map +
+                      " rows=" + rows.Count + " classes=" + classes.Count + " ok=" + ok + " fail=" + fail);
+            EditorApplication.Exit(fail == 0 ? 0 : 1);
             return;
         }
 

@@ -14,6 +14,47 @@ public sealed class LocomotionGaitEditModeTests
     }
 
     [Test]
+    public void Dash_keeps_the_template_base_so_playback_rate_doubles()
+    {
+        var stats = new PlayerStats { BaseRunSpeed = 120, BaseWalkingSpeed = 80, RunRealSpeed = 120f };
+        PawnMoveSpeed.Apply(stats, 240f, 80f, templateChanged: false);
+        Assert.AreEqual(120, stats.BaseRunSpeed);
+        Assert.AreEqual(240f, stats.RunRealSpeed, 0.001f);
+
+        float unbuffed = LocomotionGait.PlaybackRateForSequence(
+            1.2f, 1.2f, 1f, 1f, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
+        float buffed = LocomotionGait.PlaybackRateForSequence(
+            stats.RunRealSpeed / 120f * 1.2f, stats.BaseRunSpeed / 120f * 1.2f,
+            1f, 1f, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
+        Assert.AreEqual(unbuffed * 2f, buffed, 0.001f);
+    }
+
+    [Test]
+    public void Removing_the_buff_restores_the_unbuffed_playback_rate()
+    {
+        var stats = new PlayerStats { BaseRunSpeed = 120, RunRealSpeed = 240f };
+        PawnMoveSpeed.Apply(stats, 120f, 80f, templateChanged: false);
+        Assert.AreEqual(120, stats.BaseRunSpeed);
+        Assert.AreEqual(120f, stats.RunRealSpeed, 0.001f);
+        Assert.AreEqual(
+            1f,
+            LocomotionGait.PlaybackRateForSequence(
+                stats.RunRealSpeed, stats.BaseRunSpeed, 1f, 1f,
+                LocomotionGait.MinRunRate, LocomotionGait.MaxRate),
+            0.001f);
+    }
+
+    [Test]
+    public void Class_change_records_the_new_template_speed()
+    {
+        var stats = new PlayerStats { BaseRunSpeed = 120, RunRealSpeed = 240f };
+        PawnMoveSpeed.Apply(stats, 130f, 85f, templateChanged: true);
+        Assert.AreEqual(130, stats.BaseRunSpeed);
+        Assert.AreEqual(85, stats.BaseWalkingSpeed);
+        Assert.AreEqual(130f, stats.RunRealSpeed, 0.001f);
+    }
+
+    [Test]
     public void Playback_rate_is_speed_times_length_over_stride()
     {
         float rate = LocomotionGait.PlaybackRate(2.268f, 0.67f, 2.70f, 0.2f, 4f);

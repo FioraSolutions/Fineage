@@ -138,42 +138,52 @@ def load_map(tile: str) -> dict:
 
 
 def import_index(doc: dict) -> dict:
-    out = {}
+    """Name lookup plus the package_index table full_name walks.
+
+    ``(class, object_name)`` is stored only as a starting point. Parent packages
+    are not looked up by name: two Package imports can share object_name.
+    """
+    from lobby_mesh_resolve import AMBIGUOUS, BY_UE, by_ue_index
+
+    out: dict = {BY_UE: by_ue_index(doc), AMBIGUOUS: set()}
+    seen: dict[tuple, dict] = {}
     for im in doc.get("imports") or []:
+        key = (im.get("class_name"), im.get("object_name"))
+        if key in seen:
+            out[AMBIGUOUS].add(key)
+        seen[key] = im
         out[im["object_name"]] = im
-        out[(im.get("class_name"), im["object_name"])] = im
+        out[key] = im
     return out
 
 
-def package_of(im: dict | None) -> str | None:
-    if not im:
-        return None
-    pkg = im.get("package") or ""
-    if ":Package:" in pkg:
-        return pkg.split(":Package:")[-1]
-    return None
-
-
 def full_name(imps: dict, ref: str | None, expect_cls: str) -> str | None:
+    """Dotted object path. The parent chain is package_index, not the package name."""
     if not ref or ref == "none":
         return None
+    from lobby_mesh_resolve import AMBIGUOUS, BY_UE, ResolveError, object_path
+
     name = ref.split(":")[-1]
-    im = imps.get((expect_cls, name)) or imps.get(name)
-    if not im:
+    key = (expect_cls, name)
+    if key in imps.get(AMBIGUOUS, ()):
+        raise SystemExit(
+            f"ERROR {expect_cls} {name}: more than one import has this class and name; "
+            "the package comes from package_index, and the name alone is ambiguous"
+        )
+    im = imps.get(key)
+    if not isinstance(im, dict) or "package_index" not in im:
+        im = imps.get(name)
+    if not isinstance(im, dict) or "package_index" not in im:
         return name
-    parts = [name]
-    cur = im
-    seen = set()
-    for _ in range(6):
-        pkg = package_of(cur)
-        if not pkg or pkg in seen:
-            break
-        seen.add(pkg)
-        parts.insert(0, pkg)
-        cur = imps.get(("Package", pkg)) or imps.get(pkg)
-        if not cur:
-            break
-    return ".".join(parts)
+    table = imps.get(BY_UE)
+    if not isinstance(table, dict):
+        raise SystemExit(
+            f"ERROR {expect_cls} {name}: import table has no package_index index"
+        )
+    try:
+        return object_path(im, table)
+    except ResolveError as exc:
+        raise SystemExit(f"ERROR {exc}") from exc
 
 
 def field(layer: list, name: str) -> dict | None:

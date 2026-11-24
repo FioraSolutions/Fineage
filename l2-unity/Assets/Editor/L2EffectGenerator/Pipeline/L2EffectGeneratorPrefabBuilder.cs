@@ -286,7 +286,11 @@ public static class L2EffectGeneratorPrefabBuilder
 
                 EffectPart effectPart = ConfigureEmitterPart(
                     owner, emitterObject, emitter, planned.UseCastWindow, planned.IsProjectile);
-                Mesh slotMesh = ResolveSlotMesh(emitter);
+                if (!TryResolveSlotMesh(emitter, out Mesh slotMesh, out string slotMeshError))
+                {
+                    errorMessage = planned.Label + ": " + slotMeshError;
+                    return false;
+                }
                 Material[] emitterMaterials = EnsureEmitterMaterials(
                     planned.AssetPath,
                     planned.ClassName,
@@ -1021,29 +1025,53 @@ public static class L2EffectGeneratorPrefabBuilder
 
     private static Mesh ResolveSlotMesh(UcEmitterDefinition emitter)
     {
+        if (!TryResolveSlotMesh(emitter, out Mesh mesh, out string error))
+        {
+            Debug.LogError("L2 Effect Generator: " + error);
+        }
+
+        return mesh;
+    }
+
+    // A MeshEmitter without its static mesh must fail loudly: substituting the
+    // builtin Quad silently would leave a geometry hole (READ FIRST rule).
+    // Sprite emitters legitimately render quads, so the default quad is only
+    // produced for them.
+    private static bool TryResolveSlotMesh(UcEmitterDefinition emitter, out Mesh mesh, out string error)
+    {
+        error = null;
         if (emitter != null &&
             string.Equals(emitter.ClassName, "BeamEmitter", StringComparison.OrdinalIgnoreCase))
         {
-            return EnsureBeamStripMesh(emitter.HighFrequencyPoints);
+            mesh = EnsureBeamStripMesh(emitter.HighFrequencyPoints);
+            return mesh != null;
         }
 
         if (emitter != null &&
-            L2EffectGeneratorMaterialConfigurator.IsMeshEmitter(emitter.ClassName) &&
-            !string.IsNullOrWhiteSpace(emitter.StaticMeshReference))
+            L2EffectGeneratorMaterialConfigurator.IsMeshEmitter(emitter.ClassName))
         {
-            Mesh staticMesh = TryResolveStaticMesh(emitter.StaticMeshReference);
-            if (staticMesh != null)
+            if (string.IsNullOrWhiteSpace(emitter.StaticMeshReference))
             {
-                return staticMesh;
+                mesh = null;
+                error = "mesh emitter " + emitter.EmitterName + " (" + emitter.ClassName +
+                        ") has no StaticMesh reference; Quad is not substituted";
+                return false;
             }
 
-            Debug.LogWarning(
-                "L2 Effect Generator: mesh missing for " + emitter.EmitterName +
-                " (" + emitter.ClassName + ") ref=" + emitter.StaticMeshReference +
-                " — slot would fall back to Quad and leave a geometry hole.");
+            mesh = TryResolveStaticMesh(emitter.StaticMeshReference);
+            if (mesh == null)
+            {
+                error = "mesh missing for MeshEmitter " + emitter.EmitterName +
+                        " (" + emitter.ClassName + ") ref=" + emitter.StaticMeshReference +
+                        " — extract the static-mesh package; Quad is not substituted";
+                return false;
+            }
+
+            return true;
         }
 
-        return GetDefaultSlotMesh();
+        mesh = GetDefaultSlotMesh();
+        return true;
     }
 
     private static Mesh EnsureBeamStripMesh(int highFrequencyPoints)

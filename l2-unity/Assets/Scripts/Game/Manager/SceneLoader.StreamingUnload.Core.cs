@@ -9,45 +9,50 @@ public partial class SceneLoader
 {
     private static bool CanLoadTile(string tile)
     {
-        if (Application.CanStreamedLevelBeLoaded(tile))
-            return true;
-        return TileStreamingManifest.Contains(tile);
+        return MapTileLoadPolicy.ShouldAttempt(
+            tile,
+            Application.CanStreamedLevelBeLoaded(tile),
+            TileStreamingManifest.Contains(tile));
     }
 
     private IEnumerator LoadSceneAdditiveIfNeeded(string sceneName)
     {
+        _lastTilePresent = false;
+
+        // Map tiles have one source: Resources/Data/Maps/{id}. There is no XX_YY scene.
+        if (MapTileLoadPolicy.IsMapTileName(sceneName))
+        {
+            if (!_prefabTiles.ContainsKey(sceneName))
+                yield return InstantiateMapTilePrefabsAsync(sceneName);
+            _lastTilePresent = _prefabTiles.ContainsKey(sceneName);
+            yield break;
+        }
+
         Scene existing = SceneManager.GetSceneByName(sceneName);
         if (existing.IsValid() && existing.isLoaded)
         {
-            // Debug.Log("Skipping scene load " + sceneName);
+            SetSceneRootsActive(sceneName, true);
+            _lastTilePresent = true;
             yield break;
         }
 
-        if (_prefabTiles.ContainsKey(sceneName))
+        if (!Application.CanStreamedLevelBeLoaded(sceneName))
             yield break;
 
-        if (Application.CanStreamedLevelBeLoaded(sceneName))
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+        if (asyncLoad == null)
         {
-            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-            if (asyncLoad == null)
-                yield break;
-
-            while (!asyncLoad.isDone)
-                yield return null;
-            yield break;
+            _worldStreaming = false;
+            _streamingBusy = false;
+            throw new MapTileMissingException(
+                sceneName,
+                "Assets/Resources/Scenes/" + sceneName + ".unity",
+                MapTileLoadPolicy.Catalog);
         }
 
-        // Orc Immortal Plateau (18_14), DE (20_18), Dwarf (23_12) ship as map prefabs but
-        // often lack Build Settings scenes — without this fallback the world is a white void.
-        if (IsMapTileName(sceneName))
-            yield return InstantiateMapTilePrefabsAsync(sceneName);
-    }
-
-    static bool IsMapTileName(string name)
-    {
-        if (string.IsNullOrEmpty(name) || name.Length != 5 || name[2] != '_')
-            return false;
-        return char.IsDigit(name[0]) && char.IsDigit(name[1])
-            && char.IsDigit(name[3]) && char.IsDigit(name[4]);
+        while (!asyncLoad.isDone)
+            yield return null;
+        SetSceneRootsActive(sceneName, true);
+        _lastTilePresent = true;
     }
 }
