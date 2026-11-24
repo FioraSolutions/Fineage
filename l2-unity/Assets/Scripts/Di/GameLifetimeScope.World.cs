@@ -63,7 +63,17 @@ public sealed partial class GameLifetimeScope
         RegisterLiveMono<CharacterBuilder>(builder);
         RegisterPlayerRebirth(builder);
         RegisterLocalPlayer(builder);
+        RegisterPlayerIntention(builder);
         RegisterWorldPlacement(builder);
+    }
+
+    /// <summary>
+    /// Register <see cref="PlayerIntentionSlot"/> as <see cref="IPlayerIntention"/> (#131 S41b).
+    /// The live <see cref="PlayerStateMachine"/> is bound after the pawn spawns.
+    /// </summary>
+    void RegisterPlayerIntention(IContainerBuilder builder)
+    {
+        builder.Register<PlayerIntentionSlot>(Lifetime.Singleton).As<IPlayerIntention>();
     }
 
     /// <summary>
@@ -72,6 +82,32 @@ public sealed partial class GameLifetimeScope
     void RegisterWorldPlacement(IContainerBuilder builder)
     {
         builder.Register<WorldPlacementAdapter>(Lifetime.Singleton).As<IWorldPlacement>();
+    }
+
+    static void RequirePlayerIntention(IObjectResolver container)
+    {
+        IPlayerIntention intention;
+        try
+        {
+            intention = container.Resolve<IPlayerIntention>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IPlayerIntention))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] IPlayerIntention missing — PlayerIntentionSlot was not registered as IPlayerIntention.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (intention is PlayerIntentionSlot)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] IPlayerIntention is not a PlayerIntentionSlot — PlayerIntentionSlot was not registered as IPlayerIntention.");
     }
 
     static void RequireWorldPlacement(IObjectResolver container)
