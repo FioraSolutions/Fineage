@@ -104,6 +104,7 @@ public sealed partial class GameLifetimeScope
             RequireLocalPlayer(container);
             RequirePlayerPawn(container);
             RequirePlayerIntention(container);
+            RequireWorldPlacement(container);
             App.GameContainer = container;
             try
             {

@@ -27,9 +27,18 @@ public partial class L2BrushBuilder
         var uvs = new List<Vector2>();
         int polyN = 0, skippedBrush = 0, carved = 0, subtractSkipped = 0;
         var portals = L2BspCsgCarver.CollectPortalCaps(brushes);
-        var subtracts = L2BspCsgCarver.CollectSubtractVolumes(brushes);
-        foreach (L2BspBrush b in brushes) {
-            if (!L2BspCsgCarver.BrushUsable(b)) { skippedBrush++; continue; }
+        // UE2 CSG order: a subtract cuts additive brushes that precede it, not ones added later.
+        int brushCount = brushes != null ? brushes.Count : 0;
+        for (int bi = 0; bi < brushCount; bi++) {
+            L2BspBrush b = brushes[bi];
+            string skip = L2BspCsgCarver.UnusableReason(b);
+            if (skip != null) {
+                skippedBrush++;
+                if (skip != "brush flags not rendered")
+                    Debug.LogError("[Brushes] skipped brush " + (b != null ? b.name : "null") + ": " + skip
+                        + " (tile " + tileAssetFolder + ")");
+                continue;
+            }
             if (string.Equals(b.csgOper, L2BspCsgCarver.CsgSubtract, StringComparison.Ordinal)) {
                 subtractSkipped++;
                 continue;
@@ -40,6 +49,9 @@ public partial class L2BrushBuilder
                 continue;
             }
             Vector3 basePos = b.position - b.prePivot;
+            var subtracts = new List<L2BspAabb>();
+            for (int later = bi + 1; later < brushCount; later++)
+                L2BspCsgCarver.AccumulateSubtract(brushes[later], subtracts);
             foreach (L2BspPoly pd in b.polygons) {
                 if (pd.vertices == null || pd.vertices.Length < 3) continue;
                 if (!L2BspPolyFlags.ShouldRenderPolygon(pd.polyFlags, pd.texture)) continue;

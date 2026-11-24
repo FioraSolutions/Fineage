@@ -312,7 +312,16 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
             mat.SetFloat("_ActorAlpha", 1f);
         }
 
-        mat.SetFloat("_Cull", 0f);
+        if (!L2TwoSidedMaterials.TryGetProps(texStem, out _))
+        {
+            Debug.LogError("[TwoSided] weapon material " + texStem
+                + " props missing; original TwoSided flag unknown (LineageWeapons material build)");
+        }
+        else
+        {
+            L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.Evaluate(texStem, L2TwoSidedMaterials.Props);
+            L2TwoSidedMaterials.Apply(mat, eval.TwoSided, texStem);
+        }
 
         // A weapon PNG stores the coverage mask in alpha: 255 on the island, 0 on the
         // black padding, and the mesh UVs of the padding triangles sit outside every
@@ -417,7 +426,6 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
     {
         mat.SetFloat("_AlphaClip", 1f);
         mat.SetFloat("_Cutoff", 160f / 255f);
-        mat.SetFloat("_Cull", 0f);
         mat.SetFloat("_ZWrite", 1f);
         mat.EnableKeyword("_ALPHATEST_ON");
         mat.SetOverrideTag("RenderType", "TransparentCutout");

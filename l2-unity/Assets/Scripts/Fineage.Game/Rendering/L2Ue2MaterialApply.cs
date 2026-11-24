@@ -65,7 +65,7 @@ public static class L2Ue2MaterialApply
             if (!eval.HasAlphaRef)
                 Debug.LogError("[Ue2Material] material " + eval.MaterialName + " op Shader property AlphaRef missing");
         }
-        SetFloat(material, "_Cull", eval.TwoSided ? 0f : 2f);
+        L2TwoSidedMaterials.Apply(material, eval.TwoSided, eval.MaterialName);
         if (eval.HasZWrite)
             SetFloat(material, "_ZWrite", eval.ZWrite ? 1f : 0f);
         SetFloat(material, "_SrcBlend", eval.SrcBlend);

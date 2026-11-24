@@ -64,6 +64,7 @@ public sealed partial class GameLifetimeScope
         RegisterPlayerRebirth(builder);
         RegisterLocalPlayer(builder);
         RegisterPlayerIntention(builder);
+        RegisterWorldPlacement(builder);
     }
 
     /// <summary>
@@ -73,6 +74,14 @@ public sealed partial class GameLifetimeScope
     void RegisterPlayerIntention(IContainerBuilder builder)
     {
         builder.Register<PlayerIntentionSlot>(Lifetime.Singleton).As<IPlayerIntention>();
+    }
+
+    /// <summary>
+    /// Register <see cref="WorldPlacementAdapter"/> as <see cref="IWorldPlacement"/> (#131 S41a).
+    /// </summary>
+    void RegisterWorldPlacement(IContainerBuilder builder)
+    {
+        builder.Register<WorldPlacementAdapter>(Lifetime.Singleton).As<IWorldPlacement>();
     }
 
     static void RequirePlayerIntention(IObjectResolver container)
@@ -99,6 +108,32 @@ public sealed partial class GameLifetimeScope
 
         throw new InvalidOperationException(
             "[GameLifetimeScope] IPlayerIntention is not a PlayerIntentionSlot — PlayerIntentionSlot was not registered as IPlayerIntention.");
+    }
+
+    static void RequireWorldPlacement(IObjectResolver container)
+    {
+        IWorldPlacement placement;
+        try
+        {
+            placement = container.Resolve<IWorldPlacement>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IWorldPlacement))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] IWorldPlacement missing — WorldPlacementAdapter was not registered as IWorldPlacement.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (placement is WorldPlacementAdapter)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] IWorldPlacement is not a WorldPlacementAdapter — WorldPlacementAdapter was not registered as IWorldPlacement.");
     }
 
     /// <summary>
