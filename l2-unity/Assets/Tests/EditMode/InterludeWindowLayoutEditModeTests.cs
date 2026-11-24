@@ -161,6 +161,15 @@ public sealed class InterludeWindowLayoutEditModeTests
         ExpectRect(host, "Minimap", 3f, 51f, 328f, 328f);
         ExpectRect(host, "MyLocButton", 10f, 385f, 76f, 23f);
         ExpectRect(host, "PartyLocButton", 90f, 385f, 76f, 23f);
+        ExpectRect(host, "txtGameTime", 32f, 69f, 43f, 12f);
+        ExpectRect(host, "txtSSQ", 24f, 349f, 51f, 12f);
+        ExpectRect(host, "txtColonSSQ", 77f, 349f, 10f, 12f);
+        ExpectRect(host, "txtCurLoc", 24f, 365f, 63f, 12f);
+        ExpectRect(host, "txtColonCurLoc", 89f, 365f, 10f, 12f);
+        Button find = host.Q<Button>("Pursuit");
+        Assert.IsNotNull(find);
+        Assert.AreEqual(0f, find.style.minWidth.value.value, 0.01f);
+        Assert.AreEqual(47f, find.style.maxWidth.value.value, 0.01f);
     }
 
     [Test]

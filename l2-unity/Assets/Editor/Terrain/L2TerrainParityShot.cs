@@ -21,7 +21,8 @@ using UnityEngine;
 /// </summary>
 public static class L2TerrainParityShot
 {
-    const string ScenePath = "Assets/Resources/Scenes/17_25.unity";
+    const string TileId = "17_25";
+    const string TileRoot = "Assets/Resources/Data/Maps/17_25/";
     const int Width = 1920;
     const int Height = 1080;
     const float Fov = 60f;
@@ -40,14 +41,8 @@ public static class L2TerrainParityShot
             return;
         }
 
-        if (!File.Exists(ScenePath))
-        {
-            Debug.LogError("[TerrainShot] scene missing: " + ScenePath);
-            EditorApplication.Exit(1);
-            return;
-        }
-
-        EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+        EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        PlaceTileContent(TileId);
         var go = new GameObject("L2TerrainParityShot");
         Camera cam = go.AddComponent<Camera>();
         cam.transform.position = Position;
@@ -80,12 +75,38 @@ public static class L2TerrainParityShot
         UnityEngine.Object.DestroyImmediate(tex);
         UnityEngine.Object.DestroyImmediate(rt);
         Debug.Log("[TerrainShot] wrote " + outPath
-            + " scene=" + ScenePath
+            + " tile=" + TileRoot + TileId + ".prefab"
             + " pos=" + Position.ToString("F2")
             + " euler=" + Euler.ToString("F2")
             + " fov=" + Fov
             + " " + Width + "x" + Height);
         EditorApplication.Exit(0);
+    }
+
+    static void PlaceTileContent(string tileId)
+    {
+        string[] parts =
+        {
+            tileId,
+            tileId + "_DecoLayer",
+            "StaticMeshes",
+            "Brushes",
+            tileId + "_AmbientSounds"
+        };
+        for (int i = 0; i < parts.Length; i++)
+        {
+            string path = "Assets/" + MapTileLoadPolicy.MapRoot + "/" + tileId + "/" + parts[i] + ".prefab";
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (prefab == null)
+            {
+                if (parts[i] == tileId)
+                    throw MapTileLoadPolicy.Missing(tileId);
+                continue;
+            }
+
+            GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            go.transform.SetPositionAndRotation(prefab.transform.position, prefab.transform.rotation);
+        }
     }
 }
 #endif

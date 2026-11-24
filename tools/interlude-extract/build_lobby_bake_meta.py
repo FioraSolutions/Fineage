@@ -18,9 +18,11 @@ Known non-blocking gaps (extraction list in Docs/LOBBY_LOGIN_EXTRACTION_AUDIT.md
   - EdgeTurnBitmap bits are not extracted for any map (only counts).
 
 Class-default resolutions come from the committed Engine.u .uc dump (gap G1):
-cameras without a stored FovAngle (e.g. Camera25, the login vista camera)
-inherit the class default walked up the extends chain (Camera.uc does not
-override; PlayerController.uc FovAngle=50.0), and AmbientSoundType bytes are
+cameras without a stored FovAngle inherit the class default walked up
+the extends chain (Camera.uc does not override; PlayerController.uc
+FovAngle=50.0). Camera25 is the UnrealEd viewport (Tag=U2Viewport2), not
+the login camera. The login camera is resolved by build_login_vista.py.
+AmbientSoundType bytes are
 mapped through AmbientSoundObject.uc enum ASType1. A missing .uc dump or
 missing property is a hard error, never a guessed value.
 
@@ -97,15 +99,15 @@ def load_uc(uc_dir: Path, class_name: str) -> tuple[str | None, dict[str, str], 
     return extends, defaults, enums
 
 
-def resolve_uc_default(uc_dir: Path, class_name: str, prop_name: str) -> str | None:
-    """Walk the extends chain for a defaultproperties scalar (e.g. Camera->PlayerController FovAngle)."""
+def resolve_uc_default(uc_dir: Path, class_name: str, prop_name: str) -> tuple[str, str] | None:
+    """Walk the extends chain. Returns (class that defines the scalar, its defaultproperties value)."""
     seen = set()
     cur: str | None = class_name
     while cur and cur not in seen:
         seen.add(cur)
         extends, defaults, _ = load_uc(uc_dir, cur)
         if prop_name in defaults:
-            return defaults[prop_name]
+            return cur, defaults[prop_name]
         cur = extends
     return None
 
@@ -182,8 +184,12 @@ def sma_block(export: dict, imps: dict) -> tuple[str, str | None]:
     name = export.get("name") or "StaticMeshActor"
     mesh = full_name(imps, (prop(export, "StaticMesh") or {}).get("ref"), "StaticMesh")
     lines = [f"Begin Actor Class=StaticMeshActor Name={name}"]
+    # No StaticMesh property in the dump is written as None, not omitted.
+    # Omitting the line is what left the bake parser with a null mesh.
     if mesh:
         lines.append(f"    StaticMesh=StaticMesh'{mesh}'")
+    else:
+        lines.append("    StaticMesh=None")
     loc = (prop(export, "Location") or {}).get("vector")
     if loc:
         lines.append("    " + vec_line("Location", loc))
@@ -293,11 +299,20 @@ def main() -> int:
     # from the extends chain (Camera.uc silent -> PlayerController.uc), the
     # AmbientSoundType byte enum from AmbientSoundObject.uc. Missing data is a
     # hard error, never a guessed value.
-    default_fov = resolve_uc_default(args.engine_uc, "Camera", "FovAngle")
-    if default_fov is None:
+    resolved_fov = resolve_uc_default(args.engine_uc, "Camera", "FovAngle")
+    if resolved_fov is None:
         raise SystemExit(
             f"ERROR no FovAngle default in the Camera extends chain under {args.engine_uc} "
             "— rerun extract_login_lobby.sh step 4"
+        )
+    fov_class, default_fov = resolved_fov
+    cam_extends, cam_defaults, _ = load_uc(args.engine_uc, "Camera")
+    if "FovAngle" in cam_defaults:
+        fov_origin = f"Camera.uc defaultproperties FovAngle={cam_defaults['FovAngle']}"
+    else:
+        fov_origin = (
+            f"Camera.uc extends {cam_extends} and does not set FovAngle. "
+            f"{fov_class}.uc defaultproperties FovAngle={default_fov} is the class default"
         )
     _, _, as_enums = load_uc(args.engine_uc, "AmbientSoundObject")
     as_type_names = as_enums.get("ASType1")
@@ -347,6 +362,17 @@ def main() -> int:
             t3d.append(block)
             if mesh:
                 individuals.append(mesh)
+            else:
+                flags = [
+                    name for name in ("bDeleteMe", "bPendingDelete")
+                    if (prop(export, name) or {}).get("value") is True
+                ]
+                why = ", ".join(flags) if flags else "no StaticMesh property"
+                print(
+                    f"ERROR {export.get('name')} has no StaticMesh property ({why}). "
+                    "Wrote StaticMesh=None. The bake skips this actor.",
+                    file=sys.stderr,
+                )
         elif cls == "Camera":
             block, used_default = camera_block(export, default_fov)
             t3d.append(block)
@@ -409,6 +435,7 @@ def main() -> int:
     tm_stem = f"Height.{tm_parts[-1]}".lower()
     if not (tm_folder and any(p.stem.lower() == tm_stem for p in tm_folder.glob("*.bmp"))):
         missing.append(f"heightmap {terrain_map} (want {TEX}/<case-insensitive {tm_parts[0]}>/{tm_stem}.bmp)")
+    # Outer package is the package_index chain (lobby_mesh_resolve via full_name).
     for full in sorted(set(individuals) | deco_meshes):
         parts = full.split(".")
         pkg, name = parts[0], parts[-1]
@@ -423,9 +450,8 @@ def main() -> int:
     )
     if cameras_default_fov:
         print(
-            f"FOV: {len(cameras_default_fov)} cameras store no FovAngle; emitted the Engine.uc "
-            f"class default FovAngle={fmt_float(float(default_fov))} "
-            f"(Camera->PlayerController chain): {', '.join(cameras_default_fov)}"
+            f"FOV: {len(cameras_default_fov)} cameras store no FovAngle. {fov_origin}. "
+            f"Written on: {', '.join(cameras_default_fov)}"
         )
     if missing:
         print("ERROR referenced assets missing:", file=sys.stderr)

@@ -11,6 +11,13 @@ import json
 from pathlib import Path
 from typing import Any
 
+# Interlude TextBox line is 12px; the HUD draws Tahoma at 9 so the measured
+# width matches the runtime font size in InterludeWindowLayout.
+_TEXT_FONT_SIZE = 9
+_TEXT_FONT = None
+# MinimapWnd.uc SetText format, longest label (InterludeMinimapGameTime).
+_CLOCK_SAMPLE = "PM 12 : 00"
+
 UNSPECIFIED = -9999
 ANCHORS = {
     "TOP_LEFT": (0.0, 0.0),
@@ -30,6 +37,23 @@ _SKIP_FILES = {
     "textures-map.json",
     "textures-missing.txt",
 }
+
+# xdat records the next text box as this=TOP_RIGHT on parent=TOP_LEFT.
+# That parks the colon and the clock on the left of the previous control,
+# outside the window. The line reads left to right: this box's left edge
+# sits on the previous box's right edge.
+_LEFT_TO_RIGHT = {
+    "TOP_LEFT": "TOP_RIGHT",
+    "CENTER_LEFT": "CENTER_RIGHT",
+    "BOTTOM_LEFT": "BOTTOM_RIGHT",
+}
+
+
+def _reading_order(parent_point: str, this_point: str) -> tuple[str, str]:
+    if _LEFT_TO_RIGHT.get(parent_point) == this_point:
+        return this_point, parent_point
+    return parent_point, this_point
+
 
 _TEXTURE_KEYS = (
     ("file", "texture"),
@@ -94,8 +118,9 @@ def resolve_tree(window: dict[str, Any]) -> dict[str, tuple[float, float, float 
                     "is not in the same parent"
                 )
             ref = rects[ref_name] if ref_name != parent_name else (0.0, 0.0, parent_w, parent_h)
-        this_point = ANCHORS[control["anchorThis"]]
-        parent_point = ANCHORS[control["anchorParent"]]
+        anchor_parent_name, anchor_this_name = _reading_order(control["anchorParent"], control["anchorThis"])
+        this_point = ANCHORS[anchor_this_name]
+        parent_point = ANCHORS[anchor_parent_name]
         anchor_x = ref[0] + parent_point[0] * ref[2] + float(control["x"])
         anchor_y = ref[1] + parent_point[1] * ref[3] + float(control["y"])
         used_w = width if width is not None else 0.0
@@ -114,6 +139,39 @@ def _clean(value: Any) -> str:
     if text in {"", "undefined", "null", "None"}:
         return ""
     return text
+
+
+def _text_width(text: str) -> float:
+    """Pixel width of an autosize string in the Interlude HUD face."""
+    global _TEXT_FONT
+    if not text:
+        return 0.0
+    if _TEXT_FONT is None:
+        from PIL import ImageFont
+
+        path = Path(__file__).resolve().parents[2] / "l2-unity/Assets/Resources/Data/UI/Font/tahoma.ttf"
+        _TEXT_FONT = ImageFont.truetype(str(path), _TEXT_FONT_SIZE)
+    box = _TEXT_FONT.getbbox(text)
+    return float(box[2] - box[0])
+
+
+def _autosize_width(control: dict[str, Any], width: float, text: str) -> float:
+    """xdat autosize boxes store a placeholder width. Grow to the string.
+
+    An empty clock is filled at runtime with the AM/PM label, so its box is
+    sized to that string. Other empty autosize boxes keep the extract.
+    """
+    if control.get("autosize") != 1:
+        return width
+    sample = text
+    if not sample and control.get("name") == "txtGameTime":
+        sample = _CLOCK_SAMPLE
+    if not sample:
+        return width
+    measured = _text_width(sample)
+    if measured <= 0:
+        return width
+    return measured if width <= 0 else max(width, measured)
 
 
 def _max_length(value: Any) -> int:
@@ -361,7 +419,8 @@ def _emit_control(
     height = _num(control.get("height"))
     if force_size is not None:
         width, height = force_size
-    return {
+    width = _autosize_width(control, width, text)
+    emitted = {
         "name": control.get("name") or "",
         "type": control.get("type") or "",
         "parent": "" if zero_offset else (_clean(control.get("parent"))),
@@ -387,6 +446,9 @@ def _emit_control(
         "fontType": int(_num(control.get("fontType"), UNSPECIFIED)),
         "maxLength": _max_length(control.get("maxLength")),
     }
+    if control.get("autosize") == 1:
+        emitted["autosize"] = 1
+    return emitted
 
 
 def _positive_size(control: dict[str, Any], tex_map: dict[str, dict[str, Any]]) -> tuple[float, float] | None:
@@ -576,6 +638,13 @@ def self_test(docs_dir: Path, texture_map_path: Path) -> None:
     expect("MinimapWnd", "Minimap", 3, 51, 328, 328)
     expect("MinimapWnd", "MyLocButton", 10, 385, 76, 23)
     expect("MinimapWnd", "PartyLocButton", 90, 385, 76, 23)
+    # Autosize + left-to-right join: clock sits to the right of the sun,
+    # "Quest Status" / "Current Position" keep the colon and value inside.
+    expect("MinimapWnd", "txtGameTime", 32, 69, 43, 12)
+    expect("MinimapWnd", "txtSSQ", 24, 349, 51, 12)
+    expect("MinimapWnd", "txtColonSSQ", 77, 349, 10, 12)
+    expect("MinimapWnd", "txtCurLoc", 24, 365, 63, 12)
+    expect("MinimapWnd", "txtColonCurLoc", 89, 365, 10, 12)
 
     expect("NCLobbyFunctionWnd", "btnCreate", 13, 20, 96, 23)
     expect("NCLobbyFunctionWnd", "btnDelete", 13, 45, 96, 23)

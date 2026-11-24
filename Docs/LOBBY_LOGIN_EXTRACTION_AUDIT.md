@@ -52,7 +52,7 @@ Related: `Docs/LOBBY_INTERLUDE_SOURCES.md`, `Docs/agent-tips/login-forest-lobby.
 | G5 | **l2_skies.utx texture pixels** (L2_Lobby_sky, L2_Lobby_sky_front, L2_Lobby_back, moon, HazeRing/Cloud/StarField shaders' inputs) | No skybox faces in Unity. | **`extract_login_lobby.sh --only 6`** — no umodel: `ExportNamedTextures.java` self-decrypts the package and writes PNGs; name list derived from committed `env/l2_skies.json`; placed into `Textures/l2_skies/`. |
 | G6 | **L2Font.utx start_logo-k / start_minilogo-k pixels** | Logo texture in Unity is `start_logo-EU.png` of unknown provenance. | Same step 6 → `Data/UI/Assets/Login/start_logo-k.png` (+minilogo). |
 | G7 | ~~**sysstring-e.dat decode**~~ **CLOSED** — `dats/sysstring-e.tsv` committed (2031 strings; e3597629). | — | Done. |
-| G8 | **9 meshes + 1 terrain alphamap**: deco grasses `dion_grass015`, `Delf_Grass_001` (field_deco_S.usx); trees `Dwarftree01/04/06`, `Orctree01-04` (speaking_tree_s.usx); terrain alphamap PNG `Lobby_terrain_t.H_M_05` | Two of five deco layers can't spawn; vista trees missing; one human-village splat layer has no weight map. Found by `build_lobby_bake_meta.py` asset verification. | Alphamap: step 6 (no umodel). Meshes: **`extract_login_lobby.sh --only 7`** (Docker umodel per-object + Blender pskx→FBX + `place_login_assets.py`). umodel is the only geometry path; no official macOS arm64 build — linux/amd64 binary in Docker (repo-standard pattern). |
+| G8 | **Lobby static meshes that have no FBX yet, plus terrain alphamap `Lobby_terrain_t.H_M_05`**. Each mesh's `.usx` is the outer package on its Lobby.json `package_index` chain (`lobby_mesh_resolve.py`). `Dwarftree01/04/06` and `Orctree01-04` are `RionSctgart_tree_s.tree.*` (a second Package named `tree` is `speaking_tree_s`; looking the parent up by name selected that package and umodel reported the export missing). | Two deco grasses have no FBX yet; one splat layer has no weight map. | Alphamap: step 6 (no umodel). Meshes: **`extract_login_lobby.sh --only 7`** exports only meshes whose `StaticMeshes/<package>/<mesh>.fbx` is absent, from the resolved `.usx`. umodel is the geometry path. `l2-unity/External/` is gitignored, so `l2-unity/External/UEViewer/umodel` is not in the checkout; the script exits before step 1 when that binary is missing. linux/amd64 in Docker (no official macOS arm64 build). |
 | G9 | ~~**Lobby bake Meta inputs not in git**~~ **CLOSED** — `tools/interlude-extract/build_lobby_bake_meta.py` generates `TerrainInfo0.txt` / `l2_lobby.t3d` / `StaticMeshActorIndividuals.txt` from the committed lossless dump (+G3/G4 sidecars), verifying every referenced asset. | — | Done in this branch. |
 | G10 | **nwindow.dll second disasm pass** (ID/PWD label rects at OnPaint RVA 0x1017F390, NCLoginServerWnd rect, MiniLogo) | Label placement guesswork. | Analysis task (no Mac command); RVAs already documented in `l2-unity/docs/ui-original/README.md`. |
 
@@ -79,14 +79,30 @@ Step 7 prerequisites: Docker running; Blender on PATH; the UE Viewer linux
 binary at `l2-unity/External/UEViewer/umodel` (from https://www.gildor.org/downloads —
 no official macOS arm64 build exists; the linux/amd64 binary in Docker is the
 supported path, same pattern as `tools/interlude/export_tile_staticmeshes.sh`).
+`l2-unity/External/` is gitignored, so the binary is a local file, not a
+checkout. `extract_login_lobby.sh` and `scripts/login-lobby-rebuild.sh` exit
+before the client dump when steps 7 or 9 will run and the binary is missing.
+Which `.usx` to open is `lobby_mesh_resolve.py --missing-fbx` (every StaticMesh
+import's `package_index` chain). `--check` fails if any import does not resolve
+to a package path.
 
-Step 8 (camera BSP zones) is Step-3 feedstock: Lobby has three `ZoneInfo`
-actors with disagreeing fog (`ZoneInfo0` 500–10000 grey, `ZoneInfo1` 300–3500,
-`ZoneInfo2` 0–4000 purple), so the per-tile "pick the terrain zone" selection
-is ambiguous by design. The vista fog is the zone containing Camera25, resolved
-authoritatively by `ZoneAtPoint.java` walking the level BSP nodes (self-checked
-against every ZoneInfo's own stored Location; hard ERROR if the node layout
-fails validation) → `world/env/Lobby.camera-zones.tsv`.
+Step 8 (camera BSP zones) walks the level `UModel` with the same reader the
+terrain jar uses. The L2 body is package version 123, licensee 16 through 36
+(UEViewer's L2 family; the next material layout starts at licensee 37).
+Interlude ships 19 and 28 in that band. Order is Vectors, Points, Nodes,
+Surfs, Verts, then the zone list. Node and surface records are the L2 forms
+(no lightmap index on the surface). After `Linked` the level model has the
+L2MapExtract unknown-struct array and a lightmap tail; an empty brush is two
+compact zeros. The export must end on its last byte. `ZoneAtPoint.java` does
+not probe FVert sizes. A failed walk prints the cause chain and exits with
+ZoneAtPoint's status; it does not write `world/env/Lobby.camera-zones.tsv`
+and it does not invent a zone. The script's
+own status is the line `extract_login_lobby exit=N` (a pipe into `tee`
+followed by `$(date)` would otherwise report tee's 0). InterpolationPoint5
+and Camera25 (the UnrealEd viewport beside it) both walk to BSP zone
+`ZoneInfo0`. PointRegion on this package is 13 bytes; its leading object
+index is `TerrainInfo0` and the UE2 zone byte is not a slot in the 5-zone
+model, so the TSV zone is the BSP walk.
 
 Step 9 (l2_skies material chains): the skybox brushes reference
 `L2_Skies.Shaders.*` (`Cloud_Final`, `HazeRing_Final`, `SkybackgroundColor` +
@@ -106,8 +122,8 @@ Then commit: new dumps under `l2-unity/docs/interlude-ref/` (world/env +
 scripts/Engine.u + scripts/UWindow.u), placed assets under
 `Textures/l2_skies/`, `Textures/lobby_terrain_t/H_M_05.png`,
 `Data/UI/Assets/Login/start_logo-k.png` / `start_minilogo-k.png`,
-`StaticMeshes/speaking_tree_s/`, `StaticMeshes/field_deco_S/` (the script's
-final commit hint lists exact paths). Sidecars under `.work/lobby-extract/`
+`StaticMeshes/<package>/<mesh>.fbx` for each package the resolver names
+(the script's final commit hint lists the texture paths). Sidecars under `.work/lobby-extract/`
 (brushes.t3d, quadvisibility) are build inputs — commit as the other tiles do
 (`Maps/<tile>/Meta/brushes.t3d` pattern, i.e. `Maps/l2_lobby/Meta/brushes.t3d`
 after Step 2 generator runs).

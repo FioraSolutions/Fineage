@@ -41,10 +41,44 @@ public static class EntityPick
         if (!Physics.Raycast(ray, out hit, maxDistance, EntityClickMask))
             return false;
 
-        entity = hit.collider != null
-            ? hit.collider.GetComponentInParent<Entity>()
-            : null;
+        if (hit.collider == null || IsLobbyPresentation(hit.collider))
+            return false;
+
+        entity = hit.collider.GetComponentInParent<Entity>();
         return entity != null;
+    }
+
+    /// <summary>
+    /// Character-select pawns share the EntityClick layer with world actors.
+    /// They are not world targets and must not take a click-to-move.
+    /// </summary>
+    public static bool IsLobbyPresentation(Component hit)
+    {
+        return hit != null && hit.GetComponentInParent<SelectableCharacterEntity>() != null;
+    }
+
+    /// <summary>
+    /// World click and targeting run on the gameplay camera. An enabled
+    /// character-select or forest login camera means that view owns the pointer.
+    /// </summary>
+    public static bool IsWorldView(Camera cam)
+    {
+        if (cam == null)
+            return false;
+        if (LoginLobbyPresentation.IsAccountLobbyCamera(cam) || LoginLobbyPresentation.IsForestLoginCamera(cam))
+            return false;
+
+        Camera[] enabled = Camera.allCameras;
+        for (int i = 0; i < enabled.Length; i++)
+        {
+            Camera other = enabled[i];
+            if (other == null)
+                continue;
+            if (LoginLobbyPresentation.IsAccountLobbyCamera(other) || LoginLobbyPresentation.IsForestLoginCamera(other))
+                return false;
+        }
+
+        return true;
     }
 
     /// <summary>

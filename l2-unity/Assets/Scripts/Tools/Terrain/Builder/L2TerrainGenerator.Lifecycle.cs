@@ -73,16 +73,12 @@ public partial class L2TerrainGenerator
 
         // Debug.Log("TerrainData Size:" + terrainData.size);
 
-        var uxHalfTerrainWidthAdjustment = (float)tx * 0.5f;
-        var uyHalfTerrainWidthAdjustment = (float)ty * 0.5F;
-        var uzHalfTerrainWidthAdjustment = (float)tz * 0.5F;
-
-        // Terrain is shifted by one sector size to accomodate the terrain seam.
-        var unityPos = new Vector3(
-            terrainInfo.location.y - uxHalfTerrainWidthAdjustment - terrainInfo.terrainScale.y,
-            terrainInfo.location.z - uyHalfTerrainWidthAdjustment,
-            terrainInfo.location.x - uzHalfTerrainWidthAdjustment - terrainInfo.terrainScale.x
-        ) * ueToUnityUnitScale * L2TerrainGeneratorTool.MAP_SCALE * worldPositionOffset;
+        var unityPos = L2Ue2Terrain.UnityCorner(
+            terrainInfo.location,
+            terrainInfo.terrainScale,
+            terrainInfo.generatedSectorCounter)
+            * L2TerrainGeneratorTool.MAP_SCALE
+            * worldPositionOffset;
 
         terrain.transform.position = unityPos;
         terrain.transform.name = terrainInfo.mapName;

@@ -46,7 +46,7 @@ public static class L2InterludeTileBatchCli
         // Same post-step as Auto-Bake window: bind StaticMesh textures + water/translucent fix (Shnok 0.1/0.2).
         var matLog = new List<string>();
         string er = L2InterludeClientSettings.UModelExportRoot;
-        L2InterludeMaterialBinder.Bind(!string.IsNullOrEmpty(er) && System.IO.Directory.Exists(er) ? new[] { er } : null, matLog);
+        L2InterludeMaterialBinder.Bind(!string.IsNullOrEmpty(er) && System.IO.Directory.Exists(er) ? new[] { er } : null, matLog, tileId);
         foreach (string l in matLog) Debug.Log("[Interlude bake] materials: " + l);
 
         L2InterludeTileManifest.WriteToRepo(L2InterludeTileManifest.Build());
