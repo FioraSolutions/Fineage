@@ -29,9 +29,13 @@ jobs:
           ref: dev
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Parse workflow YAML files
+      - name: Install Python tooling dependencies
         run: |
           python3 -m pip install --quiet pyyaml
+          python3 -m pip install --quiet -r tools/ui-extract/requirements.txt
+
+      - name: Parse workflow YAML files
+        run: |
           python3 <<'PY'
           import sys
           from pathlib import Path

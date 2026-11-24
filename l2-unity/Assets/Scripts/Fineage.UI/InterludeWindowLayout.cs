@@ -447,6 +447,12 @@ public static class InterludeWindowLayout
         button.style.borderLeftWidth = 0f;
         button.style.borderRightWidth = 0f;
         button.style.backgroundColor = Color.clear;
+        // The panel theme's Button min size and grey slice grow past the extract
+        // (Find at 47px, the minimap row, the lobby Start button).
+        button.style.minWidth = 0f;
+        button.style.minHeight = 0f;
+        button.style.unityTextAlign = TextAnchor.MiddleCenter;
+        button.style.whiteSpace = WhiteSpace.NoWrap;
     }
 
     static void ApplyRect(
@@ -497,6 +503,16 @@ public static class InterludeWindowLayout
                 "[InterludeLayout] window '" + windowName + "' control '" + control.name +
                 "' height " + control.height + " resolved to " + size.Height + ".");
         }
+
+        // Lock the extracted box. A theme min-width larger than the control
+        // pushes buttons outside the window and overlaps their labels.
+        element.style.minWidth = 0f;
+        element.style.minHeight = 0f;
+        element.style.overflow = Overflow.Hidden;
+        if (size.HasWidth && size.Width > 0f)
+            element.style.maxWidth = size.Width;
+        if (size.HasHeight && size.Height > 0f)
+            element.style.maxHeight = size.Height;
     }
 
     static void BindTexturesOnce(string windowName, InterludeLayoutControl control, VisualElement element)
@@ -598,6 +614,11 @@ public static class InterludeWindowLayout
                 element.style.color = color;
             }
         }
+
+        // TextBox height 12 is the Tahoma 9 line. The default 14px face overflows
+        // the autosized box and the 76px minimap buttons.
+        if (control.height > 0f && control.height < 40f)
+            element.style.fontSize = 9f;
 
         if (string.IsNullOrEmpty(control.textAlign))
             return;
