@@ -54,12 +54,9 @@ public sealed partial class NetSession
         int pAtkSpd = spawn.PAtkSpd > 0 ? spawn.PAtkSpd : 253;
         dto.Stats.PAtkSpd = pAtkSpd;
         dto.Stats.PAtkRealSpeed = pAtkSpd;
-        float run = spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f;
-        float walk = spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f;
-        dto.Stats.BaseRunSpeed = Mathf.RoundToInt(run);
-        dto.Stats.BaseWalkingSpeed = Mathf.RoundToInt(walk);
-        dto.Stats.WalkRealSpeed = walk;
-        dto.Stats.RunRealSpeed = run;
+        if (spawn.RunSpeed <= 0.001f || spawn.WalkSpeed <= 0.001f)
+            SpawnAppearanceApplyLog.LogDefaultMoveSpeed(objectId, spawn.RunSpeed, spawn.WalkSpeed);
+        PawnMoveSpeed.Apply(dto.Stats, spawn.RunSpeed, spawn.WalkSpeed, templateChanged: true);
         dto.Appearance.CollisionRadius = 10f;
         dto.Appearance.CollisionHeight = 22f;
         NetNpcSession.RememberNpc(objectId, spawn.Name, liveDoor || spawn.Attackable, spawn.Rhand, spawn.Lhand);
