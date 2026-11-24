@@ -33,7 +33,8 @@ public class ExportAllTextures {
                 }
                 if (!(obj instanceof Texture tex)) continue;
                 try {
-                    BufferedImage img = tex.mipMaps().isEmpty() ? null : tex.mipMaps().get(0).get();
+                    Texture.MipMap[] mips = tex.mipMaps();
+                    BufferedImage img = mips.length == 0 ? null : mips[0].get();
                     // fall back: some APIs expose image() / getImage()
                     if (img == null) {
                         fail++;

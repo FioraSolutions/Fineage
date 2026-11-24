@@ -16,6 +16,7 @@ public partial class SceneLoader : MonoBehaviour, ISceneLoader
     private readonly Dictionary<string, GameObject> _prefabTiles = new Dictionary<string, GameObject>();
     private bool _worldStreaming;
     private bool _streamingBusy;
+    private bool _lastTilePresent;
 
     GameManager _gameManager;
 

@@ -18,6 +18,8 @@ public static partial class NetGearSession
         if (info.Identity == null || info.Appearance == null || info.Stats == null)
             return;
 
+        int previousClass = info.Identity.PlayerClass;
+        bool templateChanged = previousClass != user.ClassId;
         info.Identity.PlayerClass = user.ClassId;
         // Prefer race from UserInfo (server). Never invent via incomplete class→race maps
         // that historically fell through to DarkElf for 3rd professions (e.g. Archmage=94).
@@ -29,19 +31,9 @@ public static partial class NetGearSession
         info.Appearance.BaseClass = mage ? (int)BaseClass.MMagic : (int)BaseClass.Fighter;
         if (!string.IsNullOrEmpty(user.Name))
             info.Identity.Name = user.Name;
-        if (user.RunSpeed > 0.001f)
-        {
-            int run = Mathf.RoundToInt(user.RunSpeed);
-            info.Stats.BaseRunSpeed = run;
-            info.Stats.RunRealSpeed = user.RunSpeed;
-            info.Stats.Speed = run;
-        }
-
-        if (user.WalkSpeed > 0.001f)
-        {
-            info.Stats.BaseWalkingSpeed = Mathf.RoundToInt(user.WalkSpeed);
-            info.Stats.WalkRealSpeed = user.WalkSpeed;
-        }
+        // Live speed only. Copying it into BaseRunSpeed made current/authored stay 1
+        // after Dash, so the clip no longer matched the buffed move (#1852).
+        PawnMoveSpeed.Apply(info.Stats, user.RunSpeed, user.WalkSpeed, templateChanged);
 
         info.Appearance.Running = user.Running;
         info.Identity.IsRunning = user.Running;

@@ -21,6 +21,7 @@ RESOURCES = ROOT / "l2-unity/Assets/Resources"
 
 def _font(size: int) -> ImageFont.ImageFont:
     for path in (
+        str(RESOURCES / "Data/UI/Font/tahoma.ttf"),
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
     ):

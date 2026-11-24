@@ -1,16 +1,13 @@
 #if UNITY_EDITOR
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Builds a streamable world scene Assets/Resources/Scenes/{XX_YY}.unity from baked tile prefabs
-/// and registers it in Build Settings so SceneLoader can stream it (#559 / Elven Village 21_19).
+/// Confirms a map tile's source of truth, Resources/Data/Maps/{XX_YY}/{XX_YY}.prefab.
+/// Does not write Assets/Resources/Scenes/{XX_YY}.unity. A missing prefab throws
+/// <see cref="MapTileMissingException"/>.
 /// Unity -batchmode -nographics -quit -executeMethod L2InterludeTileSceneCli.RunCli
 /// Env: FINEAGE_INTERLUDE_TILES=21_19[,XX_YY...]
 /// </summary>
@@ -30,7 +27,7 @@ public static class L2InterludeTileSceneCli
         EditorApplication.Exit(ok ? 0 : 1);
     }
 
-    [MenuItem("Shnok/0.2. [Interlude] Build tile scene + add to Build Settings")]
+    [MenuItem("Shnok/0.2. [Interlude] Verify tile prefab")]
     static void MenuBuild()
     {
         string tile = EditorUtility.DisplayDialogComplex("Tile", "Use FINEAGE_INTERLUDE_TILES env or 21_19", "21_19", "Cancel", "") == 0 ? "21_19" : null;
@@ -39,39 +36,22 @@ public static class L2InterludeTileSceneCli
 
     public static bool BuildScene(string tile)
     {
-        string dir = MapsRoot + "/" + tile;
-        string[] parts = { tile + ".prefab", tile + "_DecoLayer.prefab", "StaticMeshes.prefab", "Brushes.prefab", tile + "_AmbientSounds.prefab" };
-        var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        int placed = 0;
-        foreach (string p in parts)
-        {
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(dir + "/" + p);
-            if (prefab == null)
-            {
-                Debug.LogWarning("[Tile scene] missing " + dir + "/" + p);
-                continue;
-            }
-            var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
-            go.transform.SetPositionAndRotation(prefab.transform.position, prefab.transform.rotation);
-            placed++;
-        }
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(dir + "/" + tile + ".prefab") == null)
-        {
-            Debug.LogError("[Tile scene] terrain prefab missing for " + tile);
-            return false;
-        }
-        Directory.CreateDirectory(ScenesRoot);
-        string scenePath = ScenesRoot + "/" + tile + ".unity";
-        EditorSceneManager.SaveScene(scene, scenePath);
+        string prefabPath = MapsRoot + "/" + tile + "/" + tile + ".prefab";
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath) == null)
+            throw MapTileLoadPolicy.Missing(tile);
 
-        var list = EditorBuildSettings.scenes.ToList();
-        if (!list.Any(s => s.path == scenePath))
+        string scenePath = ScenesRoot + "/" + tile + ".unity";
+        if (AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath) != null)
+            AssetDatabase.DeleteAsset(scenePath);
+
+        var kept = EditorBuildSettings.scenes.Where(s => s.path != scenePath).ToArray();
+        if (kept.Length != EditorBuildSettings.scenes.Length)
         {
-            list.Add(new EditorBuildSettingsScene(scenePath, true));
-            EditorBuildSettings.scenes = list.ToArray();
+            EditorBuildSettings.scenes = kept;
+            AssetDatabase.SaveAssets();
         }
-        AssetDatabase.SaveAssets();
-        Debug.Log("[Tile scene] " + scenePath + " placed=" + placed);
+
+        Debug.Log("[Tile] " + tile + " source " + prefabPath);
         return true;
     }
 }

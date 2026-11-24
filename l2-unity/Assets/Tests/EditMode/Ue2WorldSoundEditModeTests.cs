@@ -182,6 +182,19 @@ public sealed class Ue2WorldSoundEditModeTests
     }
 
     [Test]
+    public void Death_cry_in_the_first_frame_fires_when_the_state_starts()
+    {
+        // Death_MFighter is 51 frames at 15 fps. The voice notify is at 0.003,
+        // inside the first frame. The first LateUpdate is already past 0.
+        AnimNotifyPlaybackWindow.Result entered = AnimNotifyPlaybackWindow.Step(
+            hasLast: false, lastNormalized: 0f, cycle: 0.01f, deltaSeconds: 0.016f, rate: 15f, frameCount: 51);
+        Assert.IsTrue(entered.Emit);
+        Assert.Less(entered.FromExclusive, 0.003f);
+        Assert.GreaterOrEqual(entered.ToInclusive, 0.01f);
+        Assert.IsFalse(AnimNotifyPlaybackWindow.ShouldPlayOnlyLatest(entered.Span, entered.OneFrame));
+    }
+
+    [Test]
     public void Missing_sequence_rate_is_a_named_error_and_does_not_emit()
     {
         AnimNotifyPlaybackWindow.Result missing = AnimNotifyPlaybackWindow.Step(

@@ -56,8 +56,17 @@ public enum ObjectFactory {
 																						   ObjectHeader.class, Collection.class,
 																						   int.class);
 			return constructor.newInstance(pkg, reader, export, header, properties, dataStart);
+		} catch (InvocationTargetException e) {
+			Throwable cause = e.getCause() == null ? e : e.getCause();
+			if ("Model".equals(type.name().name)) {
+				throw new IllegalStateException(
+						"Model " + export.name.name + " failed to parse (package " + pkg.version + "/" + pkg.license + "): "
+						+ cause.getMessage(),
+						cause);
+			}
+			return new Object(pkg, reader, export, header, properties, dataStart);
 		} catch (IllegalArgumentException | NoSuchMethodException
-				| IllegalAccessException | InstantiationException | InvocationTargetException e) {
+				| IllegalAccessException | InstantiationException e) {
 			return new Object(pkg, reader, export, header, properties, dataStart);
 		}
 	}

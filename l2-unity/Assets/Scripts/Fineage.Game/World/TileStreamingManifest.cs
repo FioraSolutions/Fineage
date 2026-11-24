@@ -23,6 +23,18 @@ public sealed class TileStreamingManifest : ScriptableObject
         return manifest._set.Contains(tileId);
     }
 
+    public static IReadOnlyCollection<string> Ids
+    {
+        get
+        {
+            TileStreamingManifest manifest = Load();
+            if (manifest == null)
+                return System.Array.Empty<string>();
+            manifest.EnsureSet();
+            return manifest._set;
+        }
+    }
+
     static TileStreamingManifest Load()
     {
         if (_cached != null)
