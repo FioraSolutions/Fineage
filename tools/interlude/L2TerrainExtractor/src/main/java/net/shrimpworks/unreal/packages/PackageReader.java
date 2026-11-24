@@ -267,6 +267,7 @@ public class PackageReader implements Closeable {
 	 * @return a byte
 	 */
 	public byte readByte() {
+		ensureRemaining(1);
 		return buffer.get();
 	}
 
@@ -277,6 +278,7 @@ public class PackageReader implements Closeable {
 	 * @return a signed short
 	 */
 	public short readShort() {
+		ensureRemaining(2);
 		return buffer.getShort();
 	}
 
@@ -287,6 +289,7 @@ public class PackageReader implements Closeable {
 	 * @return a singed integer
 	 */
 	public int readInt() {
+		ensureRemaining(4);
 		return buffer.getInt();
 	}
 
@@ -297,6 +300,7 @@ public class PackageReader implements Closeable {
 	 * @return a singed long
 	 */
 	public long readLong() {
+		ensureRemaining(8);
 		return buffer.getLong();
 	}
 
@@ -307,6 +311,7 @@ public class PackageReader implements Closeable {
 	 * @return a signed float
 	 */
 	public float readFloat() {
+		ensureRemaining(4);
 		return buffer.getFloat();
 	}
 
@@ -356,6 +361,7 @@ public class PackageReader implements Closeable {
 		for (int i = 0; i < 5; i++) {
 			boolean more;
 
+			ensureRemaining(1);
 			byte one = buffer.get();
 
 			if (i == 0) {

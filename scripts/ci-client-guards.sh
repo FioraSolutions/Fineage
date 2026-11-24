@@ -21,6 +21,21 @@ python3 scripts/check-deco-archive-fixture.py
 python3 scripts/check-unity-meta-guids.py
 python3 scripts/check-interlude-window-layout.py
 python3 scripts/check-unity-editmode-guards.py
+bash scripts/check-interlude-javac.sh
+python3 tools/interlude-extract/lobby_mesh_resolve.py --check
+python3 tools/interlude-extract/check_lobby_camera_zone.py
+unknown_arg_err="$(mktemp)"
+set +e
+bash scripts/login-lobby-rebuild.sh --not-a-real-flag >"$unknown_arg_err" 2>&1
+unknown_arg_status=$?
+set -e
+if [[ "$unknown_arg_status" -ne 2 ]] || ! grep -q "unknown argument '--not-a-real-flag'" "$unknown_arg_err"; then
+  echo "ci-client-guards: login-lobby-rebuild.sh unknown argument exited $unknown_arg_status" >&2
+  cat "$unknown_arg_err" >&2
+  rm -f "$unknown_arg_err"
+  exit 1
+fi
+rm -f "$unknown_arg_err"
 
 python3 scripts/test_asset_import_policy_meta.py
 python3 scripts/check-asset-import-policy.py

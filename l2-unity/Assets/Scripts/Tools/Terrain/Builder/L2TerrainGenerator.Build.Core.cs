@@ -12,32 +12,26 @@ public partial class L2TerrainGenerator
         // Calculate the resolution based on the file size
         int resolution = (int)Mathf.Sqrt(terrainMap.Length / 2); // each height is 2 bytes (16 bits)
 
-        terrainData.heightmapResolution = resolution + 1; // Set the resolution of the heightmap
+        // Unity's heightmap vertex count is 2^n+1. The extra vertex repeats the
+        // last texel so the sheet is not moved by a sector. Vertex i sits on
+        // texel i of L2Ue2Terrain (file row 0 is the +Y edge).
+        int verts = resolution + 1;
+        terrainData.heightmapResolution = verts;
+        float[,] heights = new float[verts, verts];
 
-        // Create a new array for the heightmap
-        float[,] heights = new float[resolution + 1, resolution + 1];
-
-        // Read the heights from the file
         using (BinaryReader reader = new BinaryReader(new MemoryStream(terrainMap))) {
             reader.ReadBytes(54);
 
-            for (int i = resolution - 1; i >= 0; i--)
-                for (int j = 0; j < resolution; j++) {
-                    // Unity uses a value between 0 and 1 for the heightmap data
-                    // ushort.MaxValue is 65535
-                    heights[j + 1, i + 1] = reader.ReadUInt16() / (float)ushort.MaxValue;
-                }
+            for (int fileRow = 0; fileRow < resolution; fileRow++)
+                for (int j = 0; j < resolution; j++)
+                    heights[j, resolution - 1 - fileRow] = reader.ReadUInt16() / (float)ushort.MaxValue;
         }
 
-        //Filling out the terrain seam.
-        for (int i = 0; i < resolution + 1; i++) {
-            heights[0, i] = heights[1, i];
-        }
-        for (int i = 0; i < resolution + 1; i++) {
-            heights[i, 0] = heights[i, 1];
+        for (int i = 0; i < verts; i++) {
+            heights[i, resolution] = heights[i, resolution - 1];
+            heights[resolution, i] = heights[resolution - 1, i];
         }
 
-        terrainData.heightmapResolution = resolution;
         terrainData.SetHeights(0, 0, heights);
 
     }
