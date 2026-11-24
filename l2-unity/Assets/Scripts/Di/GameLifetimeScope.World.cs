@@ -63,6 +63,41 @@ public sealed partial class GameLifetimeScope
         RegisterLiveMono<CharacterBuilder>(builder);
         RegisterPlayerRebirth(builder);
         RegisterLocalPlayer(builder);
+        RegisterWorldPlacement(builder);
+    }
+
+    /// <summary>
+    /// Register <see cref="WorldPlacementAdapter"/> as <see cref="IWorldPlacement"/> (#131 S41a).
+    /// </summary>
+    void RegisterWorldPlacement(IContainerBuilder builder)
+    {
+        builder.Register<WorldPlacementAdapter>(Lifetime.Singleton).As<IWorldPlacement>();
+    }
+
+    static void RequireWorldPlacement(IObjectResolver container)
+    {
+        IWorldPlacement placement;
+        try
+        {
+            placement = container.Resolve<IWorldPlacement>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IWorldPlacement))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] IWorldPlacement missing — WorldPlacementAdapter was not registered as IWorldPlacement.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (placement is WorldPlacementAdapter)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] IWorldPlacement is not a WorldPlacementAdapter — WorldPlacementAdapter was not registered as IWorldPlacement.");
     }
 
     /// <summary>

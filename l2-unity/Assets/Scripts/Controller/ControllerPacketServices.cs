@@ -163,7 +163,22 @@ public sealed partial class PlayerController
     [Inject] PlayerPositionSender _injectedPositionSender;
     [Inject] ClickManager _packetClicks;
     [Inject] L2PawnYaw _pawnYaw;
+    [Inject] IWorldPlacement _placement;
     [Inject] ISpawnedEntities _spawned;
+
+    IWorldPlacement Placement
+    {
+        get
+        {
+            if (_placement == null)
+            {
+                throw new InvalidOperationException(
+                    "[PlayerController] IWorldPlacement missing — GameLifetimeScope did not register WorldPlacementAdapter, so the pawn was not placed.");
+            }
+
+            return _placement;
+        }
+    }
 
     ISpawnedEntities Spawned
     {
