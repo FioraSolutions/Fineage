@@ -21,6 +21,7 @@ public static class WeaponAttachApplicator
 
         NormalizeWeaponWorldScale(t);
         RepairSubmeshMaterials(weaponRoot);
+        L2TwoSidedMaterials.BindHierarchy(weaponRoot, logIfPropsMissing: true, "weapon attach");
 
         if (mount.MirrorScaleX)
         {
