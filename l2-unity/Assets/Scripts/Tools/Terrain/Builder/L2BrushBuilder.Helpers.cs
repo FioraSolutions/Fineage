@@ -25,7 +25,7 @@ public partial class L2BrushBuilder
         var verts = new List<Vector3>();
         var norms = new List<Vector3>();
         var uvs = new List<Vector2>();
-        int polyN = 0, skippedBrush = 0, carved = 0, subtractSkipped = 0;
+        int polyN = 0, skippedBrush = 0, carved = 0, subtractSkipped = 0, subtractN = 0;
         var portals = L2BspCsgCarver.CollectPortalCaps(brushes);
         // UE2 CSG order: a subtract cuts additive brushes that precede it, not ones added later.
         int brushCount = brushes != null ? brushes.Count : 0;
@@ -52,6 +52,7 @@ public partial class L2BrushBuilder
             var subtracts = new List<L2BspAabb>();
             for (int later = bi + 1; later < brushCount; later++)
                 L2BspCsgCarver.AccumulateSubtract(brushes[later], subtracts);
+            subtractN += subtracts.Count;
             foreach (L2BspPoly pd in b.polygons) {
                 if (pd.vertices == null || pd.vertices.Length < 3) continue;
                 if (!L2BspPolyFlags.ShouldRenderPolygon(pd.polyFlags, pd.texture)) continue;
@@ -151,7 +152,7 @@ public partial class L2BrushBuilder
         go.AddComponent<MeshCollider>().sharedMesh = colliderMesh;
         go.isStatic = true;
         Debug.Log("[Brushes] BSP polys " + polyN + ", carve cuts " + carved + ", portal caps " + portals.Count
-                  + ", subtract volumes " + subtracts.Count + ", materials " + mats.Count + ", brushes " + brushes.Count
+                  + ", subtract volumes " + subtractN + ", materials " + mats.Count + ", brushes " + brushes.Count
                   + " (skipped " + skippedBrush + ", subtract-not-rendered " + subtractSkipped + ")");
         return root;
     }
