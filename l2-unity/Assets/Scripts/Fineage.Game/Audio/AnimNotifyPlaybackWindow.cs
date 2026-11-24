@@ -45,7 +45,11 @@ public static class AnimNotifyPlaybackWindow
 
         if (!hasLast)
         {
-            if (cycle <= 0.0001f)
+            // The first sample is rarely exactly 0. A start-of-clip notify (the death
+            // cry sits a fraction of a frame in) still belongs to this observation when
+            // it lands inside the first authored frame. Joining mid-cycle does not
+            // replay notifies that already passed.
+            if (cycle <= result.OneFrame + 0.0001f)
             {
                 result.Emit = true;
                 result.FromExclusive = -0.0001f;
