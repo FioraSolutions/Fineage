@@ -4,6 +4,10 @@ using System;
 
 public partial class PlayerEntity
 {
+    /// <summary>
+    /// Local hero locomotion floats live on <see cref="PlayerAnimationController"/> (child anim_player),
+    /// not the root <see cref="NetworkAnimationController"/> used for remote users.
+    /// </summary>
     protected override IAnimationController LocomotionAnimationController =>
         AnimationPacketServices.PlayerAnimation != null
             ? AnimationPacketServices.PlayerAnimation
@@ -15,10 +19,14 @@ public partial class PlayerEntity
             return UnityRunSpeedMeters;
 
         float converted = base.UpdateRunSpeed(serverValue);
-        PlayerController player = LocalPlayer;
-        if (player != null)
+        PlayerController found = LocalPlayer;
+        if (found != null)
+        {
+            IPlayerPawn player = found;
             player.UpdateRunSpeed(converted);
+        }
 
+        RefreshLocomotionAnimRates();
         _lastServerRunSpeed = serverValue;
         return converted;
     }
@@ -37,10 +45,14 @@ public partial class PlayerEntity
             return UnityWalkSpeedMeters;
 
         float converted = base.UpdateWalkSpeed(serverValue);
-        PlayerController player = LocalPlayer;
-        if (player != null)
+        PlayerController found = LocalPlayer;
+        if (found != null)
+        {
+            IPlayerPawn player = found;
             player.UpdateWalkSpeed(converted);
+        }
 
+        RefreshLocomotionAnimRates();
         return converted;
     }
 
@@ -53,9 +65,12 @@ public partial class PlayerEntity
     {
         base.UpdateMoveType(running);
 
-        PlayerController player = LocalPlayer;
-        if (player != null)
+        PlayerController found = LocalPlayer;
+        if (found != null)
+        {
+            IPlayerPawn player = found;
             player.Running = running;
+        }
 
         if (HudCorePacketServices.CharacterInfo != null)
             HudCorePacketServices.CharacterInfo.UpdateValues();

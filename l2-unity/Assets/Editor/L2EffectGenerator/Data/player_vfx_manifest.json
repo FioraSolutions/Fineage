@@ -1,0 +1,1512 @@
+{
+  "reference": "All player classes VFX gap (Interlude classes 0-57, 88-118)",
+  "classIds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118
+  ],
+  "counts": {
+    "missingActives": 180,
+    "uniqueVisuals": 71,
+    "alias": 17,
+    "generate": 30,
+    "skip": 24,
+    "uniqueEffectClasses": 89
+  },
+  "entries": [
+    {
+      "visualId": 1,
+      "serverSkillIds": [
+        1
+      ],
+      "skillNames": [
+        "Triple Slash"
+      ],
+      "effectClasses": [
+        "at_fatal_strike_ca",
+        "s_u010_b"
+      ],
+      "folderName": "s_u010_b_v1",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u010_b_v1",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 3,
+      "serverSkillIds": [
+        245
+      ],
+      "skillNames": [
+        "Wild Sweep"
+      ],
+      "effectClasses": [
+        "s_u002_a",
+        "p_u002_a"
+      ],
+      "folderName": "s_u002_a_v3",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u002_a_v3",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/it_power_striker/it_power_striker_composite.prefab"
+    },
+    {
+      "visualId": 5,
+      "serverSkillIds": [
+        5
+      ],
+      "skillNames": [
+        "Double Sonic Slash"
+      ],
+      "effectClasses": [
+        "at_fatal_strike_ca",
+        "s_u010_b",
+        "s_u015_b"
+      ],
+      "folderName": "s_u010_b_v5",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u010_b_v5",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 6,
+      "serverSkillIds": [
+        6
+      ],
+      "skillNames": [
+        "Sonic Blaster"
+      ],
+      "effectClasses": [
+        "at_fatal_strike_ca",
+        "at_sonic_blast_fl",
+        "at_sonic_blast_ta"
+      ],
+      "folderName": "viz_6",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_6",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 7,
+      "serverSkillIds": [
+        7
+      ],
+      "skillNames": [
+        "Sonic Storm"
+      ],
+      "effectClasses": [
+        "at_fatal_strike_ca",
+        "at_sonic_blast_fl",
+        "m_u006_d",
+        "at_sonic_blast_ta"
+      ],
+      "folderName": "m_u006_d_v7",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u006_d_v7",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 8,
+      "serverSkillIds": [
+        8,
+        50
+      ],
+      "skillNames": [
+        "Sonic Focus",
+        "Focused Force"
+      ],
+      "effectClasses": [
+        "mo_focus_sonic_ca",
+        "mo_focus_sonic_ta"
+      ],
+      "folderName": "mo_focus_sonic_v8",
+      "effectRoot": "Assets/Resources/Data/Effects/mo_focus_sonic_v8",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 9,
+      "serverSkillIds": [
+        9
+      ],
+      "skillNames": [
+        "Sonic Buster"
+      ],
+      "effectClasses": [
+        "s_u010_a",
+        "el_flame_strike_ra",
+        "el_flame_strike_ta"
+      ],
+      "folderName": "el_flame_strike_v9",
+      "effectRoot": "Assets/Resources/Data/Effects/el_flame_strike_v9",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 29,
+      "serverSkillIds": [
+        29,
+        95
+      ],
+      "skillNames": [
+        "Iron Punch",
+        "Cripple"
+      ],
+      "effectClasses": [
+        "s_u006_a",
+        "s_u006_b"
+      ],
+      "folderName": "s_u006_a_v29",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u006_a_v29",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 30,
+      "serverSkillIds": [
+        36,
+        255
+      ],
+      "skillNames": [
+        "Whirlwind",
+        "Power Smash"
+      ],
+      "effectClasses": [
+        "s_u010_b",
+        "s_u010_a",
+        "p_u004_a"
+      ],
+      "folderName": "s_u010_b_v30",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u010_b_v30",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/s_u010_b_v30/s_u010_b_v30_composite.prefab"
+    },
+    {
+      "visualId": 35,
+      "serverSkillIds": [
+        35
+      ],
+      "skillNames": [
+        "Force Storm"
+      ],
+      "effectClasses": [
+        "at_fatal_strike_ca",
+        "m_u000_c",
+        "m_u006_d",
+        "m_u006_e"
+      ],
+      "folderName": "m_u000_c_v35",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u000_c_v35",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 42,
+      "serverSkillIds": [
+        42
+      ],
+      "skillNames": [
+        "Sweeper"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_42",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_42",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 54,
+      "serverSkillIds": [
+        54
+      ],
+      "skillNames": [
+        "Force Blaster"
+      ],
+      "effectClasses": [
+        "at_fatal_strike_ca",
+        "at_sonic_blast_ta",
+        "m_u006_c"
+      ],
+      "folderName": "m_u006_c_v54",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u006_c_v54",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 78,
+      "serverSkillIds": [
+        75,
+        80,
+        87,
+        88,
+        104,
+        139,
+        176,
+        181,
+        420,
+        425
+      ],
+      "skillNames": [
+        "Detect Insect Weakness",
+        "Detect Beast Weakness",
+        "Detect Animal Weakness",
+        "Detect Dragon Weakness",
+        "Detect Plant Weakness",
+        "Guts",
+        "Frenzy",
+        "Revival",
+        "Zealot",
+        "Hawk Spirit Totem"
+      ],
+      "effectClasses": [
+        "mo_war_cry_ca",
+        "mo_war_cry_ta"
+      ],
+      "folderName": "mo_war_cry_v78",
+      "effectRoot": "Assets/Resources/Data/Effects/mo_war_cry_v78",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/mo_war_cry_v78/mo_war_cry_v78_composite.prefab"
+    },
+    {
+      "visualId": 81,
+      "serverSkillIds": [
+        17,
+        81,
+        280
+      ],
+      "skillNames": [
+        "Force Burst",
+        "Punch of Doom",
+        "Burning Fist"
+      ],
+      "effectClasses": [
+        "at_fatal_strike_ca",
+        "el_flame_strike_ta"
+      ],
+      "folderName": "el_flame_strike_v81",
+      "effectRoot": "Assets/Resources/Data/Effects/el_flame_strike_v81",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 82,
+      "serverSkillIds": [
+        82
+      ],
+      "skillNames": [
+        "Majesty"
+      ],
+      "effectClasses": [
+        "mo_majesty_ta"
+      ],
+      "folderName": "mo_majesty_v82",
+      "effectRoot": "Assets/Resources/Data/Effects/mo_majesty_v82",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 86,
+      "serverSkillIds": [
+        350
+      ],
+      "skillNames": [
+        "Physical Mirror"
+      ],
+      "effectClasses": [
+        "mo_reflect_damage_ca",
+        "mo_reflect_damage_ta"
+      ],
+      "folderName": "mo_reflect_damage_v86",
+      "effectRoot": "Assets/Resources/Data/Effects/mo_reflect_damage_v86",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/mo_reflect_damage_v86/mo_reflect_damage_v86_composite.prefab"
+    },
+    {
+      "visualId": 99,
+      "serverSkillIds": [
+        297
+      ],
+      "skillNames": [
+        "Duelist Spirit"
+      ],
+      "effectClasses": [
+        "mo_rapid_shot_ca",
+        "mo_rapid_shot_ta"
+      ],
+      "folderName": "mo_rapid_shot_v99",
+      "effectRoot": "Assets/Resources/Data/Effects/mo_rapid_shot_v99",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/mo_rapid_shot_v99/mo_rapid_shot_v99_composite.prefab"
+    },
+    {
+      "visualId": 102,
+      "serverSkillIds": [
+        127
+      ],
+      "skillNames": [
+        "Hamstring"
+      ],
+      "effectClasses": [
+        "sp_decay_ca",
+        "ph_zero_g_ta"
+      ],
+      "folderName": "sp_decay_v102",
+      "effectRoot": "Assets/Resources/Data/Effects/sp_decay_v102",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/sp_decay_v102/sp_decay_v102_composite.prefab"
+    },
+    {
+      "visualId": 116,
+      "serverSkillIds": [
+        97,
+        403
+      ],
+      "skillNames": [
+        "Sanctuary",
+        "Shackle"
+      ],
+      "effectClasses": [
+        "ph_howl_ca",
+        "ph_howl_ta"
+      ],
+      "folderName": "viz_116",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_116",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/viz_116/viz_116_composite.prefab"
+    },
+    {
+      "visualId": 120,
+      "serverSkillIds": [
+        120
+      ],
+      "skillNames": [
+        "Stunning Fist"
+      ],
+      "effectClasses": [
+        "s_u010_a",
+        "p_u004_a"
+      ],
+      "folderName": "s_u010_a_v120",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u010_a_v120",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 190,
+      "serverSkillIds": [
+        190,
+        320
+      ],
+      "skillNames": [
+        "Fatal Strike",
+        "Wrath"
+      ],
+      "effectClasses": [
+        "at_fatal_strike_ca",
+        "at_fatal_strike_cs",
+        "RibbonSet",
+        "at_fatal_strike_ta"
+      ],
+      "folderName": "viz_190",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_190",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 254,
+      "serverSkillIds": [
+        254,
+        302
+      ],
+      "skillNames": [
+        "Spoil",
+        "Spoil Festival"
+      ],
+      "effectClasses": [
+        "dw_spoil_ca",
+        "dw_spoil_ta"
+      ],
+      "folderName": "viz_254",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_254",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 260,
+      "serverSkillIds": [
+        48
+      ],
+      "skillNames": [
+        "Thunder Storm"
+      ],
+      "effectClasses": [
+        "at_fatal_strike_ca",
+        "at_stun_attack_ca",
+        "at_stun_attack_ta",
+        "at_shield_stun_cs"
+      ],
+      "folderName": "viz_260",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_260",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/viz_260/viz_260_composite.prefab"
+    },
+    {
+      "visualId": 284,
+      "serverSkillIds": [
+        284
+      ],
+      "skillNames": [
+        "Hurricane Assault"
+      ],
+      "effectClasses": [
+        "s_u010_a",
+        "p_u004_a"
+      ],
+      "folderName": "s_u010_a_v284",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u010_a_v284",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 289,
+      "serverSkillIds": [
+        46
+      ],
+      "skillNames": [
+        "Life Scavenge"
+      ],
+      "effectClasses": [
+        "s_u020_a",
+        "s_u020_b",
+        "s_u020_c"
+      ],
+      "folderName": "s_u020_a_v289",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u020_a_v289",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/s_u020_a_v289/s_u020_a_v289_composite.prefab"
+    },
+    {
+      "visualId": 317,
+      "serverSkillIds": [
+        317
+      ],
+      "skillNames": [
+        "Focus Attack"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_317",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_317",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 324,
+      "serverSkillIds": [
+        324
+      ],
+      "skillNames": [
+        "Quiver of Arrow: Grade S"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_324",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_324",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 346,
+      "serverSkillIds": [
+        346
+      ],
+      "skillNames": [
+        "Raging Force"
+      ],
+      "effectClasses": [
+        "oa_force_rage_ca",
+        "mo_battle_roar_ta",
+        "oa_force_rage_fl",
+        "oa_force_rage_ta"
+      ],
+      "folderName": "mo_battle_roar_v346",
+      "effectRoot": "Assets/Resources/Data/Effects/mo_battle_roar_v346",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 348,
+      "serverSkillIds": [
+        348
+      ],
+      "skillNames": [
+        "Spoil Crush"
+      ],
+      "effectClasses": [
+        "at_fatal_strike_ca",
+        "at_fatal_strike_cs",
+        "at_fatal_strike_ta",
+        "dw_spoil_ta"
+      ],
+      "folderName": "viz_348",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_348",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 353,
+      "serverSkillIds": [
+        353
+      ],
+      "skillNames": [
+        "Shield Slam"
+      ],
+      "effectClasses": [
+        "at_shield_slam_ca",
+        "at_shield_stun_cs",
+        "at_shield_slam_ta"
+      ],
+      "folderName": "viz_353",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_353",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 361,
+      "serverSkillIds": [
+        347
+      ],
+      "skillNames": [
+        "Earthquake"
+      ],
+      "effectClasses": [
+        "at_shock_blast_ca",
+        "at_shock_blast_ra",
+        "at_shock_blast_ta"
+      ],
+      "folderName": "viz_361",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_361",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/at_shock_blast_v361/at_shock_blast_v361_composite.prefab"
+    },
+    {
+      "visualId": 362,
+      "serverSkillIds": [
+        362
+      ],
+      "skillNames": [
+        "Armor Crush"
+      ],
+      "effectClasses": [
+        "s_u513_a",
+        "s_u513_c",
+        "s_u513_b"
+      ],
+      "folderName": "s_u513_a_v362",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u513_a_v362",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 455,
+      "serverSkillIds": [
+        455
+      ],
+      "skillNames": [
+        "Symbol of Noise"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_455",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_455",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 456,
+      "serverSkillIds": [
+        456
+      ],
+      "skillNames": [
+        "Symbol of Resistance"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_456",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_456",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 457,
+      "serverSkillIds": [
+        457
+      ],
+      "skillNames": [
+        "Symbol of Honor"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_457",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_457",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 458,
+      "serverSkillIds": [
+        458
+      ],
+      "skillNames": [
+        "Symbol of Energy"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_458",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_458",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 459,
+      "serverSkillIds": [
+        459
+      ],
+      "skillNames": [
+        "Symbol of the Sniper"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_459",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_459",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1002,
+      "serverSkillIds": [
+        1002,
+        1003,
+        1004,
+        1007,
+        1249,
+        1251,
+        1253,
+        1256,
+        1282,
+        1364,
+        1365
+      ],
+      "skillNames": [
+        "Flame Chant",
+        "Pa'agrian Gift",
+        "The Wisdom of Pa'agrio",
+        "Chant of Battle",
+        "The Vision of Pa'agrio",
+        "Chant of Fury",
+        "Chant of Rage",
+        "The Heart of Pa'agrio",
+        "Pa'agrian Haste",
+        "The Eye of Pa'agrio",
+        "The Soul of Pa'agrio"
+      ],
+      "effectClasses": [
+        "m_u024_a",
+        "m_u024_c",
+        "m_u024_b"
+      ],
+      "folderName": "m_u024_a_v1002",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u024_a_v1002",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1005,
+      "serverSkillIds": [
+        1005,
+        1006,
+        1008,
+        1009,
+        1250,
+        1252,
+        1260,
+        1261,
+        1284
+      ],
+      "skillNames": [
+        "Blessings of Pa'agrio",
+        "Chant of Fire",
+        "The Glory of Pa'agrio",
+        "Chant of Shielding",
+        "Under the Protection of Pa'agrio",
+        "Chant of Evasion",
+        "The Tact of Pa'agrio",
+        "The Rage of Pa'agrio",
+        "Chant of Revenge"
+      ],
+      "effectClasses": [
+        "m_u034_a",
+        "m_u034_c",
+        "m_u034_b"
+      ],
+      "folderName": "m_u034_a_v1005",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u034_a_v1005",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1007,
+      "serverSkillIds": [
+        421,
+        1305,
+        1306,
+        1308,
+        1309,
+        1310,
+        1390
+      ],
+      "skillNames": [
+        "Fell Swoop",
+        "The Honor of Pa'agrio",
+        "Ritual of Life",
+        "Chant of Predator",
+        "Chant of Eagle",
+        "Chant of Vampire",
+        "War Chant"
+      ],
+      "effectClasses": [
+        "sa_mass_frenzy_ca",
+        "sa_mass_frenzy_cs",
+        "sa_mass_frenzy_ta"
+      ],
+      "folderName": "viz_1007",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_1007",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1010,
+      "serverSkillIds": [
+        423,
+        1010,
+        1413
+      ],
+      "skillNames": [
+        "Infernal Form",
+        "Soul Shield",
+        "Magnus' Chant"
+      ],
+      "effectClasses": [
+        "sa_mass_frenzy_ca",
+        "s_devotion_of_shine_ta"
+      ],
+      "folderName": "viz_1010",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_1010",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1012,
+      "serverSkillIds": [
+        44
+      ],
+      "skillNames": [
+        "Remedy"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "wh_cure_poison_ta"
+      ],
+      "folderName": "wh_heal_v1012",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v1012",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/cure_posion/wh_сure_posion_composite.prefab"
+    },
+    {
+      "visualId": 1028,
+      "serverSkillIds": [
+        49
+      ],
+      "skillNames": [
+        "Holy Strike"
+      ],
+      "effectClasses": [
+        "wh_sec_heal_ca",
+        "wh_disrupt_undead_ta"
+      ],
+      "folderName": "wh_sec_heal_v1028",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_sec_heal_v1028",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/wh_sec_heal_v1028/wh_sec_heal_v1028_composite.prefab"
+    },
+    {
+      "visualId": 1043,
+      "serverSkillIds": [
+        406
+      ],
+      "skillNames": [
+        "Angelic Icon"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "wh_holy_weapon_ta"
+      ],
+      "folderName": "wh_heal_v1043",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v1043",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/wh_heal_v1043/wh_heal_v1043_composite.prefab"
+    },
+    {
+      "visualId": 1090,
+      "serverSkillIds": [
+        1090
+      ],
+      "skillNames": [
+        "Life Drain"
+      ],
+      "effectClasses": [
+        "m_u003_a",
+        "m_u003_c",
+        "m_u003_b"
+      ],
+      "folderName": "m_u003_a_v1090",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u003_a_v1090",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1092,
+      "serverSkillIds": [
+        1092,
+        1095,
+        1096,
+        1097,
+        1099,
+        1102,
+        1104,
+        1105,
+        1208,
+        1209,
+        1210,
+        1213,
+        1246,
+        1247,
+        1248,
+        1366,
+        1367
+      ],
+      "skillNames": [
+        "Fear",
+        "Venom",
+        "Seal of Chaos",
+        "Dreaming Spirit",
+        "Seal of Slow",
+        "Aura Sink",
+        "Seal of Winter",
+        "Madness",
+        "Seal of Binding",
+        "Seal of Poison",
+        "Seal of Gloom",
+        "Seal of Mirage",
+        "Seal of Silence",
+        "Seal of Scourge",
+        "Seal of Suspension",
+        "Seal of Despair",
+        "Seal of Disease"
+      ],
+      "effectClasses": [
+        "m_u025_a",
+        "m_u025_c",
+        "m_u025_b"
+      ],
+      "folderName": "m_u025_a_v1092",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u025_a_v1092",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1101,
+      "serverSkillIds": [
+        1101,
+        1108
+      ],
+      "skillNames": [
+        "Blaze Quake",
+        "Seal of Flame"
+      ],
+      "effectClasses": [
+        "m_u027_a",
+        "m_u027_b"
+      ],
+      "folderName": "m_u027_a_v1101",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u027_a_v1101",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1111,
+      "serverSkillIds": [
+        13,
+        25,
+        283,
+        299,
+        301,
+        448
+      ],
+      "skillNames": [
+        "Summon Siege Golem",
+        "Summon Mechanic Golem",
+        "Summon Dark Panther",
+        "Summon Wild Hog Cannon",
+        "Summon Big Boom",
+        "Summon Swoop Cannon"
+      ],
+      "effectClasses": [
+        "su_summon_a_ca"
+      ],
+      "folderName": "su_summon_a_v1111",
+      "effectRoot": "Assets/Resources/Data/Effects/su_summon_a_v1111",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/su_summon_a_ca/su_summon_a_ca_composite.prefab"
+    },
+    {
+      "visualId": 1217,
+      "serverSkillIds": [
+        262
+      ],
+      "skillNames": [
+        "Holy Blessing"
+      ],
+      "effectClasses": [
+        "wh_sec_heal_ca",
+        "mo_dash_ca",
+        "wh_greater_heal_ta"
+      ],
+      "folderName": "wh_sec_heal_v1217",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_sec_heal_v1217",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/wh_sec_heal_v1217/wh_sec_heal_v1217_composite.prefab"
+    },
+    {
+      "visualId": 1244,
+      "serverSkillIds": [
+        1100,
+        1107,
+        1244
+      ],
+      "skillNames": [
+        "Chill Flame",
+        "Frost Flame",
+        "Freezing Flame"
+      ],
+      "effectClasses": [
+        "m_u028_a",
+        "m_u028_b",
+        "m_u028_c"
+      ],
+      "folderName": "m_u028_a_v1244",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u028_a_v1244",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1263,
+      "serverSkillIds": [
+        1263
+      ],
+      "skillNames": [
+        "Curse Gloom"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_1263",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_1263",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1362,
+      "serverSkillIds": [
+        1362,
+        1363
+      ],
+      "skillNames": [
+        "Chant of Spirit",
+        "Chant of Victory"
+      ],
+      "effectClasses": [
+        "m_u800_a",
+        "m_u800_b",
+        "m_u024_b"
+      ],
+      "folderName": "m_u800_a_v1362",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u800_a_v1362",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1382,
+      "serverSkillIds": [
+        1382
+      ],
+      "skillNames": [
+        "Mass Gloom"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_1382",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_1382",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1391,
+      "serverSkillIds": [
+        1391
+      ],
+      "skillNames": [
+        "Earth Chant"
+      ],
+      "effectClasses": [
+        "sa_mass_frenzy_ca",
+        "sa_mass_frenzy_cs",
+        "sa_mass_frenzy_ta"
+      ],
+      "folderName": "viz_1391",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_1391",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1414,
+      "serverSkillIds": [
+        1414,
+        1415,
+        1416
+      ],
+      "skillNames": [
+        "Victories of Pa'agrio",
+        "Pa'agrio's Emblem",
+        "Pa'agrio's Fist"
+      ],
+      "effectClasses": [
+        "sa_mass_frenzy_ca",
+        "sa_mass_frenzy_cs",
+        "sa_mass_frenzy_ta"
+      ],
+      "folderName": "viz_1414",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_1414",
+      "mode": "generate",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 1425,
+      "serverSkillIds": [
+        1427
+      ],
+      "skillNames": [
+        "Flames of Invincibility"
+      ],
+      "effectClasses": [
+        "s_u807_mage_ca",
+        "s_u807_ta",
+        "wh_bless_the_body_ta"
+      ],
+      "folderName": "wh_bless_the_body_v1425",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_bless_the_body_v1425",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/wh_bless_the_body_v1425/wh_bless_the_body_v1425_composite.prefab"
+    },
+    {
+      "visualId": 2013,
+      "serverSkillIds": [
+        1429
+      ],
+      "skillNames": [
+        "Gate Chant"
+      ],
+      "effectClasses": [
+        "it_scroll_of_escape_ca",
+        "it_scroll_of_escape_ta"
+      ],
+      "folderName": "viz_2013",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_2013",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/it_teleport_v1/it_teleport_v1_composite.prefab"
+    },
+    {
+      "visualId": 3147,
+      "serverSkillIds": [
+        1050
+      ],
+      "skillNames": [
+        "Return"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_3147",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_3147",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10064,
+      "serverSkillIds": [
+        69
+      ],
+      "skillNames": [
+        "Sacrifice"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10064",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10064",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10081,
+      "serverSkillIds": [
+        279
+      ],
+      "skillNames": [
+        "Lightning Strike"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10081",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10081",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10090,
+      "serverSkillIds": [
+        404
+      ],
+      "skillNames": [
+        "Mass Shackling"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10090",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10090",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10291,
+      "serverSkillIds": [
+        76
+      ],
+      "skillNames": [
+        "Bear Spirit Totem"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10291",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10291",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10292,
+      "serverSkillIds": [
+        109
+      ],
+      "skillNames": [
+        "Ogre Spirit Totem"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10292",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10292",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10293,
+      "serverSkillIds": [
+        282
+      ],
+      "skillNames": [
+        "Puma Spirit Totem"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10293",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10293",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10294,
+      "serverSkillIds": [
+        298
+      ],
+      "skillNames": [
+        "Rabbit Spirit Totem"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10294",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10294",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10302,
+      "serverSkillIds": [
+        261
+      ],
+      "skillNames": [
+        "Triple Sonic Slash"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10302",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10302",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10305,
+      "serverSkillIds": [
+        286
+      ],
+      "skillNames": [
+        "Provoke"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10305",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10305",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10308,
+      "serverSkillIds": [
+        292
+      ],
+      "skillNames": [
+        "Bison Spirit Totem"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10308",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10308",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10310,
+      "serverSkillIds": [
+        94
+      ],
+      "skillNames": [
+        "Rage"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10310",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10310",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10318,
+      "serverSkillIds": [
+        345
+      ],
+      "skillNames": [
+        "Sonic Rage"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10318",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10318",
+      "mode": "skip",
+      "aliasComposite": null
+    },
+    {
+      "visualId": 10322,
+      "serverSkillIds": [
+        83
+      ],
+      "skillNames": [
+        "Wolf Spirit Totem"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_10322",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_10322",
+      "mode": "skip",
+      "aliasComposite": null
+    }
+  ],
+  "allEffectClasses": [
+    "RibbonSet",
+    "at_fatal_strike_ca",
+    "at_fatal_strike_cs",
+    "at_fatal_strike_ta",
+    "at_shield_slam_ca",
+    "at_shield_slam_ta",
+    "at_shield_stun_ca",
+    "at_shield_stun_cs",
+    "at_shield_stun_ta",
+    "at_shock_blast_ca",
+    "at_shock_blast_ra",
+    "at_shock_blast_ta",
+    "at_sonic_blast_fl",
+    "at_sonic_blast_ta",
+    "at_stun_attack_ca",
+    "at_stun_attack_ta",
+    "bl_berserker_spirit_ca",
+    "bl_curse_poison_ta",
+    "dw_spoil_ca",
+    "dw_spoil_ta",
+    "el_eruption_ra",
+    "el_flame_strike_ra",
+    "el_flame_strike_ta",
+    "it_scroll_of_escape_ca",
+    "it_scroll_of_escape_ta",
+    "m_u000_c",
+    "m_u003_a",
+    "m_u003_b",
+    "m_u003_c",
+    "m_u006_c",
+    "m_u006_d",
+    "m_u006_e",
+    "m_u018_a",
+    "m_u018_b",
+    "m_u024_a",
+    "m_u024_b",
+    "m_u024_c",
+    "m_u025_a",
+    "m_u025_b",
+    "m_u025_c",
+    "m_u027_a",
+    "m_u027_b",
+    "m_u028_a",
+    "m_u028_b",
+    "m_u028_c",
+    "m_u034_a",
+    "m_u034_b",
+    "m_u034_c",
+    "m_u800_a",
+    "m_u800_b",
+    "mo_battle_roar_ca",
+    "mo_battle_roar_ta",
+    "mo_dash_ca",
+    "mo_dash_ta",
+    "mo_focus_sonic_ca",
+    "mo_focus_sonic_ta",
+    "mo_majesty_ta",
+    "mo_rapid_shot_ca",
+    "mo_rapid_shot_ta",
+    "mo_reflect_damage_ca",
+    "mo_reflect_damage_ta",
+    "mo_war_cry_ca",
+    "mo_war_cry_ta",
+    "oa_force_rage_ca",
+    "oa_force_rage_fl",
+    "oa_force_rage_ta",
+    "p_u002_a",
+    "p_u004_a",
+    "ph_howl_ca",
+    "ph_howl_ta",
+    "ph_zero_g_ta",
+    "s_devotion_of_shine_ta",
+    "s_u002_a",
+    "s_u006_a",
+    "s_u006_b",
+    "s_u010_a",
+    "s_u010_b",
+    "s_u015_b",
+    "s_u020_a",
+    "s_u020_b",
+    "s_u020_c",
+    "s_u513_a",
+    "s_u513_b",
+    "s_u513_c",
+    "s_u804_a_ca",
+    "s_u807_mage_ca",
+    "s_u807_ta",
+    "sa_mass_frenzy_ca",
+    "sa_mass_frenzy_cs",
+    "sa_mass_frenzy_ta",
+    "sp_decay_ca",
+    "su_focus_ta",
+    "su_summon_a_ca",
+    "wh_bless_the_body_ta",
+    "wh_cure_poison_ta",
+    "wh_disrupt_undead_ta",
+    "wh_greater_heal_ta",
+    "wh_heal_ca",
+    "wh_heal_ta",
+    "wh_holy_weapon_ta",
+    "wh_sec_heal_ca"
+  ]
+}

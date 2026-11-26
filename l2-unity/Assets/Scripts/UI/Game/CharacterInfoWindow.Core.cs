@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public partial class CharacterInfoWindow : L2PopupWindow
+public partial class CharacterInfoWindow : L2PopupWindow, ICharacterInfoValues
 {
     void Awake()
     {

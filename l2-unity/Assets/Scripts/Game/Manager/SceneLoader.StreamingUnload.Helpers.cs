@@ -7,24 +7,28 @@ using VContainer;
 
 public partial class SceneLoader
 {
-    void InstantiateMapTilePrefabs(string tile)
+    IEnumerator InstantiateMapTilePrefabsAsync(string tile)
     {
         if (_prefabTiles.ContainsKey(tile))
-            return;
+            yield break;
 
         using (FineagePerfProfiling.TileLoad.Auto())
-            InstantiateMapTilePrefabsCore(tile);
+        {
+            yield return InstantiateMapTilePrefabsCoreAsync(tile);
+        }
     }
 
-    void InstantiateMapTilePrefabsCore(string tile)
+    IEnumerator InstantiateMapTilePrefabsCoreAsync(string tile)
     {
-        GameObject terrain = Resources.Load<GameObject>("Data/Maps/" + tile + "/" + tile);
+        string terrainPath = "Data/Maps/" + tile + "/" + tile;
+        ResourceRequest terrainReq = Resources.LoadAsync<GameObject>(terrainPath);
+        yield return terrainReq;
+        GameObject terrain = terrainReq.asset as GameObject;
         if (terrain == null)
         {
-            FineageLog.Warn(
-                FineageLogCategory.World,
-                "LoadSWMap: no scene and no map prefab for tile '" + tile + "'");
-            return;
+            _worldStreaming = false;
+            _streamingBusy = false;
+            throw MapTileLoadPolicy.Missing(tile);
         }
 
         var root = new GameObject(tile);
@@ -40,15 +44,49 @@ public partial class SceneLoader
             "Brushes",
             tile + "_AmbientSounds"
         };
+        string decoBytesPath = "Data/Maps/" + tile + "/" + tile + "_Deco";
+        ResourceRequest decoReq = Resources.LoadAsync<TextAsset>(decoBytesPath);
+        yield return decoReq;
+        TextAsset decoArchive = decoReq.asset as TextAsset;
+        bool skipDecoPrefab = decoArchive != null;
         int placed = 0;
+        if (skipDecoPrefab)
+        {
+            var decoGo = new GameObject(tile + "_Deco");
+            decoGo.transform.SetParent(root.transform, false);
+            int decoLayer = LayerMask.NameToLayer("Deco");
+            if (decoLayer < 0)
+            {
+                FineageLog.Error(
+                    FineageLogCategory.World,
+                    "[Interlude deco] " + tile + ": physics layer 'Deco' is missing");
+                decoLayer = 0;
+            }
+            decoGo.layer = decoLayer;
+            decoGo.AddComponent<L2DecoInstancedRenderer>().SetArchive(decoArchive);
+            placed++;
+        }
         for (int i = 0; i < parts.Length; i++)
         {
-            GameObject prefab = Resources.Load<GameObject>("Data/Maps/" + tile + "/" + parts[i]);
+            if (skipDecoPrefab && parts[i] == tile + "_DecoLayer")
+                continue;
+            string path = "Data/Maps/" + tile + "/" + parts[i];
+            ResourceRequest req = Resources.LoadAsync<GameObject>(path);
+            yield return req;
+            GameObject prefab = req.asset as GameObject;
             if (prefab == null)
                 continue;
+            if (!skipDecoPrefab && parts[i] == tile + "_DecoLayer")
+            {
+                FineageLog.Error(
+                    FineageLogCategory.World,
+                    "[Interlude deco] " + tile + ": no " + tile + "_Deco.bytes; loaded " + tile
+                    + "_DecoLayer prefab, waiting for L2DC rebake");
+            }
             GameObject go = UnityEngine.Object.Instantiate(prefab, root.transform);
             go.name = prefab.name;
             go.transform.SetPositionAndRotation(prefab.transform.position, prefab.transform.rotation);
+            L2TwoSidedMaterials.BindHierarchy(go, logIfPropsMissing: false, "map tile " + tile);
             placed++;
         }
 

@@ -12,7 +12,7 @@ public partial class Entity
 
         _status.SetHp(Mathf.Max((float)_status.GetHp() - damage, 0));
 
-        OnHit(criticalHit);
+        OnHit(criticalHit, shielded: false, attacker: null);
 
         if(_status.GetHp() <= 0) {
             OnDeath();
@@ -36,13 +36,30 @@ public partial class Entity
         }
     }
 
-    protected virtual void OnHit(bool criticalHit) {
-        // TODO: Add armor type for more hit sounds
-        if (AudioPacketServices.Audio != null)
-            AudioPacketServices.Audio.PlayHitSound(criticalHit, transform.position);
+    protected virtual void OnHit(bool criticalHit) => OnHit(criticalHit, shielded: false, attacker: null);
+
+    protected virtual void OnHit(bool criticalHit, bool shielded, Entity attacker) {
+        int entityId = Identity != null ? Identity.Id : 0;
+        if (shielded)
+            CombatShieldBlockPresentation.TryPlayBlockAnimation(this);
+        CharacterCombatAudioDispatch.PlayHitImpact(
+            criticalHit,
+            transform.position,
+            entityId,
+            attacker,
+            target: this,
+            shieldBlock: shielded);
     }
 
-    public void PlayHitReaction(bool criticalHit = false) => OnHit(criticalHit);
+    public void PlayHitReaction(bool criticalHit = false)
+    {
+        Entity attacker = null;
+        bool crit = criticalHit;
+        bool shielded = false;
+        if (CombatAudioHitContext.TryTake(out attacker, out bool ctxCrit, out shielded) && !criticalHit)
+            crit = ctxCrit;
+        OnHit(crit, shielded, attacker);
+    }
 
     public virtual void OnStopMoving() {}
 

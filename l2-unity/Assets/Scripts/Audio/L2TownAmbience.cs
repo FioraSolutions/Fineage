@@ -39,6 +39,10 @@ public sealed class L2TownAmbience : MonoBehaviour
 
     void LateUpdate()
     {
+        OfficialAmbientSoundTable.Load();
+        if (OfficialAmbientSoundTable.HasActors)
+            return;
+
         if (Time.unscaledTime < _next)
             return;
         _next = Time.unscaledTime + 0.75f;

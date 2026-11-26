@@ -11,8 +11,20 @@ public abstract partial class CompositePart : ISerializationCallbackReceiver
     [Tooltip("Where this part appears. Spawn Timing is when.")]
     public EffectAttachmentPoint spawnAttachmentPoint;
     public string boneName;
+    public Vector3 spawnOffset;
+    public bool spawnOffsetLocal = true;
+    /// <summary>Resolver-owned parts: a named bone that is missing is an error, not a root substitute.</summary>
+    public bool requireNamedBone;
+    public bool boneOnTarget;
     public bool follow = true;
     public bool inheritRotation;
+    /// <summary>Authored Unreal rotator converted to Unity euler degrees.</summary>
+    public Vector3 spawnEuler;
+    /// <summary>Official RotPerSecond converted to Unity euler degrees per second.</summary>
+    public Vector3 rotPerSecondEuler;
+    public bool rotEmitter;
+    public bool selfRotation;
+    public bool directional;
     // Nested SerializeReference inside a SerializeReference part orphans RefIds
     // (missing 1008/1009) on prefab save. Runtime uses spawnAttachmentPoint.
     // Kept only to migrate old prefabs in OnAfterDeserialize.

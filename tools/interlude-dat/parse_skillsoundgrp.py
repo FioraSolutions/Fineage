@@ -51,6 +51,58 @@ def clip_name(raw: str) -> str:
     return raw.split(".", 1)[1] if "." in raw else raw
 
 
+def token_parts(raw: str) -> tuple[str, str]:
+    raw = (raw or "").strip()
+    if not raw:
+        return "", ""
+    if "." in raw:
+        pkg, name = raw.rsplit(".", 1)
+        return pkg, name
+    return "", raw
+
+
+def cue(token: str, vol: float | None, rad: float | None) -> dict:
+    pkg, name = token_parts(token)
+    return {
+        "token": token or "",
+        "package": pkg,
+        "name": name,
+        "clip": clip_name(token),
+        "vol": float(vol or 0),
+        "rad": float(rad or 0),
+    }
+
+
+def cue_list(tokens: list[str], vr: list[float]) -> list[dict]:
+    out = []
+    for i, token in enumerate(tokens):
+        if not token:
+            continue
+        vol = vr[i * 2] if i * 2 < len(vr) else 0
+        rad = vr[i * 2 + 1] if i * 2 + 1 < len(vr) else 0
+        out.append(cue(token, vol, rad))
+    return out
+
+
+def unity_entry(r: dict) -> dict:
+    return {
+        "skillId": r["skill_id"],
+        "level": r["level"],
+        "cast": r["cast"],
+        "shot": r["shot"],
+        "explode": r["explode"],
+        "castCue": cue(r.get("cast_token") or "", r.get("cast_vol"), r.get("cast_rad")),
+        "shotCue": cue(r.get("shot_token") or "", r.get("shot_vol"), r.get("shot_rad")),
+        "explodeCue": cue(r.get("explode_token") or "", r.get("explode_vol"), r.get("explode_rad")),
+        "shotEffects": cue_list(r.get("shot_effects") or [], r.get("shot_effect_vol_rad") or []),
+        "expEffects": cue_list(r.get("exp_effects") or [], r.get("exp_effect_vol_rad") or []),
+        "kinds": r["kinds"],
+        "throwKinds": r["throwKinds"],
+        "vol": r.get("vol") or 0,
+        "rad": r.get("rad") or 0,
+    }
+
+
 def voice_kind(chrsound: str) -> str:
     """chrsound.m_hmagician_white → White; chrsound.m_dwarf_type_a → Type_A."""
     if not chrsound.startswith("chrsound."):
@@ -80,16 +132,26 @@ def parse(data: bytes) -> list[dict]:
         for _i in range(3):
             s, off = uni(data, off)
             spell.append(s)
+        spell_vr = []
         for _i in range(6):
-            _, off = f32(data, off)
+            v, off = f32(data, off)
+            spell_vr.append(v)
+        shot = []
         for _i in range(3):
-            _, off = uni(data, off)
+            s, off = uni(data, off)
+            shot.append(s)
+        shot_vr = []
         for _i in range(6):
-            _, off = f32(data, off)
+            v, off = f32(data, off)
+            shot_vr.append(v)
+        exp = []
         for _i in range(3):
-            _, off = uni(data, off)
+            s, off = uni(data, off)
+            exp.append(s)
+        exp_vr = []
         for _i in range(6):
-            _, off = f32(data, off)
+            v, off = f32(data, off)
+            exp_vr.append(v)
         sub = []
         for _i in range(15):
             s, off = uni(data, off)
@@ -111,6 +173,19 @@ def parse(data: bytes) -> list[dict]:
                 "cast": clip_name(spell[0]),
                 "shot": clip_name(spell[1]),
                 "explode": clip_name(spell[2]),
+                "cast_token": spell[0],
+                "shot_token": spell[1],
+                "explode_token": spell[2],
+                "cast_vol": spell_vr[0],
+                "cast_rad": spell_vr[1],
+                "shot_vol": spell_vr[2],
+                "shot_rad": spell_vr[3],
+                "explode_vol": spell_vr[4],
+                "explode_rad": spell_vr[5],
+                "shot_effects": shot,
+                "shot_effect_vol_rad": shot_vr,
+                "exp_effects": exp,
+                "exp_effect_vol_rad": exp_vr,
                 "kinds": kinds,
                 "throwKinds": throw_kinds,
                 "vol": vol,
@@ -120,38 +195,104 @@ def parse(data: bytes) -> list[dict]:
     return rows
 
 
+def parse_tsv(path: Path) -> list[dict]:
+    """Build the same row dicts from the already-decoded skillsoundgrp TSV."""
+    lines = path.read_text(encoding="utf-8").splitlines()
+    header = lines[0].split("\t")
+    idx = {c: i for i, c in enumerate(header)}
+
+    def col(cols, name, default=""):
+        i = idx.get(name)
+        if i is None or i >= len(cols):
+            return default
+        return cols[i]
+
+    def fcol(cols, name):
+        raw = col(cols, name)
+        if raw == "":
+            return 0.0
+        try:
+            return float(raw)
+        except ValueError:
+            return 0.0
+
+    rows: list[dict] = []
+    for line in lines[1:]:
+        if not line:
+            continue
+        cols = line.split("\t")
+        spell = [col(cols, n) for n in ("spelleffect_sound_1", "spelleffect_sound_2", "spelleffect_sound_3")]
+        shot = [col(cols, n) for n in ("shoteffect_sound_1", "shoteffect_sound_2", "shoteffect_sound_3")]
+        exp = [col(cols, n) for n in ("expeffect_sound_1", "expeffect_sound_2", "expeffect_sound_3")]
+        spell_vr = [
+            fcol(cols, "spelleffect_sound_vol_1"), fcol(cols, "spelleffect_sound_rad_1"),
+            fcol(cols, "spelleffect_sound_vol_2"), fcol(cols, "spelleffect_sound_rad_2"),
+            fcol(cols, "spelleffect_sound_vol_3"), fcol(cols, "spelleffect_sound_rad_3"),
+        ]
+        shot_vr = [
+            fcol(cols, "shoteffect_sound_vol_1"), fcol(cols, "shoteffect_sound_rad_1"),
+            fcol(cols, "shoteffect_sound_vol_2"), fcol(cols, "shoteffect_sound_rad_2"),
+            fcol(cols, "shoteffect_sound_vol_3"), fcol(cols, "shoteffect_sound_rad_3"),
+        ]
+        exp_vr = [
+            fcol(cols, "expeffect_sound_vol_1"), fcol(cols, "expeffect_sound_rad_1"),
+            fcol(cols, "expeffect_sound_vol_2"), fcol(cols, "expeffect_sound_rad_2"),
+            fcol(cols, "expeffect_sound_vol_3"), fcol(cols, "expeffect_sound_rad_3"),
+        ]
+        sub = [col(cols, n) for n in (
+            "mfighter_sub", "ffighter_sub", "mdarkelf_sub", "fdarkelf_sub",
+            "mdwarf_sub", "fdwarf_sub", "melf_sub", "felf_sub",
+            "mmagic_sub", "fmagic_sub", "morc_sub", "forc_sub",
+            "mshaman_sub", "fshaman_sub",
+        )]
+        throw = [col(cols, n) for n in (
+            "mfighter_throw", "ffighter_throw", "mdarkelf_throw", "fdarkelf_throw",
+            "mdwarf_throw", "fdwarf_throw", "melf_throw", "felf_throw",
+            "mmagic_throw", "fmagic_throw", "morc_throw", "forc_throw",
+            "mshaman_throw", "fshaman_throw",
+        )]
+        rows.append(
+            {
+                "skill_id": int(col(cols, "skill_id") or 0),
+                "level": int(float(col(cols, "skill_level") or 0)),
+                "cast": clip_name(spell[0]),
+                "shot": clip_name(spell[1]),
+                "explode": clip_name(spell[2]),
+                "cast_token": spell[0],
+                "shot_token": spell[1],
+                "explode_token": spell[2],
+                "cast_vol": spell_vr[0],
+                "cast_rad": spell_vr[1],
+                "shot_vol": spell_vr[2],
+                "shot_rad": spell_vr[3],
+                "explode_vol": spell_vr[4],
+                "explode_rad": spell_vr[5],
+                "shot_effects": shot,
+                "shot_effect_vol_rad": shot_vr,
+                "exp_effects": exp,
+                "exp_effect_vol_rad": exp_vr,
+                "kinds": [voice_kind(s) for s in sub],
+                "throwKinds": [voice_kind(s) for s in throw],
+                "vol": fcol(cols, "sound_vol"),
+                "rad": fcol(cols, "sound_rad"),
+            }
+        )
+    return rows
+
+
 def build_maps(rows: list[dict]) -> dict:
     by_level: dict[str, dict] = {}
     by_skill: dict[str, dict] = {}
     for r in rows:
-        entry = {
-            "cast": r["cast"],
-            "shot": r["shot"],
-            "explode": r["explode"],
-            "kinds": r["kinds"],
-            "throwKinds": r["throwKinds"],
-        }
+        entry = unity_entry(r)
         by_level[f"{r['skill_id']}:{r['level']}"] = entry
         sid = str(r["skill_id"])
         prev = by_skill.get(sid)
-        if prev is None or r["level"] < prev["_level"]:
+        if prev is None or r["level"] < prev.get("_level", 10**9):
             by_skill[sid] = {**entry, "_level": r["level"]}
     for v in by_skill.values():
-        del v["_level"]
-    # Flat array for Unity JsonUtility (Dictionary JSON is unsupported).
-    entries = []
-    for r in rows:
-        entries.append(
-            {
-                "skillId": r["skill_id"],
-                "level": r["level"],
-                "cast": r["cast"],
-                "shot": r["shot"],
-                "explode": r["explode"],
-                "kinds": r["kinds"],
-                "throwKinds": r["throwKinds"],
-            }
-        )
+        v.pop("_level", None)
+    entries = [unity_entry(r) for r in rows]
     return {"bySkill": by_skill, "bySkillLevel": by_level, "entries": entries}
 
 
@@ -178,9 +319,25 @@ def main() -> None:
         type=Path,
         default=Path(__file__).with_name("skillsoundgrp.tsv"),
     )
+    ap.add_argument(
+        "--tsv-in",
+        type=Path,
+        help="Decoded skillsoundgrp TSV (used when --input dat is missing)",
+    )
     args = ap.parse_args()
 
-    rows = parse(args.input.read_bytes())
+    if args.tsv_in:
+        rows = parse_tsv(args.tsv_in)
+    elif args.input.exists():
+        rows = parse(args.input.read_bytes())
+    else:
+        default_tsv = (
+            Path(__file__).resolve().parents[2]
+            / "l2-unity/docs/interlude-ref/dats/skillsoundgrp.tsv"
+        )
+        if not default_tsv.exists():
+            raise SystemExit(f"no skillsoundgrp input: {args.input} or {default_tsv}")
+        rows = parse_tsv(default_tsv)
     maps = build_maps(rows)
 
     args.json_out.write_text(

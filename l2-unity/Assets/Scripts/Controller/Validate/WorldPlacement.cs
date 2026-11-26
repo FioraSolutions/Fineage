@@ -11,6 +11,22 @@ public static partial class WorldPlacement
         WalkValidate
     }
 
+    /// <summary>Optional ids for placement failure logs (ground items).</summary>
+    public readonly struct PlacementFailContext
+    {
+        public readonly int ObjectId;
+        public readonly int ItemId;
+
+        public PlacementFailContext(int objectId, int itemId)
+        {
+            ObjectId = objectId;
+            ItemId = itemId;
+        }
+    }
+
+    /// <summary>True when placement must find walkable floor instead of keeping server Y.</summary>
+    public static bool RequiresFloorSearch(PlacementKind kind) => kind == PlacementKind.ItemDrop;
+
     public const float HighOriginY = 750f;
     public const float HighMaxDistance = 1000f;
     public const float DefaultStartAbove = 50f;
@@ -26,8 +42,8 @@ public static partial class WorldPlacement
     public const float TownFloorLiftMeters = WorldGrounding.SnapToleranceMeters;
 
     /// <summary>
-    /// Resolve a Unity world position: server Y is the authority, walkable
-    /// mesh/terrain (not water) within <see cref="WorldGrounding.SnapToleranceMeters"/>
-    /// may replace it. Every placement kind shares this pipeline.
+    /// Resolve a Unity world position. Pawns/teleports: server Y is authority, walkable
+    /// mesh within <see cref="WorldGrounding.SnapToleranceMeters"/> may replace it.
+    /// <see cref="PlacementKind.ItemDrop"/> searches floor (mesh + geodata) instead.
     /// </summary>
 }

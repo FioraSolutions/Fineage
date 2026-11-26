@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-6881290322993400033
+--- !u!114 &-4340699265638763310
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -46,7 +46,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Splatmaps:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 18700000, guid: 575b54aa055fa4f36bf68265ad3f35f6, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -83,34 +83,43 @@ Material:
     - _Layer_5_Enabled: 1
     - _Layer_6_Enabled: 1
     - _Layer_7_Enabled: 1
-    - _Layer_8_Enabled: 0
+    - _Layer_8_Enabled: 1
     - _Layer_9_Enabled: 0
     - _QueueControl: 0
     - _QueueOffset: 0
     m_Colors:
     - _Global_UV_Size: {r: 150, g: 150, b: 0, a: 0}
-    - _Layer_0_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_10_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_11_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_12_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_13_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_14_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_15_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_16_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_17_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_18_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_19_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_1_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_20_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_21_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_22_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_2_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_3_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_4_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_5_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_6_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_7_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_8_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_9_UV: {r: 1, g: 1, b: 0, a: 0}
+    - _Layer_0_UV: {r: 128, g: 128, b: 0, a: 0}
+    - _Layer_0_Xform: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_10_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_11_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_12_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_13_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_14_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_15_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_16_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_17_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_18_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_19_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_1_UV: {r: 32, g: 32, b: 0, a: 0}
+    - _Layer_1_Xform: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_20_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_21_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_22_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_2_UV: {r: 32, g: 32, b: 0, a: 0}
+    - _Layer_2_Xform: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_3_UV: {r: 32, g: 32, b: 0, a: 0}
+    - _Layer_3_Xform: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_4_UV: {r: 32, g: 32, b: 0, a: 0}
+    - _Layer_4_Xform: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_5_UV: {r: 32, g: 32, b: 0, a: 0}
+    - _Layer_5_Xform: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_6_UV: {r: 32, g: 32, b: 0, a: 0}
+    - _Layer_6_Xform: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_7_UV: {r: 128, g: 128, b: 0, a: 0}
+    - _Layer_7_Xform: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_8_UV: {r: 32, g: 32, b: 0, a: 0}
+    - _Layer_8_Xform: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_9_UV: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

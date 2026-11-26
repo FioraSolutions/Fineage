@@ -85,6 +85,7 @@ public partial class DayNightCycle : MonoBehaviour
     L2CloudMyst _cloudMyst;
     bool _skyReady;
     float _appliedHours;
+    string _appliedMap;
 
 
 }

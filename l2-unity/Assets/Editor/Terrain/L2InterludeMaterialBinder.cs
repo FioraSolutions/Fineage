@@ -31,10 +31,30 @@ public static class L2InterludeMaterialBinder
     }
 
     /// <param name="exportRoots">umodel export dirs; null = all .work/umodel-export-*</param>
-    public static void Bind(IEnumerable<string> exportRoots, List<string> log)
+    /// <param name="tileScope">when set, only materials of packages this tile
+    /// references (its t3d/StaticMeshActor mesh packages + Brushes.json texture
+    /// packages) are bound, and collider/water post-steps touch only this tile.
+    /// A tile bake must not load other tiles' prefabs: a stale committed prefab
+    /// with dead PPtr guids would fail this tile's bake, and other tiles' real
+    /// material gaps would surface as this tile's errors.</param>
+    public static void Bind(IEnumerable<string> exportRoots, List<string> log, string tileScope = null)
     {
         var roots = (exportRoots ?? Directory.GetDirectories(Path.Combine(RepoRoot, ".work"), "umodel-export-*"))
             .Where(Directory.Exists).ToList();
+
+        HashSet<string> scope = null;
+        if (!string.IsNullOrEmpty(tileScope))
+        {
+            scope = LoadTileScopePackages(tileScope);
+            if (scope == null)
+            {
+                Debug.LogError("[MatBinder] tile scope for " + tileScope + " has no Meta sources " +
+                               "(t3d / StaticMeshActor.json / Brushes.json); bind nothing");
+                log.Add("ERROR: tile scope load failed for " + tileScope);
+                return;
+            }
+            log.Add("tile scope " + tileScope + ": " + scope.Count + " packages");
+        }
 
         int copied = CopyTextures(roots);
         log.Add("textures copied into Assets: " + copied);
@@ -53,6 +73,7 @@ public static class L2InterludeMaterialBinder
             if (!tex.TryGetValue(n, out var l)) tex[n] = l = new List<string>();
             l.Add(p);
         }
+        BuildChainIndex(tex);
 
         int fixedN = 0, missing = 0;
         var missingNames = new List<string>();
@@ -63,6 +84,7 @@ public static class L2InterludeMaterialBinder
             foreach (var g in AssetDatabase.FindAssets("t:Material", new[] { MeshRoot, TexRoot }))
             {
                 string mp = AssetDatabase.GUIDToAssetPath(g);
+                if (scope != null && !InTileScope(mp, scope)) continue;
                 var m = AssetDatabase.LoadAssetAtPath<Material>(mp);
                 if (m == null) continue;
                 bool hasBase = m.HasProperty("_BaseMap") && m.GetTexture("_BaseMap") != null;
@@ -110,6 +132,11 @@ public static class L2InterludeMaterialBinder
                     m.SetOverrideTag("RenderType", "TransparentCutout");
                 }
                 if (info.twoSided) { m.SetFloat("_Cull", 0f); m.doubleSidedGI = true; }
+                if (props.ContainsKey(m.name))
+                {
+                    L2Ue2MaterialChain.Eval chain = L2Ue2MaterialChain.Evaluate(m.name, props);
+                    L2Ue2MaterialApply.Apply(m, chain, 0f, reference => LoadChainTexture(reference, tex, m.name));
+                }
                 EditorUtility.SetDirty(m);
                 fixedN++;
             }
@@ -121,8 +148,74 @@ public static class L2InterludeMaterialBinder
         log.Add("translucent (water) materials fixed: " + FixTranslucent(props));
         log.Add("SpeedTree->Lit opaque shader mats fixed: " + FixSpeedTreeOpaque(props));
         log.Add("collision-only shader mats: " + FixCollisionOnlyFromProps(props));
-        log.Add(L2InterludeStaticMeshColliders.Run(null));
-        log.Add(L2InterludeWaterVolumes.Run(null));
+        IEnumerable<string> postTiles = scope != null ? new[] { tileScope } : null;
+        log.Add(L2InterludeStaticMeshColliders.Run(postTiles));
+        log.Add(L2InterludeWaterVolumes.Run(postTiles));
+        log.Add("two-sided cull from original props: " + ApplySharedTwoSided(props, scope));
+    }
+
+    /// <summary>
+    /// Textured materials used to skip the binder, so TwoSided stayed at the importer's Cull Back.
+    /// Every material with props takes the shared cull rule, on every map.
+    /// </summary>
+    /// <param name="scope">when set, only this tile's material packages are touched, matching
+    /// the collider and water post-steps; null = every map.</param>
+    static int ApplySharedTwoSided(Dictionary<string, string> props, HashSet<string> scope)
+    {
+        int n = 0;
+        foreach (string g in AssetDatabase.FindAssets("t:Material", new[] { MeshRoot, TexRoot }))
+        {
+            string mp = AssetDatabase.GUIDToAssetPath(g);
+            Material m = AssetDatabase.LoadAssetAtPath<Material>(mp);
+            if (m == null || !props.ContainsKey(m.name))
+                continue;
+            if (scope != null && !InTileScope(mp, scope))
+                continue;
+            L2Ue2ShaderProps.PropsInfo info = L2Ue2ShaderProps.Analyze(m.name, props);
+            if (!string.IsNullOrEmpty(info.detail) && info.detail.StartsWith("missing props", StringComparison.Ordinal))
+                continue;
+            float have = m.HasProperty("_Cull") ? m.GetFloat("_Cull") : -1f;
+            float want = L2TwoSidedMaterials.CullFor(info.twoSided);
+            if (Mathf.Abs(have - want) < 0.01f && m.doubleSidedGI == info.twoSided)
+                continue;
+            if (!L2TwoSidedMaterials.Apply(m, info.twoSided, m.name))
+                continue;
+            EditorUtility.SetDirty(m);
+            n++;
+        }
+        if (n > 0)
+            AssetDatabase.SaveAssets();
+        return n;
+    }
+
+    static bool InTileScope(string assetPath, HashSet<string> scope)
+    {
+        // Assets/Resources/Data/{StaticMeshes,Textures}/<package>/...
+        string[] seg = assetPath.Split('/');
+        return seg.Length > 5 && scope.Contains(seg[4]);
+    }
+
+    static readonly Regex T3dMeshRe = new Regex(@"StaticMesh=StaticMesh'([A-Za-z0-9_]+)\.", RegexOptions.Compiled);
+    static readonly Regex JsonRefRe = new Regex(@"""(?:texture|staticMesh)""\s*:\s*""([A-Za-z0-9_]+)\.", RegexOptions.Compiled);
+
+    static HashSet<string> LoadTileScopePackages(string tile)
+    {
+        string meta = Path.Combine("Assets", "Resources", "Data", "Maps", tile, "Meta");
+        var scope = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        bool anySource = false;
+        foreach (string file in Directory.Exists(meta) ? Directory.GetFiles(meta) : new string[0])
+        {
+            string name = Path.GetFileName(file);
+            bool t3d = name.EndsWith(".t3d", StringComparison.OrdinalIgnoreCase);
+            bool json = name.Equals("Brushes.json", StringComparison.OrdinalIgnoreCase) ||
+                        name.Equals("StaticMeshActor.json", StringComparison.OrdinalIgnoreCase);
+            if (!t3d && !json) continue;
+            anySource = true;
+            string text = File.ReadAllText(file);
+            foreach (Match m in (t3d ? T3dMeshRe : JsonRefRe).Matches(text))
+                scope.Add(m.Groups[1].Value);
+        }
+        return anySource && scope.Count > 0 ? scope : null;
     }
 
     [MenuItem("Shnok/0.2. [Interlude] Fix water / translucent StaticMesh materials")]
@@ -358,6 +451,58 @@ public static class L2InterludeMaterialBinder
         }
         AssetDatabase.SaveAssets();
         return n;
+    }
+
+    static readonly Dictionary<string, string> ChainAssets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    static readonly List<string> ChainNames = new List<string>();
+    static readonly List<string> ChainPackages = new List<string>();
+    static readonly List<string> ChainResources = new List<string>();
+
+    static void BuildChainIndex(Dictionary<string, List<string>> tex)
+    {
+        ChainAssets.Clear();
+        ChainNames.Clear();
+        ChainPackages.Clear();
+        ChainResources.Clear();
+        foreach (var kv in tex)
+        {
+            for (int i = 0; i < kv.Value.Count; i++)
+            {
+                string assetPath = kv.Value[i].Replace('\\', '/');
+                const string marker = "/Textures/";
+                int at = assetPath.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+                if (at < 0)
+                    continue;
+                string rel = assetPath.Substring(at + marker.Length);
+                int slash = rel.IndexOf('/');
+                string package = slash > 0 ? rel.Substring(0, slash) : "";
+                string noExt = Path.ChangeExtension(rel, null).Replace('\\', '/');
+                string resource = "Data/Textures/" + noExt;
+                ChainNames.Add(kv.Key);
+                ChainPackages.Add(package);
+                ChainResources.Add(resource);
+                if (!ChainAssets.ContainsKey(resource))
+                    ChainAssets.Add(resource, assetPath);
+            }
+        }
+    }
+
+    static Texture LoadChainTexture(string reference, Dictionary<string, List<string>> tex, string material)
+    {
+        if (ChainNames.Count == 0)
+            BuildChainIndex(tex);
+        var errors = new List<string>();
+        string resource = L2Ue2MaterialApply.PickTexturePath(ChainNames, ChainPackages, ChainResources, reference, errors, material);
+        for (int i = 0; i < errors.Count; i++)
+            Debug.LogError(errors[i]);
+        if (resource == null)
+            return null;
+        if (!ChainAssets.TryGetValue(resource, out string assetPath))
+        {
+            Debug.LogError("[Ue2Material] material " + material + " texture " + reference + " missing");
+            return null;
+        }
+        return AssetDatabase.LoadAssetAtPath<Texture>(assetPath);
     }
 
     struct Info { public string tex; public bool cutout, twoSided; }

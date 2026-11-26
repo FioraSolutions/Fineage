@@ -13,8 +13,9 @@ public sealed partial class CombatFacingService
         }
 
         int localId = ResolveLocalObjectId();
-        PlayerController player = Player;
-        bool localMoving = player != null && player.RunningToDestination;
+        PlayerController found = Player;
+        IPlayerPawn player = found;
+        bool localMoving = found != null && player.RunningToDestination;
 
         // Snapshot keys — ApplyYaw may write entry back; shoot/Exit may EndFollow mid-frame.
         _iterateIds.Clear();

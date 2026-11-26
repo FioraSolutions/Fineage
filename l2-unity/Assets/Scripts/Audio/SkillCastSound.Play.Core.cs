@@ -5,6 +5,20 @@ using UnityEngine;
 
 public static partial class SkillCastSound
 {
+    static readonly HashSet<string> SoundRowMissLogged = new HashSet<string>(StringComparer.Ordinal);
+
+    static void LogMissingSoundRow(int skillId, int level)
+    {
+        string key = skillId + "@" + level;
+        if (!SoundRowMissLogged.Add(key))
+            return;
+
+        Debug.LogError(
+            "[SkillCastSound] no skillsoundgrp row skillId=" + skillId +
+            " level=" + level +
+            " (original has no cast/shot/voice; not inventing a stem).");
+    }
+
     public static void OnMagicSkillUse(Entity caster, MagicSkillUseDto dto)
     {
         if (caster == null || dto == null)
@@ -25,6 +39,11 @@ public static partial class SkillCastSound
         SkillSoundRow row;
         bool fromGrp = TryGetRow(dto.SkillId, dto.SkillLvl, out row);
 
+        SkillSoundCue castCue = fromGrp ? row.CastCue : default;
+        SkillSoundCue shotCue = fromGrp ? row.ShotCue : default;
+        SkillSoundCue explodeCue = fromGrp ? row.ExplodeCue : default;
+        SkillSoundCue[] shotEffects = fromGrp ? row.ShotEffects : Array.Empty<SkillSoundCue>();
+        SkillSoundCue[] expEffects = fromGrp ? row.ExpEffects : Array.Empty<SkillSoundCue>();
         string castClip = fromGrp ? row.Cast : null;
         string shotClip = fromGrp ? row.Shot : null;
         string explodeClip = fromGrp ? row.Explode : null;
@@ -34,17 +53,10 @@ public static partial class SkillCastSound
         string throwVoice = fromGrp ? KindForRace(row.ThrowKinds, caster) : null;
 
         string key = KeyFor(dto.SkillId, dto.SkillLvl);
-        if (string.IsNullOrEmpty(castClip) && !string.IsNullOrEmpty(key))
-            castClip = key + "_cast";
-        if (string.IsNullOrEmpty(shotClip) && !string.IsNullOrEmpty(key))
-            shotClip = key + "_shot";
+        // No skillsoundgrp row means the original client has no cast, shot, or hero voice.
+        // Do not invent {name}_cast / {name}_shot / a Shot voice.
         if (!fromGrp)
-        {
-            if (string.IsNullOrEmpty(castVoice))
-                castVoice = VoiceKindFor(key ?? StemFromClip(castClip), caster);
-            if (string.IsNullOrEmpty(throwVoice))
-                throwVoice = "Shot";
-        }
+            LogMissingSoundRow(dto.SkillId, dto.SkillLvl);
 
         // Packet HitTime ≈ impact; projectile leaves at HitTime − flight.
         // Same ResolveMagicFlightTimeMs as READY_TO_ACT / MagicCastData (not explode-gated).
@@ -55,14 +67,14 @@ public static partial class SkillCastSound
         bool selfCast = caster.Identity != null && dto.TargetId > 0 && dto.TargetId == caster.Identity.Id;
         float flightMs = selfCast
             ? 0f
-            : SetupDurationHelper.ResolveMagicFlightTimeMs(caster, dto.SkillId, targetTf);
+            : SetupDurationHelper.ResolveMagicFlightTimeMs(caster, dto.SkillId, dto.SkillLvl, targetTf);
         float shotDelay = Mathf.Max(0f, (dto.HitTime - flightMs) / 1000f);
 
         float castLen = ClipLengthSec(SfxRoot, castClip);
         float shotLen = ClipLengthSec(SfxRoot, shotClip);
         float voiceLen = VoiceClipLengthSec(caster, castVoice);
         float explodeDelay = 0f;
-        if (!string.IsNullOrEmpty(explodeClip))
+        if (HasAnyCue(explodeCue, expEffects) || !string.IsNullOrEmpty(explodeClip))
             explodeDelay = Mathf.Max(shotDelay + 0.05f, dto.HitTime / 1000f);
         float hitSec = dto.HitTime / 1000f;
 
@@ -87,9 +99,9 @@ public static partial class SkillCastSound
             "\n  note=anim speeds/walls come later in ANIM.setup; compare BAR.tick remainPct vs these t=");
 
         // 1) Cast SFX + cast-time hero voice (sub / Element / White / …).
-        if (!string.IsNullOrEmpty(castClip))
-            PlayCastSfx(castClip, Volume);
-        PlayVoiceKind(caster, castVoice);
+        if (castCue.HasClip)
+            PlayCue(castCue, "cast", dto.SkillId, pos, true, asCast: true);
+        PlayVoiceKind(caster, castVoice, dto.SkillId);
 
         int casterId = caster.Identity != null ? caster.Identity.Id : 0;
         _pending[casterId] = new PendingCast
@@ -97,6 +109,10 @@ public static partial class SkillCastSound
             ShotClip = shotClip ?? "",
             ExplodeClip = explodeClip ?? "",
             ThrowVoiceKind = throwVoice ?? "",
+            ShotCue = shotCue,
+            ExplodeCue = explodeCue,
+            ShotEffects = shotEffects ?? Array.Empty<SkillSoundCue>(),
+            ExpEffects = expEffects ?? Array.Empty<SkillSoundCue>(),
             ShotPlayed = false,
             ExplodePlayed = false,
             StartTime = Time.realtimeSinceStartup,
@@ -115,7 +131,7 @@ public static partial class SkillCastSound
             PlayRelease(idCapture, casterCapture, shotCapture, throwCapture, "timer"));
 
         // Explode backup if projectile callback missed (impact ≈ HitTime in Fineage timing).
-        if (!string.IsNullOrEmpty(explodeClip))
+        if (HasAnyCue(explodeCue, expEffects) || !string.IsNullOrEmpty(explodeClip))
         {
             Vector3 hitPos = targetTf != null ? targetTf.position : pos;
             InterludeSfx.PlayAfter(explodeDelay, () => TryPlayExplode(casterId, hitPos, "timer"));

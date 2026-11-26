@@ -1,0 +1,50 @@
+class ab_bleeding extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=MeshEmitter Name=MeshEmitter0
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Impact.bloodspray00'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         Acceleration=(X=-13.000000,Y=0.000000,Z=-50.000000)
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorMultiplierRange=(X=(Min=0.400000,Max=0.400000),Y=(Min=0.400000,Max=0.400000),Z=(Min=0.400000,Max=0.400000))
+         Opacity=0.600000
+         FadeOutStartTime=0.052000
+         FadeOut=True
+         MaxParticles=4
+         RespawnDeadParticles=False
+         Name="MeshEmitter3"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=5.000000)
+         UseRotationFrom=PTRS_Actor
+         SpinParticles=True
+         SpinCCWorCW=(X=0.500000,Y=1.000000,Z=0.500000)
+         SpinsPerSecondRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.060000,Max=0.060000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=-0.150000,Max=0.150000),Y=(Min=-0.070000,Max=0.020000),Z=(Min=-0.050000,Max=0.050000))
+         RotationNormal=(X=1.000000,Y=0.000000,Z=0.000000)
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=2.000000,RelativeTime=0.110000)
+         SizeScale(1)=(RelativeSize=2.600000,RelativeTime=0.280000)
+         SizeScale(2)=(RelativeSize=3.000000,RelativeTime=0.580000)
+         SizeScale(3)=(RelativeSize=3.500000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=0.015000,Max=0.030000),Y=(Min=0.028000,Max=0.028000),Z=(Min=0.028000,Max=0.028000))
+         UniformSize=True
+         InitialParticlesPerSecond=100.000000
+         AutomaticInitialSpawning=False
+         DrawStyle=PTDS_AlphaBlend
+         LifetimeRange=(Min=0.200000,Max=0.400000)
+         StartVelocityRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=10.000000,Max=10.000000))
+         GetVelocityDirectionFrom=PTVD_OwnerAndStartPosition
+     End Object
+     Emitters(0)=MeshEmitter'MeshEmitter0'
+     AutoDestroy=True
+     bRotEmitter=True
+     RotPerSecond=(Pitch=0,Yaw=10000,Roll=0)
+     bLightChanged=True
+     bNoDelete=False
+     bSunAffect=True
+     DrawScale=0.300000
+     bDirectional=True
+}

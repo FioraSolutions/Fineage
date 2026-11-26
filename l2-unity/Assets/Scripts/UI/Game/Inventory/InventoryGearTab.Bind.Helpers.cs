@@ -37,45 +37,23 @@ public partial class InventoryGearTab : L2Tab
 
     public void UpdateEquipList(List<ItemInstance> modified, ChangeInventoryData changeInventoryData , int userId)
     {
-        if(InventoryPacketServices.Inventory.GetPlayerEquipInventory().Count == 0)
+        PlayerInventory inventory = InventoryPacketServices.Inventory;
+        if (inventory == null)
         {
-            EquipEmptyAll();
+            Debug.LogError("[Inventory] paperdoll update has no inventory model");
+            return;
         }
-        try
-        {
-            for (int i = 0; i < modified.Count; i++)
-            {
-                ItemInstance currentSlotEquip = modified[i];
-
-                if (currentSlotEquip.Equipped == true)
-                {
-                    if (currentSlotEquip == null) continue;
-                    bool isReplace = changeInventoryData.IsReplaceSourceItem(currentSlotEquip.ObjectId);
-                    if (changeInventoryData.IsReplaceSourceItem(currentSlotEquip.ObjectId)) continue;
-                    EquipItem(currentSlotEquip);
-                    GamePacketServices.Bus?.Equipped(currentSlotEquip, userId);
-                    // GearFlowLog.Info("InventoryGearTab Equipped userId=" + userId +
-                        // " itemId=" + currentSlotEquip.ItemId +
-                        // " body=" + currentSlotEquip.BodyPart +
-                        // " busInstance=" + (EventBus.Instance != null));
-                }
-            }
-        }
-        catch (Exception)
-        {
-            // Debug.LogError($"InventoryGearTab> UpdateEquipList : {ex.Message}");
-        }
-
+        BindEquip(inventory.GetPlayerEquipToList());
     }
 
-    public void SetEquipList(List<ItemInstance> equipItems , int userId)
+    public void SetEquipList(List<ItemInstance> equipItems, int userId)
     {
-        if (equipItems == null) return;
-        EquipList(equipItems , userId);
-
-        if (_selectedSlot != -1)
+        PlayerInventory inventory = InventoryPacketServices.Inventory;
+        if (inventory == null)
         {
-            SelectSlot(_selectedSlot);
+            Debug.LogError("[Inventory] paperdoll set has no inventory model");
+            return;
         }
+        BindEquip(inventory.GetPlayerEquipToList());
     }
 }

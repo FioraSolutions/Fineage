@@ -13,37 +13,22 @@ public partial class PlayerInventory : MonoBehaviour
 
     public void SetInventory(Dictionary<int, ItemInstance> items, Dictionary<int, ItemInstance> equipItems , bool openInventory , int adenaCount , int usedSlot)
     {
-        _playerInventory = items;
-        _playerEquipInventory = equipItems;
-
-        List<ItemInstance> items_collect =  _playerInventory.Values.ToList();
-        List<ItemInstance> equip_collect = _playerEquipInventory.Values.ToList();
-
-        //if (_playerEquipInventory != null)
-        //{
-        //    equip_collect = _playerEquipInventory.Values.ToList();
-        // }
-        if (_currentUser == null) _currentUser = StorageNpc.getInstance().GetFirstUser();
-
-        DispatcherPacketServices.Dispatcher.Enqueue(() =>
-        {
-            // The window may not be built yet (it is created on first UI load). The data above
-            // is already stored, and RefreshWindow pushes it once the window exists, so a
-            // missing window must not throw away the snapshot.
-            InventoryWindow window = InventoryPacketServices.Window;
-            if (window == null)
-                return;
-
-            int userId = _currentUser != null && _currentUser.PlayerInfoInterlude.Identity != null
-                ? _currentUser.PlayerInfoInterlude.Identity.Id
-                : 0;
-            window.SetItemList(items_collect, equip_collect, adenaCount , usedSlot , userId);
-
-            if (openInventory)
-            {
-                window.ShowWindow();
-            }
-        });
+        var rows = new List<CharacterInventory.Row>();
+        AppendRows(items, rows);
+        AppendRows(equipItems, rows);
+        var errors = new List<string>();
+        int generation = Book.Generation;
+        Book.Replace(rows, 0, errors);
+        for (int i = 0; i < errors.Count; i++)
+            Debug.LogError("[Inventory] " + errors[i]);
+        if (Book.ResyncRequired)
+            NetGearSession.RequestResync("ItemList");
+        if (adenaCount != Book.Adena)
+            Debug.LogError("[Inventory] ItemList adena " + adenaCount + " does not match the rows (" + Book.Adena + ")");
+        if (usedSlot != Book.Count)
+            Debug.LogError("[Inventory] ItemList slot count " + usedSlot + " does not match the rows (" + Book.Count + ")");
+        if (Book.Generation != generation || openInventory)
+            Publish(openInventory);
     }
 
     public void RefreshWindow()
@@ -51,24 +36,22 @@ public partial class PlayerInventory : MonoBehaviour
         InventoryWindow window = InventoryPacketServices.Window;
         if (window == null || !window.IsItemSurfaceReady)
             return;
-        if (_playerInventory == null)
+        window.RebindFromModel();
+    }
+
+    static void AppendRows(Dictionary<int, ItemInstance> source, List<CharacterInventory.Row> rows)
+    {
+        if (source == null)
             return;
-
-        if (_currentUser == null) _currentUser = StorageNpc.getInstance().GetFirstUser();
-        if (_currentUser == null || _currentUser.PlayerInfoInterlude.Identity == null)
-            return;
-
-        List<ItemInstance> items = _playerInventory.Values.ToList();
-        List<ItemInstance> equip = _playerEquipInventory != null
-            ? _playerEquipInventory.Values.ToList()
-            : new List<ItemInstance>();
-
-        window.SetItemList(
-            items,
-            equip,
-            GetAdenaCount(items),
-            _playerInventory.Count + equip.Count,
-            _currentUser.PlayerInfoInterlude.Identity.Id);
+        foreach (ItemInstance item in source.Values)
+        {
+            if (item == null)
+            {
+                Debug.LogError("[Inventory] ItemList row is null");
+                continue;
+            }
+            rows.Add(RowFromItem(item));
+        }
     }
 
     public void ChangeItemOrder(int fromSlot, int toSlot)

@@ -22,6 +22,7 @@ public partial class MagicCastData
         PhaseWallShotSeconds = 0f;
         _clipCount = 0;
         _fillerIndex = 0;
+        _spatkPhase = 0;
         _play0 = _play1 = _play2 = 0f;
 
         serverTimeToShoot = Mathf.Max(0.01f, HitTime - FlightTime);
@@ -241,7 +242,8 @@ public partial class MagicCastData
         AnimationShotAtSeconds = beforeShot + eventWall;
 
         Debug.Log(
-            "[CastSync] ANIM.setup style=" + castStyle +
+            "[CastSync] ANIM.setup skill=" + SkillId +
+            " style=" + castStyle +
             " clips=" + clipCount +
             " pad=" + pad.ToString("F2") +
             " filler=" + filler +

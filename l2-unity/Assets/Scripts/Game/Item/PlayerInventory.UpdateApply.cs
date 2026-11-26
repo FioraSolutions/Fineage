@@ -1,123 +1,190 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using VContainer;
 
 public partial class PlayerInventory
 {
-    private void UpdateInventoryEquip(Dictionary<int, ItemInstance> playerInventory, Dictionary<int, ItemInstance> playerEquipInventory, ItemInstance item)
+    void Publish(bool show)
     {
-        if (item.LastChange == (int)InventoryChange.REMOVED)
+        Dictionary<int, ItemInstance> beforeEquip = _playerEquipInventory;
+        RebuildViews();
+        var equipped = new List<ItemInstance>();
+        var unequipped = new List<ItemInstance>();
+        CollectGearDiff(beforeEquip, _playerEquipInventory, equipped, unequipped);
+        NetGearSession.SyncWornEnchant(Book);
+        List<string> problems = InventorySurface.Check(Book);
+        for (int i = 0; i < problems.Count; i++)
+            Debug.LogError("[Inventory] " + problems[i]);
+
+        int userId = UserId();
+        Action paint = () =>
         {
-            if (playerInventory != null && playerInventory.ContainsKey(item.ObjectId))
-                RemoveInventory(playerInventory, playerInventory[item.ObjectId]);
-            if (playerEquipInventory != null && playerEquipInventory.ContainsKey(item.ObjectId))
-                RemoveGearInventory(playerEquipInventory, playerEquipInventory[item.ObjectId]);
+            RefreshWindow();
+            if (show)
+            {
+                InventoryWindow window = InventoryPacketServices.Window;
+                if (window != null)
+                    window.ShowWindow();
+            }
+            for (int i = 0; i < unequipped.Count; i++)
+                GamePacketServices.Bus?.UnEquipped(unequipped[i], userId);
+            for (int i = 0; i < equipped.Count; i++)
+                GamePacketServices.Bus?.Equipped(equipped[i], userId);
+            SkillbarWindow bar = SkillbarPacketServices.Skillbar;
+            if (bar != null)
+                bar.UpdateAllShortcuts();
+        };
+
+        if (!DispatcherPacketServices.Exists)
+        {
+            Debug.LogError("[Inventory] main-thread dispatcher is missing; inventory UI was not painted");
             return;
         }
-
-        if(playerInventory.ContainsKey(item.ObjectId) & item.Equipped == true)
-        {
-            ItemInstance del_item = playerInventory[item.ObjectId];
-            RemoveInventory(playerInventory, del_item);
-
-        }
-        
-        if (playerEquipInventory.ContainsKey(item.ObjectId) & item.Equipped == false)
-        {
-            ItemInstance del_item = playerEquipInventory[item.ObjectId];
-            RemoveGearInventory(playerEquipInventory, del_item);
-        }
-        else if (!playerEquipInventory.ContainsKey(item.ObjectId) & item.Equipped == true)
-        {
-            playerEquipInventory.Add(item.ObjectId, item);
-        }
-        else if (playerEquipInventory.ContainsKey(item.ObjectId) & item.Equipped == true)
-        {
-            playerEquipInventory[item.ObjectId].Update(item);
-        }
+        DispatcherPacketServices.Dispatcher.Enqueue(paint);
     }
 
-    private void RemoveInventory(Dictionary<int, ItemInstance> playerInventory , ItemInstance del_item)
+    void RebuildViews()
     {
-        
-        playerInventory.Remove(del_item.ObjectId);
-        RefreshPosition(playerInventory);
-        _changeInventoryData.AddRemoveInventory(del_item);
+        var bag = new Dictionary<int, ItemInstance>();
+        var equip = new Dictionary<int, ItemInstance>();
+        CharacterInventory.Row[] rows = Book.BagRows();
+        for (int i = 0; i < rows.Length; i++)
+        {
+            ItemInstance item = NetGearSession.ToItemInstance(rows[i], i);
+            bag[item.ObjectId] = item;
+        }
+        CharacterInventory.Row[] worn = Book.PaperdollRows();
+        for (int i = 0; i < worn.Length; i++)
+        {
+            ItemInstance item = NetGearSession.ToItemInstance(worn[i], 0);
+            equip[item.ObjectId] = item;
+        }
+        _playerInventory = bag;
+        _playerEquipInventory = equip;
     }
 
-    private void RemoveGearInventory(Dictionary<int, ItemInstance> playerEquipInventory, ItemInstance del_item)
+    static void CollectGearDiff(
+        Dictionary<int, ItemInstance> before,
+        Dictionary<int, ItemInstance> after,
+        List<ItemInstance> equipped,
+        List<ItemInstance> unequipped)
     {
-
-        _changeInventoryData.AddRemoveGear(del_item);
-
-        if (playerEquipInventory.ContainsKey(del_item.ObjectId))
+        var beforeSlots = SlotsOf(before);
+        var afterSlots = SlotsOf(after);
+        foreach (KeyValuePair<ItemSlot, ItemInstance> pair in beforeSlots)
         {
-            playerEquipInventory.Remove(del_item.ObjectId);
+            ItemInstance now;
+            if (!afterSlots.TryGetValue(pair.Key, out now) || now.ObjectId != pair.Value.ObjectId)
+                unequipped.Add(pair.Value);
         }
-
-    }
-
-    private void GearReplaceSlot(Dictionary<int, ItemInstance> playerEquipInventory, ItemInstance sourceItem , ItemInstance gearItem)
-    {
-        if(playerEquipInventory.ContainsKey(gearItem.ObjectId)) playerEquipInventory.Remove(gearItem.ObjectId);
-        _changeInventoryData.AddReplaceGear(sourceItem, gearItem);
-    }
-
-    private void UpdateEquip(Dictionary<int, ItemInstance> playerInventory, Dictionary<int, ItemInstance> playerEquipInventory, ItemInstance item)
-    {
-        ItemsDetectedToGear(playerInventory, item);
-        GearDetectedToItems(playerEquipInventory, item);
-    }
-
-    private void ItemsDetectedToGear(Dictionary<int, ItemInstance> playerInventory, ItemInstance item)
-    {
-        if (playerInventory.ContainsKey(item.ObjectId) & item.Equipped)
+        foreach (KeyValuePair<ItemSlot, ItemInstance> pair in afterSlots)
         {
-            RemoveInventory(playerInventory, item);
-        }
-
-        if (!playerInventory.ContainsKey(item.ObjectId) & !item.Equipped)
-        {
-            playerInventory.Add(item.ObjectId, item);
-        }
-
-    }
-    private void GearDetectedToItems(Dictionary<int, ItemInstance> playerEquipInventory , ItemInstance item)
-    {
-        if (!playerEquipInventory.ContainsKey(item.ObjectId))
-        {
-            if (item.Equipped)
-            {
-                playerEquipInventory.Add(item.ObjectId, item);
-            }
-        }
-
-        //if we move from gear Invetory to items Inventory we need to delete from Gear so that there is no duplication
-        else if (playerEquipInventory.ContainsKey(item.ObjectId) & item.Equipped == false)
-        {
-            RemoveGearInventory( playerEquipInventory, item);
-        }
-        else
-        {
-            ItemInstance oldItem = playerEquipInventory[item.ObjectId];
-            item.SetSlot(oldItem.Slot);
-            oldItem.Update(item);
+            ItemInstance was;
+            if (!beforeSlots.TryGetValue(pair.Key, out was) || was.ObjectId != pair.Value.ObjectId)
+                equipped.Add(pair.Value);
         }
     }
 
-    private List<ItemInstance> FilterByRemove(ItemInstance[] items)
+    static Dictionary<ItemSlot, ItemInstance> SlotsOf(Dictionary<int, ItemInstance> source)
     {
-        return items.Where(item =>
-        item.LastChange == (int)InventoryChange.REMOVED ||
-        item.LastChange == (int)InventoryChange.ADDED).ToList();
+        var slots = new Dictionary<ItemSlot, ItemInstance>();
+        if (source == null)
+            return slots;
+        foreach (ItemInstance item in source.Values)
+        {
+            if (item == null)
+                continue;
+            slots[item.BodyPart] = item;
+        }
+        return slots;
     }
 
-    private List<ItemInstance> FilterByModified(ItemInstance[] items)
+    int UserId()
     {
-        return items.Where(item =>
-        item.LastChange == (int)InventoryChange.MODIFIED).ToList();
+        if (_currentUser == null)
+            _currentUser = StorageNpc.getInstance().GetFirstUser();
+        if (_currentUser == null || _currentUser.PlayerInfoInterlude.Identity == null)
+            return 0;
+        return _currentUser.PlayerInfoInterlude.Identity.Id;
     }
 
+    static CharacterInventory.Row RowFromItem(ItemInstance item)
+    {
+        int equippedSlot = -1;
+        if (item.Equipped)
+        {
+            equippedSlot = PaperdollIndex(item.BodyPart);
+            if (equippedSlot < 0)
+                Debug.LogError("[Inventory] objectId " + item.ObjectId + " is equipped in " + item.BodyPart + " which has no paperdoll index");
+        }
+        return new CharacterInventory.Row
+        {
+            ObjectId = item.ObjectId,
+            ItemId = item.ItemId,
+            Count = item.Count,
+            EnchantLevel = item.EnchantLevel,
+            EquippedSlot = item.Equipped && equippedSlot >= 0 ? equippedSlot : -1,
+            BodySlot = item.BodyPart.ToString(),
+            Kind = KindFromCategory(item.Category),
+            Icon = "",
+            WeaponType = "",
+            ArmorType = ""
+        };
+    }
+
+    static string KindFromCategory(ItemCategory category)
+    {
+        if (category == ItemCategory.Weapon)
+            return "weapon";
+        if (category == ItemCategory.ShieldArmor || category == ItemCategory.Jewel)
+            return "armor";
+        return "etc";
+    }
+
+    static int PaperdollIndex(ItemSlot slot)
+    {
+        switch (slot)
+        {
+            case ItemSlot.underwear:
+                return NetPaperdoll.Under;
+            case ItemSlot.lear:
+            case ItemSlot.earring:
+                return NetPaperdoll.LeftEar;
+            case ItemSlot.rear:
+                return NetPaperdoll.RightEar;
+            case ItemSlot.neck:
+                return NetPaperdoll.Neck;
+            case ItemSlot.lfinger:
+            case ItemSlot.ring:
+                return NetPaperdoll.LeftFinger;
+            case ItemSlot.rfinger:
+                return NetPaperdoll.RightFinger;
+            case ItemSlot.head:
+                return NetPaperdoll.Head;
+            case ItemSlot.rhand:
+            case ItemSlot.lrhand:
+                return NetPaperdoll.RightHand;
+            case ItemSlot.lhand:
+            case ItemSlot.lhand_shield:
+                return NetPaperdoll.LeftHand;
+            case ItemSlot.gloves:
+                return NetPaperdoll.Gloves;
+            case ItemSlot.chest:
+            case ItemSlot.fullarmor:
+            case ItemSlot.alldress:
+            case ItemSlot.onepiece:
+                return NetPaperdoll.Chest;
+            case ItemSlot.legs:
+                return NetPaperdoll.Legs;
+            case ItemSlot.feet:
+            case ItemSlot.boots:
+                return NetPaperdoll.Feet;
+            case ItemSlot.hat1:
+                return NetPaperdoll.Hair;
+            case ItemSlot.hat2:
+                return NetPaperdoll.Hair2;
+            default:
+                return -1;
+        }
+    }
 }

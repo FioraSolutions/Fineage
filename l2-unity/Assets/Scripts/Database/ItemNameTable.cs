@@ -18,11 +18,13 @@ public partial class ItemNameTable
             if (_instance == null && App.HasContainer) {
                 try {
                     _instance = App.Resolve<ItemNameTable>();
-                } catch {
+                } catch (Exception ex) {
+                    MetaTableBootstrapLog.LogDiResolveFailed(nameof(ItemNameTable), ex);
                 }
             }
 
             if (_instance == null) {
+                MetaTableBootstrapLog.LogEmptyInstanceFallback(nameof(ItemNameTable));
                 _instance = new ItemNameTable();
             }
 

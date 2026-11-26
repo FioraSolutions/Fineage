@@ -46,6 +46,7 @@ public partial class NewMagicSkillsState  : AbstractAttackEvents
                         " combo=" + (readyCombo != null) +
                         " executor=" + (SkillExecutorPacketServices.Executor != null) +
                         " animator=" + animatorName);
+                    MagicSkillPresentation.EndCastChannel();
                     break;
                 }
 
@@ -54,7 +55,7 @@ public partial class NewMagicSkillsState  : AbstractAttackEvents
                 string durDump = durations != null ? string.Join(",", durations) : "-";
                 float shotEventTime = SetupDurationHelper.ResolveShotEventTime(objectId, orderedReadyCycle);
                 float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(
-                    entity, useSkill.SkillId, entity != null ? entity.Target : null);
+                    entity, useSkill.SkillId, useSkill.SkillLvl, entity != null ? entity.Target : null);
                 Debug.Log(
                     "[CastSync] READY_TO_ACT skill=" + useSkill.SkillId +
                     " lv=" + useSkill.SkillLvl +
@@ -67,7 +68,7 @@ public partial class NewMagicSkillsState  : AbstractAttackEvents
                     " durations=" + durDump +
                     " animator=" + animatorName);
 
-                entity.SetupTotalCastDuration(useSkill.HitTime, flightTimeMs, durations, shotEventTime, useSkill.TargetId, SetupDurationHelper.CastStyleOf(useSkill), SetupDurationHelper.MixComboOf(useSkill));
+                entity.SetupTotalCastDuration(useSkill.HitTime, flightTimeMs, durations, shotEventTime, useSkill.TargetId, SetupDurationHelper.CastStyleOf(useSkill), SetupDurationHelper.MixComboOf(useSkill), useSkill.SkillId);
 
                 _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(readyGrp, entity, readyCombo, _events);
                 break;

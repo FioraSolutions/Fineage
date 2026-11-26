@@ -86,6 +86,7 @@
     BuyListSeed = 0xE8,
     ShopPreviewList = 0xEF,
     ShopPreviewInfo = 0xF0,
+    ClientSetTime = 0xEC,
     EtcStatusUpdate = 0xF3,
     ShortBuffStatusUpdate = 0xF4,
     FriendList = 0xFA,

@@ -231,6 +231,153 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
             out summary);
     }
 
+    /// <summary>
+    /// All player classes VFX batch from player_vfx_manifest.json
+    /// (tools/l2-effect/human_mage_vfx_manifest.py --classes <every player class> --out ...).
+    /// Unity -batchmode -nographics -quit -executeMethod L2EffectGeneratorWindow.GeneratePlayerBatchCli
+    /// </summary>
+    public static void GeneratePlayerBatchCli()
+    {
+        AssetDatabase.Refresh();
+        string manifest = Environment.GetEnvironmentVariable("FINEAGE_VFX_MANIFEST");
+        bool ok = TryRunManifestBatch(
+            string.IsNullOrWhiteSpace(manifest)
+                ? "Assets/Editor/L2EffectGenerator/Data/player_vfx_manifest.json"
+                : manifest,
+            "PlayerBatch",
+            out string summary);
+        Debug.Log("[L2EffectGenerator] " + summary);
+        EditorApplication.Exit(ok ? 0 : 1);
+    }
+
+    /// <summary>
+    /// Batch: rebuild existing effect folders in place (materials, prefabs,
+    /// composite) without touching GlobalEffect bindings. Folder list comes from
+    /// env FINEAGE_VFX_REGEN_LIST (a text file, one Assets/... effect root per line).
+    /// </summary>
+    public static void RegenerateFoldersCli()
+    {
+        AssetDatabase.Refresh();
+        string listPath = Environment.GetEnvironmentVariable("FINEAGE_VFX_REGEN_LIST");
+        if (string.IsNullOrWhiteSpace(listPath) || !File.Exists(listPath))
+        {
+            Debug.LogError("[L2EffectGenerator] FINEAGE_VFX_REGEN_LIST not set or missing");
+            EditorApplication.Exit(1);
+            return;
+        }
+
+        int ok = 0;
+        int fail = 0;
+        foreach (string raw in File.ReadAllLines(listPath))
+        {
+            string folder = raw.Trim();
+            if (folder.Length == 0 || folder.StartsWith("#"))
+            {
+                continue;
+            }
+
+            if (!AssetDatabase.IsValidFolder(folder))
+            {
+                Debug.LogError("[L2EffectGenerator] regen: missing folder " + folder);
+                fail++;
+                continue;
+            }
+
+            // Folder names carry the skill visual id (<name>_v<id> or viz_<id>);
+            // it disambiguates classes shared by several visuals.
+            int visualId = 0;
+            System.Text.RegularExpressions.Match idMatch =
+                System.Text.RegularExpressions.Regex.Match(
+                    Path.GetFileName(folder), @"(?:_v|^viz_)(\d+)$");
+            if (idMatch.Success)
+            {
+                int.TryParse(idMatch.Groups[1].Value, out visualId);
+            }
+
+            L2EffectGeneratorFolderBuilder.BuildResult result =
+                L2EffectGeneratorFolderBuilder.CreateFromFolder(
+                    folder,
+                    Path.GetFileName(folder),
+                    visualId,
+                    false);
+            for (int li = 0; li < result.LogLines.Count; li++)
+            {
+                Debug.Log("[L2EffectGenerator] " + result.LogLines[li]);
+            }
+
+            if (!result.Success)
+            {
+                Debug.LogError("[L2EffectGenerator] regen failed " + folder + ": " + result.ErrorMessage);
+                fail++;
+                continue;
+            }
+
+            ok++;
+        }
+
+        Debug.Log("[L2EffectGenerator] Regenerate done ok=" + ok + " fail=" + fail);
+        EditorApplication.Exit(fail == 0 ? 0 : 1);
+    }
+
+    /// <summary>
+    /// Generate effect prefabs from .uc files already copied under the listed
+    /// effect folders, without touching GlobalEffect bindings.
+    /// Env FINEAGE_VFX_GENERATE_LIST: text file, one Assets/... folder per line.
+    /// </summary>
+    public static void GenerateListedFoldersCli()
+    {
+        AssetDatabase.Refresh();
+        string listPath = Environment.GetEnvironmentVariable("FINEAGE_VFX_GENERATE_LIST");
+        if (string.IsNullOrWhiteSpace(listPath) || !File.Exists(listPath))
+        {
+            Debug.LogError("[L2EffectGenerator] FINEAGE_VFX_GENERATE_LIST not set or missing");
+            EditorApplication.Exit(1);
+            return;
+        }
+
+        int ok = 0;
+        int fail = 0;
+        foreach (string raw in File.ReadAllLines(listPath))
+        {
+            string folder = raw.Trim();
+            if (folder.Length == 0 || folder.StartsWith("#"))
+            {
+                continue;
+            }
+
+            if (!AssetDatabase.IsValidFolder(folder))
+            {
+                Debug.LogError("[L2EffectGenerator] generate: missing folder " + folder);
+                fail++;
+                continue;
+            }
+
+            L2EffectGeneratorFolderBuilder.BuildResult result =
+                L2EffectGeneratorFolderBuilder.CreateFromFolder(
+                    folder,
+                    Path.GetFileName(folder),
+                    0,
+                    false);
+            for (int li = 0; li < result.LogLines.Count; li++)
+            {
+                Debug.Log("[L2EffectGenerator] " + result.LogLines[li]);
+            }
+
+            if (!result.Success)
+            {
+                Debug.LogError("[L2EffectGenerator] generate failed " + folder + ": " + result.ErrorMessage);
+                fail++;
+                continue;
+            }
+
+            ok++;
+        }
+
+        Debug.Log("[L2EffectGenerator] GenerateListedFolders done ok=" + ok + " fail=" + fail);
+        EditorApplication.Exit(fail == 0 ? 0 : 1);
+    }
+
+
     public static bool TryRunHumanMageBatch(out string summary)
     {
         return TryRunManifestBatch(
@@ -526,29 +673,114 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
     /// <summary>
     /// NPC deco: one Emitter class → one L2Particle under Resources/Data/Effects/deco.
     /// Unity.exe -batchmode -nographics -quit -executeMethod L2EffectGeneratorWindow.GenerateNpcDecoCli
-    /// Optional: -decoName u_npc_id_buff
+    /// Required: -decoName &lt;Interlude LineageEffect deco class&gt;
     /// </summary>
+    /// <summary>
+    /// World map emitters: one official definition → one L2Particle under
+    /// Resources/Data/Effects/world. No skill id, no composite.
+    /// Unity.exe -batchmode -nographics -quit -executeMethod L2EffectGeneratorWindow.GenerateWorldMapEmittersCli
+    /// Optional: -worldEmitterName we_&lt;hash&gt; to build one class;
+    /// -worldEmitterMap &lt;map&gt; to build only the classes that map's official
+    /// rows reference; otherwise every subfolder (whole world).
+    /// </summary>
+    public static void GenerateWorldMapEmittersCli()
+    {
+        const string worldRoot = "Assets/Resources/Data/Effects/world";
+        string only = ReadNamedArg("-worldEmitterName");
+        string map = ReadNamedArg("-worldEmitterMap");
+        AssetDatabase.Refresh();
+        if (!AssetDatabase.IsValidFolder(worldRoot))
+        {
+            Debug.LogError("[L2EffectGenerator] world emitter root is missing: " + worldRoot);
+            EditorApplication.Exit(1);
+            return;
+        }
+
+        int ok = 0;
+        int fail = 0;
+        if (!string.IsNullOrWhiteSpace(only))
+        {
+            if (!GenerateDeco(worldRoot + "/" + only, only))
+            {
+                EditorApplication.Exit(1);
+                return;
+            }
+            Debug.Log("[L2EffectGenerator][world] generated " + only);
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(map))
+        {
+            OfficialWorldEmitterTable.ClearForTests();
+            OfficialWorldEmitterTable.Load();
+            IReadOnlyList<OfficialWorldEmitterTable.Emitter> rows = OfficialWorldEmitterTable.ForMap(map);
+            if (rows == null || rows.Count == 0)
+            {
+                Debug.LogError("[L2EffectGenerator][world] map '" + map + "' has no official world emitter rows");
+                EditorApplication.Exit(1);
+                return;
+            }
+            var classes = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (OfficialWorldEmitterTable.Emitter row in rows)
+                if (!string.IsNullOrEmpty(row.prefabClass))
+                    classes.Add(row.prefabClass);
+            foreach (string name in classes)
+            {
+                if (!AssetDatabase.IsValidFolder(worldRoot + "/" + name))
+                {
+                    Debug.LogError("[L2EffectGenerator][world] map " + map + " references class " + name +
+                                   " but " + worldRoot + "/" + name + " is missing");
+                    fail++;
+                    continue;
+                }
+                if (!GenerateDeco(worldRoot + "/" + name, name))
+                    fail++;
+                else
+                    ok++;
+            }
+            Debug.Log("[L2EffectGenerator][world] GenerateWorldMapEmittersCli map=" + map +
+                      " rows=" + rows.Count + " classes=" + classes.Count + " ok=" + ok + " fail=" + fail);
+            EditorApplication.Exit(fail == 0 ? 0 : 1);
+            return;
+        }
+
+        string full = Path.Combine(Directory.GetCurrentDirectory(), worldRoot);
+        if (!Directory.Exists(full))
+        {
+            Debug.LogError("[L2EffectGenerator] world emitter directory is missing on disk: " + worldRoot);
+            EditorApplication.Exit(1);
+            return;
+        }
+
+        foreach (string dir in Directory.GetDirectories(full))
+        {
+            string name = Path.GetFileName(dir);
+            if (string.IsNullOrEmpty(name) || !name.StartsWith("we_"))
+                continue;
+            if (!GenerateDeco(worldRoot + "/" + name, name))
+                fail++;
+            else
+                ok++;
+        }
+
+        Debug.Log("[L2EffectGenerator][world] GenerateWorldMapEmittersCli ok=" + ok + " fail=" + fail);
+        EditorApplication.Exit(fail == 0 ? 0 : 1);
+    }
+
     public static void GenerateNpcDecoCli()
     {
         string effectName = ReadNamedArg("-decoName");
         if (string.IsNullOrWhiteSpace(effectName))
         {
-            effectName = "u_npc_id_buff";
+            Debug.LogError("[L2EffectGenerator] GenerateNpcDecoCli requires -decoName <Interlude LineageEffect deco class>.");
+            EditorApplication.Exit(1);
+            return;
         }
 
         if (!GenerateDeco("Assets/Resources/Data/Effects/deco", effectName))
         {
             EditorApplication.Exit(1);
         }
-    }
-
-    public static void GenerateNpcDecoBuffMenu()
-    {
-        bool ok = GenerateDeco("Assets/Resources/Data/Effects/deco", "u_npc_id_buff");
-        EditorUtility.DisplayDialog(
-            "L2 Effect Generator",
-            ok ? "Generated u_npc_id_buff under Data/Effects/deco." : "Failed. See Console.",
-            "OK");
     }
 
     static bool GenerateDeco(string decoRoot, string effectName)

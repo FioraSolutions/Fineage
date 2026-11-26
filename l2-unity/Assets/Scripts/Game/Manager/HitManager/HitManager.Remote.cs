@@ -11,6 +11,9 @@ public partial class HitManager
         public Entity Attacker;
         public Entity Target;
         public int NextHitIndex;
+        public int HitCount;
+        public float CycleStart;
+        public float CycleSec;
         public float FireAt;
         public bool WaitForShot;
         public AttackDto Packet;
@@ -21,9 +24,9 @@ public partial class HitManager
 
 
     /// <summary>
-    /// Remote melee (Monster / CharInfo). Local PlayerEntity stays on AttackShot + sword collision.
-    /// Impact waits for clip AttackShot; timer is only a late fallback.
-    /// Bow: ignore AttackShot — the arrow has not left yet. Impact is ArrowStick Hit Time.
+    /// Melee Attack packets (local and remote) present every hit row on one clock:
+    /// Mobius timeAtk/2, then hit i of N at sAtk*(i+1)/N. Bow stays on the arrow.
+    /// A skill swing with no Attack hit list still waits for AttackShot.
     /// </summary>
 
 

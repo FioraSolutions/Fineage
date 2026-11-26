@@ -17,6 +17,7 @@ public partial class TerrainConverter : MonoBehaviour {
     private static TerrainToMesh terrainToMesh;
     private static Texture2DArrayGenerator texture2DArrayGenerator;
     private static Terrain terrainToConvert;
+    private static L2TerrainInfo currentTerrainInfo;
 
 
 }

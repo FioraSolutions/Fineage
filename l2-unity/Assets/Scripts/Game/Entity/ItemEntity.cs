@@ -11,7 +11,13 @@ public sealed class ItemEntity : Entity
     public int Count => _count;
     public bool Stackable => _stackable;
 
-    public void Setup(int objectId, int itemId, int count, bool stackable, Vector3 unityPos)
+    public void Setup(
+        int objectId,
+        int itemId,
+        int count,
+        bool stackable,
+        Vector3 serverUnityPos,
+        Vector3 groundedUnityPos)
     {
         _itemId = itemId;
         _count = count;
@@ -23,7 +29,8 @@ public sealed class ItemEntity : Entity
         Identity.EntityType = EntityType.Item;
         Identity.Id = objectId;
         Identity.Name = ResolveItemName(itemId);
-        ApplyWorldPos(unityPos);
+        Identity.SetServerPosition(serverUnityPos);
+        ApplyWorldPos(groundedUnityPos);
         EntityLoaded = true;
     }
 

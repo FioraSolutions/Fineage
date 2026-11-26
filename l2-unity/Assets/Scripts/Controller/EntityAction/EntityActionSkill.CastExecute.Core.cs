@@ -18,21 +18,15 @@ public partial class EntityActionSkill
 
     static void ExecutePhysicalSkill(Entity entity, MagicSkillUseDto magic)
     {
-        AnimationCombo combo = GetCombo(magic);
-        if (combo != null && SkillExecutorPacketServices.Executor != null)
+        if (entity != null && entity.Identity != null &&
+            SetupDurationHelper.TryGetPlayableCombo(magic, out AnimationCombo combo))
         {
-            _ = SkillExecutorPacketServices.Executor.ExecuteSkill(entity, combo, ResolveEvents(entity));
-            // Physical skills carry their art on the skill itself (Deadly Blow 263 → viz_263,
-            // Lethal Blow 344 → viz_344). Only skill 3 used to play here, so every other drop
-            // skill animated the swing and showed no effect at all. Syncing to the combo keeps the
-            // art on the weapon at the hit moment instead of firing it at cast start.
-            SkillVisualEffectDispatch.PlayIfKnown(entity, magic, combo);
-            ArmPhysicalSkillHit(entity, magic);
-            return;
+            SetupDurationHelper.SetupDurationIfHitTimeNot0(magic, entity.Identity.Id, entity, combo);
         }
 
-        EntityActionVisual.PlayPhysicalSkill(entity, magic);
-        SkillVisualEffectDispatch.PlayIfKnown(entity, magic);
+        PhysicalSkillPresentation.TryPlay(entity, magic, ResolveEvents(entity));
+        // skillgrp desc, otherwise the skill.usk row. No shared melee swing when the combo is missing.
+        SkillVisualEffectDispatch.PlayIfKnown(entity, magic, GetCombo(magic));
         ArmPhysicalSkillHit(entity, magic);
     }
 

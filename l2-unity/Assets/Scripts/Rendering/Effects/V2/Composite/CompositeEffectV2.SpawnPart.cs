@@ -55,13 +55,15 @@ public partial class CompositeEffectV2
             return;
         }
 
-        Vector3 spawnPosition = CompositeEffectUtilities.ResolveSpawnPosition(
-            followTransform,
-            worldPosition,
-            Vector3.zero);
+        Vector3 spawnPosition = part.spawnOffsetLocal
+            ? CompositeEffectUtilities.ResolveSpawnPosition(followTransform, worldPosition, part.spawnOffset)
+            : CompositeEffectUtilities.ResolveSpawnPosition(followTransform, worldPosition, Vector3.zero) + part.spawnOffset;
         Quaternion rotation = ResolveV2SpawnRotation(part, followTransform);
         BaseEffect instance = Instantiate(part.prefab, spawnPosition, rotation);
         instance.gameObject.SetActive(true);
+        SkillEffectSpawnSound.TryPlay(
+            !string.IsNullOrEmpty(part.name) ? part.name : (part.prefab != null ? part.prefab.name : null),
+            instance.transform.position);
         if (TraceCrasherWind())
             Debug.Log("[WINDSTRIKE] Composite spawned part=" + part.name + " pos=" + instance.transform.position);
         Vector3 afterInstantiate = instance.transform.position;
@@ -99,6 +101,7 @@ public partial class CompositeEffectV2
         instance.Setup(partSettings, _castData, setupOwner);
         PrepareV2Playback(instance);
         part.OnAfterSpawn(instance, _context);
+        OfficialSkillVisualMotion.Attach(instance, part);
         HomeFlightPart spawnedHome = part as HomeFlightPart;
         if (spawnedHome != null)
         {

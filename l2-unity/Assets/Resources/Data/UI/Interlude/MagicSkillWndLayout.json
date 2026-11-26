@@ -1,0 +1,11 @@
+{
+    "xdatSourcePath": "ref/l2-interlude-client/system/interface.xdat",
+    "xdatWindow": "MagicSkillWnd",
+    "xdatSkillRowItemWindow": "MagicSkillWnd.ItemWindow",
+    "xdatMaxItemNumField": "MaxItemNum",
+    "columnsPerRow": 6,
+    "rowWidthPx": 216,
+    "parityTemplateResource": "Data/UI/_Elements/Template/Skills/SkillPanels/SkillsRow6x1",
+    "rowFrameResource": "Data/UI/Window/Skills/Skills_SkillBar_6x1",
+    "notes": "Interlude retail MagicSkillWnd skill bars use ItemWindow.MaxItemNum=6 and L2UI Skills_SkillBar_6x1 (216px row). Committed SkillsRow6x1.uxml matches that row width."
+}

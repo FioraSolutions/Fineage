@@ -33,13 +33,30 @@ public static class L2EffectGeneratorViewerImport
         }
 
         string key = "tex:" + objectName;
-        if (FailedKeys.Contains(key) || !IsAvailable())
+        if (FailedKeys.Contains(key))
         {
             return null;
         }
 
-        string extractDir = L2EffectUModelClient.ExtractObject(package, objectName, texture: true);
-        string png = L2EffectImportUtil.FindExported(extractDir, objectName, ".png", ".tga");
+        // Prefer a staged PNG (durable cache outside Assets), same as meshes:
+        // umodel is often not runnable on the editor host, and without this the
+        // emitter silently kept the material default ("Font Texture").
+        string png = FindStagedTexture(objectName);
+        if (string.IsNullOrEmpty(png))
+        {
+            if (!IsAvailable())
+            {
+                FailedKeys.Add(key);
+                Debug.LogError(
+                    "[L2EffectGenerator] texture " + objectName +
+                    " is not in the project or External/L2EffectCachedTextures and umodel is unavailable");
+                return null;
+            }
+
+            string extractDir = L2EffectUModelClient.ExtractObject(package, objectName, texture: true);
+            png = L2EffectImportUtil.FindExported(extractDir, objectName, ".png", ".tga");
+        }
+
         if (string.IsNullOrEmpty(png))
         {
             FailedKeys.Add(key);
@@ -197,6 +214,30 @@ public static class L2EffectGeneratorViewerImport
     /// <summary>
     /// Temp extract cache first, then durable Editor/CachedPsk (survives Temp wipe).
     /// </summary>
+    static string FindStagedTexture(string objectName)
+    {
+        string projectRoot = Directory.GetParent(Application.dataPath)!.FullName;
+        string[] roots =
+        {
+            Path.Combine(projectRoot, "External", "L2EffectCachedTextures"),
+            Path.Combine(L2EffectPackageRoots.ExtractRoot(), "Textures"),
+        };
+        string[] extensions = { ".png", ".tga" };
+        for (int i = 0; i < roots.Length; i++)
+        {
+            for (int e = 0; e < extensions.Length; e++)
+            {
+                string candidate = Path.Combine(roots[i], objectName + extensions[e]);
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+            }
+        }
+
+        return null;
+    }
+
     static string FindStagedPsk(string objectName, out string extractDir)
     {
         string sanitized = L2EffectImportUtil.Sanitize(objectName);

@@ -23,16 +23,11 @@ public partial class TooltipManipulator : PointerManipulator
         target.UnregisterCallback<PointerOutEvent>(PointerOutHandler);
     }
 
-    private void PointerInHandler(PointerEnterEvent evt)
+    protected virtual void OnPointerEnterTooltip(PointerEnterEvent evt)
     {
-        if (target != null & HudCorePacketServices.ToolTip != null) {
-            if (_text.Length > 0)
-                HudCorePacketServices.ToolTip.UpdateTooltip(_text, target);
-        }
-        else
-        {
-            // Debug.Log("TooltipManipulator: PointerInHandler не критическая ошибка!");
-        }
-
+        if (target != null && HudCorePacketServices.ToolTip != null && _text.Length > 0)
+            HudCorePacketServices.ToolTip.UpdateTooltip(_text, target);
     }
+
+    private void PointerInHandler(PointerEnterEvent evt) => OnPointerEnterTooltip(evt);
 }

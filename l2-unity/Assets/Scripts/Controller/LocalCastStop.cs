@@ -21,10 +21,11 @@ public static class LocalCastStop
     /// </summary>
     public static void Halt()
     {
-        PlayerController player = ControllerPacketServices.Player;
-        if (player == null)
+        PlayerController found = ControllerPacketServices.Player;
+        if (found == null)
             return;
 
+        IPlayerPawn player = found;
         if (!player.RunningToDestination)
             return;
 
@@ -59,9 +60,12 @@ public static class LocalCastStop
     /// </summary>
     public static void HaltForAttack()
     {
-        PlayerController player = ControllerPacketServices.Player;
-        if (player != null)
+        PlayerController found = ControllerPacketServices.Player;
+        if (found != null)
+        {
+            IPlayerPawn player = found;
             player.StopMove();
+        }
 
         PlayerStateMachine machine = PlayerStatePacketServices.PlayerState;
         if (machine == null)

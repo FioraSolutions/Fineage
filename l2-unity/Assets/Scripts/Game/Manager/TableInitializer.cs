@@ -1,6 +1,6 @@
 using VContainer;
 
-public sealed partial class TableInitializer
+public sealed partial class TableInitializer : ITableInitializer
 {
 
 }

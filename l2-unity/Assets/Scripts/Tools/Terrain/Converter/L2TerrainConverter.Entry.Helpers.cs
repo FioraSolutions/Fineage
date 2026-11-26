@@ -23,8 +23,7 @@ public partial class TerrainConverter
             return false;
         }
 
-        ConvertTerrainToMesh(terrainInfo);
-        return true;
+        return ConvertTerrainToMesh(terrainInfo);
     }
 
     [MenuItem("Shnok/7. [Terrain] Generate deco layer mesh")]

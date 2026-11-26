@@ -107,6 +107,19 @@ public sealed partial class NetSession
             AcquireSkillInfoDto.FromNet(info.SkillId, info.Level, info.SpCost, info.SkillType, types, itemIds, counts, unks));
     }
 
+    internal void ApplyEnchantSkillList(EnchantSkillListNetMsg list)
+    {
+        EnchantSkillListEntryNet[] rows = list?.Skills ?? System.Array.Empty<EnchantSkillListEntryNet>();
+        NetNpcWindows.ApplyEnchantSkillList(rows);
+    }
+
+    internal void ApplyEnchantSkillInfo(EnchantSkillInfoNetMsg info)
+    {
+        if (info == null)
+            return;
+        NetNpcWindows.ApplyEnchantSkillInfo(info);
+    }
+
     internal void ApplyEnchantResult(EnchantResultNetMsg result)
     {
         NetNpcWindows.ApplyEnchantResult(new NetEnchantResult

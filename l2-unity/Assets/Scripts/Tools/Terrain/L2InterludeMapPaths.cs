@@ -15,6 +15,12 @@ public static class L2InterludeMapPaths
     public static string T3dAssetPath(string tileId) =>
         Path.Combine(MetaFolder(tileId), tileId + ".t3d").Replace("\\", "/");
 
+    public static string TerrainInfo0AssetPath(string tileId) =>
+        Path.Combine(MetaFolder(tileId), "TerrainInfo0.txt").Replace("\\", "/");
+
+    public static string TerrainInfo0AbsolutePath(string tileId) =>
+        Path.GetFullPath(Path.Combine(Application.dataPath, "..", TerrainInfo0AssetPath(tileId)));
+
     public static string T3dAbsolutePath(string tileId)
     {
         string assetPath = T3dAssetPath(tileId);

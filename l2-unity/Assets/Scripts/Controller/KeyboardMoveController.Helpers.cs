@@ -13,7 +13,7 @@ public sealed partial class KeyboardMoveController : MonoBehaviour
             return;
 
         L2GameUI ui = SystemUIPacketServices.Ui;
-        if (ui != null && (ui.MouseOverUI || ui.IsPointerOverPanel()))
+        if (ui != null && ui.BlocksWorldPointerInput())
             return;
 
         ChatWindow chat = MessagePacketServices.Chat;

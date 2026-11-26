@@ -20,13 +20,22 @@ public sealed class CrowdLodProfile : ScriptableObject
     public float tier1AnimatorSpeed = 1f;
     public float tier2AnimatorSpeed = 0.5f;
     public float tier3AnimatorSpeed = 0.25f;
+    [Tooltip("Kept for existing profile assets. Visible tiers stay on CullUpdateTransforms; only TCulled stops the animator.")]
     public CrowdDetailTier animatorCullCompletelyFromTier = CrowdDetailTier.T3Far;
+
+    [Header("Skill FX (step 17)")]
+    [Tooltip("Concurrent mid-tier (T2) other-pawn skill FX cap. High default preserves playtest.")]
+    public int maxConcurrentSkillFxT2 = 512;
+
+    [Tooltip("Concurrent far-tier (T3) other-pawn skill FX cap.")]
+    public int maxConcurrentSkillFxT3 = 128;
 
     public float Tier1MaxSq => tier1MaxDistanceMeters * tier1MaxDistanceMeters;
     public float Tier2MaxSq => tier2MaxDistanceMeters * tier2MaxDistanceMeters;
     public float Tier3MaxSq => tier3MaxDistanceMeters * tier3MaxDistanceMeters;
 
-    public bool ShouldShowNameplate(CrowdDetailTier tier) => tier < hideNameplateFromTier;
+    public bool ShouldShowNameplate(CrowdDetailTier tier) =>
+        tier < hideNameplateFromTier && tier != CrowdDetailTier.TCulled;
 
     public float AnimatorSpeedForTier(CrowdDetailTier tier)
     {
@@ -35,14 +44,18 @@ public sealed class CrowdLodProfile : ScriptableObject
             case CrowdDetailTier.T0Hero: return tier0AnimatorSpeed;
             case CrowdDetailTier.T1Near: return tier1AnimatorSpeed;
             case CrowdDetailTier.T2Mid: return tier2AnimatorSpeed;
+            case CrowdDetailTier.TCulled: return 0f;
             default: return tier3AnimatorSpeed;
         }
     }
 
     public AnimatorCullingMode AnimatorCullingForTier(CrowdDetailTier tier)
     {
-        return tier >= animatorCullCompletelyFromTier
-            ? AnimatorCullingMode.CullCompletely
-            : AnimatorCullingMode.CullUpdateTransforms;
+        // The roster disables renderers when a pawn is culled. CullCompletely on a
+        // visible tier freezes the pose when the skinned bounds are stale, so the
+        // body disappears while the roster still says it is on screen.
+        if (tier == CrowdDetailTier.TCulled)
+            return AnimatorCullingMode.CullCompletely;
+        return AnimatorCullingMode.CullUpdateTransforms;
     }
 }

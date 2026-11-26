@@ -6,6 +6,14 @@ public partial class CompositeEffectV2
 {
     Quaternion ResolveV2SpawnRotation(CompositePart part, Transform resolvedTransform)
     {
+        Quaternion rotation = ResolveV2BaseSpawnRotation(part, resolvedTransform);
+        if (part != null && part.spawnEuler != Vector3.zero)
+            rotation *= Quaternion.Euler(part.spawnEuler);
+        return rotation;
+    }
+
+    Quaternion ResolveV2BaseSpawnRotation(CompositePart part, Transform resolvedTransform)
+    {
         if (part != null && part.UsesWeaponBoneRotation && resolvedTransform != null)
         {
             return resolvedTransform.rotation;

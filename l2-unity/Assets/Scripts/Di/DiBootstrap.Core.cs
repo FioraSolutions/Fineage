@@ -4,11 +4,34 @@ using VContainer.Unity;
 
 public static partial class DiBootstrap
 {
-    public static void EnsureAppScope()
+    static AppLifetimeScope _ensuredApp;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void RegisterStartup()
     {
-        AppLifetimeScope existing = Object.FindFirstObjectByType<AppLifetimeScope>();
+        AppScopeStartup.Ensure = EnsureAppScope;
+    }
+
+    public static void ForgetAppScope(AppLifetimeScope scope)
+    {
+        if (ReferenceEquals(_ensuredApp, scope))
+            _ensuredApp = null;
+    }
+
+    public static void EnsureAppScope(GameObject host = null)
+    {
+        // A destroyed scope compares equal to null and must not be reused.
+        if (_ensuredApp == null)
+            _ensuredApp = null;
+
+        AppLifetimeScope existing = _ensuredApp;
+        if (existing == null)
+            existing = Object.FindFirstObjectByType<AppLifetimeScope>();
+        if (existing == null && host != null)
+            existing = host.AddComponent<AppLifetimeScope>();
         if (existing != null)
         {
+            _ensuredApp = existing;
             if (existing.GetComponent<EventProcessor>() == null)
                 existing.gameObject.AddComponent<EventProcessor>();
             EnsureFmodStudioListener(existing.gameObject);
@@ -21,7 +44,7 @@ public static partial class DiBootstrap
         GameObject go = new GameObject("AppLifetimeScope");
         Object.DontDestroyOnLoad(go);
         go.AddComponent<EventProcessor>();
-        go.AddComponent<AppLifetimeScope>();
+        _ensuredApp = go.AddComponent<AppLifetimeScope>();
         // LoginCameras live in additive l2_lobby; FMOD warns before that loads.
         EnsureFmodStudioListener(go);
         AudioSessionBootstrap.EnsureSession();

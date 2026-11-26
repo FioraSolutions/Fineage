@@ -5,7 +5,7 @@ namespace Fineage.Net.Contract
     {
         public int ObjectId { get; set; }
 
-        /// <summary>1 mount, 2 dismount (Mobius Ride action).</summary>
+        /// <summary><see cref="Fineage.Protocol.MountProtocol.RideMount"/> or <see cref="Fineage.Protocol.MountProtocol.RideDismount"/>.</summary>
         public int Action { get; set; }
         /// <summary>0 none, 1 strider, 2 wyvern (Mobius mountType).</summary>
         public byte MountKind { get; set; }

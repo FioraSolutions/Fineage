@@ -24,9 +24,12 @@ public partial class SkillbarSlot
         if (_shortcut != null)
         {
             PlayerInventory inventory = SkillbarPacketServices.Inventory;
-            ItemInstance item = inventory != null ? inventory.FindByAllInventory(_shortcut.Id) : null;
-            if (item == null && inventory != null && _shortcut.Level > 0)
-                item = inventory.GetItemByItemId(_shortcut.Level);
+            ItemInstance item = null;
+            string error = null;
+            if (inventory != null && !inventory.TryResolveShortcut(_shortcut.Id, _shortcut.Level, out item, out error))
+                item = null;
+            if (!string.IsNullOrEmpty(error))
+                Debug.LogError("[Inventory] " + error);
             if (item != null)
                 return item.ItemId;
             if (_shortcut.Level > 0)

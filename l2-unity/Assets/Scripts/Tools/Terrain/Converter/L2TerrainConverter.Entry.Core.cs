@@ -27,24 +27,29 @@ public partial class TerrainConverter
     }
 
     public static bool ConvertTerrainToMeshForMap(string mapName) {
-        string t3dAbs = L2InterludeMapPaths.T3dAbsolutePath(mapName);
-        if (!File.Exists(t3dAbs)) {
-            return false;
-        }
+        return ConvertTerrainToMeshForMap(mapName, true, false);
+    }
 
+    /// <summary>
+    /// <paramref name="writeDeco"/> stores DecoLayer generator inputs (<c>XX_YY_Deco.bytes</c>).
+    /// It does not need the terrain prefab. Terrain mesh export still does.
+    /// </summary>
+    public static bool ConvertTerrainToMeshForMap(string mapName, bool writeTerrain, bool writeDeco) {
         mapToConvert = mapName;
-        convertTerrain = true;
-        convertDecoLayer = false;
-        createMapSafenet = true;
+        convertTerrain = writeTerrain;
+        convertDecoLayer = writeDeco;
+        createMapSafenet = writeTerrain;
         optimizeMesh = true;
+
+        if (writeDeco && !writeTerrain)
+            return L2DecoArchiveBake.WriteForMap(mapName);
 
         L2TerrainInfo terrainInfo = L2T3DInfoParser.LoadMetadata(mapName);
         if (terrainInfo == null) {
             return false;
         }
 
-        ConvertTerrainToMesh(terrainInfo);
-        return true;
+        return ConvertTerrainToMesh(terrainInfo);
     }
 }
 #endif

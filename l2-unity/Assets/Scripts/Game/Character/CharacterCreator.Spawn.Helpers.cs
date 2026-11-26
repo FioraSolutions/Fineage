@@ -23,11 +23,10 @@ public partial class CharacterCreator
     /// <summary>Interlude race stage (#933): show Fighter M/F + Mystic M/F (Dwarf: fighters only).</summary>
     public void ShowRaceGallery(string race)
     {
-        int baseIndex;
-        if (!TryRaceBaseIndex(race, out baseIndex))
+        if (!LobbyCharCreateStageCatalog.TryRaceBaseIndex(race, out int baseIndex))
             return;
 
-        int count = race == "Dwarf" ? 2 : 4;
+        int count = LobbyCharCreateStageCatalog.RaceGalleryCount(race);
         SetGalleryVisible(baseIndex, count, selectedIndex: -1);
         currentPawn = null;
         currentPawnIndex = -1;
@@ -36,39 +35,28 @@ public partial class CharacterCreator
     /// <summary>Interlude class stage (#933): show Male + Female for the chosen class.</summary>
     public void ShowClassGallery(string race, string pawnClass)
     {
-        int baseIndex;
-        if (!TryRaceBaseIndex(race, out baseIndex))
-            return;
-
         if (race == "Dwarf" && pawnClass == "Mystic")
             return;
 
-        int classBase = baseIndex + (pawnClass == "Mystic" ? 2 : 0);
+        int classBase = LobbyCharCreateStageCatalog.ClassGalleryBase(race, pawnClass);
+        if (classBase < 0)
+            return;
+
         SetGalleryVisible(classBase, 2, selectedIndex: -1);
         currentPawn = null;
         currentPawnIndex = -1;
     }
 
     public void SelectPawn(string race, string pawnClass, string gender) {
-        int index = 0;
-        if (!TryRaceBaseIndex(race, out index))
+        if (!LobbyCharCreateStageCatalog.TryPawnIndex(race, pawnClass, gender, out int index))
             return;
-
-        if(pawnClass == "Mystic") {
-            index += 2;
-        }
-
-        if(gender == "Female") {
-            index += 1;
-        }
 
         currentPawnIndex = index;
         currentPawn = EnsureCharCreatePawn(index);
         // Sex stage: keep only the selected pawn visible among the race gallery slots.
-        int raceBase;
-        if (TryRaceBaseIndex(race, out raceBase))
+        if (LobbyCharCreateStageCatalog.TryRaceBaseIndex(race, out int raceBase))
         {
-            int raceCount = race == "Dwarf" ? 2 : 4;
+            int raceCount = LobbyCharCreateStageCatalog.RaceGalleryCount(race);
             SetGalleryVisible(raceBase, raceCount, selectedIndex: index);
         }
         else if (currentPawn != null)
@@ -81,31 +69,6 @@ public partial class CharacterCreator
         HideAllCharCreatePawns();
         currentPawn = null;
         currentPawnIndex = -1;
-    }
-
-    static bool TryRaceBaseIndex(string race, out int baseIndex)
-    {
-        switch (race)
-        {
-            case "Human":
-                baseIndex = 8;
-                return true;
-            case "Elf":
-                baseIndex = 12;
-                return true;
-            case "Dark Elf":
-                baseIndex = 16;
-                return true;
-            case "Orc":
-                baseIndex = 20;
-                return true;
-            case "Dwarf":
-                baseIndex = 24;
-                return true;
-            default:
-                baseIndex = 0;
-                return false;
-        }
     }
 
     void SetGalleryVisible(int baseIndex, int count, int selectedIndex)

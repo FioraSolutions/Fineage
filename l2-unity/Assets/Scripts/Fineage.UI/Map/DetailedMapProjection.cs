@@ -9,13 +9,12 @@ public static class DetailedMapProjection
     public const float DefaultDetailedScale = 0.05f;
     public const int HotspotButtonSize = 26;
 
-    // Match MapPanner world-map calibration (1812×2620 art).
-    public const float WorldMapL2MinX = -125577f;
-    public const float WorldMapL2MaxX = 196500f;
-    public const float WorldMapL2MinY = -264300f;
-    public const float WorldMapL2MaxY = 267788f;
-    public const float WorldMapPixelWidth = 1812f;
-    public const float WorldMapPixelHeight = 2620f;
+    public static float WorldMapL2MinX => InterludeWorldMapBounds.L2MinX;
+    public static float WorldMapL2MaxX => InterludeWorldMapBounds.L2MaxX;
+    public static float WorldMapL2MinY => InterludeWorldMapBounds.L2MinY;
+    public static float WorldMapL2MaxY => InterludeWorldMapBounds.L2MaxY;
+    public static float WorldMapPixelWidth => InterludeWorldMapBounds.PixelWidth;
+    public static float WorldMapPixelHeight => InterludeWorldMapBounds.PixelHeight;
 
     public static bool ContainsWorldPosition(DetailedMapZoneRecord zone, float l2X, float l2Y)
     {

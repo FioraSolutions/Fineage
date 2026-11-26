@@ -18,7 +18,7 @@ public sealed class ItemSpawner
         bool stackable,
         Vector3 unityPos,
         int dropperCharObjId,
-        IWorldSpawnContext world)
+        IWorldSpawnRegistration world)
     {
         if (world == null)
             return null;
@@ -28,15 +28,22 @@ public sealed class ItemSpawner
         if (parent != null)
             go.transform.SetParent(parent, false);
 
-        unityPos.y = world.GetGroundHeight(unityPos);
+        Vector3 serverPos = unityPos;
+        var failCtx = new WorldPlacement.PlacementFailContext(objectId, itemId);
+        Vector3 grounded = WorldPlacement.Resolve(
+            WorldPlacement.PlacementKind.ItemDrop,
+            unityPos,
+            groundMask: null,
+            failCtx);
 
         ItemEntity entity = go.AddComponent<ItemEntity>();
-        entity.Setup(objectId, itemId, count, stackable, unityPos);
+        entity.Setup(objectId, itemId, count, stackable, serverPos, grounded);
         _visuals.AttachVisual(entity, itemId, dropperCharObjId);
         go.AddComponent<ItemPickupMotion>();
 
         world.RegisterItem(entity);
-        _dropPresentation?.PlayDrop(entity, unityPos, dropperCharObjId);
+        EntitySpawnShared.ReapplyGroundForItem(entity);
+        _dropPresentation?.PlayDrop(entity, grounded, dropperCharObjId);
         return entity;
     }
 }

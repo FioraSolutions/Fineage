@@ -1,10 +1,10 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <engine:VisualElement name="inject_content" style="flex-grow: 1; width: auto; height: auto; max-width: none; max-height: none;">
-        <engine:VisualElement name="viewport" style="flex-grow: 1; overflow: hidden; margin-left: 0; margin-right: 0; width: 330px; height: 328px; border-width: 0;">
-            <engine:VisualElement name="map" style="flex-grow: 0; background-image: resource(&apos;Data/UI/Map/WorldMap_Black&apos;); width: 1812px; height: 2620px; overflow: visible; flex-shrink: 0; position: absolute; top: 0; left: 0; bottom: 0; right: 0;">
+        <engine:VisualElement name="viewport" style="flex-grow: 1; overflow: hidden; margin-left: 0; margin-right: 0; width: 328px; height: 328px; border-width: 0;">
+            <engine:VisualElement name="map" style="flex-grow: 0; width: 1812px; height: 2620px; overflow: visible; flex-shrink: 0; position: absolute; top: 0; left: 0;">
                 <engine:VisualElement name="minimapPos" style="flex-grow: 0; background-image: resource(&apos;Data/UI/Map/MinimapPos&apos;); flex-shrink: 0; position: absolute; width: 32px; height: 32px;" />
             </engine:VisualElement>
-            <engine:VisualElement name="town-map-layer" style="display: none; position: absolute; top: 0; left: 0; width: 330px; height: 328px; background-color: rgba(0, 0, 0, 0.85);">
+            <engine:VisualElement name="town-map-layer" style="display: none; position: absolute; top: 0; left: 0; width: 328px; height: 328px; background-color: rgba(0, 0, 0, 0.85);">
                 <engine:VisualElement name="town-map-image" style="position: absolute; top: 6px; left: 6px; width: 282px; height: 282px; -unity-background-scale-mode: stretch-to-fill;">
                     <engine:VisualElement name="town-map-markers" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0;" />
                     <engine:VisualElement name="town-map-marker" style="position: absolute; width: 32px; height: 32px; background-image: resource(&apos;Data/UI/Map/Town/town_pin&apos;);" />

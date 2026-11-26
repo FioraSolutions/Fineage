@@ -8,6 +8,10 @@ public static class AudioPathResolver
     public const string ResourcesItemSoundRoot = "Data/Sounds/ItemSound/";
     public const string ResourcesMusicRoot = "Data/Sounds/Music/";
     public const string ResourcesMonSoundRoot = "Data/Sounds/MonSound/";
+    public const string ResourcesInterfaceSoundRoot = "Data/Sounds/InterfaceSound/";
+    public const string ResourcesMessengerSoundRoot = "Data/Sounds/MessengerSound/";
+    public const string ResourcesAmbSoundRoot = "Data/Sounds/AmbSound/";
+    public const string ResourcesAmbSound2Root = "Data/Sounds/AmbSound2/";
 
     public static string FmodChrSound(CharacterRaceSound race, CharacterSoundEvent soundEvent) =>
         FmodChrSoundBank(race.ToString(), soundEvent);
@@ -28,7 +32,24 @@ public static class AudioPathResolver
         "event:/StepSound/" + eventKey;
 
     public static string FmodMonsterSound(string npcClassName, string eventKey) =>
-        "event:/MonSound/" + npcClassName + "/" + eventKey;
+        "event:/MonSound/" + NormalizeMonsterSoundFolder(npcClassName) + "/" + eventKey;
+
+    /// <summary>Strip <c>LineageMonster.</c> and summon/sm suffixes for MonSound folder names.</summary>
+    public static string NormalizeMonsterSoundFolder(string npcClassOrName)
+    {
+        if (string.IsNullOrEmpty(npcClassOrName))
+            return npcClassOrName;
+
+        string name = npcClassOrName.Trim();
+        int dot = name.IndexOf('.');
+        if (dot >= 0 && dot < name.Length - 1)
+            name = name.Substring(dot + 1);
+
+        name = name.ToLowerInvariant();
+        if (name.EndsWith("_sm"))
+            name = name.Substring(0, name.Length - 3);
+        return name;
+    }
 
     public static string FmodSkillSound(string clipStem) =>
         "event:/SkillSound/" + clipStem;
@@ -82,6 +103,14 @@ public static class AudioPathResolver
 
         if (resourcesPath.StartsWith(ResourcesMonSoundRoot))
             return new AudioPlaySpec(AudioCategory.Sfx, AudioSourceKind.ResourcesClip, resourcesPath);
+
+        if (resourcesPath.StartsWith(ResourcesInterfaceSoundRoot)
+            || resourcesPath.StartsWith(ResourcesMessengerSoundRoot))
+            return new AudioPlaySpec(AudioCategory.Ui, AudioSourceKind.ResourcesClip, resourcesPath);
+
+        if (resourcesPath.StartsWith(ResourcesAmbSoundRoot)
+            || resourcesPath.StartsWith(ResourcesAmbSound2Root))
+            return new AudioPlaySpec(AudioCategory.Ambient, AudioSourceKind.ResourcesClip, resourcesPath);
 
         return new AudioPlaySpec(AudioCategory.Sfx, AudioSourceKind.ResourcesClip, resourcesPath);
     }

@@ -51,6 +51,11 @@ public static partial class SkillCastSound
                     Cast = e.cast ?? "",
                     Shot = e.shot ?? "",
                     Explode = e.explode ?? "",
+                    CastCue = CueFromDto(e.castCue, e.cast),
+                    ShotCue = CueFromDto(e.shotCue, e.shot),
+                    ExplodeCue = CueFromDto(e.explodeCue, e.explode),
+                    ShotEffects = CuesFromDto(e.shotEffects),
+                    ExpEffects = CuesFromDto(e.expEffects),
                     Kinds = e.kinds ?? Array.Empty<string>(),
                     ThrowKinds = e.throwKinds ?? Array.Empty<string>(),
                 };

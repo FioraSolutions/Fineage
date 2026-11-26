@@ -1,0 +1,137 @@
+class we_43035b821f07df16 extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=MeshEmitter Name=MeshEmitter_0
+         StaticMesh=StaticMesh'FX_E_S.broadcasting_tower_s.fx_22_14_line00'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=93,G=93,R=93,A=255),RelativeTime=0.507143)
+         ColorScale(2)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorScaleRepeats=3.000000
+         Opacity=0.580000
+         FadeOutStartTime=2.760000
+         FadeOut=True
+         FadeInEndTime=0.840000
+         FadeIn=True
+         MaxParticles=3
+         WeatherSoundCheck=True
+         Name="MeshEmitter0"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=10.000000)
+         StartSizeRange=(X=(Min=1.250000,Max=1.250000),Y=(Min=1.250000,Max=1.250000),Z=(Min=1.000000,Max=1.000000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(0)=MeshEmitter'MeshEmitter_0'
+     Begin Object Class=MeshEmitter Name=MeshEmitter_1
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Impact.lightcone00'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorMultiplierRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.800000,Max=0.800000),Z=(Min=1.000000,Max=1.000000))
+         Opacity=0.530000
+         FadeOutStartTime=0.300000
+         FadeOut=True
+         FadeInEndTime=0.210000
+         FadeIn=True
+         MaxParticles=4
+         Name="MeshEmitter1"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=200.000000)
+         StartLocationRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=-10.000000,Max=0.000000))
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=1.000000,Z=1.000000)
+         SpinsPerSecondRange=(X=(Min=0.030000,Max=0.030000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=0.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=1.000000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=3.000000,RelativeTime=0.320000)
+         SizeScale(2)=(RelativeSize=5.000000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=1.500000,Max=1.500000),Y=(Min=1.500000,Max=1.500000),Z=(Min=1.500000,Max=1.500000))
+         LifetimeRange=(Min=1.000000,Max=1.000000)
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=1.000000
+     End Object
+     Emitters(1)=MeshEmitter'MeshEmitter_1'
+     Begin Object Class=MeshEmitter Name=MeshEmitter_2
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Monster.bolt00'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorMultiplierRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.800000,Max=0.800000),Z=(Min=1.000000,Max=1.000000))
+         Opacity=0.370000
+         FadeOutStartTime=1.840000
+         FadeOut=True
+         FadeInEndTime=1.840000
+         FadeIn=True
+         MaxParticles=2
+         Name="MeshEmitter3"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=920.000000)
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=1.000000,Z=1.000000)
+         SpinsPerSecondRange=(X=(Min=0.100000,Max=0.100000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSizeRange=(X=(Min=1.700000,Max=1.700000),Y=(Min=1.700000,Max=1.700000),Z=(Min=1.700000,Max=1.700000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(2)=MeshEmitter'MeshEmitter_2'
+     Begin Object Class=MeshEmitter Name=MeshEmitter_3
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Fire.firebomb00'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorMultiplierRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.500000,Max=0.500000),Z=(Min=1.000000,Max=1.000000))
+         Opacity=0.700000
+         FadeOutStartTime=1.680000
+         FadeOut=True
+         FadeInEndTime=1.140000
+         FadeIn=True
+         MaxParticles=3
+         Disabled=True
+         Name="MeshEmitter4"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=200.000000)
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=1.000000,Z=1.000000)
+         SpinsPerSecondRange=(X=(Min=0.000000,Max=0.020000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=0.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=1.000000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=2.500000,RelativeTime=0.250000)
+         SizeScale(2)=(RelativeSize=8.000000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=2.000000,Max=2.000000),Y=(Min=2.000000,Max=2.000000),Z=(Min=1.000000,Max=1.000000))
+         LifetimeRange=(Min=3.000000,Max=3.000000)
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=3.000000
+     End Object
+     Emitters(3)=MeshEmitter'MeshEmitter_3'
+     Begin Object Class=MeshEmitter Name=MeshEmitter_4
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Skill_Power.skill_charge02'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorMultiplierRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=1.000000,Max=1.000000),Z=(Min=0.700000,Max=0.700000))
+         Opacity=0.700000
+         FadeOutStartTime=0.420000
+         FadeOut=True
+         FadeInEndTime=0.410000
+         FadeIn=True
+         MaxParticles=4
+         Name="MeshEmitter6"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=400.000000)
+         StartLocationRange=(X=(Min=-100.000000,Max=100.000000),Y=(Min=-100.000000,Max=100.000000),Z=(Min=-100.000000,Max=100.000000))
+         SpinParticles=True
+         StartSpinRange=(X=(Min=0.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSizeRange=(X=(Min=1.000000,Max=3.000000),Y=(Min=1.000000,Max=3.000000),Z=(Min=1.000000,Max=3.000000))
+         LifetimeRange=(Min=1.000000,Max=1.000000)
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=1.000000
+     End Object
+     Emitters(4)=MeshEmitter'MeshEmitter_4'
+}

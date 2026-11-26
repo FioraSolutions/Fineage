@@ -50,6 +50,31 @@ public sealed class WorldGroundingEditModeTests
     }
 
     [Test]
+    public void Pick_floor_below_selects_highest_deck_under_server_y()
+    {
+        float server = 20f;
+        var ys = new List<float> { 10f, 12f, 25f };
+        Assert.IsTrue(WorldGrounding.TryPickFloorBelow(server, ys, out float floor));
+        Assert.AreEqual(12f, floor, 0.001f);
+    }
+
+    [Test]
+    public void Pick_floor_below_rejects_surfaces_above_body_height()
+    {
+        float server = 10f;
+        var ys = new List<float> { 15f, 18f };
+        Assert.IsFalse(WorldGrounding.TryPickFloorBelow(server, ys, out _));
+    }
+
+    [Test]
+    public void Nearest_walkable_reports_closest_hit_for_diagnostics()
+    {
+        var ys = new List<float> { 1f, 9f, 30f };
+        Assert.IsTrue(WorldGrounding.TryGetNearestWalkableY(10f, ys, out float nearest));
+        Assert.AreEqual(9f, nearest, 0.001f);
+    }
+
+    [Test]
     public void Nameplate_height_from_collision_height_is_stable()
     {
         // npcgrp already in meters: 0.5 m half-height → 1 m + name offset above feet.

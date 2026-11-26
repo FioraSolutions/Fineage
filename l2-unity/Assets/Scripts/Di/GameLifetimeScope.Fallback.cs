@@ -24,8 +24,6 @@ public sealed partial class GameLifetimeScope
             return SkillLearnPacketServices.SkillList as T;
         if (typeof(T) == typeof(BufferPanel))
             return AuxiliaryGameUIPacketServices.Buffer as T;
-        if (typeof(T) == typeof(MoveAllCharacters))
-            return MoveAllCharactersPacketServices.Moves as T;
         if (typeof(T) == typeof(EffectManager))
             return GlobalEffectsPacketServices.Effects as T;
         if (typeof(T) == typeof(EventBus))
@@ -38,12 +36,8 @@ public sealed partial class GameLifetimeScope
             return GameWindowPacketServices.Html as T;
         if (typeof(T) == typeof(SystemMessageWindow))
             return SystemMessagePacketServices.Window as T;
-        if (typeof(T) == typeof(CameraController))
-            return CameraPacketServices.Controller as T;
         if (typeof(T) == typeof(CombatFacingService))
             return CombatPacketServices.Facing as T;
-        if (typeof(T) == typeof(CharacterInfoWindow))
-            return HudCorePacketServices.CharacterInfo as T;
         if (typeof(T) == typeof(CharacterBuilder))
             return CharacterPacketServices.Builder as T;
         if (typeof(T) == typeof(AudioManager))

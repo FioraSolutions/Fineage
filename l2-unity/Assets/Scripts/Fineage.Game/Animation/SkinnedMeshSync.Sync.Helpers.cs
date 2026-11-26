@@ -56,48 +56,38 @@ public partial class SkinnedMeshSync : MonoBehaviour
         donor = null;
         if (src == null)
             return false;
-        int dot = src.name.LastIndexOf('.');
-        if (dot <= 0)
-            return false;
-        string tail = src.name.Substring(dot + 1);
-        for (int i = 0; i < tail.Length; i++)
+
+        string parent = src.parent != null ? src.parent.name : "";
+        if (SkinnedMeshBoneResolver.TryResolveDuplicateBoneName(src.name, parent, out string candidate))
         {
-            if (!char.IsDigit(tail[i]))
-                return false;
+            if (TryFindMappedBone(skeleton, candidate, out donor))
+                return true;
         }
 
-        string baseName = src.name.Substring(0, dot);
-        string parent = src.parent != null ? src.parent.name : "";
-        bool parentRight = SideOf(parent) > 0;
-        bool parentLeft = SideOf(parent) < 0;
-        bool baseRight = SideOf(baseName) > 0;
-        bool baseLeft = SideOf(baseName) < 0;
-        string candidate = baseName;
-        if (parentRight && baseLeft)
-            candidate = SwapSide(baseName, toRight: true);
-        else if (parentLeft && baseRight)
-            candidate = SwapSide(baseName, toRight: false);
-        return TryFindBone(skeleton, candidate, out donor);
+        if (SkinnedMeshBoneResolver.TryResolveThumbFromFinger0Parent(src.name, parent, out string thumb))
+        {
+            if (TryFindMappedBone(skeleton, thumb, out donor))
+                return true;
+        }
+
+        return false;
     }
 
-    static int SideOf(string name)
+    static bool TryFindMappedBone(Dictionary<string, Transform> skeleton, string boneName, out Transform donor)
     {
-        if (string.IsNullOrEmpty(name))
-            return 0;
-        if (name.IndexOf("_R_", StringComparison.OrdinalIgnoreCase) >= 0
-            || name.IndexOf(" R ", StringComparison.OrdinalIgnoreCase) >= 0)
-            return 1;
-        if (name.IndexOf("_L_", StringComparison.OrdinalIgnoreCase) >= 0
-            || name.IndexOf(" L ", StringComparison.OrdinalIgnoreCase) >= 0)
-            return -1;
-        return 0;
-    }
-
-    static string SwapSide(string name, bool toRight)
-    {
-        if (toRight)
-            return name.Replace("_L_", "_R_").Replace("_l_", "_r_").Replace(" L ", " R ");
-        return name.Replace("_R_", "_L_").Replace("_r_", "_l_").Replace(" R ", " L ");
+        if (TryFindBone(skeleton, boneName, out donor))
+            return true;
+        if (TryFindBoneAlias(skeleton, boneName, out donor))
+            return true;
+        string normalized = SkinnedMeshBoneResolver.NormalizeBoneName(boneName);
+        if (!string.Equals(normalized, boneName, StringComparison.Ordinal))
+        {
+            if (TryFindBone(skeleton, normalized, out donor))
+                return true;
+            if (TryFindBoneAlias(skeleton, normalized, out donor))
+                return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -453,7 +443,7 @@ public partial class SkinnedMeshSync : MonoBehaviour
         Transform faceHead = null;
         for (int i = 0; i < srcBones.Length; i++)
         {
-            if (IsSkullBone(srcBones[i]))
+            if (IsSkullBone(srcBones[i], renderer))
             {
                 faceHead = srcBones[i];
                 break;
@@ -482,14 +472,19 @@ public partial class SkinnedMeshSync : MonoBehaviour
         return true;
     }
 
-    static bool IsSkullBone(Transform bone)
+    static bool IsSkullBone(Transform bone, SkinnedMeshRenderer renderer)
     {
         if (bone == null || string.IsNullOrEmpty(bone.name))
             return false;
         string n = bone.name;
-        return n.Equals("Bip01_head", StringComparison.OrdinalIgnoreCase)
+        if (n.Equals("Bip01_head", StringComparison.OrdinalIgnoreCase)
             || n.Equals("Bip01 Head", StringComparison.OrdinalIgnoreCase)
-            || n.Equals("Bip01_Head", StringComparison.OrdinalIgnoreCase);
+            || n.Equals("Bip01_Head", StringComparison.OrdinalIgnoreCase))
+            return true;
+        // FElf / FDarkElf face pieces often list hair01 as the head joint alias (#933).
+        if (!IsHairRenderer(renderer) && n.Equals("hair01", StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 
     static bool TryBoneBindLocal(SkinnedMeshRenderer smr, Transform bone, out Matrix4x4 local)

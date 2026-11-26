@@ -2,7 +2,7 @@ using System;
 
 using UnityEngine;
 
-public partial class PlayerController : MonoBehaviour
+public partial class PlayerController : MonoBehaviour, IPlayerPawn
 {
     /* Components */
     private CharacterController _controller;

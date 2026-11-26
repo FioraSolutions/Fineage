@@ -6,11 +6,10 @@ public partial class SetupDurationHelper
 {
     public static void PlayPotionEffect(Entity entity, MagicSkillUseDto useSkill)
     {
-        EffectManager effects = ControllerPacketServices.Effects;
-        if (entity == null || useSkill == null || effects == null)
+        if (entity == null || useSkill == null)
             return;
 
-        effects.PlayEffect(useSkill.SkillId, entity.transform, entity.GetMagicCastData());
+        SkillVisualEffectDispatch.PlayIfKnown(entity, useSkill);
     }
 
     public static void FinishPotionUse(PlayerStateMachine stateMachine, Entity entity, MagicSkillUseDto useSkill)
@@ -31,16 +30,43 @@ public partial class SetupDurationHelper
         stateMachine.NotifyEvent(Event.WAIT_RETURN);
     }
 
+    /// <summary>
+    /// One InitSkillProcess setup for every skill with a hit time: self casts and targeted
+    /// PHYS Mix combos. Clip lengths are override slots or SpAtk combat takes. Flight comes
+    /// from the skill visual catalog (0 when the cast target is the caster).
+    /// </summary>
     public static void SetupDurationIfHitTimeNot0(MagicSkillUseDto useSkill, int objectId, Entity entity, AnimationCombo selfCombo)
     {
+        if (useSkill == null || entity == null || selfCombo == null || useSkill.HitTime <= 0)
+            return;
 
-        if (useSkill.HitTime > 0)
+        // Stamp the skill before the clip lookup. A catalog miss logs this id,
+        // not 0, and the same MagicCastData is what Setup fills next.
+        MagicCastData cast = entity.GetMagicCastData();
+        if (cast != null && useSkill.SkillId > 0)
+            cast.SkillId = useSkill.SkillId;
+
+        string[] orderedSelfCycle = BuildOrderedCycleForOverrideTiming(selfCombo.GetAnimCycle());
+        float[] durations = System.Array.Empty<float>();
+        float shotEventTime = 0f;
+        if (ControllerPacketServices.Animations != null && orderedSelfCycle.Length > 0)
         {
-            string[] orderedSelfCycle = BuildOrderedCycleForOverrideTiming(selfCombo.GetAnimCycle());
-            float[] durations_self = ControllerPacketServices.Animations.GetOverrideClipsDurations(objectId, orderedSelfCycle);
-            float shotEventTime_self = ResolveShotEventTime(objectId, orderedSelfCycle);
-            entity.SetupTotalCastDuration(useSkill.HitTime, 0f, durations_self, shotEventTime_self, useSkill.TargetId, CastStyleOf(useSkill), MixComboOf(useSkill));
+            durations = ControllerPacketServices.Animations.GetOverrideClipsDurations(objectId, orderedSelfCycle);
+            shotEventTime = ResolveShotEventTime(objectId, orderedSelfCycle);
         }
+
+        bool selfCast = entity.Identity == null || useSkill.TargetId == entity.Identity.Id;
+        Transform flightTarget = selfCast ? entity.transform : null;
+        float flightMs = ResolveMagicFlightTimeMs(entity, useSkill.SkillId, useSkill.SkillLvl, flightTarget);
+        entity.SetupTotalCastDuration(
+            useSkill.HitTime,
+            flightMs,
+            durations,
+            shotEventTime,
+            useSkill.TargetId,
+            CastStyleOf(useSkill),
+            MixComboOf(useSkill),
+            useSkill.SkillId);
     }
 
     public static string[] BuildOrderedCycleForOverrideTiming(string[] rawCycle)
@@ -95,46 +121,13 @@ public partial class SetupDurationHelper
         return ControllerPacketServices.Animations.GetOverrideEventTimeByName(objectId, orderedCycle, "OnAnimationShoot");
     }
 
-    public static float ResolveMagicFlightTimeMs(Entity entity, int skillId, Transform target)
+    public static float ResolveMagicFlightTimeMs(Entity entity, int skillId, int skillLevel, Transform target)
     {
-        const float fallbackFlightMs = 1000f;
-
-        EffectManager effects = ControllerPacketServices.Effects;
-        if (effects != null && effects.ShouldIgnoreFlightTimeForCast(skillId))
-        {
+        // Self skills have nothing flying. The authored usk flying time is for a bolt
+        // between two pawns, not a distance guess and not a GlobalEffect flag.
+        if (entity != null && ReferenceEquals(target, entity.transform))
             return 0f;
-        }
 
-        // No flight stage authored (cast art on the caster, impact on the target, no projectile):
-        // the impact lands at HitTime. Reserving a distance flight here moved the shot to ~0.05 s, sped the
-        // CastShort/CastEnd/MagicThrow cycle up ~25x and spawned the "arrival" art at cast start.
-        if (effects != null && !effects.HasFlightStage(skillId))
-        {
-            return 0f;
-        }
-
-        if (entity == null || target == null)
-        {
-            return fallbackFlightMs;
-        }
-
-        // Self skills (Escape Shackle, Ultimate Evasion, Dash, Focus Chance…) have nothing flying:
-        // the release/hero voice belongs on the packet HitTime, not on a fake 1 s "flight" that
-        // fires the grunt at the same instant as the cast line.
-        if (ReferenceEquals(target, entity.transform))
-        {
-            return 0f;
-        }
-
-        Vector3 startPos = entity.GetPositionRightHand();
-        Vector3 aimPos = VectorWorldUtils.GetCollision(startPos, target);
-        float distance = Vector3.Distance(startPos, aimPos);
-        if (distance <= 0f)
-        {
-            return fallbackFlightMs;
-        }
-
-        float flightSeconds = ProjectileFlightTimeCalculator.CalculateL2SkillFlightTimeSeconds(distance);
-        return flightSeconds * 1000f;
+        return SkillVisualRuntime.FlightSeconds(skillId, skillLevel) * 1000f;
     }
 }

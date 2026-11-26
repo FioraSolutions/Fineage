@@ -82,6 +82,30 @@ def parse_metadata(meta_path: Path) -> dict:
     return {"location": loc, "splats": splats}
 
 
+
+def _quad_visibility_lines(meta: dict) -> list[str]:
+    words = meta.get("quad_words")
+    if not words:
+        words = [-1] * 2048
+    if len(words) != 2048:
+        raise SystemExit(
+            f"ERROR QuadVisibilityBitmap must have 2048 words (256x256 bits), got {len(words)}"
+        )
+    return [f"QuadVisibilityBitmap({i})={int(w)}" for i, w in enumerate(words)]
+
+
+def load_quad_visibility(path: Path) -> list[int] | None:
+    """Official 2048 signed words, one per line, from DumpTerrainHoles / a Phase A sidecar."""
+    if not path.is_file():
+        return None
+    words = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        s = line.split("#", 1)[0].strip()
+        if not s:
+            continue
+        words.append(int(s))
+    return words
+
 def build_terrain_info0(tile_id: str, meta: dict, tile_tex_pkg: str) -> str:
     # Layer 0 uses shared base; splat layers use T_XX_YY ground + Height alphas.
     lines = [
@@ -122,8 +146,9 @@ def build_terrain_info0(tile_id: str, meta: dict, tile_tex_pkg: str) -> str:
         )
         lines.append(layer)
         idx += 1
-    for i in range(64):
-        lines.append(f"QuadVisibilityBitmap({i})=-1")
+    # Official bitmap is 256x256 bits = 2048 uint32 words (not 64). All-visible is -1.
+    # If Phase A wrote quadvisibility.txt (one signed int per line), use those words.
+    lines.extend(_quad_visibility_lines(meta))
     # World placement: without these the Unity terrain bakes at origin (#559 / Elven Village).
     lx, ly, lz = meta["location"]
     lines.append("GeneratedSectorCounter=256")
@@ -137,7 +162,14 @@ def build_t3d(tile_id: str, terrain_info0: str, static_meshes: list[dict]) -> tu
     for line in terrain_info0.splitlines():
         if line.startswith("TerrainMap=") or line.startswith("TerrainScale=") or line.startswith("Layers("):
             out.append("    " + line)
-        elif line.startswith(("DecoLayers(", "GeneratedSectorCounter=", "Location=", "DrawScale=")):
+        elif line.startswith((
+            "DecoLayers(",
+            "QuadVisibilityBitmap(",
+            "EdgeTurnBitmap(",
+            "GeneratedSectorCounter=",
+            "Location=",
+            "DrawScale=",
+        )):
             out.append("    " + line)
     out.append("End Actor")
     individuals: list[str] = []
@@ -205,6 +237,16 @@ def main() -> None:
             raise SystemExit(f"missing {p}")
 
     meta = parse_metadata(meta_path)
+    qpath = src / "quadvisibility.txt"
+    qwords = load_quad_visibility(qpath)
+    if qwords is None:
+        print(
+            f"WARN {tile_id}: no {qpath} — writing 2048 all-visible words; "
+            "provide official bits when the tile has hidden quads"
+        )
+        meta["quad_words"] = [-1] * 2048
+    else:
+        meta["quad_words"] = qwords
     sm_data = json.loads(sm_path.read_text(encoding="utf-8"))
     static_meshes = sm_data["staticMeshes"]
 
@@ -220,7 +262,12 @@ def main() -> None:
         if not splat_file.is_file():
             continue
         if layer_num == 0:
-            shutil.copy2(splat_file, TEXTURES / "T_texture" / "layer0.png")
+            dest = TEXTURES / "T_texture" / "layer0.png"
+            if dest.exists():
+                # Shared across tiles; do not clobber a good base alpha with a later tile's splat.
+                print(f"{tile_id}: keeping existing {dest}")
+            else:
+                shutil.copy2(splat_file, dest)
             continue
         alpha_name = f"{tile_id}_splat{layer_num}"
         shutil.copy2(splat_file, tex_dir / f"{alpha_name}.png")
@@ -255,6 +302,14 @@ def main() -> None:
     (meta_dir / "StaticMeshActorIndividuals.txt").write_text(
         "\n".join(uniq_individuals) + "\n", encoding="utf-8"
     )
+    water_src = src / "watervolumes.json"
+    water_dst = meta_dir / "watervolumes.json"
+    if water_src.is_file():
+        shutil.copy2(water_src, water_dst)
+        print(f"{tile_id}: copied {water_src.name} into Meta")
+    else:
+        print(f"WARN {tile_id}: no {water_src} (WaterVolumes will be missing until dumped)")
+
     print(f"Wrote meta for {tile_id}: {len(static_meshes)} actors, {len(uniq_individuals)} unique meshes")
 
 

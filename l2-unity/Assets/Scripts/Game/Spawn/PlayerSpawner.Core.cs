@@ -6,10 +6,12 @@ public sealed partial class PlayerSpawner
     public PlayerSpawner(
         CameraController camera,
         CharacterInfoWindow characterInfo,
-        CharacterBuilder characterBuilder)
+        CharacterBuilder characterBuilder,
+        PlayerRebirthRelay rebirth)
     {
         _camera = camera;
         _characterInfo = characterInfo;
         _characterBuilder = characterBuilder;
+        _rebirth = rebirth;
     }
 }

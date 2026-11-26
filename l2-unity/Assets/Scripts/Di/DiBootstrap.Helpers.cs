@@ -4,38 +4,38 @@ using VContainer.Unity;
 
 public static partial class DiBootstrap
 {
-    public static void EnsureGameScope()
+    public static void EnsureGameScope(World world = null)
     {
-        World world = Object.FindFirstObjectByType<World>(FindObjectsInactive.Include);
+        // EditMode Find misses a component inside its own Awake. The owner passes itself.
+        if (world == null)
+            world = Object.FindFirstObjectByType<World>(FindObjectsInactive.Include);
         GameLifetimeScope existing = Object.FindFirstObjectByType<GameLifetimeScope>(FindObjectsInactive.Include);
 
         if (existing != null)
         {
-            if (IsGameScopeReady(existing))
-            {
-                App.GameContainer = existing.Container;
-                return;
-            }
-
-            Object.DestroyImmediate(existing.gameObject);
-            App.GameContainer = null;
+            RequireGameScopeReady(existing);
+            App.GameContainer = existing.Container;
+            return;
         }
 
         if (world == null)
             return;
 
         EnsureAppScope();
-        AppLifetimeScope app = Object.FindFirstObjectByType<AppLifetimeScope>();
+        AppLifetimeScope app = _ensuredApp;
+        if (app == null)
+        {
+            throw new System.InvalidOperationException(
+                "[DiBootstrap] AppLifetimeScope missing — EnsureAppScope did not leave an app scope, so the game scope was not built.");
+        }
+
         GameObject go = new GameObject("GameLifetimeScope");
         using (LifetimeScope.EnqueueParent(app))
             go.AddComponent<GameLifetimeScope>();
 
         GameLifetimeScope built = go.GetComponent<GameLifetimeScope>();
-        if (!IsGameScopeReady(built))
-        {
-            Object.DestroyImmediate(go);
-            App.GameContainer = null;
-        }
+        RequireGameScopeReady(built);
+        App.GameContainer = built.Container;
     }
 
     public static void EnsureLoginScope()
@@ -59,24 +59,36 @@ public static partial class DiBootstrap
             go.AddComponent<LoginLifetimeScope>();
     }
 
-    private static bool IsGameScopeReady(GameLifetimeScope scope)
+    static void RequireGameScopeReady(GameLifetimeScope scope)
     {
         if (scope == null || scope.Container == null)
-            return false;
+        {
+            throw new System.InvalidOperationException(
+                "[DiBootstrap] GameLifetimeScope did not publish a container — LifetimeScope.Awake did not finish Build, so the game scope was not ready.");
+        }
 
         try
         {
             if (scope.Container.Resolve<World>() == null)
-                return false;
+            {
+                throw new System.InvalidOperationException(
+                    "[DiBootstrap] GameLifetimeScope World resolve returned null, so the game scope was not ready.");
+            }
+
             scope.Container.Resolve<WorldPacketApply>();
             scope.Container.Resolve<MessagePacketApply>();
             scope.Container.Resolve<IWorldDomainSink>();
             scope.Container.Resolve<EntityActionMachine>();
-            return true;
         }
-        catch
+        catch (System.InvalidOperationException)
         {
-            return false;
+            throw;
+        }
+        catch (System.Exception ex)
+        {
+            UnityEngine.Debug.LogError(
+                "[DiBootstrap] GameLifetimeScope resolve failed — the game scope was not ready. " + ex);
+            throw;
         }
     }
 }

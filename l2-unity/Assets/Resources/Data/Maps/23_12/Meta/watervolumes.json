@@ -1,0 +1,47 @@
+{
+  "volumes": [
+    {
+      "name": "WaterVolume2",
+      "min": [
+        98304.0,
+        -196608.0,
+        -4780.0
+      ],
+      "max": [
+        131072.0,
+        -179968.0,
+        -3780.0
+      ]
+    },
+    {
+      "name": "WaterVolume1",
+      "min": [
+        98304.0,
+        -179968.0,
+        -4780.0
+      ],
+      "max": [
+        107008.0,
+        -163840.0,
+        -3780.0
+      ]
+    },
+    {
+      "name": "WaterVolume4",
+      "min": [
+        113018.0,
+        -196608.0,
+        -4807.0
+      ],
+      "max": [
+        125050.0,
+        -178624.0,
+        -3807.0
+      ]
+    }
+  ],
+  "material": "FX_E_T.WaterSurfaceShaderSet.WaterShader01",
+  "materials": [
+    "FX_E_T.WaterSurfaceShaderSet.WaterShader01"
+  ]
+}

@@ -1,0 +1,1651 @@
+[
+  {
+    "file": "engine.dll",
+    "size": 30359572,
+    "packer": "Themida",
+    "unpacked": false,
+    "notes": [
+      "entry 0x1a8c014 is inside section 'Themida '",
+      "Contains literal 'Themida' string"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 4,
+      "pe32": true,
+      "entry": 27836436,
+      "imagebase": 271581184,
+      "overall_entropy": 6.727
+    },
+    "sections": [
+      {
+        "name": "   ",
+        "name_bytes": "202020",
+        "va": 4096,
+        "vsize": 27824128,
+        "raw": 4096,
+        "rsize": 27824128,
+        "entropy": 6.726
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 27828224,
+        "vsize": 806,
+        "raw": 27828224,
+        "rsize": 4096,
+        "entropy": 0.45
+      },
+      {
+        "name": ".idata  ",
+        "name_bytes": "2e69646174612020",
+        "va": 27832320,
+        "vsize": 4096,
+        "raw": 27832320,
+        "rsize": 4096,
+        "entropy": 0.265
+      },
+      {
+        "name": "Themida ",
+        "name_bytes": "5468656d69646120",
+        "va": 27836416,
+        "vsize": 2523136,
+        "raw": 27836416,
+        "rsize": 2523136,
+        "entropy": 7.729
+      }
+    ],
+    "string_counts": {
+      "ascii": 14925,
+      "utf16": 72
+    },
+    "interesting_string_count": 400
+  },
+  {
+    "file": "core.dll",
+    "size": 1368084,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 6,
+      "pe32": true,
+      "entry": 523095,
+      "imagebase": 269484032,
+      "overall_entropy": 5.886
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 827312,
+        "raw": 4096,
+        "rsize": 827392,
+        "entropy": 5.826
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 831488,
+        "vsize": 429108,
+        "raw": 831488,
+        "rsize": 430080,
+        "entropy": 4.836
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 1261568,
+        "vsize": 1093188,
+        "raw": 1261568,
+        "rsize": 32768,
+        "entropy": 3.494
+      },
+      {
+        "name": ".idata",
+        "name_bytes": "2e6964617461",
+        "va": 2355200,
+        "vsize": 5541,
+        "raw": 1294336,
+        "rsize": 8192,
+        "entropy": 3.467
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 2363392,
+        "vsize": 3081,
+        "raw": 1302528,
+        "rsize": 4096,
+        "entropy": 0.448
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 2367488,
+        "vsize": 59632,
+        "raw": 1306624,
+        "rsize": 61440,
+        "entropy": 6.074
+      }
+    ],
+    "string_counts": {
+      "ascii": 4997,
+      "utf16": 1143
+    },
+    "interesting_string_count": 305
+  },
+  {
+    "file": "nwindow.dll",
+    "size": 3825684,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 5,
+      "pe32": true,
+      "entry": 1843571,
+      "imagebase": 268435456,
+      "overall_entropy": 6.443
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 2260988,
+        "raw": 4096,
+        "rsize": 2260992,
+        "entropy": 6.45
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 2265088,
+        "vsize": 1170367,
+        "raw": 2265088,
+        "rsize": 1171456,
+        "entropy": 4.701
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 3436544,
+        "vsize": 431812,
+        "raw": 3436544,
+        "rsize": 45056,
+        "entropy": 5.415
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 3870720,
+        "vsize": 23296,
+        "raw": 3481600,
+        "rsize": 24576,
+        "entropy": 3.813
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 3895296,
+        "vsize": 318556,
+        "raw": 3506176,
+        "rsize": 319488,
+        "entropy": 6.533
+      }
+    ],
+    "string_counts": {
+      "ascii": 11952,
+      "utf16": 5761
+    },
+    "interesting_string_count": 400
+  },
+  {
+    "file": "Window.dll",
+    "size": 749588,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 6,
+      "pe32": true,
+      "entry": 244246,
+      "imagebase": 285212672,
+      "overall_entropy": 5.656
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 421106,
+        "raw": 4096,
+        "rsize": 421888,
+        "entropy": 5.678
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 425984,
+        "vsize": 204476,
+        "raw": 425984,
+        "rsize": 204800,
+        "entropy": 4.282
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 630784,
+        "vsize": 24224,
+        "raw": 630784,
+        "rsize": 12288,
+        "entropy": 2.77
+      },
+      {
+        "name": ".idata",
+        "name_bytes": "2e6964617461",
+        "va": 655360,
+        "vsize": 15902,
+        "raw": 643072,
+        "rsize": 16384,
+        "entropy": 5.274
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 671744,
+        "vsize": 45312,
+        "raw": 659456,
+        "rsize": 49152,
+        "entropy": 3.662
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 720896,
+        "vsize": 40573,
+        "raw": 708608,
+        "rsize": 40960,
+        "entropy": 6.321
+      }
+    ],
+    "string_counts": {
+      "ascii": 2933,
+      "utf16": 593
+    },
+    "interesting_string_count": 123
+  },
+  {
+    "file": "L2.exe",
+    "size": 491540,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 5,
+      "pe32": true,
+      "entry": 141734,
+      "imagebase": 277872640,
+      "overall_entropy": 5.787
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 348400,
+        "raw": 4096,
+        "rsize": 352256,
+        "entropy": 5.832
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 356352,
+        "vsize": 79587,
+        "raw": 356352,
+        "rsize": 81920,
+        "entropy": 4.317
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 438272,
+        "vsize": 228016,
+        "raw": 438272,
+        "rsize": 20480,
+        "entropy": 3.426
+      },
+      {
+        "name": ".idata",
+        "name_bytes": "2e6964617461",
+        "va": 667648,
+        "vsize": 24396,
+        "raw": 458752,
+        "rsize": 24576,
+        "entropy": 5.331
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 692224,
+        "vsize": 6723,
+        "raw": 483328,
+        "rsize": 8192,
+        "entropy": 4.508
+      }
+    ],
+    "string_counts": {
+      "ascii": 1245,
+      "utf16": 239
+    },
+    "interesting_string_count": 27
+  },
+  {
+    "file": "WinDrv.dll",
+    "size": 630804,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 6,
+      "pe32": true,
+      "entry": 95542,
+      "imagebase": 286261248,
+      "overall_entropy": 5.574
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 306255,
+        "raw": 4096,
+        "rsize": 307200,
+        "entropy": 5.87
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 311296,
+        "vsize": 238530,
+        "raw": 311296,
+        "rsize": 241664,
+        "entropy": 4.036
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 552960,
+        "vsize": 19628,
+        "raw": 552960,
+        "rsize": 8192,
+        "entropy": 2.963
+      },
+      {
+        "name": ".idata",
+        "name_bytes": "2e6964617461",
+        "va": 573440,
+        "vsize": 17871,
+        "raw": 561152,
+        "rsize": 20480,
+        "entropy": 4.975
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 593920,
+        "vsize": 23353,
+        "raw": 581632,
+        "rsize": 24576,
+        "entropy": 3.022
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 618496,
+        "vsize": 21778,
+        "raw": 606208,
+        "rsize": 24576,
+        "entropy": 5.897
+      }
+    ],
+    "string_counts": {
+      "ascii": 2548,
+      "utf16": 1340
+    },
+    "interesting_string_count": 74
+  },
+  {
+    "file": "dsetup.dll",
+    "size": 62996,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 4,
+      "pe32": true,
+      "entry": 27307,
+      "imagebase": 4194304,
+      "overall_entropy": 6.347
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 53081,
+        "raw": 1024,
+        "rsize": 53248,
+        "entropy": 6.598
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 57344,
+        "vsize": 9564,
+        "raw": 54272,
+        "rsize": 3072,
+        "entropy": 2.038
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 69632,
+        "vsize": 976,
+        "raw": 57344,
+        "rsize": 1024,
+        "entropy": 3.164
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 73728,
+        "vsize": 4480,
+        "raw": 58368,
+        "rsize": 4608,
+        "entropy": 4.671
+      }
+    ],
+    "string_counts": {
+      "ascii": 470,
+      "utf16": 26
+    },
+    "interesting_string_count": 0
+  },
+  {
+    "file": "ifc23.dll",
+    "size": 233492,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 5,
+      "pe32": true,
+      "entry": 125532,
+      "imagebase": 268435456,
+      "overall_entropy": 6.422
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 155189,
+        "raw": 4096,
+        "rsize": 155648,
+        "entropy": 6.455
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 159744,
+        "vsize": 46132,
+        "raw": 159744,
+        "rsize": 49152,
+        "entropy": 5.776
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 208896,
+        "vsize": 14480,
+        "raw": 208896,
+        "rsize": 8192,
+        "entropy": 4.676
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 225280,
+        "vsize": 904,
+        "raw": 217088,
+        "rsize": 4096,
+        "entropy": 0.942
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 229376,
+        "vsize": 9130,
+        "raw": 221184,
+        "rsize": 12288,
+        "entropy": 4.854
+      }
+    ],
+    "string_counts": {
+      "ascii": 1285,
+      "utf16": 21
+    },
+    "interesting_string_count": 210
+  },
+  {
+    "file": "msxml4.dll",
+    "size": 1233940,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 4,
+      "pe32": true,
+      "entry": 181871,
+      "imagebase": 1773207552,
+      "overall_entropy": 6.599
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 992904,
+        "raw": 1024,
+        "rsize": 993280,
+        "entropy": 6.666
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 999424,
+        "vsize": 69468,
+        "raw": 994304,
+        "rsize": 68096,
+        "entropy": 3.059
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 1069056,
+        "vsize": 110504,
+        "raw": 1062400,
+        "rsize": 110592,
+        "entropy": 5.237
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 1179648,
+        "vsize": 60564,
+        "raw": 1172992,
+        "rsize": 60928,
+        "entropy": 6.502
+      }
+    ],
+    "string_counts": {
+      "ascii": 3015,
+      "utf16": 900
+    },
+    "interesting_string_count": 19
+  },
+  {
+    "file": "vorbisfile.dll",
+    "size": 106516,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 5,
+      "pe32": true,
+      "entry": 21040,
+      "imagebase": 268435456,
+      "overall_entropy": 6.041
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 67524,
+        "raw": 4096,
+        "rsize": 69632,
+        "entropy": 6.668
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 73728,
+        "vsize": 9923,
+        "raw": 73728,
+        "rsize": 12288,
+        "entropy": 4.73
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 86016,
+        "vsize": 12412,
+        "raw": 86016,
+        "rsize": 8192,
+        "entropy": 2.345
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 102400,
+        "vsize": 176,
+        "raw": 94208,
+        "rsize": 4096,
+        "entropy": 3.057
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 106496,
+        "vsize": 4378,
+        "raw": 98304,
+        "rsize": 8192,
+        "entropy": 3.1
+      }
+    ],
+    "string_counts": {
+      "ascii": 336,
+      "utf16": 3
+    },
+    "interesting_string_count": 0
+  },
+  {
+    "file": "encvag.dll",
+    "size": 150548,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 6,
+      "pe32": true,
+      "entry": 9600,
+      "imagebase": 268435456,
+      "overall_entropy": 5.88
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 83450,
+        "raw": 1024,
+        "rsize": 83456,
+        "entropy": 6.588
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 90112,
+        "vsize": 16029,
+        "raw": 84480,
+        "rsize": 16384,
+        "entropy": 4.185
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 106496,
+        "vsize": 29844,
+        "raw": 100864,
+        "rsize": 16384,
+        "entropy": 2.226
+      },
+      {
+        "name": ".idata",
+        "name_bytes": "2e6964617461",
+        "va": 139264,
+        "vsize": 6334,
+        "raw": 117248,
+        "rsize": 6656,
+        "entropy": 5.412
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 147456,
+        "vsize": 10548,
+        "raw": 123904,
+        "rsize": 10752,
+        "entropy": 4.603
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 159744,
+        "vsize": 15750,
+        "raw": 134656,
+        "rsize": 15872,
+        "entropy": 3.801
+      }
+    ],
+    "string_counts": {
+      "ascii": 743,
+      "utf16": 22
+    },
+    "interesting_string_count": 12
+  },
+  {
+    "file": "defopenal32.dll",
+    "size": 102420,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 5,
+      "pe32": true,
+      "entry": 33483,
+      "imagebase": 268435456,
+      "overall_entropy": 5.313
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 59228,
+        "raw": 4096,
+        "rsize": 61440,
+        "entropy": 6.508
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 65536,
+        "vsize": 5687,
+        "raw": 65536,
+        "rsize": 8192,
+        "entropy": 4.353
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 73728,
+        "vsize": 786560,
+        "raw": 73728,
+        "rsize": 16384,
+        "entropy": 1.711
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 864256,
+        "vsize": 968,
+        "raw": 90112,
+        "rsize": 4096,
+        "entropy": 1.002
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 868352,
+        "vsize": 4886,
+        "raw": 94208,
+        "rsize": 8192,
+        "entropy": 2.857
+      }
+    ],
+    "string_counts": {
+      "ascii": 329,
+      "utf16": 26
+    },
+    "interesting_string_count": 0
+  },
+  {
+    "file": "ALAudio.dll",
+    "size": 352276,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 6,
+      "pe32": true,
+      "entry": 66885,
+      "imagebase": 268435456,
+      "overall_entropy": 5.659
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 241839,
+        "raw": 4096,
+        "rsize": 245760,
+        "entropy": 5.761
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 249856,
+        "vsize": 52886,
+        "raw": 249856,
+        "rsize": 53248,
+        "entropy": 4.106
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 303104,
+        "vsize": 15040,
+        "raw": 303104,
+        "rsize": 12288,
+        "entropy": 2.535
+      },
+      {
+        "name": ".idata",
+        "name_bytes": "2e6964617461",
+        "va": 319488,
+        "vsize": 12340,
+        "raw": 315392,
+        "rsize": 16384,
+        "entropy": 4.459
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 335872,
+        "vsize": 806,
+        "raw": 331776,
+        "rsize": 4096,
+        "entropy": 0.448
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 339968,
+        "vsize": 12882,
+        "raw": 335872,
+        "rsize": 16384,
+        "entropy": 5.425
+      }
+    ],
+    "string_counts": {
+      "ascii": 1068,
+      "utf16": 123
+    },
+    "interesting_string_count": 24
+  },
+  {
+    "file": "msxml4a.dll",
+    "size": 44564,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 2,
+      "pe32": true,
+      "entry": 0,
+      "imagebase": 2024669184,
+      "overall_entropy": 4.853
+    },
+    "sections": [
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 4096,
+        "vsize": 43368,
+        "raw": 512,
+        "rsize": 43520,
+        "entropy": 4.865
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 49152,
+        "vsize": 8,
+        "raw": 44032,
+        "rsize": 512,
+        "entropy": 0.02
+      }
+    ],
+    "string_counts": {
+      "ascii": 658,
+      "utf16": 22
+    },
+    "interesting_string_count": 2
+  },
+  {
+    "file": "D3DDrv.dll",
+    "size": 1277972,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 5,
+      "pe32": true,
+      "entry": 798873,
+      "imagebase": 268435456,
+      "overall_entropy": 6.539
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 900299,
+        "raw": 4096,
+        "rsize": 901120,
+        "entropy": 6.699
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 905216,
+        "vsize": 255659,
+        "raw": 905216,
+        "rsize": 258048,
+        "entropy": 5.428
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 1163264,
+        "vsize": 600928,
+        "raw": 1163264,
+        "rsize": 57344,
+        "entropy": 3.729
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 1765376,
+        "vsize": 176,
+        "raw": 1220608,
+        "rsize": 4096,
+        "entropy": 3.058
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 1769472,
+        "vsize": 50240,
+        "raw": 1224704,
+        "rsize": 53248,
+        "entropy": 5.573
+      }
+    ],
+    "string_counts": {
+      "ascii": 3305,
+      "utf16": 705
+    },
+    "interesting_string_count": 54
+  },
+  {
+    "file": "IpDrv.dll",
+    "size": 491540,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 6,
+      "pe32": true,
+      "entry": 120381,
+      "imagebase": 275775488,
+      "overall_entropy": 5.663
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 290895,
+        "raw": 4096,
+        "rsize": 294912,
+        "entropy": 5.687
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 299008,
+        "vsize": 105299,
+        "raw": 299008,
+        "rsize": 106496,
+        "entropy": 4.255
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 405504,
+        "vsize": 40896,
+        "raw": 405504,
+        "rsize": 20480,
+        "entropy": 2.155
+      },
+      {
+        "name": ".idata",
+        "name_bytes": "2e6964617461",
+        "va": 446464,
+        "vsize": 29162,
+        "raw": 425984,
+        "rsize": 32768,
+        "entropy": 5.089
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 479232,
+        "vsize": 806,
+        "raw": 458752,
+        "rsize": 4096,
+        "entropy": 0.448
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 483328,
+        "vsize": 25107,
+        "raw": 462848,
+        "rsize": 28672,
+        "entropy": 5.846
+      }
+    ],
+    "string_counts": {
+      "ascii": 1912,
+      "utf16": 344
+    },
+    "interesting_string_count": 70
+  },
+  {
+    "file": "msxml4r.dll",
+    "size": 82452,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 2,
+      "pe32": true,
+      "entry": 0,
+      "imagebase": 2024669184,
+      "overall_entropy": 3.795
+    },
+    "sections": [
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 4096,
+        "vsize": 81288,
+        "raw": 512,
+        "rsize": 81408,
+        "entropy": 3.811
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 86016,
+        "vsize": 8,
+        "raw": 81920,
+        "rsize": 512,
+        "entropy": 0.02
+      }
+    ],
+    "string_counts": {
+      "ascii": 3,
+      "utf16": 318
+    },
+    "interesting_string_count": 0
+  },
+  {
+    "file": "ogg.dll",
+    "size": 61460,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 5,
+      "pe32": true,
+      "entry": 13164,
+      "imagebase": 268435456,
+      "overall_entropy": 5.728
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 30788,
+        "raw": 4096,
+        "rsize": 32768,
+        "entropy": 6.436
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 36864,
+        "vsize": 7941,
+        "raw": 36864,
+        "rsize": 8192,
+        "entropy": 5.465
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 45056,
+        "vsize": 7428,
+        "raw": 45056,
+        "rsize": 8192,
+        "entropy": 2.571
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 53248,
+        "vsize": 176,
+        "raw": 53248,
+        "rsize": 4096,
+        "entropy": 3.056
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 57344,
+        "vsize": 3222,
+        "raw": 57344,
+        "rsize": 4096,
+        "entropy": 3.838
+      }
+    ],
+    "string_counts": {
+      "ascii": 246,
+      "utf16": 4
+    },
+    "interesting_string_count": 0
+  },
+  {
+    "file": "npkpdb.dll",
+    "size": 53268,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "No known packer signature"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 6,
+      "pe32": true,
+      "entry": 6772,
+      "imagebase": 268435456,
+      "overall_entropy": 4.045
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 18346,
+        "raw": 4096,
+        "rsize": 20480,
+        "entropy": 6.207
+      },
+      {
+        "name": ".NUMEGAB",
+        "name_bytes": "2e4e554d45474142",
+        "va": 24576,
+        "vsize": 914,
+        "raw": 24576,
+        "rsize": 4096,
+        "entropy": 1.557
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 28672,
+        "vsize": 3005,
+        "raw": 28672,
+        "rsize": 4096,
+        "entropy": 4.361
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 32768,
+        "vsize": 12840,
+        "raw": 32768,
+        "rsize": 12288,
+        "entropy": 0.767
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 49152,
+        "vsize": 1816,
+        "raw": 45056,
+        "rsize": 4096,
+        "entropy": 1.319
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 53248,
+        "vsize": 3614,
+        "raw": 49152,
+        "rsize": 4096,
+        "entropy": 3.859
+      }
+    ],
+    "string_counts": {
+      "ascii": 175,
+      "utf16": 25
+    },
+    "interesting_string_count": 0
+  },
+  {
+    "file": "vorbis.dll",
+    "size": 249876,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 5,
+      "pe32": true,
+      "entry": 113875,
+      "imagebase": 268435456,
+      "overall_entropy": 6.629
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 165236,
+        "raw": 4096,
+        "rsize": 167936,
+        "entropy": 6.726
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 172032,
+        "vsize": 47429,
+        "raw": 172032,
+        "rsize": 49152,
+        "entropy": 6.362
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 221184,
+        "vsize": 21892,
+        "raw": 221184,
+        "rsize": 16384,
+        "entropy": 3.751
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 245760,
+        "vsize": 176,
+        "raw": 237568,
+        "rsize": 4096,
+        "entropy": 3.058
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 249856,
+        "vsize": 6882,
+        "raw": 241664,
+        "rsize": 8192,
+        "entropy": 4.501
+      }
+    ],
+    "string_counts": {
+      "ascii": 569,
+      "utf16": 4
+    },
+    "interesting_string_count": 0
+  },
+  {
+    "file": "npkcrypt.dll",
+    "size": 409700,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 6,
+      "pe32": true,
+      "entry": 103012,
+      "imagebase": 4194304,
+      "overall_entropy": 5.313
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 299576,
+        "raw": 4096,
+        "rsize": 303104,
+        "entropy": 5.318
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 307200,
+        "vsize": 27852,
+        "raw": 307200,
+        "rsize": 28672,
+        "entropy": 3.649
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 335872,
+        "vsize": 45404,
+        "raw": 335872,
+        "rsize": 32768,
+        "entropy": 2.296
+      },
+      {
+        "name": ".idata",
+        "name_bytes": "2e6964617461",
+        "va": 385024,
+        "vsize": 14119,
+        "raw": 368640,
+        "rsize": 16384,
+        "entropy": 4.557
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 401408,
+        "vsize": 1948,
+        "raw": 385024,
+        "rsize": 4096,
+        "entropy": 1.242
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 405504,
+        "vsize": 17849,
+        "raw": 389120,
+        "rsize": 20480,
+        "entropy": 5.764
+      }
+    ],
+    "string_counts": {
+      "ascii": 1441,
+      "utf16": 25
+    },
+    "interesting_string_count": 25
+  },
+  {
+    "file": "lineageenv.dll",
+    "size": 131092,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 5,
+      "pe32": true,
+      "entry": 21994,
+      "imagebase": 268435456,
+      "overall_entropy": 6.212
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 62635,
+        "raw": 4096,
+        "rsize": 65536,
+        "entropy": 6.581
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 69632,
+        "vsize": 37587,
+        "raw": 69632,
+        "rsize": 40960,
+        "entropy": 5.646
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 110592,
+        "vsize": 11360,
+        "raw": 110592,
+        "rsize": 8192,
+        "entropy": 2.75
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 122880,
+        "vsize": 176,
+        "raw": 118784,
+        "rsize": 4096,
+        "entropy": 3.057
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 126976,
+        "vsize": 7702,
+        "raw": 122880,
+        "rsize": 8192,
+        "entropy": 4.756
+      }
+    ],
+    "string_counts": {
+      "ascii": 745,
+      "utf16": 9
+    },
+    "interesting_string_count": 35
+  },
+  {
+    "file": "orc.dll",
+    "size": 1396756,
+    "packer": "Themida",
+    "unpacked": false,
+    "notes": [
+      "entry 0x1b014 is inside section 'Themida '",
+      "Contains literal 'Themida' string"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 4,
+      "pe32": true,
+      "entry": 110612,
+      "imagebase": 268435456,
+      "overall_entropy": 7.86
+    },
+    "sections": [
+      {
+        "name": "   ",
+        "name_bytes": "202020",
+        "va": 4096,
+        "vsize": 98304,
+        "raw": 4096,
+        "rsize": 98304,
+        "entropy": 6.957
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 102400,
+        "vsize": 176,
+        "raw": 102400,
+        "rsize": 4096,
+        "entropy": 3.057
+      },
+      {
+        "name": ".idata  ",
+        "name_bytes": "2e69646174612020",
+        "va": 106496,
+        "vsize": 4096,
+        "raw": 106496,
+        "rsize": 4096,
+        "entropy": 0.246
+      },
+      {
+        "name": "Themida ",
+        "name_bytes": "5468656d69646120",
+        "va": 110592,
+        "vsize": 1286144,
+        "raw": 110592,
+        "rsize": 1286144,
+        "entropy": 7.879
+      }
+    ],
+    "string_counts": {
+      "ascii": 1766,
+      "utf16": 0
+    },
+    "interesting_string_count": 1
+  },
+  {
+    "file": "Fire.dll",
+    "size": 315412,
+    "packer": "none",
+    "unpacked": true,
+    "notes": [
+      "Standard PE sections, no high-entropy packed stub"
+    ],
+    "pe": {
+      "machine": "0x14c",
+      "sections_n": 6,
+      "pe32": true,
+      "entry": 68662,
+      "imagebase": 273678336,
+      "overall_entropy": 5.724
+    },
+    "sections": [
+      {
+        "name": ".text",
+        "name_bytes": "2e74657874",
+        "va": 4096,
+        "vsize": 227894,
+        "raw": 4096,
+        "rsize": 229376,
+        "entropy": 5.766
+      },
+      {
+        "name": ".rdata",
+        "name_bytes": "2e7264617461",
+        "va": 233472,
+        "vsize": 48725,
+        "raw": 233472,
+        "rsize": 49152,
+        "entropy": 4.061
+      },
+      {
+        "name": ".data",
+        "name_bytes": "2e64617461",
+        "va": 282624,
+        "vsize": 23136,
+        "raw": 282624,
+        "rsize": 8192,
+        "entropy": 2.89
+      },
+      {
+        "name": ".idata",
+        "name_bytes": "2e6964617461",
+        "va": 307200,
+        "vsize": 7967,
+        "raw": 290816,
+        "rsize": 8192,
+        "entropy": 5.21
+      },
+      {
+        "name": ".rsrc",
+        "name_bytes": "2e72737263",
+        "va": 315392,
+        "vsize": 806,
+        "raw": 299008,
+        "rsize": 4096,
+        "entropy": 0.447
+      },
+      {
+        "name": ".reloc",
+        "name_bytes": "2e72656c6f63",
+        "va": 319488,
+        "vsize": 11337,
+        "raw": 303104,
+        "rsize": 12288,
+        "entropy": 5.973
+      }
+    ],
+    "string_counts": {
+      "ascii": 953,
+      "utf16": 85
+    },
+    "interesting_string_count": 41
+  }
+]

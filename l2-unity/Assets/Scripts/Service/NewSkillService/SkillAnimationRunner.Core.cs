@@ -10,7 +10,6 @@ public partial class SkillAnimationRunner
     {
         if (cycle == null)
         {
-            // Debug.LogWarning($"[SkillRunOverride] cycle is null objectId={objectId}");
             onComplete?.Invoke();
             return;
         }
@@ -48,9 +47,12 @@ public partial class SkillAnimationRunner
                 Debug.Log("[SUMMON_ANIM] abort animations=null objectId=" + objectId);
                 Trace = false;
             }
+            onComplete?.Invoke();
             return;
         }
 
+        try
+        {
         for (int logicalIndex = 0; logicalIndex < validAnimations.Count; logicalIndex++)
         {
             string overrideAnimName = validAnimations[logicalIndex];
@@ -96,6 +98,10 @@ public partial class SkillAnimationRunner
             Debug.Log("[SUMMON_ANIM] chain complete objectId=" + objectId);
             Trace = false;
         }
-        onComplete?.Invoke();
+        }
+        finally
+        {
+            onComplete?.Invoke();
+        }
     }
 }

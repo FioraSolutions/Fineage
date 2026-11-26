@@ -22,8 +22,16 @@ public sealed partial class NetSession
         else DropItemApplyIncomingPacketServices.ApplyDropItem(dto);
     }
 
-    internal void ApplyInventoryUpdate(InventoryUpdateNetMsg update)
+    internal void ApplyInventoryUpdate(InventoryUpdateNetMsg update, byte[] payload)
     {
+        byte[] body = NetCodec.EncodeInventoryUpdate(update);
+        int version = CharacterInventory.ReadVersionTail(payload, body);
+        if (version < 0)
+        {
+            Debug.LogError(
+                "[Inventory] InventoryUpdate tail is unreadable; expected 0 or 4 bytes after the body, payload="
+                + (payload == null ? 0 : payload.Length) + " body=" + body.Length);
+        }
         InventoryUpdateEntryNet[] src = update.Changes ?? System.Array.Empty<InventoryUpdateEntryNet>();
         var rows = new NetInventoryChange[src.Length];
         for (int i = 0; i < src.Length; i++)
@@ -45,7 +53,7 @@ public sealed partial class NetSession
             };
         }
 
-        NetGearSession.NoteInventoryUpdate(rows);
+        NetGearSession.NoteInventoryUpdate(rows, version);
     }
 
     internal static void NoteReject(string code, string message)

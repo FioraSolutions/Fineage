@@ -13,10 +13,7 @@ public partial class TargetManager : MonoBehaviour
     public const int KindNpc = 5;
     public const int KindCreature = 6;
 
-    [Inject] World _world;
-
-    private World GameWorld =>
-        _world != null ? _world : ControllerPacketServices.GameWorld;
+    [Inject] ISpawnedEntities _spawned;
 
     private TargetData _target = null;
     private TargetData _attackTarget = null;

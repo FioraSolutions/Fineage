@@ -1,0 +1,93 @@
+class we_c990155748937af6 extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_0
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         Opacity=0.700000
+         FadeOutStartTime=15.000000
+         FadeOut=True
+         FadeInEndTime=6.000000
+         FadeIn=True
+         MaxParticles=2
+         Name="SpriteEmitter0"
+         StartLocationRange=(X=(Min=-5.000000,Max=5.000000),Y=(Min=-5.000000,Max=5.000000),Z=(Min=50.000000,Max=50.000000))
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=0.500000,Z=0.500000)
+         SpinsPerSecondRange=(X=(Min=0.001000,Max=0.010000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=0.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=1.000000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=1.200000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=500.000000,Max=700.000000),Y=(Min=500.000000,Max=700.000000),Z=(Min=500.000000,Max=700.000000))
+         UniformSize=True
+         Texture=Texture'FX_E_T.Env_Particles.d_fog_01'
+         LifetimeRange=(Min=50.000000,Max=50.000000)
+         StartVelocityRange=(X=(Min=-10.000000,Max=10.000000),Y=(Min=-10.000000,Max=10.000000),Z=(Min=-10.000000,Max=-5.000000))
+         WarmupTicksPerSecond=2.000000
+         RelativeWarmupTime=50.000000
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter_0'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_1
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         Opacity=0.150000
+         FadeOutStartTime=2.600000
+         FadeOut=True
+         FadeInEndTime=0.640000
+         FadeIn=True
+         MaxParticles=2
+         Disabled=True
+         Name="SpriteEmitter1"
+         StartLocationRange=(X=(Min=-10.000000,Max=10.000000),Y=(Min=-10.000000,Max=10.000000),Z=(Min=-100.000000,Max=-100.000000))
+         StartSizeRange=(X=(Min=300.000000,Max=400.000000),Y=(Min=300.000000,Max=400.000000),Z=(Min=300.000000,Max=400.000000))
+         UniformSize=True
+         Texture=Texture'FX_E_T.LightGlowSet.LIGHT_GLOW01'
+         StartVelocityRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=10.000000,Max=10.000000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter_1'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_2
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=128,G=128,R=128,A=255),RelativeTime=0.150000)
+         ColorScale(2)=(Color=(B=254,G=253,R=252,A=255),RelativeTime=0.257143)
+         ColorScale(3)=(Color=(B=112,G=112,R=112,A=255),RelativeTime=0.400000)
+         ColorScale(4)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.514286)
+         ColorScale(5)=(Color=(B=109,G=109,R=109,A=255),RelativeTime=0.664286)
+         ColorScale(6)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.821429)
+         ColorScale(7)=(Color=(B=130,G=130,R=130,A=255),RelativeTime=1.000000)
+         ColorScaleRepeats=1.000000
+         ColorMultiplierRange=(X=(Min=0.500000,Max=1.000000),Y=(Min=0.500000,Max=1.000000),Z=(Min=0.500000,Max=1.000000))
+         Opacity=0.250000
+         FadeOutStartTime=10.500000
+         FadeOut=True
+         FadeInEndTime=3.150000
+         FadeIn=True
+         MaxParticles=20
+         Name="SpriteEmitter2"
+         StartLocationRange=(X=(Min=-230.000000,Max=230.000000),Y=(Min=-230.000000,Max=230.000000),Z=(Min=-350.000000,Max=-100.000000))
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=0.500000,Z=0.500000)
+         SpinsPerSecondRange=(X=(Min=0.300000,Max=0.500000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=0.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=0.000000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=1.500000,RelativeTime=0.180000)
+         SizeScale(2)=(RelativeSize=0.500000,RelativeTime=0.390000)
+         SizeScale(3)=(RelativeSize=1.200000,RelativeTime=0.720000)
+         SizeScale(4)=(RelativeSize=0.000000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=10.000000,Max=25.000000),Y=(Min=10.000000,Max=25.000000),Z=(Min=10.000000,Max=25.000000))
+         UniformSize=True
+         Texture=None
+         LifetimeRange=(Min=10.000000,Max=15.000000)
+         StartVelocityRange=(X=(Min=-50.000000,Max=50.000000),Y=(Min=-50.000000,Max=50.000000),Z=(Min=-5.000000,Max=-5.000000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=10.000000
+     End Object
+     Emitters(2)=SpriteEmitter'SpriteEmitter_2'
+}

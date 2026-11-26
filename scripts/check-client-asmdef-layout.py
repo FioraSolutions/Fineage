@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -41,6 +42,85 @@ EXPECTED: dict[str, list[str]] = {
 def load_asmdef(path: Path) -> dict:
     with path.open(encoding="utf-8") as handle:
         return json.load(handle)
+
+
+TYPE_DECL_RE = re.compile(
+    r"^\s*(?:public\s+|internal\s+|private\s+)?"
+    r"(?:(?:partial|sealed|static|readonly)\s+)*"
+    r"(?:class|struct|enum|interface|record)\s+(\w+)\b",
+    re.MULTILINE,
+)
+
+# Fineage.Domain.asmdef references nothing — it must not name types from Fineage.Game.
+DOMAIN_FORBIDDEN_ASSEMBLIES = ("Fineage.Game",)
+
+DOMAIN_BOUNDARY_MIN_TYPE_LEN = 5
+
+
+def collect_type_names(root: Path) -> set[str]:
+    names: set[str] = set()
+    if not root.is_dir():
+        return names
+    for source in root.rglob("*.cs"):
+        if source.suffix.lower() != ".cs":
+            continue
+        text = source.read_text(encoding="utf-8-sig", errors="ignore")
+        for match in TYPE_DECL_RE.finditer(text):
+            names.add(match.group(1))
+    return names
+
+
+def check_domain_asmdef_boundary() -> list[str]:
+    """Fineage.Domain cannot reference types from assemblies it does not reference."""
+    errors: list[str] = []
+    domain_root = SCRIPTS / "Fineage.Domain"
+    if not domain_root.is_dir():
+        return errors
+
+    domain_types = collect_type_names(domain_root)
+    forbidden: set[str] = set()
+    for assembly in DOMAIN_FORBIDDEN_ASSEMBLIES:
+        forbidden |= collect_type_names(SCRIPTS / assembly)
+    forbidden -= domain_types
+
+    word_re_template = r"\b{}\b"
+
+    for source in sorted(domain_root.rglob("*.cs")):
+        text = source.read_text(encoding="utf-8-sig", errors="ignore")
+        for type_name in sorted(forbidden):
+            if len(type_name) < DOMAIN_BOUNDARY_MIN_TYPE_LEN:
+                continue
+            if not re.search(word_re_template.format(re.escape(type_name)), text):
+                continue
+            # Allow mentions only in comments (rough guard: skip lines that are // comments).
+            # A field whose name matches a Game type (`public int BaseClass`) is not a reference.
+            word_re = word_re_template.format(re.escape(type_name))
+            member_name = re.compile(
+                rf"(?:public|private|protected|internal)\s+"
+                rf"(?:(?:static|readonly|const|volatile|new)\s+)*"
+                rf"(?!{re.escape(type_name)}\b)"
+                rf"(?:[\w.]+(?:\s*<[^;>]*>)?(?:\s*\[\s*\])?\s+)+"
+                rf"{re.escape(type_name)}\b"
+            )
+            hit = False
+            for line in text.splitlines():
+                stripped = line.strip()
+                if stripped.startswith("//"):
+                    continue
+                # A name inside a string literal is not a type reference.
+                code = re.sub(r'"(?:\\.|[^"\\])*"', '""', line)
+                if not re.search(word_re, code):
+                    continue
+                remainder = member_name.sub("", code, count=1)
+                if re.search(word_re, remainder):
+                    hit = True
+                    break
+            if hit:
+                errors.append(
+                    f"{source.relative_to(REPO_ROOT)}: references upstream type "
+                    f"{type_name!r} (Fineage.Domain asmdef has no Game/Controller/UI refs)"
+                )
+    return errors
 
 
 def check_net_contract_assembly() -> list[str]:
@@ -102,6 +182,7 @@ def main() -> int:
         errors.append(f"missing seed domain type {domain_kind.relative_to(REPO_ROOT)}")
 
     errors.extend(check_net_contract_assembly())
+    errors.extend(check_domain_asmdef_boundary())
 
     legacy = SCRIPTS / "Networking" / "Domain" / "KnownlistKind.cs"
     if legacy.is_file():

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
@@ -53,18 +54,20 @@ public static partial class LocomotionGait
             if (pelvis == null)
                 pelvis = skeleton;
 
+            GameObject sampleRoot = ResolveSampleGameObject(skeleton, clip);
+
             float leftAmp = 0f;
             float rightAmp = 0f;
             if (leftFoot != null)
-                leftAmp = MeasureFootSwing(clip, skeleton.gameObject, animator, pelvis, leftFoot);
+                leftAmp = MeasureFootSwing(clip, sampleRoot, animator, pelvis, leftFoot);
             if (rightFoot != null)
-                rightAmp = MeasureFootSwing(clip, skeleton.gameObject, animator, pelvis, rightFoot);
+                rightAmp = MeasureFootSwing(clip, sampleRoot, animator, pelvis, rightFoot);
 
             float stride = leftAmp + rightAmp;
             if (stride >= MinStrideMeters)
                 return stride;
 
-            float rootTravel = MeasureRootTravel(clip, skeleton.gameObject, animator, skeleton);
+            float rootTravel = MeasureRootTravel(clip, sampleRoot, animator, skeleton);
             if (rootTravel >= MinStrideMeters)
                 return rootTravel;
             return 0f;
@@ -131,9 +134,53 @@ public static partial class LocomotionGait
         return max;
     }
 
-    static void EvaluateClip(GameObject go, AnimationClip clip, float time, Animator animator)
+    /// <summary>
+    /// UKX clips bind under {race}_m000_b.ao while Player_* prefabs add an extra anim rig root.
+    /// Sample from the parent of that .ao node so curve paths match the instantiated hierarchy.
+    /// </summary>
+    static GameObject ResolveSampleGameObject(Transform skeleton, AnimationClip clip)
+    {
+        if (skeleton == null)
+            return null;
+        if (clip == null || string.IsNullOrEmpty(clip.name))
+            return skeleton.gameObject;
+
+        string clipName = clip.name;
+        Transform[] nodes = skeleton.GetComponentsInChildren<Transform>(true);
+        Transform aoRoot = null;
+        int bestLen = 0;
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            Transform t = nodes[i];
+            if (t == null)
+                continue;
+            string n = t.name;
+            if (string.IsNullOrEmpty(n) || n.Length >= clipName.Length)
+                continue;
+            if (!clipName.StartsWith(n, StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (n.Length <= bestLen)
+                continue;
+            aoRoot = t;
+            bestLen = n.Length;
+        }
+
+        if (aoRoot != null && aoRoot.parent != null)
+            return aoRoot.parent.gameObject;
+        return skeleton.gameObject;
+    }
+
+    static bool UseTransformSampling(AnimationClip clip, Animator animator)
     {
         if (clip.legacy || animator == null)
+            return true;
+        Avatar avatar = animator.avatar;
+        return avatar == null || !avatar.isValid;
+    }
+
+    static void EvaluateClip(GameObject go, AnimationClip clip, float time, Animator animator)
+    {
+        if (!Application.isPlaying || UseTransformSampling(clip, animator))
         {
             clip.SampleAnimation(go, time);
             return;

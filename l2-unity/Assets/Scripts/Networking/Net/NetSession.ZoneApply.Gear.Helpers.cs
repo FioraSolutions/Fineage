@@ -16,11 +16,19 @@ public sealed partial class NetSession
         NetGearSession.NoteUserInfo(user);
     }
 
-    internal void ApplyItemList(ItemListNetMsg list)
+    internal void ApplyItemList(ItemListNetMsg list, byte[] payload)
     {
         NetItemEntry[] rows = MapItemList(list);
-        NetGearSession.NoteItemList(rows);
-        Debug.Log("[Net] ItemList count=" + rows.Length);
+        byte[] body = NetCodec.EncodeItemList(list);
+        int version = CharacterInventory.ReadVersionTail(payload, body);
+        if (version < 0)
+        {
+            Debug.LogError(
+                "[Inventory] ItemList tail is unreadable; expected 0 or 4 bytes after the body, payload="
+                + (payload == null ? 0 : payload.Length) + " body=" + body.Length);
+        }
+        NetGearSession.NoteItemList(rows, version);
+        Debug.Log("[Net] ItemList count=" + rows.Length + " version=" + version);
     }
 
     internal void ApplySkillList(SkillListNetMsg list)
@@ -55,15 +63,16 @@ public sealed partial class NetSession
         {
             ObjectId = objectId,
             Destination = dest,
-            Origin = origin,
-            // The intention layer (NewMoveToIntention) reads the Interlude DTO and bails out when it is
-            // null, so the local player stayed put even though MoveState arrived. Synthesize it here.
-            InterludeDto = CharMoveToLocationDto.FromUnity(objectId, dest, origin)
+            Origin = origin
         };
         if (_sink != null)
             _sink.ApplyMoveTo(domain);
         else if (WorldApplyPacketServices.WorldApply != null)
-            WorldApplyPacketServices.WorldApply.MoveTo(objectId, dest, origin, domain.InterludeDto);
+            WorldApplyPacketServices.WorldApply.MoveTo(
+                objectId,
+                dest,
+                origin,
+                CharMoveToLocationDto.FromUnity(objectId, dest, origin));
     }
 
     internal void ApplyCorrection(PositionCorrectionMsg corr)

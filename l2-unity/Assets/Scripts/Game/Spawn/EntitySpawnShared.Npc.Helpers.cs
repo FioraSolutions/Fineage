@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public static partial class EntitySpawnShared
 {
+    static readonly HashSet<string> LoggedNpcSkinnedBounds = new HashSet<string>();
     public static void LogStriderGait(string when, Entity entity, string detail = null)
     {
         if (!IsStriderNpc(entity))
@@ -114,9 +115,11 @@ public static partial class EntitySpawnShared
         L2ActorMeshPolicy.DisableAlphaOverlays(go.transform);
 
         int npcId = entity != null && entity.Identity != null ? entity.Identity.NpcId : 0;
-        float maxHeight = entity != null && entity.Appearance != null
-            ? Mathf.Max(0.5f, entity.Appearance.CollisionHeight / 52.5f * 3f)
-            : 4f;
+        float? collisionHeightMeters = entity != null && entity.Appearance != null
+            ? (float?)entity.Appearance.CollisionHeight
+            : null;
+        float bodyHeight = NpcSkinnedBoundsPolicy.ExpectedBodyHeightMeters(collisionHeightMeters);
+        float maxHeight = NpcSkinnedBoundsPolicy.MaxSkinnedBoundsHeightMeters(bodyHeight);
         SkinnedMeshRenderer[] skins = go.GetComponentsInChildren<SkinnedMeshRenderer>(true);
         for (int i = 0; i < skins.Length; i++)
         {
@@ -133,7 +136,12 @@ public static partial class EntitySpawnShared
 
             if (h > maxHeight)
             {
-                Debug.LogError(
+                string logKey = npcId + "@" + smr.name;
+                if (!LoggedNpcSkinnedBounds.Add(logKey))
+                    continue;
+
+                bool severe = h > maxHeight * 1.45f;
+                string msg =
                     "[NpcMesh] distorted skinned bounds mesh="
                     + smr.name
                     + " npcId="
@@ -143,19 +151,29 @@ public static partial class EntitySpawnShared
                     + "m limit="
                     + maxHeight.ToString("F2")
                     + "m material="
-                    + (smr.sharedMaterial != null ? smr.sharedMaterial.name : "(null)"));
+                    + (smr.sharedMaterial != null ? smr.sharedMaterial.name : "(null)");
+                if (severe)
+                    Debug.LogError(msg);
+                else
+                    Debug.LogWarning(msg + " (may be weapon reach; not necessarily a bad mesh)");
             }
 
             Material mat = smr.sharedMaterial;
-            if (mat != null && L2ActorMaterialSetup.MaterialLooksLikeActorOpaqueMismatch(mat))
-                L2ActorMaterialSetup.LogOpaqueAlphaMismatch(mat, smr.name);
+            if (mat != null)
+            {
+                L2ActorMaterialSetup.LogMissingBaseMapOnce(mat, smr.sharedMesh != null ? smr.sharedMesh.name : smr.name);
+                if (L2ActorMaterialSetup.MaterialLooksLikeActorOpaqueMismatch(mat))
+                    L2ActorMaterialSetup.LogOpaqueAlphaMismatch(mat, smr.name);
+            }
         }
     }
 
-    public static void RegisterAnimation(IWorldSpawnContext world, int objectId, IAnimationController controller, Entity entity)
+    public static void RegisterAnimation(IWorldSpawnRegistration world, int objectId, IAnimationController controller, Entity entity)
     {
-        if (world != null && world.Animations != null && controller != null)
-            world.Animations.RegisterController(objectId, controller, entity);
+        if (world == null || controller == null)
+            return;
+
+        world.RegisterSpawnAnimation(objectId, controller, entity);
     }
 
     public static void ApplyNpcCollisionVisualScale(GameObject go, Npcgrp npcgrp)
@@ -163,7 +181,7 @@ public static partial class EntitySpawnShared
         if (go == null || npcgrp == null || npcgrp.CollisionHeight <= 0.01f)
             return;
 
-        float targetHeight = npcgrp.CollisionHeight / 52.5f;
+        float targetHeight = npcgrp.CollisionHeight;
         Renderer[] renderers = go.GetComponentsInChildren<Renderer>(true);
         if (renderers == null || renderers.Length == 0)
             return;
@@ -198,7 +216,7 @@ public static partial class EntitySpawnShared
         if (cc != null)
         {
             cc.height = Mathf.Max(targetHeight, cc.height);
-            cc.radius = Mathf.Max(npcgrp.CollisionRadius / 52.5f, cc.radius);
+            cc.radius = Mathf.Max(npcgrp.CollisionRadius, cc.radius);
             cc.center = new Vector3(0f, cc.height * 0.5f, 0f);
         }
     }

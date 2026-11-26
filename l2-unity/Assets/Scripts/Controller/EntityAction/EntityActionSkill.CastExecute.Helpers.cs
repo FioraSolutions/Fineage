@@ -11,7 +11,7 @@ public partial class EntityActionSkill
 
         AnimationCombo combo = GetCombo(magic);
         string raceName = entity.RaceId.ToString();
-        if (magic.SkillId == 4247)
+        if (SkillPresentationCatalog.IsWindStrike(magic.SkillId))
         {
             Debug.Log(
                 "[WINDSTRIKE] ExecuteMagic combo=" + (combo != null) +
@@ -44,8 +44,8 @@ public partial class EntityActionSkill
             ? SetupDurationHelper.ResolveShotEventTime(objectId, orderedCycle)
             : 0f;
         Transform targetTransform = target != null ? target.transform : entity.AttackTarget;
-        float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(entity, magic.SkillId, targetTransform);
-        entity.SetupTotalCastDuration(magic.HitTime, flightTimeMs, durations, shotEventTime, magic.TargetId, SetupDurationHelper.CastStyleOf(magic), SetupDurationHelper.MixComboOf(magic));
+        float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(entity, magic.SkillId, magic.SkillLvl, targetTransform);
+        entity.SetupTotalCastDuration(magic.HitTime, flightTimeMs, durations, shotEventTime, magic.TargetId, SetupDurationHelper.CastStyleOf(magic), SetupDurationHelper.MixComboOf(magic), magic.SkillId);
 
         _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(magic.SkillGrp, entity, combo, ResolveEvents(entity));
     }
@@ -72,42 +72,25 @@ public partial class EntityActionSkill
             }
         }
 
-        // Songs/dances (is_magic=3, anim W=SpAtk05) and physical self skills (UD X=SpAtk06):
-        // physical StartRun plays SpAtk*_ CrossFade. Override runner wrongly maps 1-clip to CastEnd.
-        if (SetupDurationHelper.TryGetPlayableCombo(magic, out AnimationCombo castCombo) &&
-            SkillExecutorPacketServices.Executor != null)
-        {
+        // Songs/dances (is_magic=3, anim W=SpAtk05) and physical self skills (Sonic Focus X=SpAtk06)
+        // play the skillgrp SpAtk phases. A one-clip override would map that gesture to CastEnd.
+        AnimationCombo selfCombo = GetCombo(magic);
+        if (selfCombo != null)
             SetupDurationHelper.SetupDurationIfHitTimeNot0(
-                magic, entity.Identity.Id, entity, castCombo);
-            _ = SkillExecutorPacketServices.Executor.ExecuteSkill(
-                entity, castCombo, ResolveEvents(entity));
-            SkillVisualEffectDispatch.PlayIfKnown(entity, magic, castCombo);
-            return;
-        }
-
-        Skillgrp skillgrp = magic.SkillGrp;
-        if (skillgrp != null && SkillExecutorPacketServices.Executor != null)
-        {
-            AnimationCombo combo = new AnimationCombo(
-                "-1", new[] { skillgrp.GetAnimOperationType3() }, "");
-            _ = SkillExecutorPacketServices.Executor.ExecuteSkill(entity, combo, ResolveEvents(entity));
-            SkillVisualEffectDispatch.PlayIfKnown(entity, magic);
-            return;
-        }
-
-        SkillVisualEffectDispatch.PlayIfKnown(entity, magic);
+                magic, entity.Identity.Id, entity, selfCombo);
+        PhysicalSkillPresentation.TryPlay(entity, magic, ResolveEvents(entity));
+        SkillVisualEffectDispatch.PlayIfKnown(entity, magic, selfCombo);
     }
 
     static void PlaySkillEffect(Entity entity, MagicSkillUseDto magic)
     {
-        bool windstrike = magic != null && magic.SkillId == 4247;
-        EffectManager effects = ControllerPacketServices.Effects;
-        if (effects == null || entity == null || magic == null)
+        bool windstrike = magic != null && SkillPresentationCatalog.IsWindStrike(magic.SkillId);
+        if (entity == null || magic == null)
         {
             if (windstrike)
             {
                 Debug.Log(
-                    "[WINDSTRIKE] PlaySkillEffect abort effects=" + (effects != null) +
+                    "[WINDSTRIKE] PlaySkillEffect abort" +
                     " entity=" + (entity != null) +
                     " magic=" + (magic != null));
             }
@@ -122,14 +105,14 @@ public partial class EntityActionSkill
                 " immediate=" + (cast != null && cast.SpawnShotVisualsImmediately) +
                 " targetId=" + (cast != null ? cast.TargetObjectId : 0));
         }
-        effects.PlayEffect(magic.SkillId, entity.transform, cast);
+        SkillVisualEffectDispatch.PlayIfKnown(entity, magic);
         if (windstrike)
             Debug.Log("[WINDSTRIKE] PlaySkillEffect returned");
     }
 
     static bool TryPlayNoneAnimWorldPawnEffect(Entity entity, MagicSkillUseDto magic)
     {
-        bool windstrikeGate = magic != null && magic.SkillId == 4247;
+        bool windstrikeGate = magic != null && SkillPresentationCatalog.IsWindStrike(magic.SkillId);
         if (windstrikeGate)
         {
             Debug.Log(
@@ -146,6 +129,7 @@ public partial class EntityActionSkill
         float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(
             entity,
             magic.SkillId,
+            magic.SkillLvl,
             target != null ? target.transform : entity.AttackTarget);
         entity.SetupTotalCastDuration(
             magic.HitTime,
@@ -154,7 +138,8 @@ public partial class EntityActionSkill
             0f,
             magic.TargetId,
             SetupDurationHelper.CastStyleOf(magic),
-            SetupDurationHelper.MixComboOf(magic));
+            SetupDurationHelper.MixComboOf(magic),
+            magic.SkillId);
 
         MagicCastData cast = entity.GetMagicCastData();
         int npcId = entity.Identity != null ? entity.Identity.NpcId : 0;

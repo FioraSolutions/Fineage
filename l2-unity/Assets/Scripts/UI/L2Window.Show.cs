@@ -10,6 +10,16 @@ using UnityEngine.UIElements;
 
 public abstract partial class L2Window
 {
+    public bool IsWindowVisible => _windowEle != null && !_isWindowHidden;
+
+    public bool ContainsScreenPoint(Vector2 screenPosition)
+    {
+        if (_windowEle == null || _isWindowHidden)
+            return false;
+
+        return L2UiPointer.PanelBoundsContain(_windowEle, screenPosition);
+    }
+
     public virtual void HideWindow()
     {
         try

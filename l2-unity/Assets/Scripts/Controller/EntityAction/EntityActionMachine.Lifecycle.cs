@@ -45,6 +45,7 @@ public sealed partial class EntityActionMachine
         if (entity.IsDead() && dto.WaitType != WaitType.WT_STOP_FAKEDEATH)
             return;
 
+        InterludeChangeWaitTypeApply.SettlePosition(entity, dto);
         EntityActionVisual.CancelMove(entity);
         EntityActionVisual.PlayWaitType(entity, dto.WaitType);
         if (dto.WaitType == WaitType.WT_STANDING || dto.WaitType == WaitType.WT_STOP_FAKEDEATH)
@@ -60,30 +61,8 @@ public sealed partial class EntityActionMachine
     /// Local hero wait-type apply: stop the pawn, then let the state machine settle idling/standing so a queued
     /// click-move does not walk away from the pose. Fake death is terminal until the zone sends the stop wait type.
     /// </summary>
-    static void ApplyLocalWaitType(Entity entity, ChangeWaitTypeDto dto)
-    {
-        Debug.Log("[wait-type] local type=" + dto.WaitType +
-                  " id=" + (entity.Identity != null ? entity.Identity.Id : 0));
-        PlayerStateMachine machine = PlayerStatePacketServices.PlayerState;
-        if (dto.WaitType == WaitType.WT_START_FAKEDEATH)
-        {
-            // Mobius startFakeDeath: abortAttack() / abortCast() / stopMove(null) before the wait type goes out.
-            LocalCastStop.Halt();
-            CastMoveLock.Clear();
-            EntityActionVisual.CancelMove(entity);
-            EntityActionVisual.PlayWaitType(entity, dto.WaitType);
-            return;
-        }
-
-        EntityActionVisual.CancelMove(entity);
-        EntityActionVisual.PlayWaitType(entity, dto.WaitType);
-
-        if (dto.WaitType == WaitType.WT_STOP_FAKEDEATH)
-        {
-            if (machine != null && machine.State == PlayerState.DEAD)
-                machine.ChangeIntention(Intention.INTENTION_IDLE);
-        }
-    }
+    static void ApplyLocalWaitType(Entity entity, ChangeWaitTypeDto dto) =>
+        InterludeChangeWaitTypeApply.ApplyLocalHero(entity, dto);
 
     public void NotifyArrived(Entity entity)
     {
@@ -137,9 +116,21 @@ public sealed partial class EntityActionMachine
         Set(entity, EntityActionKind.Idle, null);
     }
 
-    public void Remove(Entity entity)
+    public void Remove(IWorldEntity worldEntity)
     {
-        if (entity == null || entity.Identity == null)
+        Entity entity = worldEntity as Entity;
+        if (entity == null)
+        {
+            if (worldEntity != null)
+            {
+                Debug.LogError(
+                    "[EntityActionMachine] IWorldEntity is not an Entity — World.UnregisterObject passed a different type, so the action was not removed.");
+            }
+
+            return;
+        }
+
+        if (entity.Identity == null)
             return;
 
         L2PawnRange.ClearIgnoredPawn(entity);

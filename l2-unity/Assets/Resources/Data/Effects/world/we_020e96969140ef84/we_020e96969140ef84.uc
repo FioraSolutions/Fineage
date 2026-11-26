@@ -1,0 +1,76 @@
+class we_020e96969140ef84 extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_0
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         Opacity=0.270000
+         FadeOutStartTime=8.640000
+         FadeOut=True
+         FadeInEndTime=3.360000
+         FadeIn=True
+         MaxParticles=3
+         Name="SpriteEmitter0"
+         StartLocationRange=(X=(Min=-20.000000,Max=20.000000),Y=(Min=-20.000000,Max=20.000000),Z=(Min=0.000000,Max=0.000000))
+         SpinParticles=True
+         SpinsPerSecondRange=(X=(Min=0.001000,Max=0.010000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=0.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=0.300000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=0.500000,RelativeTime=0.130000)
+         SizeScale(2)=(RelativeSize=1.500000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=200.000000,Max=280.000000),Y=(Min=200.000000,Max=280.000000),Z=(Min=200.000000,Max=280.000000))
+         UniformSize=True
+         DrawStyle=PTDS_Brighten
+         Texture=Texture'FX_E_T.smoke.anghel_fog02'
+         BlendBetweenSubdivisions=True
+         SubdivisionEnd=3
+         LifetimeRange=(Min=12.000000,Max=12.000000)
+         StartVelocityRange=(X=(Min=-10.000000,Max=10.000000),Y=(Min=-10.000000,Max=10.000000),Z=(Min=-10.000000,Max=10.000000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=12.000000
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter_0'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_1
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=93,G=93,R=93,A=255),RelativeTime=0.200000)
+         ColorScale(2)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.471429)
+         ColorScale(3)=(Color=(B=100,G=100,R=100,A=255),RelativeTime=0.750000)
+         ColorScale(4)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorScaleRepeats=3.000000
+         ColorMultiplierRange=(X=(Min=0.500000,Max=0.500000),Y=(Min=1.000000,Max=1.000000),Z=(Min=0.800000,Max=0.800000))
+         Opacity=0.630000
+         FadeOutStartTime=1.920000
+         FadeOut=True
+         FadeInEndTime=1.080000
+         FadeIn=True
+         MaxParticles=20
+         Name="SpriteEmitter1"
+         StartLocationOffset=(X=0.000000,Y=50.000000,Z=-50.000000)
+         StartLocationRange=(X=(Min=-250.000000,Max=250.000000),Y=(Min=-250.000000,Max=250.000000),Z=(Min=-30.000000,Max=30.000000))
+         SpinParticles=True
+         SpinsPerSecondRange=(X=(Min=0.010000,Max=0.030000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=0.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=0.500000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=1.000000,RelativeTime=0.500000)
+         SizeScale(2)=(RelativeSize=0.500000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=20.000000,Max=50.000000),Y=(Min=20.000000,Max=50.000000),Z=(Min=20.000000,Max=50.000000))
+         UniformSize=True
+         Texture=Texture'FX_E_T.particles_etc.smoke_godad01'
+         TextureUSubdivisions=2
+         TextureVSubdivisions=2
+         BlendBetweenSubdivisions=True
+         SubdivisionEnd=3
+         UseRandomSubdivision=True
+         LifetimeRange=(Min=7.000000,Max=12.000000)
+         StartVelocityRange=(X=(Min=-15.000000,Max=15.000000),Y=(Min=-15.000000,Max=15.000000),Z=(Min=-20.000000,Max=30.000000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter_1'
+}

@@ -117,6 +117,13 @@ public sealed partial class FineageZoneTransport
             return true;
         }
 
+        RequestItemListCommand netItemList = command as RequestItemListCommand;
+        if (netItemList != null)
+        {
+            Session.SendRequestItemList();
+            return true;
+        }
+
         RequestShortCutRegCommand netShortCutReg = command as RequestShortCutRegCommand;
         if (netShortCutReg != null)
         {

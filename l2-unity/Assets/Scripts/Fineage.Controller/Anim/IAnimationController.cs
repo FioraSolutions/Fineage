@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public interface IAnimationController
+public interface IAnimationController : ISpawnAnimator
 {
     public void SetBool(string name, bool value, string entityName = "");
 

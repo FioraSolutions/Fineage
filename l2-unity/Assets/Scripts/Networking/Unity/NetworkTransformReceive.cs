@@ -5,9 +5,8 @@ using VContainer;
 
 public partial class NetworkTransformReceive : MonoBehaviour
 {
-    [Inject] World _world;
-
-    private World GameWorld => NetworkingPacketServices.GameWorld;
+    [Inject] IWorldSpawnContext _world;
+    bool _loggedMissingSpawnContext;
     [SerializeField] private Vector3 _serverPosition;
     private Vector3 _lastPos;
     private float _newRotation;

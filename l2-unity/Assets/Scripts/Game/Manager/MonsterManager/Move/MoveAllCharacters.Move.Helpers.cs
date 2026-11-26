@@ -34,7 +34,7 @@ public partial class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
         _removeListMove = null;
         _removeListRotate = null;
 
-
+        OnDestroyBurstBuffers();
         Destroy(gameObject);
     }
 }

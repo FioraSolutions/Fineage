@@ -10,15 +10,17 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
     {
         if (controller == null || string.IsNullOrEmpty(stateOrPrefixWithWeapon))
         {
-            return;
+            throw new InvalidOperationException(
+                "[AnimationManager] PlayLobbyLocomotion missing controller or state '" +
+                (stateOrPrefixWithWeapon ?? "") + "' — the lobby motion was not played.");
         }
 
         AnimationEventForwarder.BindAnimator(controller);
 
         if (!PlayerLocomotionAnim.TryResolve(stateOrPrefixWithWeapon, out string stateName, out PlayerLocomotionFamily family))
         {
-            // Debug.LogWarning(
-                // $"AnimationManager> lobby locomotion unresolved '{stateOrPrefixWithWeapon}'");
+            Debug.LogError(
+                "[AnimationManager] lobby locomotion unresolved '" + stateOrPrefixWithWeapon + "'.");
             return;
         }
 
@@ -28,6 +30,29 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         // Debug.Log(
             // $"AnimationManager> start crossfade lobby {family} state={stateName} " +
             // $"duration={fadeDuration:F3}s");
+    }
+
+    public void PlayMotionClip(IAnimationController controller, AnimationClip clip)
+    {
+        if (controller == null)
+        {
+            throw new InvalidOperationException(
+                "[AnimationManager] PlayMotionClip missing IAnimationController — the motion was not played.");
+        }
+
+        if (clip == null)
+        {
+            throw new InvalidOperationException(
+                "[AnimationManager] PlayMotionClip missing AnimationClip — the motion was not played.");
+        }
+
+        BaseAnimationController body = controller as BaseAnimationController;
+        if (body == null || !body.TryPlayOneShot(clip))
+        {
+            throw new InvalidOperationException(
+                "[AnimationManager] PlayMotionClip could not play '" + clip.name +
+                "' on the shared motion graph.");
+        }
     }
 
     private void HandleAtkWaitCrossFade(
@@ -59,7 +84,12 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         DesableLastPlayerAnimationElseTrue(objectId, controller);
 
         // Basic melee (jatk*) and SpAtk* → CrossFade; MagicShot/Cast stay on Trigger.
+        // A missing combat clip is already logged. Do not fall through to the trigger:
+        // Player_Basic's default transition is SpAtk01_1HS (the dagger swing).
         if (TryPlayCombatCrossFade(objectId, controller, entity, triggerName))
+            return;
+
+        if (SkillAnimationResolver.IsCombatBodyState(triggerName))
             return;
 
         controller.ToggleAnimationTrigger(triggerName);
@@ -81,17 +111,29 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         }
 
         string requestedState = stateName;
-        if (!HasCombatState(controller, requestedState) &&
-            TryPlaySpAtkOverrideClip(objectId, controller, entity, requestedState))
-        {
-            return true;
-        }
+        string raceName = controller != null ? controller.GetAnimatorName() : null;
+        int skillId = entity != null && entity.GetMagicCastData() != null
+            ? entity.GetMagicCastData().SkillId
+            : 0;
+        SkillAnimationResolver.SetActiveSkill(skillId);
 
-        stateName = ResolvePlayableCombatState(controller, requestedState);
-        if (!HasCombatState(controller, stateName) &&
-            TryPlaySpAtkOverrideClip(objectId, controller, entity, requestedState))
-        {
+        // Resolve before the miss log so SpAtk06 can map onto the shared hand gesture
+        // instead of reporting the weapon take as missing and then playing it.
+        stateName = SkillAnimationResolver.ResolvePlayableCombatState(
+            controller,
+            requestedState,
+            raceName,
+            skillId,
+            s => HasCombatState(controller, s));
+        if (TryPlaySpAtkOverrideClip(objectId, controller, entity, stateName))
             return true;
+
+        bool isSpAtk = stateName != null &&
+                       stateName.IndexOf("SpAtk", StringComparison.Ordinal) == 0;
+        if (isSpAtk &&
+            SkillAnimationDatabase.GetSpAtkCombatClip(stateName, raceName) == null)
+        {
+            return false;
         }
 
         SetRecentName(objectId, stateName);
@@ -119,7 +161,13 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         string raceName = controller.GetAnimatorName();
         AnimationClip clip = SkillAnimationDatabase.GetSpAtkCombatClip(phaseStateName, raceName);
         if (clip == null)
+        {
+                int skillId = entity != null && entity.GetMagicCastData() != null
+                ? entity.GetMagicCastData().SkillId
+                : 0;
+            SkillAnimationResolver.LogMissingCombatClip(skillId, raceName, phaseStateName);
             return false;
+        }
 
         BaseAnimationController castBody = controller as BaseAnimationController;
         if (castBody == null || !castBody.TryPlaySpAtkCombat(clip, phaseStateName))
@@ -127,48 +175,6 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
 
         SetRecentName(objectId, phaseStateName);
         return true;
-    }
-
-    /// <summary>
-    /// Player_Basic only has SpAtk01/02 for a few weapons. Dagger blows such as Deadly Blow
-    /// ask for SpAtk04_1HS, and dual asks for *_dual — neither state exists, so CrossFade
-    /// no-ops and the skill looks uncast. Play the same-number 1HS swing, or SpAtk01_1HS.
-    /// </summary>
-    static string ResolvePlayableCombatState(IAnimationController controller, string stateName)
-    {
-        if (string.IsNullOrEmpty(stateName) || HasCombatState(controller, stateName))
-            return stateName;
-
-        int split = stateName.LastIndexOf('_');
-        if (split <= 0)
-            return stateName;
-
-        string stem = stateName.Substring(0, split + 1);
-        // Fists and bare hands must not borrow the club/sword swing when the
-        // hand state is missing. That is the "кастеты бьют как дубина" pose.
-        if (stateName.EndsWith("_hand", System.StringComparison.Ordinal))
-            return stateName;
-
-        // SpAtk06 is the retail self-buff gesture (AnimationCombo_Classic "X":
-        // Ultimate Evasion / Dash / Focus Chance / Escape Shackle). In every race's
-        // MFighter_anim etc. the only SpAtk06 pose is *_SpAtk06_Hand_<Race>, a hands-up
-        // buff with no weapon: equipment never adds a suffix. Asking for SpAtk06_1HS
-        // (or _bow / _dual_dagger …) must land on SpAtk06_hand, never on SpAtk01_1HS
-        // (a sword swing that also fires AttackShot at the selected mob).
-        if (stateName.IndexOf("SpAtk06_", System.StringComparison.Ordinal) == 0 &&
-            HasCombatState(controller, SpAtk06HandState))
-            return SpAtk06HandState;
-
-        string oneHs = stem + "1HS";
-        if (!string.Equals(oneHs, stateName, System.StringComparison.Ordinal) &&
-            HasCombatState(controller, oneHs))
-            return oneHs;
-
-        if (stem.StartsWith("SpAtk", System.StringComparison.Ordinal) &&
-            HasCombatState(controller, "SpAtk01_1HS"))
-            return "SpAtk01_1HS";
-
-        return stateName;
     }
 
     /// <summary>
@@ -194,11 +200,21 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
             SkillAnimationDatabase.GetSpAtkCombatClip(stateName, controller.GetAnimatorName()) != null)
             return stateName;
 
-        return ResolvePlayableCombatState(controller, stateName);
+        string raceName = controller != null ? controller.GetAnimatorName() : null;
+        Entity entity = GetEntity(objectId);
+        int skillId = entity != null && entity.GetMagicCastData() != null
+            ? entity.GetMagicCastData().SkillId
+            : 0;
+        return SkillAnimationResolver.ResolvePlayableCombatState(
+            controller,
+            stateName,
+            raceName,
+            skillId,
+            s => HasCombatState(controller, s));
     }
 
     /// <summary>Retail self-buff gesture state shared by every race's controller.</summary>
-    const string SpAtk06HandState = "SpAtk06_hand";
+    internal const string SpAtk06HandState = "SpAtk06_hand";
 
     static bool HasCombatState(IAnimationController controller, string stateName)
     {

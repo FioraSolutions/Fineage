@@ -65,4 +65,62 @@ public static class WorldGrounding
 
         return found ? bestY : serverY;
     }
+
+    /// <summary>
+    /// Highest walkable Y at or below <paramref name="serverY"/> (loot must rest on floor,
+    /// not at the mob's body height when the packet Y is above the deck).
+    /// </summary>
+    public static bool TryPickFloorBelow(
+        float serverY,
+        IList<float> walkableYs,
+        out float floorY,
+        float aboveEpsilon = 0.5f)
+    {
+        floorY = serverY;
+        if (walkableYs == null || walkableYs.Count == 0)
+            return false;
+
+        float best = float.NegativeInfinity;
+        bool found = false;
+        for (int i = 0; i < walkableYs.Count; i++)
+        {
+            float y = walkableYs[i];
+            if (y > serverY + aboveEpsilon)
+                continue;
+            if (!found || y > best)
+            {
+                best = y;
+                found = true;
+            }
+        }
+
+        if (!found)
+            return false;
+        floorY = best;
+        return true;
+    }
+
+    /// <summary>Closest walkable height by |ΔY| (for failure diagnostics only).</summary>
+    public static bool TryGetNearestWalkableY(float serverY, IList<float> walkableYs, out float nearestY)
+    {
+        nearestY = serverY;
+        if (walkableYs == null || walkableYs.Count == 0)
+            return false;
+
+        float bestAbs = float.PositiveInfinity;
+        bool found = false;
+        for (int i = 0; i < walkableYs.Count; i++)
+        {
+            float y = walkableYs[i];
+            float abs = Mathf.Abs(y - serverY);
+            if (abs < bestAbs)
+            {
+                bestAbs = abs;
+                nearestY = y;
+                found = true;
+            }
+        }
+
+        return found;
+    }
 }

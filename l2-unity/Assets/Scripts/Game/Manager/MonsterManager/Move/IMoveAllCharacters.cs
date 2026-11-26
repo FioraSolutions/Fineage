@@ -1,11 +1,9 @@
 ﻿
-public interface IMoveAllCharacters
+public interface IMoveAllCharacters : IMoveRoster
 {
     public void AddMoveData(int id, MovementData data);
     public void AddRotate(int id, RotateData data);
-    public bool IsMoving(int objId);
     public void CancelMove(int objId);
     public void CancelRotate(int objId);
-    public void Forget(int objId);
     MovementData GetMove(int objId);
 }

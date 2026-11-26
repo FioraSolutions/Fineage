@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-4425194803444036164
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
-  version: 10
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -89,28 +76,42 @@ Material:
     - _QueueOffset: 0
     m_Colors:
     - _Global_UV_Size: {r: 150, g: 150, b: 0, a: 0}
-    - _Layer_0_UV: {r: 1, g: 1, b: 0.0625, a: -0.09375}
-    - _Layer_10_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_11_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_12_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_13_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_14_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_15_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_16_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_17_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_18_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_19_UV: {r: 1, g: 1, b: 0, a: 0}
+    - _Layer_0_UV: {r: 128, g: 128, b: 0, a: 0}
+    - _Layer_0_Xform: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_10_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_11_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_12_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_13_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_14_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_15_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_16_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_17_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_18_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_19_UV: {r: 0, g: 0, b: 0, a: 0}
     - _Layer_1_UV: {r: 0, g: 0, b: 0, a: 0}
-    - _Layer_20_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_21_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_22_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_2_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_3_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_4_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_5_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_6_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_7_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_8_UV: {r: 1, g: 1, b: 0, a: 0}
-    - _Layer_9_UV: {r: 1, g: 1, b: 0, a: 0}
+    - _Layer_20_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_21_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_22_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_2_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_3_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_4_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_5_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_6_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_7_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_8_UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Layer_9_UV: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
+--- !u!114 &6444946263089552024
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
+  version: 10

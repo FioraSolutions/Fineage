@@ -38,6 +38,10 @@ public sealed partial class NetSession
         identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
 
         int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
+        if (spawn.MaxHp <= 0)
+            SpawnAppearanceApplyLog.LogDefaultMaxHp((int)spawn.EntityValue, spawn.MaxHp);
+        if (spawn.RunSpeed <= 0.001f || spawn.WalkSpeed <= 0.001f)
+            SpawnAppearanceApplyLog.LogDefaultMoveSpeed((int)spawn.EntityValue, spawn.RunSpeed, spawn.WalkSpeed);
         var status = new PlayerStatus();
         status.SetHp(maxHp);
         status.PvpFlag = spawn.PvpFlag;
@@ -48,18 +52,15 @@ public sealed partial class NetSession
             MaxHp = maxHp,
             MaxMp = 0,
             MaxCp = 0,
-            Karma = spawn.Karma,
-            BaseRunSpeed = Mathf.RoundToInt(spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f),
-            BaseWalkingSpeed = Mathf.RoundToInt(spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f),
-            RunRealSpeed = spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f,
-            WalkRealSpeed = spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f
+            Karma = spawn.Karma
         };
+        // First sight of this pawn: the packet speed is the template. A missing
+        // speed stays 0 (logged above) instead of a silent 120.
+        PawnMoveSpeed.Apply(stats, spawn.RunSpeed, spawn.WalkSpeed, templateChanged: true);
 
         var appearance = new PlayerAppearance
         {
-            Race = spawn.Race >= 0 && spawn.Race <= (int)CharacterRace.Dwarf
-                ? spawn.Race
-                : (int)MapClassId.GetCharacterRace(spawn.ClassId),
+            Race = ResolveSpawnRace(spawn),
             Sex = spawn.Sex,
             Running = spawn.Running,
             // BaseClass is Fighter/Mystic (0/1), not L2 classId — ResolveRaceAnimation uses PlayerClass.
@@ -112,22 +113,19 @@ public sealed partial class NetSession
         dto.Identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
         dto.Identity.PlayerClass = spawn.ClassId;
         dto.Identity.IsRunning = spawn.Running;
-        dto.Appearance.Race = spawn.Race >= 0 && spawn.Race <= (int)CharacterRace.Dwarf
-            ? spawn.Race
-            : (int)MapClassId.GetCharacterRace(spawn.ClassId);
+        dto.Appearance.Race = ResolveSpawnRace(spawn);
         dto.Appearance.Sex = spawn.Sex;
         dto.Appearance.BaseClass = CharacterClassParser.IsMage(spawn.ClassId)
             ? (int)BaseClass.MMagic
             : (int)BaseClass.Fighter;
         dto.Appearance.Running = spawn.Running;
-        float run = spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f;
-        float walk = spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f;
-        dto.Stats.BaseRunSpeed = Mathf.RoundToInt(run);
-        dto.Stats.BaseWalkingSpeed = Mathf.RoundToInt(walk);
-        dto.Stats.RunRealSpeed = run;
-        dto.Stats.WalkRealSpeed = walk;
+        PawnMoveSpeed.Apply(dto.Stats, spawn.RunSpeed, spawn.WalkSpeed, templateChanged: true);
         dto.Stats.Level = spawn.Level > 0 ? spawn.Level : 1;
         int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
+        if (spawn.MaxHp <= 0)
+            SpawnAppearanceApplyLog.LogDefaultMaxHp((int)spawn.EntityValue, spawn.MaxHp);
+        if (spawn.RunSpeed <= 0.001f || spawn.WalkSpeed <= 0.001f)
+            SpawnAppearanceApplyLog.LogDefaultMoveSpeed((int)spawn.EntityValue, spawn.RunSpeed, spawn.WalkSpeed);
         dto.Stats.MaxHp = maxHp;
         dto.Status.SetHp(spawn.Dead ? 0 : maxHp);
         dto.Status.SetMp(100);

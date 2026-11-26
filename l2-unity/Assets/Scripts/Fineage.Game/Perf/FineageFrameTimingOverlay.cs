@@ -73,8 +73,8 @@ public sealed class FineageFrameTimingOverlay : MonoBehaviour
         const float height = 72f;
         GUILayout.BeginArea(new Rect(8f, 8f, width, height), GUIContent.none, _style);
         GUILayout.Label(_lastSampleLine);
-        if (CrowdTierPacketServices.System != null)
-            GUILayout.Label(CrowdTierPacketServices.System.HistogramLine);
+        if (!string.IsNullOrEmpty(VisibilityTierRegistry.HistogramLine))
+            GUILayout.Label(VisibilityTierRegistry.HistogramLine);
         GUILayout.EndArea();
     }
 }

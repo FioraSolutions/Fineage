@@ -120,6 +120,17 @@ public static class FineageAssetImportRules
         return Path.GetFullPath(Path.Combine(projectRoot, "ImportPolicy", "asset-import-rules.json"));
     }
 
+    /// <summary>
+    /// Rules JSON uses iPhone; newer Unity versions serialize buildTarget as iOS.
+    /// </summary>
+    static string TextureImporterPlatformName(string ruleName) =>
+        ruleName switch
+        {
+            "iPhone" => "iPhone",
+            "iOS" => "iPhone",
+            _ => ruleName,
+        };
+
     public static RulesDocument Load()
     {
         string path = RulesPathOnDisk();
@@ -336,7 +347,8 @@ public static class FineageAssetImportRules
         foreach (var kvp in expectation.Platforms)
         {
             var platform = kvp.Value;
-            var settings = importer.GetPlatformTextureSettings(kvp.Key);
+            string platformName = TextureImporterPlatformName(kvp.Key);
+            var settings = importer.GetPlatformTextureSettings(platformName);
             settings.overridden = platform.overridden;
             settings.maxTextureSize = platform.maxTextureSize;
             settings.format = ParseTextureFormat(platform.format);

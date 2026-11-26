@@ -8,6 +8,8 @@ public sealed partial class ShotProjectilePart : CompositePart
     public bool showBeforeAnimationShoot;
     public ProjectileImpactType impactType = ProjectileImpactType.EffectOnly;
     public float speed;
+    /// <summary>Official AccSpeed converted to Unity units per second squared. 0 keeps the ANProjectile default.</summary>
+    public float acceleration;
 
     public override bool WantsAnimationShoot =>
         spawnTiming == CompositePartSpawnTiming.OnAnimationShoot ||

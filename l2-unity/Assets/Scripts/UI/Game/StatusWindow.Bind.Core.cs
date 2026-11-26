@@ -10,86 +10,43 @@ public partial class StatusWindow
 {
     protected override IEnumerator BuildWindow(VisualElement root) {
         InitWindow(root);
+        InterludeWindowLayout.Apply(_windowEle, "StatusWnd");
 
         yield return new WaitForEndOfFrame();
 
-        var statusWindowDragArea = GetElementByClass("drag-area");
-        DragManipulator drag = new DragManipulator(statusWindowDragArea, _windowEle);
-        statusWindowDragArea.AddManipulator(drag);
+        DragManipulator drag = new DragManipulator(_windowEle, _windowEle);
+        _windowEle.AddManipulator(drag);
 
         _windowEle.RegisterCallback<ClickEvent>(OnStatusWindowClicked);
 
-        _nameLabel = (Label)GetElementById("PlayerNameText");
-        if(_nameLabel == null) {
-            // Debug.LogError("Status window PlayerNameText is null.");
-        }
+        _nameLabel = (Label)GetElementById("UserName");
+        _levelLabel = (Label)GetElementById("StatusWnd_LevelTextBox");
+        _CPTextLabel = (Label)GetElementById("CPBar__text");
+        _HPTextLabel = (Label)GetElementById("HPBar__text");
+        _MPTextLabel = (Label)GetElementById("MPBar__text");
+        _EXPTextLabel = (Label)GetElementById("EXPBar__text");
+        _CPBarBG = GetElementById("CPBar");
+        _CPBar = GetElementById("CPBar__fill");
+        _HPBarBG = GetElementById("HPBar");
+        _HPBar = GetElementById("HPBar__fill");
+        _MPBarBG = GetElementById("MPBar");
+        _MPBar = GetElementById("MPBar__fill");
+        _EXPBarBG = GetElementById("EXPBar");
+        _EXPBar = GetElementById("EXPBar__fill");
 
-        _levelLabel = (Label)GetElementById("LevelText");
-        if(_levelLabel == null) {
-            // Debug.LogError("Status window LevelText is null.");
-        }
-
-        _CPTextLabel = (Label)GetElementById("CPText");
-        if(_CPTextLabel == null) {
-            // Debug.LogError("Status window CPText is null.");
-        }
-
-        _HPTextLabel = (Label)GetElementById("HPText");
-        if(_HPTextLabel == null) {
-            // Debug.LogError("Status window Hp text is null.");
-        }
-
-        _MPTextLabel = (Label)GetElementById("MPText");
-        if(_MPTextLabel == null) {
-            // Debug.LogError("Status window MPText is null.");
-        }
-
-        _CPBarBG = GetElementById("CPBarBG");
-        if(_CPBarBG == null) {
-            // Debug.LogError("Status window CPBarBG is null");
-        }
-
-        _CPBar = GetElementById("CPBar");
-        if(_CPBar == null) {
-            // Debug.LogError("Status window CPBar is null");
-        }
-
-        _HPBar = GetElementById("HPBar");
-        if(_HPBar == null) {
-            // Debug.LogError("Status window HPBar is null");
-        }
-
-        _HPBarBG = GetElementById("HPBarBG");
-        if(_HPBarBG == null) {
-            // Debug.LogError("Status window HPBarBG is null");
-        }
-
-        _MPBarBG = GetElementById("MPBarBG");
-        if(_MPBarBG == null) {
-            // Debug.LogError("Status window MPBarBG is null");
-        }
-
-        _EXPBar = GetElementById("EXPBar");
-        _EXPBarBG = GetElementById("EXPBarBG");
-        _EXPTextLabel = (Label)GetElementById("EXPText");
-
-        _MPBar = GetElementById("MPBar");
-        if(_MPBar == null) {
-            // Debug.LogError("Status windowar MPBar is null");
-        }
-
-        // UXML project:// backgrounds do not resolve in the player. Stamp the
-        // Interlude strips here or the panel is a bare text table.
-        PaintStatusChrome();
-
-        var horizontalResizeHandle = GetElementByClass("hor-resize-handle");
-        var resizeGripContainer = horizontalResizeHandle?.parent;
-        AttachInvisibleHorizontalResize(horizontalResizeHandle, _statusWindowMinWidth, _statusWindowMaxWidth);
-        if (resizeGripContainer != null)
+        VisualElement grip = GetElementById("StatusWndRightTex");
+        if (grip != null)
         {
-            resizeGripContainer.style.backgroundImage = StyleKeyword.None;
-            resizeGripContainer.style.backgroundColor = Color.clear;
+            grip.pickingMode = PickingMode.Position;
+            grip.AddToClassList("hor-resize-handle");
         }
+
+        float minWidth = _statusWindowMinWidth;
+        float layoutWidth;
+        float layoutHeight;
+        if (InterludeWindowLayout.TryWindowSize("StatusWnd", out layoutWidth, out layoutHeight))
+            minWidth = layoutWidth;
+        AttachInvisibleHorizontalResize(grip, minWidth, _statusWindowMaxWidth);
     }
 
     private void OnStatusWindowClicked(ClickEvent evt)

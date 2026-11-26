@@ -45,7 +45,7 @@ public sealed partial class ShotProjectilePart : CompositePart
     {
         if (instance == null || context == null)
         {
-            Debug.LogWarning("[ShotOrb] TryLaunch abort null instance/context part=" + name);
+            ShotOrbDebug.LogWarning("[ShotOrb] TryLaunch abort null instance/context part=" + name);
             return false;
         }
 
@@ -62,7 +62,7 @@ public sealed partial class ShotProjectilePart : CompositePart
         IProjectileManager projectiles = ProjectilePacketServices.Projectiles;
         if (target == null || projectiles == null)
         {
-            Debug.LogWarning(
+            ShotOrbDebug.LogWarning(
                 "[ShotOrb] TryLaunch abort part=" + name +
                 " target=" + (target != null) +
                 " projectiles=" + (projectiles != null) +
@@ -80,9 +80,11 @@ public sealed partial class ShotProjectilePart : CompositePart
             startPosition = startPos,
             targetTransform = target,
             impactType = impactType,
-            speed = speed > 0.01f ? speed : 10f
+            speed = speed > 0.01f ? speed : 10f,
+            acceleration = acceleration,
+            rotPerSecondEuler = rotPerSecondEuler
         };
-        Debug.Log(
+        ShotOrbDebug.Log(
             "[ShotOrb] launch part=" + name +
             " go=" + instance.name +
             " start=" + startPos +

@@ -6,7 +6,8 @@ public sealed partial class NameplateEntryStore
     public void RefreshVisibility(
         Transform playerTransform,
         float nameplateViewDistance,
-        NameplatePixelSnap snap)
+        NameplatePixelSnap snap,
+        Camera viewCamera)
     {
         _removeIds.Clear();
         _entryKeys.Clear();
@@ -42,6 +43,22 @@ public sealed partial class NameplateEntryStore
             if (!visible && !isLocal && !_resolver.IsHoverOrTarget(e.Target))
             {
                 _removeIds.Add(id);
+            }
+        }
+
+        if (viewCamera != null && L2NameplateOcclusionMask.TryGetMask(out LayerMask occlusionMask))
+            L2NameplateOcclusionBatch.ApplyHeadOcclusion(_entries, viewCamera, occlusionMask, _resolver);
+
+        for (int i = 0; i < _entryKeys.Count; i++)
+        {
+            int id = _entryKeys[i];
+            if (!_entries.TryGetValue(id, out NameplateEntry e))
+                continue;
+            if (!e.Visible)
+            {
+                bool isLocal = DomainPacketServices.LocalPlayer != null && e.Entity == DomainPacketServices.LocalPlayer;
+                if (!isLocal && !_resolver.IsHoverOrTarget(e.Target))
+                    _removeIds.Add(id);
             }
         }
 
@@ -134,37 +151,8 @@ public sealed partial class NameplateEntryStore
         }
 
         if (Vector3.Distance(playerTransform.position, target.position) > nameplateViewDistance)
-        {
             return false;
-        }
-
-        Entity entity = target.GetComponentInParent<Entity>();
-        if (entity != null && !EntityInteraction.IsAttackable(entity) && !IsTeleporterNpc(entity))
-        {
-            // Interlude: peaceful merchants / folk in range without LOS to feet (not gatekeepers).
-            return true;
-        }
-
-        CameraController cameraController = CameraPacketServices.Controller;
-        if (cameraController != null)
-        {
-            Vector3 anchor = entity != null
-                ? L2OverheadAnchor.GetWorldPos(entity, target)
-                : target.position;
-            return cameraController.IsPointVisible(anchor);
-        }
 
         return true;
-    }
-
-    static bool IsTeleporterNpc(Entity entity)
-    {
-        if (entity?.Identity == null)
-            return false;
-        Npcgrp grp = TablePacketServices.NpcGrps?.GetNpcgrp(entity.Identity.NpcId);
-        if (grp == null)
-            return false;
-        string cn = grp.ClassName ?? string.Empty;
-        return cn.IndexOf("teleporter", System.StringComparison.OrdinalIgnoreCase) >= 0;
     }
 }

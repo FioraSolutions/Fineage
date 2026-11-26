@@ -21,8 +21,8 @@ public enum CharacterRaceAnimation : byte
 
 public enum BaseClass : int
 {
-    Fighter = 0,
-    MMagic = 10,
+    Fighter = InterludeCharAppearance.Fighter,
+    MMagic = InterludeCharAppearance.Mystic,
 }
 
 public static class CharacterRaceAnimationParser

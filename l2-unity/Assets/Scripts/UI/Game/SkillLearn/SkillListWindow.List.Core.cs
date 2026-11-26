@@ -11,7 +11,6 @@ public partial class SkillListWindow : L2PopupWindow
     {
         InitWindow(root);
 
-
         yield return new WaitForEndOfFrame();
 
         var dragArea = GetElementByClass("drag-area");
@@ -22,63 +21,248 @@ public partial class SkillListWindow : L2PopupWindow
         content?.AddToClassList("skills-panel");
         VisualElement tabView = content?.Q("InventoryTabView") ?? content;
 
+        if (!EnsureSkillListTemplatesLoaded("BuildWindow"))
+            yield break;
+
+        FinishSkillListTabChrome(tabView, "BuildWindow");
+        TryApplyOrphanedSkillList();
+    }
+
+    public void SetSkillList(List<SkillInstance> list) => RequestSkillListApply(list, "SetSkillList");
+
+    public void UpdateSkillList(List<SkillInstance> list) => RequestSkillListApply(list, "UpdateSkillList");
+
+    void RequestSkillListApply(List<SkillInstance> list, string phase)
+    {
+        if (list == null)
+        {
+            Debug.LogError("[SkillList] " + phase + ": null list.");
+            return;
+        }
+
+        if (!EnsureSingletonOwnerForSkillListApply(phase, list.Count))
+            return;
+
+        if (!TryCopyInDictionry(list, phase))
+            return;
+
+        RefreshPassiveFlags(list);
+
+        if (!CanApplySkillListToPanels(out string deferReason))
+        {
+            _pendingSkills = list;
+            LogSkillListDeferOnce(deferReason, list.Count, phase);
+            return;
+        }
+
+        ApplySkillListToPanels(list, phase);
+    }
+
+    bool EnsureSkillListTemplatesLoaded(string phase)
+    {
+        if (_templateActiveSkill == null || _templatePassiveSkill == null || _templateBoxPanel == null ||
+            _templateSkillsRow8x1 == null || _templateSlotSkill == null)
+        {
+            Debug.LogError(
+                "[SkillList] " + phase + " aborted: missing template active=" + (_templateActiveSkill == null) +
+                " passive=" + (_templatePassiveSkill == null) + " box=" + (_templateBoxPanel == null) +
+                " row8x1=" + (_templateSkillsRow8x1 == null) + " slot=" + (_templateSlotSkill == null));
+            return false;
+        }
+
+        _supportActiveSkills.SetActiveSkillTemplate(
+            _templateActiveSkill, _templateBoxPanel, _templateSkillsRow8x1, _templateSlotSkill);
+        _supportPassiveSkills.SetPassiveSkillTemplate(
+            _templatePassiveSkill, _templateBoxPanel, _templateSkillsRow8x1, _templateSlotSkill);
+        return true;
+    }
+
+    void FinishSkillListTabChrome(VisualElement tabView, string phase)
+    {
         _builderTabs.InitContentTabs(new string[2] { _activeName, _passiveName });
         _builderTabs.CreateTabs(tabView, _tabTemplate, _tabHeaderTemplate);
-
-        _supportActiveSkills.SetActiveSkillTemplate(_templateActiveSkill , _templateBoxPanel , _templateSkillsRow8x1 , _templateSlotSkill);
-        _supportPassiveSkills.SetPassiveSkillTemplate(_templatePassiveSkill, _templateBoxPanel, _templateSkillsRow8x1, _templateSlotSkill);
-
+        L2SkillsPanelLayout.ApplyMagicSkillTabHostsFromPanel(GetElementById("content") ?? _windowEle);
         _builderTabs.EventSwitchOut += OnSwitchEventOut;
 
         VisualElement element = _builderTabs.GetActiveContent();
         _supportActiveSkills.GetOrCreateTab(element);
 
+        VisualElement passiveHost = _builderTabs.GetTabContent(_passiveName);
+        if (passiveHost != null)
+            _supportPassiveSkills.GetOrCreateTab(passiveHost);
+
         RegisterCloseWindowEvent("btn-close-frame");
         RegisterCloseWindowEventByName("CloseButton");
-        RegisterClickWindowEvent(_windowEle, dragArea);
+        RegisterClickWindowEvent(_windowEle, GetElementByClass("drag-area"));
         OnCenterScreen(_root);
 
+        MarkSkillListTabsReady();
+        FlushPendingSkillList(phase);
+        EnsureSkillSlotsVisibleOnOpen(phase);
+    }
+
+    void MarkSkillListTabsReady()
+    {
+        _skillListTabsReady = true;
+        _loggedDeferReason = null;
+    }
+
+    bool CanApplySkillListToPanels(out string deferReason)
+    {
+        if (!_skillListTabsReady)
+        {
+            deferReason = "tabs not built";
+            return false;
+        }
+
+        if (_templateSlotSkill == null)
+        {
+            deferReason = "slot template missing";
+            return false;
+        }
+
+        if (_builderTabs == null)
+        {
+            deferReason = "tab builder missing";
+            return false;
+        }
+
+        if (_builderTabs.GetTabContent(_activeName) == null)
+        {
+            deferReason = "Active tab host missing";
+            return false;
+        }
+
+        deferReason = null;
+        return true;
+    }
+
+    void LogSkillListDeferOnce(string deferReason, int count, string phase)
+    {
+        if (string.IsNullOrEmpty(deferReason) || deferReason == _loggedDeferReason)
+            return;
+
+        _loggedDeferReason = deferReason;
+        string message = "[SkillList] " + phase + " deferred " + count + " skills: " + deferReason + ".";
+        if (deferReason == "tabs not built")
+            Debug.LogWarning(message);
+        else
+            Debug.LogError(message);
+    }
+
+    void ApplySkillListToPanels(List<SkillInstance> list, string phase)
+    {
+        MountSkillTabPanels(phase);
+
+        var activeSkills = list.Where(s => !s.IsPassive).ToList();
+        var passiveSkills = list.Where(s => s.IsPassive).ToList();
+        _supportActiveSkills.CreateSlots(activeSkills, 0);
+        _supportPassiveSkills.CreateSlots(passiveSkills, 0);
+        RefreshInterludeSkillRowLayout(phase);
+        ValidateSkillSlotsAfterApply(phase, list, activeSkills, passiveSkills);
+    }
+
+    void RefreshInterludeSkillRowLayout(string phase)
+    {
+        VisualElement searchRoot = GetElementById("content");
+        if (searchRoot == null)
+        {
+            Debug.LogError("[SkillList] " + phase + ": cannot refresh row layout — skills content root missing.");
+            return;
+        }
+
+        L2SkillsPanelLayout.EnsureInterludeGridRowMetrics(searchRoot);
+    }
+
+    void MountSkillTabPanels(string phase)
+    {
+        VisualElement activeHost = _builderTabs.GetTabContent(_activeName);
+        if (activeHost == null)
+            Debug.LogError("[SkillList] " + phase + ": Active tab content host missing.");
+        else
+            _supportActiveSkills.GetOrCreateTab(activeHost);
+
+        VisualElement passiveHost = _builderTabs.GetTabContent(_passiveName);
+        if (passiveHost == null)
+            Debug.LogError("[SkillList] " + phase + ": Passive tab content host missing.");
+        else
+            _supportPassiveSkills.GetOrCreateTab(passiveHost);
+    }
+
+    void ValidateSkillSlotsAfterApply(
+        string phase,
+        List<SkillInstance> list,
+        List<SkillInstance> activeSkills,
+        List<SkillInstance> passiveSkills)
+    {
+        int activeVisible = _supportActiveSkills.CountVisibleSkillSlots();
+        int passiveVisible = _supportPassiveSkills.CountVisibleSkillSlots();
+
+        if (activeSkills.Count > 0 && activeVisible == 0)
+        {
+            Debug.LogError(
+                "[SkillList] " + phase + ": " + activeSkills.Count + " active skills but 0 visible slots; " +
+                "panelMounted=" + _supportActiveSkills.IsMountedInHierarchy() + " display=" +
+                _supportActiveSkills.DescribePanelDisplayChain());
+        }
+
+        if (passiveSkills.Count > 0 && passiveVisible == 0)
+        {
+            Debug.LogError(
+                "[SkillList] " + phase + ": " + passiveSkills.Count + " passive skills but 0 visible slots; " +
+                "panelMounted=" + _supportPassiveSkills.IsMountedInHierarchy());
+        }
+
+        if (list.Count > 0 && activeVisible + passiveVisible == 0)
+        {
+            _pendingSkills = list;
+            Debug.LogError(
+                "[SkillList] " + phase + " re-deferred " + list.Count +
+                " skills: slots created but none visible in hierarchy.");
+        }
+    }
+
+    void FlushPendingSkillList(string phase)
+    {
+        TryFlushPendingSkillList(phase);
+    }
+
+    void TryFlushPendingSkillList(string phase = "TryFlushPendingSkillList")
+    {
+        if (_pendingSkills == null)
+            return;
+
+        if (!CanApplySkillListToPanels(out string deferReason))
+        {
+            LogSkillListDeferOnce(deferReason, _pendingSkills.Count, phase);
+            return;
+        }
+
+        List<SkillInstance> pending = _pendingSkills;
+        _pendingSkills = null;
+        ApplySkillListToPanels(pending, phase);
+    }
+
+    public void EnsureSkillSlotsVisibleOnOpen(string phase)
+    {
         if (_pendingSkills != null)
         {
-            SetSkillList(_pendingSkills);
-            _pendingSkills = null;
-        }
-    }
-
-    public void SetSkillList(List<SkillInstance> list)
-    {
-        if (list == null) return;
-        CopyInDictionry(list);
-        RefreshPassiveFlags(list);
-
-        if (!_supportActiveSkills.IsReady)
-        {
-            _pendingSkills = list;
+            FlushPendingSkillList(phase);
             return;
         }
 
-        var activeSkills = list.Where(s => !s.IsPassive).ToList();
-        var passiveSkills = list.Where(s => s.IsPassive).ToList();
-        _supportActiveSkills.CreateSlots(activeSkills, 0);
-        _supportPassiveSkills.CreateSlots(passiveSkills, 0);
-    }
-
-    public void UpdateSkillList(List<SkillInstance> list)
-    {
-        if (list == null) return;
-        CopyInDictionry(list);
-        RefreshPassiveFlags(list);
-
-        if (!_supportActiveSkills.IsReady)
-        {
-            _pendingSkills = list;
+        if (_allSkills == null || _allSkills.Count == 0)
             return;
-        }
 
-        var activeSkills = list.Where(s => !s.IsPassive).ToList();
-        var passiveSkills = list.Where(s => s.IsPassive).ToList();
-        _supportActiveSkills.CreateSlots(activeSkills, 0);
-        _supportPassiveSkills.CreateSlots(passiveSkills, 0);
+        if (!CanApplySkillListToPanels(out _))
+            return;
+
+        int activeVisible = _supportActiveSkills.CountVisibleSkillSlots();
+        int passiveVisible = _supportPassiveSkills.CountVisibleSkillSlots();
+        if (activeVisible + passiveVisible > 0)
+            return;
+
+        ApplySkillListToPanels(_allSkills.Values.ToList(), phase + ".RemountOnOpen");
     }
 
     static void RefreshPassiveFlags(List<SkillInstance> list)
@@ -86,4 +270,53 @@ public partial class SkillListWindow : L2PopupWindow
         for (int i = 0; i < list.Count; i++)
             SkillPassiveRules.Refresh(list[i]);
     }
+
+#if UNITY_EDITOR
+    internal void EnsureEditModeSingletonInitializedForTests()
+    {
+        _builderTabs ??= new BuilderTabs();
+        _supportActiveSkills ??= new ActiveSkillsHide();
+        _supportPassiveSkills ??= new PassiveSkillsHide();
+        _allSkills ??= new Dictionary<int, SkillInstance>();
+    }
+
+    public int PendingSkillCountForEditModeTests =>
+        _pendingSkills != null ? _pendingSkills.Count : 0;
+
+    public int AppliedSkillCountForEditModeTests =>
+        _allSkills != null ? _allSkills.Count : 0;
+
+    public void EditorFinishTabBuildForTests(VisualElement tabView)
+    {
+        if (!EnsureSkillListTemplatesLoaded("EditorFinishTabBuildForTests"))
+            return;
+        FinishSkillListTabChrome(tabView, "EditorFinishTabBuildForTests");
+    }
+
+    public int ActiveVisibleSkillSlotsForEditModeTests =>
+        _supportActiveSkills != null ? _supportActiveSkills.CountVisibleSkillSlots() : 0;
+
+    public int PassiveVisibleSkillSlotsForEditModeTests =>
+        _supportPassiveSkills != null ? _supportPassiveSkills.CountVisibleSkillSlots() : 0;
+
+    public void EditorTestLoadAssets()
+    {
+        if (_instance == null)
+            ClaimAsSkillListSingleton();
+        else if (_instance != this)
+        {
+            Debug.LogError(
+                "[SkillList] EditMode: '" + gameObject.name + "' (id=" + GetInstanceID() +
+                ") is not the SkillListWindow singleton; owner=" + DescribeSkillListSingletonOwner() + ".");
+        }
+
+        LoadAssets();
+    }
+
+    public void EditorTestInitWindow(VisualElement root) => InitWindow(root);
+
+    public bool IsSkillListSingletonOwnerForTests => _instance == this;
+
+    public VisualElement EditorTestQueryContent() => GetElementById("content");
+#endif
 }

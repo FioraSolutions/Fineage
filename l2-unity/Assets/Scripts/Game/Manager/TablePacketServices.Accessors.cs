@@ -175,4 +175,25 @@ public static partial class TablePacketServices
 #pragma warning disable CS0618 // Locator fallback until ItemTable.Instance is removed
     static ItemTable LegacyItemTableInstance() => ItemTable.Instance;
 #pragma warning restore CS0618
+
+    /// <summary>
+    /// Interlude npcgrp: hpshowable=0 hides the overhead bar. Attackable mobs still show in the target window.
+    /// Missing npcgrp logs and hides the bar (same as the former EntityIdentity lookup).
+    /// </summary>
+    public static bool HideNpcHpBar(int npcId)
+    {
+        Npcgrp npc = NpcGrps != null ? NpcGrps.GetNpcgrp(npcId) : null;
+        if (npc == null)
+        {
+            UnityEngine.Debug.LogError("[EntityIdentity] ParceHideHpbar: missing npcgrp for npcId=" + npcId);
+            return true;
+        }
+
+        if (!npc.HpVisible)
+            return true;
+        if (npc.Type.Equals("monster_normal", System.StringComparison.OrdinalIgnoreCase)
+            || npc.Type.Equals("hide", System.StringComparison.OrdinalIgnoreCase))
+            return false;
+        return true;
+    }
 }

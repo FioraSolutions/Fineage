@@ -21,6 +21,13 @@ public static class SkillPassiveRules
     {
         if (skill == null)
             return;
-        skill.IsPassive = IsPassive(skill.SkillID, skill.Level);
+        if (TablePacketServices.SkillGrps == null)
+            return;
+
+        Skillgrp row = TablePacketServices.SkillGrps.GetSkill(skill.SkillID, skill.Level);
+        if (row == null)
+            return;
+
+        skill.IsPassive = row.OperateType == 2 || row.Icon_type == 16;
     }
 }

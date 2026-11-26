@@ -1,0 +1,123 @@
+InObjects[i]->GetClass()
+BaseClass
+RegisterClassExA( &Cls )
+RegisterClassExW( &Cls )
+GetClassInfoExA( NULL, TCHAR_TO_ANSI(WinBaseClass), &Cls )
+GetClassInfoExW( NULL, WinBaseClass, &Cls )
+ Class Hierarchy Descriptor'
+ Base Class Array'
+ Base Class Descriptor at (
+class 
+coclass 
+??0FCategoryItem@@QAE@PAVWPropertiesBase@@PAVFTreeItem@@PAVUClass@@VFName@@H@Z
+??0FClassItem@@QAE@ABV0@@Z
+??0FClassItem@@QAE@PAVWPropertiesBase@@PAVFTreeItem@@KPBGPAVUClass@@@Z
+??0FClassItem@@QAE@XZ
+??0WClassProperties@@QAE@ABV0@@Z
+??0WClassProperties@@QAE@VFName@@KPBGPAVUClass@@@Z
+??0WClassProperties@@QAE@XZ
+??1FClassItem@@UAE@XZ
+??1WClassProperties@@UAE@XZ
+??4FClassItem@@QAEAAV0@ABV0@@Z
+??4WClassProperties@@QAEAAV0@ABV0@@Z
+??_7FClassItem@@6BFCommandTarget@@@
+??_7FClassItem@@6BFControlSnoop@@@
+??_7WClassProperties@@6BFControlSnoop@@@
+??_7WClassProperties@@6BWWindow@@@
+?Expand@FClassItem@@UAEXXZ
+?GetBase@FClassItem@@UAEPAEPAE@Z
+?GetPackageName@WClassProperties@@UAEPBGXZ
+?GetReadAddress@FClassItem@@UAEPAEPAVFPropertyItem@@H@Z
+?GetRoot@WClassProperties@@UAEPAVFTreeItem@@XZ
+?GetWindowClassName@WBitmapButton@@UAEXPAG@Z
+?GetWindowClassName@WButton@@UAEXPAG@Z
+?GetWindowClassName@WCheckBox@@UAEXPAG@Z
+?GetWindowClassName@WCheckListBox@@UAEXPAG@Z
+?GetWindowClassName@WClassProperties@@UAEXPAG@Z
+?GetWindowClassName@WColorButton@@UAEXPAG@Z
+?GetWindowClassName@WComboBox@@UAEXPAG@Z
+?GetWindowClassName@WConfigProperties@@UAEXPAG@Z
+?GetWindowClassName@WCoolButton@@UAEXPAG@Z
+?GetWindowClassName@WCrashBoxDialog@@UAEXPAG@Z
+?GetWindowClassName@WCustomLabel@@UAEXPAG@Z
+?GetWindowClassName@WDragInterceptor@@UAEXPAG@Z
+?GetWindowClassName@WEdit@@UAEXPAG@Z
+?GetWindowClassName@WEditTerminal@@UAEXPAG@Z
+?GetWindowClassName@WGroupBox@@UAEXPAG@Z
+?GetWindowClassName@WItemBox@@UAEXPAG@Z
+?GetWindowClassName@WLabel@@UAEXPAG@Z
+?GetWindowClassName@WListBox@@UAEXPAG@Z
+?GetWindowClassName@WListView@@UAEXPAG@Z
+?GetWindowClassName@WLog@@UAEXPAG@Z
+?GetWindowClassName@WObjectProperties@@UAEXPAG@Z
+?GetWindowClassName@WPictureButton@@UAEXPAG@Z
+?GetWindowClassName@WProgressBar@@UAEXPAG@Z
+?GetWindowClassName@WProperties@@UAEXPAG@Z
+?GetWindowClassName@WPropertyPage@@UAEXPAG@Z
+?GetWindowClassName@WPropertySheet@@UAEXPAG@Z
+?GetWindowClassName@WRichEdit@@UAEXPAG@Z
+?GetWindowClassName@WScrollBar@@UAEXPAG@Z
+?GetWindowClassName@WSplitter@@UAEXPAG@Z
+?GetWindowClassName@WSplitterContainer@@UAEXPAG@Z
+?GetWindowClassName@WSplitterPane@@UAEXPAG@Z
+?GetWindowClassName@WTabControl@@UAEXPAG@Z
+?GetWindowClassName@WTerminal@@UAEXPAG@Z
+?GetWindowClassName@WTerminalBase@@UAEXPAG@Z
+?GetWindowClassName@WThinScrollBar@@UAEXPAG@Z
+?GetWindowClassName@WTimeScrollBar@@UAEXPAG@Z
+?GetWindowClassName@WToolTip@@UAEXPAG@Z
+?GetWindowClassName@WTrackBar@@UAEXPAG@Z
+?GetWindowClassName@WTreeView@@UAEXPAG@Z
+?GetWindowClassName@WUDNWindow@@UAEXPAG@Z
+?GetWindowClassName@WUrlButton@@UAEXPAG@Z
+?GetWindowClassName@WWizardDialog@@UAEXPAG@Z
+?GetWindowClassName@WWizardPage@@UAEXPAG@Z
+?LazyLoadClass@FObjectConfigItem@@QAEXXZ
+?RegisterWindowClass@WControl@@SAP6GJPAUHWND__@@IIJ@ZPBG1@Z
+?RegisterWindowClass@WWindow@@SAP6GJPAUHWND__@@IIJ@ZPBGK@Z
+?SetProperty@FClassItem@@UAEXPAVFPropertyItem@@PBG@Z
+autoclassUWindowManager
+.?AVFClassItem@@
+.?AVWClassProperties@@
+.?AVbad_cast@std@@
+?StaticLoadClass@UObject@@SAPAVUClass@@PAV2@PAV1@PBG2KPAVUPackageMap@@@Z
+?StaticClass@UObject@@SAPAVUClass@@XZ
+?IsA@UObject@@QBEHPAVUClass@@@Z
+?StaticClass@UState@@SAPAVUClass@@XZ
+?StaticClass@UClassProperty@@SAPAVUClass@@XZ
+?StaticClass@UFloatProperty@@SAPAVUClass@@XZ
+?StaticClass@UIntProperty@@SAPAVUClass@@XZ
+?StaticClass@UByteProperty@@SAPAVUClass@@XZ
+?StaticClass@UArrayProperty@@SAPAVUClass@@XZ
+?StaticClass@UObjectProperty@@SAPAVUClass@@XZ
+?StaticClass@UBoolProperty@@SAPAVUClass@@XZ
+?GetClass@UObject@@QBEPAVUClass@@XZ
+?StaticClass@UStructProperty@@SAPAVUClass@@XZ
+?StaticClass@UNameProperty@@SAPAVUClass@@XZ
+?ResetConfig@UObject@@SAXPAVUClass@@@Z
+?GetSuperClass@UClass@@QBEPAV1@XZ
+?StaticClass@UClass@@SAPAV1@XZ
+?GlobalSetProperty@UObject@@SAXPBGPAVUClass@@PAVUProperty@@HH@Z
+?GetDefaultObject@UClass@@QAEPAVUObject@@XZ
+?GetRegistryObjects@UObject@@SAXAAV?$TArray@VFRegistryObjectInfo@@@@PAVUClass@@1H@Z
+?StaticClass@UStrProperty@@SAPAVUClass@@XZ
+?LoadConfig@UObject@@QAEXHPAVUClass@@PBG@Z
+?StaticAllocateObject@UObject@@SAPAV1@PAVUClass@@PAV1@VFName@@K1PAVFOutputDevice@@11@Z
+??0UClass@@QAE@W4ENativeConstructor@@KKPAV0@1VFGuid@@PBG33KP6AXPAX@ZP8UObject@@AEXXZ@Z
+??1UClass@@UAE@XZ
+RegisterClassExA
+RegisterClassExW
+GetClassInfoExA
+GetClassInfoExW
+MakeWindowClassName
+WClassProperties::GetRoot
+FObjectConfigItem::LazyLoadClass
+Cast of %s to %s failed
+ClassCaption
+BROWSECLASS CLASS=%s
+USECURRENT CLASS=%s
+NEWOBJECT CLASS=%s OUTER=%s
+WClassProperties
+WWindow::RegisterWindowClass
+WControl::RegisterWindowClass
+tooltips_class32

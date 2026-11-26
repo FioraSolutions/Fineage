@@ -10,15 +10,36 @@ public partial class L2T3DInfoParser {
 
     public static L2TerrainInfo LoadMetadata(string mapName) {
         t3dPath = StaticMeshUtils.GetT3DPath(mapName);
-        if (!File.Exists(t3dPath)) {
-            // Debug.Log("No t3d for map " + mapName + " at path " + t3dPath);
-            return null;
+        terrainInfo = new L2TerrainInfo();
+        bool hasT3d = File.Exists(t3dPath);
+
+        if (hasT3d) {
+            ParseStaticMeshInfo(null);
+            ParseTerrainInfo(mapName);
+        } else {
+            terrainInfo.staticMeshes = new List<L2StaticMesh>();
         }
 
-        terrainInfo = new L2TerrainInfo();
-
-        ParseStaticMeshInfo(null);
-        ParseTerrainInfo(mapName);
+        if (!hasT3d || terrainInfo.quadVisibilityBitmap == null) {
+            string info0 = L2InterludeMapPaths.TerrainInfo0AbsolutePath(mapName);
+            if (File.Exists(info0)) {
+                L2TerrainInfo fromTxt = L2TerrainInfoParser.ParseTerrainInfo0(mapName);
+                if (fromTxt != null) {
+                    if (!hasT3d) {
+                        terrainInfo = fromTxt;
+                        if (terrainInfo.staticMeshes == null) {
+                            terrainInfo.staticMeshes = new List<L2StaticMesh>();
+                        }
+                    } else if (fromTxt.quadVisibilityBitmap != null) {
+                        terrainInfo.quadVisibilityBitmap = fromTxt.quadVisibilityBitmap;
+                    }
+                }
+            } else if (!hasT3d) {
+                Debug.LogError("[Interlude terrain] no t3d or TerrainInfo0.txt for " + mapName
+                    + " at " + t3dPath + " / " + info0);
+                return null;
+            }
+        }
 
         return terrainInfo;
     }
@@ -46,15 +67,35 @@ public partial class L2T3DInfoParser {
                 line = line.Trim();
                 L2StaticMesh mesh = new L2StaticMesh();
                 if (line.StartsWith("Begin Actor Class=StaticMeshActor Name=")) {
+                    mesh.actorName = line.Substring("Begin Actor Class=StaticMeshActor Name=".Length).Trim();
+                    bool hasSway = false;
+                    bool sawStaticMesh = false;
                     while ((line = reader.ReadLine()) != null && !line.Contains("End Actor")) {
                         line = line.Trim();
 
-                        if (line.StartsWith("StaticMesh=StaticMesh'")) {
-                            mesh.staticMesh = line.Replace("StaticMesh=StaticMesh'", "").Replace("'", "");
+                        if (line.StartsWith("StaticMesh=")) {
+                            sawStaticMesh = true;
+                            const string quoted = "StaticMesh=StaticMesh'";
+                            if (line == "StaticMesh=None") {
+                                mesh.staticMesh = null;
+                            } else if (line.StartsWith(quoted) && line.EndsWith("'") && line.Length > quoted.Length + 1) {
+                                mesh.staticMesh = line.Substring(quoted.Length, line.Length - quoted.Length - 1);
+                            } else {
+                                mesh.unparsedStaticMesh = line;
+                            }
                         }
 
                         if (line.StartsWith("SwayRotationOrig=")) {
                             mesh.eulerAngles = L2MetaDataUtils.ParseRotation(line);
+                            hasSway = true;
+                        }
+
+                        if (!hasSway && line.StartsWith("Rotation=")) {
+                            mesh.eulerAngles = L2MetaDataUtils.ParseRotation(line);
+                        }
+
+                        if (line.StartsWith("PrePivot=")) {
+                            mesh.prePivot = L2MetaDataUtils.ParseVector3(line);
                         }
 
                         if (line.StartsWith("Location=")) {
@@ -75,6 +116,9 @@ public partial class L2T3DInfoParser {
                             mesh.drawScale3D = L2MetaDataUtils.ParseVector3(line);
                             mesh.hasDrawScale3D = true;
                         }
+                    }
+                    if (!sawStaticMesh) {
+                        mesh.staticMesh = null;
                     }
                     terrainInfo.staticMeshes.Add(mesh);
                 }

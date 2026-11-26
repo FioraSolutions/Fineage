@@ -10,13 +10,13 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
     {
         if (!isActiveAndEnabled)
         {
-            Debug.LogWarning(
+            ShotOrbDebug.LogWarning(
                 "[ShotOrb] ForceShootNow inactive go=" + name + " channel=" + channel);
             return;
         }
 
         RefreshV2Context();
-        Debug.Log(
+        ShotOrbDebug.Log(
             "[ShotOrb] ForceShootNow channel=" + channel +
             " go=" + name +
             " pendingShoot=" + _pendingAnimationShoot.Count +

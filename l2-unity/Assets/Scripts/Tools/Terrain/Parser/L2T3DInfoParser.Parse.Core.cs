@@ -10,6 +10,7 @@ public partial class L2T3DInfoParser
         terrainInfo.mapName = mapName;
         terrainInfo.uvLayers = new List<L2TerrainLayer>();
         terrainInfo.decoLayers = new List<L2DecoLayer>();
+        var quadWords = new Dictionary<int, int>();
 
         using (StreamReader reader = new StreamReader(t3dPath)) {
             string line;
@@ -26,6 +27,8 @@ public partial class L2T3DInfoParser
                             terrainInfo.terrainScale = L2MetaDataUtils.ParseVector3(line);
                         } else if (line.StartsWith("Location=")) {
                             terrainInfo.location = L2MetaDataUtils.ParseVector3(line);
+                        } else if (L2TerrainInfoParser.TryParseQuadVisibilityLine(line, out int qi, out int qw)) {
+                            quadWords[qi] = qw;
                         } else if (line.StartsWith("Layer")) {
                             L2TerrainLayer layer = L2TerrainInfoParser.ParseL2TerrainLayer(line);
                             if (layer != null) {
@@ -41,6 +44,9 @@ public partial class L2T3DInfoParser
                 }
             }
         }
+
+        L2TerrainInfoParser.ValidateOfficialUvLayers(mapName, terrainInfo.uvLayers);
+        terrainInfo.quadVisibilityBitmap = L2TerrainInfoParser.FinalizeQuadVisibility(t3dPath, quadWords);
 
         // Debug.Log($"Loaded {terrainInfo.uvLayers.Count} uv layers data.");
         // Debug.Log($"Loaded {terrainInfo.decoLayers.Count} deco layers data.");

@@ -27,23 +27,7 @@ public static class CompositeEffectPrefabYamlParser
     public static bool TryBuildPartsFromYaml(string compositeGoName, out CompositePart[] parts)
     {
         parts = null;
-        string stem = compositeGoName != null
-            ? compositeGoName.Replace("(Clone)", string.Empty).Trim()
-            : string.Empty;
-        const string suffix = "_composite";
-        if (stem.EndsWith(suffix, StringComparison.Ordinal))
-            stem = stem.Substring(0, stem.Length - suffix.Length);
-        if (string.IsNullOrEmpty(stem))
-            return false;
-
-        string path = Path.Combine(
-            Application.dataPath,
-            "Resources",
-            "Data",
-            "Effects",
-            stem,
-            stem + "_composite.prefab");
-        if (!File.Exists(path))
+        if (!TryResolveCompositePrefabDiskPath(compositeGoName, out string path, out string effectFolderStem))
             return false;
 
         string[] lines = File.ReadAllLines(path);
@@ -70,7 +54,7 @@ public static class CompositeEffectPrefabYamlParser
             if (part == null)
                 continue;
 
-            ApplyCommonFields(part, block.Body, stem);
+            ApplyCommonFields(part, block.Body, effectFolderStem);
             if (part.prefab == null)
                 continue;
 
@@ -283,5 +267,37 @@ public static class CompositeEffectPrefabYamlParser
         }
 
         return blocks;
+    }
+
+    /// <summary>
+    /// Maps e.g. soul_N_stick_composite_dual → Data/Effects/soul_N_stick/soul_N_stick_composite_dual.prefab.
+    /// </summary>
+    public static bool TryResolveCompositePrefabDiskPath(
+        string compositeGoName,
+        out string prefabDiskPath,
+        out string effectFolderStem)
+    {
+        prefabDiskPath = null;
+        effectFolderStem = null;
+        string name = compositeGoName != null
+            ? compositeGoName.Replace("(Clone)", string.Empty).Trim()
+            : string.Empty;
+        if (string.IsNullOrEmpty(name))
+            return false;
+
+        const string compositeToken = "_composite";
+        int compositeIdx = name.IndexOf(compositeToken, StringComparison.Ordinal);
+        if (compositeIdx <= 0)
+            return false;
+
+        effectFolderStem = name.Substring(0, compositeIdx);
+        prefabDiskPath = Path.Combine(
+            Application.dataPath,
+            "Resources",
+            "Data",
+            "Effects",
+            effectFolderStem,
+            name + ".prefab");
+        return File.Exists(prefabDiskPath);
     }
 }

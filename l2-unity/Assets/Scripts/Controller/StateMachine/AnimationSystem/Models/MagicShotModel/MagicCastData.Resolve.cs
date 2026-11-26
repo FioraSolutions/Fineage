@@ -3,6 +3,27 @@ using UnityEngine;
 
 public partial class MagicCastData
 {
+    /// <summary>Next SpAtk phase index for this cast (0 = first swing). Setup resets it.</summary>
+    public int PeekSpAtkPhase()
+    {
+        return _spatkPhase;
+    }
+
+    public void CommitSpAtkPhase()
+    {
+        if (_spatkPhase < 2)
+            _spatkPhase++;
+    }
+
+    public float SpeedForSpAtkPhase(int phase)
+    {
+        if (phase <= 0)
+            return SpeedMid;
+        if (phase == 1)
+            return SpeedEnd;
+        return SpeedShot;
+    }
+
     void StretchFillerBy(float extraSeconds)
     {
         if (extraSeconds <= 0.0001f || _clipCount <= 0)

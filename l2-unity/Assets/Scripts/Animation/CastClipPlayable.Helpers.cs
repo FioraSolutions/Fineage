@@ -17,5 +17,13 @@ public sealed partial class CastClipPlayable
         _clipPlayable = default;
         _controllerPlayable = default;
         _mixer = default;
+        _scaleLock?.Dispose();
+        _scaleLock = null;
+    }
+
+    public void Evaluate(float seconds)
+    {
+        if (_graph.IsValid())
+            _graph.Evaluate(seconds);
     }
 }

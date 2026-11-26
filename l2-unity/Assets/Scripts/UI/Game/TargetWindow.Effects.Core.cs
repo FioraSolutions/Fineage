@@ -9,14 +9,10 @@ public partial class TargetWindow
     {
         if (_effectCells.Count == 0)
             return;
-        float now = Time.time;
         for (int i = 0; i < _effectCells.Count; i++)
         {
             TargetEffectCell cell = _effectCells[i];
-            if (cell?.Timer == null)
-                continue;
-            int remaining = Mathf.Max(0, Mathf.CeilToInt(cell.EndsAt - now));
-            cell.Timer.text = remaining > 0 ? remaining.ToString() : "";
+            cell?.Tooltip?.SyncRemaining(cell.EndsAt);
         }
     }
 
@@ -78,13 +74,29 @@ public partial class TargetWindow
         }
 
         int painted = 0;
+        var seen = new System.Collections.Generic.HashSet<int>();
+        var duplicateIds = new System.Collections.Generic.List<int>();
         for (int i = 0; i < list.Count; i++)
         {
             EffectHolder effect = list[i];
             if (effect == null || effect.Id <= 0)
                 continue;
+            if (!seen.Add(effect.Id))
+            {
+                duplicateIds.Add(effect.Id);
+                continue;
+            }
             if (TryAddEffectIcon(effect.Id, effect.Value, effect.Duration))
                 painted++;
+        }
+
+        if (duplicateIds.Count > 0)
+        {
+            Debug.LogWarning(
+                "[TargetWindow] duplicate abnormal skill ids from server npcId=" +
+                (targetData.Identity != null ? targetData.Identity.NpcId : 0) +
+                " objectId=" + objectId +
+                " ids=" + string.Join(",", duplicateIds));
         }
 
         _effectsRow.style.display = painted > 0 ? DisplayStyle.Flex : DisplayStyle.None;
@@ -108,5 +120,19 @@ public partial class TargetWindow
             _windowEle.AddToClassList("expanded");
         else
             _windowEle.RemoveFromClassList("expanded");
+
+        float width;
+        float height;
+        if (hasProperties && InterludeWindowLayout.TryMeasure("TargetStatusWnd", "BackExpTex1", out width, out height))
+            _windowEle.style.height = height;
+        else if (InterludeWindowLayout.TryWindowSize("TargetStatusWnd", out width, out height))
+            _windowEle.style.height = height;
+
+        VisualElement compact = _windowEle.Q<VisualElement>("BackTex");
+        VisualElement expandedFrame = _windowEle.Q<VisualElement>("BackExpTex");
+        if (compact != null)
+            compact.style.display = hasProperties ? DisplayStyle.None : DisplayStyle.Flex;
+        if (expandedFrame != null)
+            expandedFrame.style.display = hasProperties ? DisplayStyle.Flex : DisplayStyle.None;
     }
 }

@@ -12,6 +12,8 @@ public sealed class StatusApplyService
 {
     readonly ILateBound<BufferPanel> _buffer;
     AbnormalStatusUpdateDto _pendingSelf;
+    EtcStatusUpdateDto _etcStatus;
+    bool _etcWaitingForBuffer;
     readonly Dictionary<int, AbnormalStatusUpdateDto> _pendingPeers = new();
 
     [Inject]
@@ -27,25 +29,28 @@ public sealed class StatusApplyService
     public void FlushPendingSelfAbnormals() =>
         QueueApplyIncomingPacketServices.Queue(() =>
         {
-            if (_pendingSelf == null)
-                return;
-            AbnormalStatusUpdateDto pending = _pendingSelf;
-            _pendingSelf = null;
-            ApplySelf(pending);
+            if (_pendingSelf != null)
+            {
+                AbnormalStatusUpdateDto pending = _pendingSelf;
+                _pendingSelf = null;
+                ApplySelf(pending);
+            }
+
+            FlushEtcStatus();
         });
 
     public void ApplyPeerAbnormalStatusUpdate(AbnormalStatusUpdateDto packet) =>
         QueueApplyIncomingPacketServices.Queue(() => ApplyPeer(packet));
 
-    /// <summary>Mobius <c>EtcStatusUpdate</c> — weight / chat-ban penalty icons on the buffer tray.</summary>
+    /// <summary>Mobius <c>EtcStatusUpdate</c> — weight, grade, death, and force-charge icons on the buffer tray.</summary>
     public void ApplyEtcStatusUpdate(EtcStatusUpdateDto packet) =>
         QueueApplyIncomingPacketServices.Queue(() =>
         {
             if (packet == null)
                 return;
-            BufferPanel buffer = ResolveBuffer();
-            if (buffer != null)
-                buffer.RefreshPenalty(packet);
+            _etcStatus = packet;
+            _etcWaitingForBuffer = true;
+            FlushEtcStatus();
         });
 
     /// <summary>Replay a PartySpelled snapshot that arrived before the entity was spawned.</summary>
@@ -83,10 +88,36 @@ public sealed class StatusApplyService
 
         ApplySelfTargetEffects(packet);
 
-        if (packet.ListEffect == null)
+        if (packet.ListEffect != null)
+        {
+            foreach (var item in packet.ListEffect)
+                buffer.AddDataCellToTime(item.Id, item.Value, item.Duration);
+        }
+
+        // AbnormalStatusUpdate replaces the abnormal row. RemoveAllEffects clears the tray, including
+        // the force-charge icon, which is EtcStatusUpdate and not part of that row.
+        if (packet.FullEffectSnapshot && _etcStatus != null)
+            buffer.RefreshPenalty(_etcStatus);
+    }
+
+    void FlushEtcStatus()
+    {
+        if (!_etcWaitingForBuffer || _etcStatus == null)
             return;
-        foreach (var item in packet.ListEffect)
-            buffer.AddDataCellToTime(item.Id, item.Value, item.Duration);
+
+        BufferPanel buffer = ResolveBuffer();
+        if (buffer == null)
+        {
+            Debug.LogWarning(
+                "[buffs] EtcStatusUpdate deferred — BufferPanel not ready charges=" +
+                (_etcStatus.ForceCharge != null && _etcStatus.ForceCharge.Length > 1
+                    ? _etcStatus.ForceCharge[1].ToString()
+                    : "?"));
+            return;
+        }
+
+        buffer.RefreshPenalty(_etcStatus);
+        _etcWaitingForBuffer = false;
     }
 
     /// <summary>

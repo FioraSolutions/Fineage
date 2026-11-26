@@ -1,5 +1,6 @@
 using VContainer;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// Skill list and magic skill use applies, constructed by the container instead of reached
@@ -19,12 +20,29 @@ public sealed class SkillApplyService
     public void ApplySkillList(SkillListDto packet) =>
         QueueApplyIncomingPacketServices.Queue(() =>
         {
-            SkillListWindow window = _skillList != null ? _skillList.Value : null;
+            SkillListWindow window = ResolveSkillListWindow();
             if (window == null)
+            {
+                int n = packet?.Skills != null ? packet.Skills.Count : 0;
+                Debug.LogError(
+                    "[SkillList] ApplySkillList dropped: SkillListWindow not in scene yet (count=" + n + ").");
+                SkillListWindow.StashOrphanedSkillList(packet);
                 return;
+            }
 
             window.UpdateSkillList(packet.Skills);
         });
+
+    SkillListWindow ResolveSkillListWindow()
+    {
+        SkillListWindow window = SkillLearnPacketServices.SkillList;
+        if (window != null)
+            return window;
+        window = _skillList != null ? _skillList.Value : null;
+        if (window != null)
+            return window;
+        return SkillListApplyIncomingPacketServices.SkillList;
+    }
 
     public void ApplyMagicSkillUse(MagicSkillUseDto packet)
     {

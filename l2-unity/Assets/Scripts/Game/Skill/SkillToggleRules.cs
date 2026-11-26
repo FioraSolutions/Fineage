@@ -29,4 +29,17 @@ public static class SkillToggleRules
             return fallback.OperateType == ToggleOperateType;
         return IsToggle(skillId, level);
     }
+
+    /// <summary>
+    /// Whether an abnormal row should show the shortcut toggle shine. Wire level 0 is common for
+    /// active toggles (Relax 226, Silent Move, …); classify from <c>skillgrp</c> at level 1.
+    /// </summary>
+    public static bool IsActiveToggleOnBar(int skillId, int wireLevel)
+    {
+        if (skillId <= 0)
+            return false;
+        if (wireLevel > 0)
+            return IsToggle(skillId, wireLevel);
+        return IsToggle(skillId, 1);
+    }
 }

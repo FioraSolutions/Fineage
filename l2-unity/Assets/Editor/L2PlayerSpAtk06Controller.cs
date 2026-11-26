@@ -10,7 +10,7 @@ using UnityEngine;
 /// <summary>
 /// Wires the retail self-buff gesture <c>SpAtk06_hand</c> into the shared player controller.
 ///
-/// <c>AnimationCombo_Classic.txt</c> maps the physical self-skill tag <c>X</c> (Ultimate Evasion,
+/// <c>AnimationCombo_Interlude.txt</c> maps the physical self-skill tag <c>X</c> (Ultimate Evasion,
 /// Dash, Focus Chance, Escape Shackle) to <c>SpAtk06AnimName</c>. In the Interlude data that
 /// sequence is <c>SpAtk06_Hand_&lt;Race&gt;</c> for every race — a hands-up buff pose with no
 /// weapon and no hit/shoot notifies — but <c>Player_Basic.controller</c> only defined

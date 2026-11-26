@@ -23,8 +23,10 @@ public partial class ProjectileManager : AbstractProjectile, IProjectileManager
         bool isArrowStick = settings != null && settings.impactType == ProjectileImpactType.ArrowStick;
 
         float flightTime;
-        // NArrow + skill bolt share ANProjectile accel (dirMul=3000).
-        flightTime = ProjectileFlightTimeCalculator.CalculateL2AccelFlightTimeSeconds(distance);
+        // NArrow + skill bolt share ANProjectile accel (dirMul=3000) unless the
+        // official skill AccSpeed was converted onto ProjectileData.acceleration.
+        float accelUnity = settings != null && !isArrowStick ? settings.acceleration : 0f;
+        flightTime = ProjectileFlightTimeCalculator.CalculateL2AccelFlightTimeSeconds(distance, accelUnity);
         if (isArrowStick)
         {
             flightTime = ResolveArrowStickFlightTime(settings, flightTime);

@@ -1,0 +1,62 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using VContainer;
+
+public partial class GameManager : MonoBehaviour, IGameManager
+{
+
+    #region Configuration ── protocol version, inspector toggles
+
+    private int _protocolVersion = 746;
+    [SerializeField] private GameState _gameState = GameState.LOGIN_SCREEN;
+    private bool _gameReady = false;
+    [SerializeField] private Camera _loadingCamera;
+
+    #endregion
+
+    #region Dependencies
+
+    [Inject] ITableInitializer _tableInitializer;
+    [Inject] ISceneLoader _sceneLoader;
+    [Inject] IZoneTransport _zoneTransport;
+
+    ILobbySession _lobbyFlow;
+    IUiLoading _gameUi;
+    IUiLoading _loginUi;
+
+    #endregion
+
+    #region Lifecycle
+
+    public bool IsSwitchingServer { get; set; } = false;
+    public bool WorldSpawnReady { get; set; }
+
+    public GameState GameState {
+        get { return _gameState; }
+        set {
+            _gameState = value;
+        }
+    }
+    public bool GameReady { get { return _gameReady; } set { _gameReady = value; } }
+    public int ProtocolVersion { get { return _protocolVersion; } }
+
+    private static GameManager _instance;
+    [System.Obsolete("Use [Inject] instead")]
+    public static GameManager Instance { get { return _instance; } }
+
+
+    public void OnWorldSceneLoaded() => _lobbyFlow.OnWorldSceneLoaded();
+
+    public void OnLoginServerConnected() => _lobbyFlow.OnLoginServerConnected();
+
+    public void OnLoginServerAuthAllowed() => _lobbyFlow.OnLoginServerAuthAllowed();
+
+    public void OnLoginServerPlayOk() => _lobbyFlow.OnLoginServerPlayOk();
+
+    public void OnConnectingToGameServer() => _lobbyFlow.OnConnectingToGameServer();
+
+    #endregion
+}
+

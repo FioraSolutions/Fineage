@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +11,9 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
     /// </summary>
     protected void RepairEmptyV2PartsIfNeeded()
     {
+        if (_partsFromResolver)
+            return;
+
         int currentSpawnable = CountSpawnableParts(_v2Parts);
 
         CompositePart[] fromYaml;
@@ -37,7 +41,7 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
 
         if (!TryRepairFromResourcesFolder())
         {
-            Debug.LogWarning(
+            ShotOrbDebug.LogWarning(
                 "[ShotOrb] RepairParts failed go=" + name +
                 " — YAML/Resources had no rebuildable parts");
         }
@@ -230,7 +234,7 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
         }
 
         _v2Parts = rebuilt.ToArray();
-        Debug.Log(
+        ShotOrbDebug.Log(
             "[ShotOrb] RepairParts from Resources folder=" + folder +
             " parts=" + _v2Parts.Length +
             " fl=" + (fl != null));
@@ -245,13 +249,18 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
 
     string ResolveEffectStemName()
     {
-        string stem = name != null ? name.Replace("(Clone)", string.Empty).Trim() : string.Empty;
-        const string suffix = "_composite";
-        if (stem.EndsWith(suffix))
+        if (CompositeEffectPrefabYamlParser.TryResolveCompositePrefabDiskPath(
+                name,
+                out _,
+                out string effectFolderStem))
         {
-            stem = stem.Substring(0, stem.Length - suffix.Length);
+            return effectFolderStem;
         }
 
+        string stem = name != null ? name.Replace("(Clone)", string.Empty).Trim() : string.Empty;
+        const string suffix = "_composite";
+        if (stem.EndsWith(suffix, StringComparison.Ordinal))
+            stem = stem.Substring(0, stem.Length - suffix.Length);
         return stem;
     }
 }

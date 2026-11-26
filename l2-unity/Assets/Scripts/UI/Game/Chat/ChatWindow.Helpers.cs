@@ -18,7 +18,6 @@ public partial class ChatWindow : L2Window
     {
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/Chat/ChatWindow");
         _tabTemplate = LoadAsset("Data/UI/_Elements/Game/Chat/ChatTab");
-        _tabHeaderTemplate = LoadAsset("Data/UI/_Elements/Game/Chat/ChatTabHeader");
         _messageLabelTemplate = LoadAsset("Data/UI/_Elements/Game/Chat/MessageLabelTemplate");
     }
 
@@ -29,42 +28,39 @@ public partial class ChatWindow : L2Window
 
         yield return new WaitForEndOfFrame();
 
-        var diagonalResizeHandle = GetElementByClass("resize-diag");
+        InterludeWindowLayout.Apply(_windowEle, "ChatWnd");
 
-        // Five Interlude tabs (All/+Trade/#Party/@Clan/$Alliance) at 48px plus the 28px
-        // header margins must stay intact; the Game scene used to serialize 225.
-        if (_chatWindowMinWidth < 280f)
-            _chatWindowMinWidth = 280f;
+        _chatInput = GetElementById("ChatInputField") as TextField;
+        VisualElement edit = GetElementById("ChatEditBox");
+        if (_chatInput == null || edit == null)
+        {
+            Debug.LogError("[ChatWindow] ChatInputField or ChatEditBox is missing from the extracted layout.");
+        }
+        else
+        {
+            if (_chatInput.parent != edit)
+                edit.Add(_chatInput);
+            _chatInput.style.position = Position.Absolute;
+            _chatInput.style.left = 0f;
+            _chatInput.style.top = 0f;
+            _chatInput.style.right = 0f;
+            _chatInput.style.bottom = 0f;
+            _chatInput.style.marginLeft = 0f;
+            _chatInput.style.marginRight = 0f;
+            _chatInput.style.marginTop = 0f;
+            _chatInput.style.marginBottom = 0f;
+            _chatInput.RegisterCallback<FocusEvent>(OnChatInputFocus);
+            _chatInput.RegisterCallback<BlurEvent>(OnChatInputBlur);
+            int limit = InterludeWindowLayout.ControlMaxLength("ChatWnd", "ChatEditBox");
+            if (limit <= 0)
+                Debug.LogError("[ChatWindow] ChatEditBox has no maxLength in the extracted layout.");
+            else
+                _chatInput.maxLength = limit;
+            _chatInput.AddManipulator(new BlinkingCursorManipulator(_chatInput));
+            _chatInputContainer = edit;
+        }
 
-        DiagonalResizeManipulator diagonalResizeManipulator = new DiagonalResizeManipulator(
-            diagonalResizeHandle,
-            _windowEle,
-            _chatWindowMinWidth,
-            _chatWindowMaxWidth,
-            _chatWindowMinHeight,
-            _chatWindowMaxHeight,
-            14.5f,
-            2f);
-
-        diagonalResizeHandle.AddManipulator(diagonalResizeManipulator);
-
-        _chatInput = (TextField)GetElementById("ChatInputField");
-        _chatInput.RegisterCallback<FocusEvent>(OnChatInputFocus);
-        _chatInput.RegisterCallback<BlurEvent>(OnChatInputBlur);
-        int limit = _chatInputCharacterLimit;
-        _chatInput.maxLength = limit;
-
-        var enlargeTextBtn = (Button)GetElementById("EnlargeTextBtn");
-        enlargeTextBtn.AddManipulator(new ButtonClickSoundManipulator(enlargeTextBtn));
-
-        var chatOptionsBtn = (Button)GetElementById("ChatOptionsBtn");
-        chatOptionsBtn.AddManipulator(new ButtonClickSoundManipulator(chatOptionsBtn));
-
-        _chatInput.AddManipulator(new BlinkingCursorManipulator(_chatInput));
-
-        _chatInputContainer = GetElementById("InnerBar");
-
-        // Interlude SystemMsgWnd above ChatWnd (C4+). Start before tabs so Flush can queue into it.
+        // SystemMsgWnd sits above ChatWnd. Start before tabs so Flush can queue into it.
         SystemMsgWindow sysMsg = SystemMsgWindow.Ensure();
         sysMsg.AddWindow(root);
         sysMsg.DockAboveChat(_windowEle);
@@ -72,10 +68,11 @@ public partial class ChatWindow : L2Window
         CreateTabs();
 
         yield return new WaitForEndOfFrame();
-        diagonalResizeManipulator.SnapSize();
-        // SystemMsgWnd must match ChatWnd width after SnapSize/layout.
         SystemMsgWindow.Ensure()?.SyncDock();
         yield return null;
         SystemMsgWindow.Ensure()?.SyncDock();
+        L2InterludeHudSkinPipeline.ValidateTextures(
+            InterludeHudWindowCatalog.ChatWnd,
+            nameof(ChatWindow));
     }
 }

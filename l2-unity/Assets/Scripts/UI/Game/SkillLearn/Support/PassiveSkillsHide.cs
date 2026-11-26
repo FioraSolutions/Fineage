@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class PassiveSkillsHide : AbstractSkills
+public partial class PassiveSkillsHide : AbstractSkills
 {
     private SkillListWindow _skillLearn;
     private VisualElement _passiveSkillPanel;
@@ -61,7 +61,7 @@ public class PassiveSkillsHide : AbstractSkills
     {
         _rowAbility = _passiveSkillPanel.Q(_rowNameAbility);
         _rowSubject = _passiveSkillPanel.Q(_rowNameSubject);
-        ResolveSkillsPerPanel(_passiveSkillPanel, sizeCell);
+        ResolveSkillsPerPanel(sizeCell);
 
         var abilitySkills = list.Where(s => s.IsPassive).ToList();
         var subjectSkills = new List<SkillInstance>();
@@ -148,29 +148,17 @@ public class PassiveSkillsHide : AbstractSkills
 
     void EnsureSectionRowsExpanded(VisualElement rowAbility, VisualElement rowSubject)
     {
-        if (rowAbility != null)
-            rowAbility.style.display = DisplayStyle.Flex;
-        if (rowSubject != null)
-            rowSubject.style.display = DisplayStyle.Flex;
-        if (_arrDfPassiveSelect != null)
-        {
-            if (_arrDfPassiveSelect.Length > 0)
-                _arrDfPassiveSelect[0] = 1;
-            if (_arrDfPassiveSelect.Length > 1)
-                _arrDfPassiveSelect[1] = 1;
-        }
-
-        SyncExpandButton(_passiveSkillPanel?.Q<Button>(_abilityButtonName), 0);
-        SyncExpandButton(_passiveSkillPanel?.Q<Button>(_subjectButtonName), 1);
-    }
-
-    void SyncExpandButton(Button button, int index)
-    {
-        if (button == null || _arrDfPassiveSelect == null || index < 0 || index >= _arrDfPassiveSelect.Length)
-            return;
-        bool expanded = _arrDfPassiveSelect[index] != 0;
-        ChangeDfBox(button, L2ExpandCollapseUiAssets.CollapseButton);
-        if (!expanded)
-            ChangeDfBox(button, L2ExpandCollapseUiAssets.ExpandButton);
+        SetSectionExpanded(
+            _passiveSkillPanel?.Q<Button>(_abilityButtonName),
+            _arrDfPassiveSelect,
+            0,
+            rowAbility,
+            true);
+        SetSectionExpanded(
+            _passiveSkillPanel?.Q<Button>(_subjectButtonName),
+            _arrDfPassiveSelect,
+            1,
+            rowSubject,
+            true);
     }
 }

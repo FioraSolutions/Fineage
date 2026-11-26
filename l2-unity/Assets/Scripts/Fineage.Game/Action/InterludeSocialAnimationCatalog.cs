@@ -50,7 +50,11 @@ public static class InterludeSocialAnimationCatalog
             case 35: clipStem = "Social_sad"; return true;
             case 62: clipStem = "Social_SpWait01"; return true;
             case 66: clipStem = "Social_SpWait02"; return true;
-            default: return false;
+            default:
+                Debug.LogError(
+                    "[SocialAnim] unknown SocialAction / RequestActionUse id=" + socialActionId +
+                    " (no clip mapping in InterludeSocialAnimationCatalog).");
+                return false;
         }
     }
 

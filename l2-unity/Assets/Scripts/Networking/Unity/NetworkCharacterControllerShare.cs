@@ -7,9 +7,7 @@ using VContainer;
 
 public partial class NetworkCharacterControllerShare : MonoBehaviour
 {
-    [Inject] World _world;
-
-    private World GameWorld => NetworkingPacketServices.GameWorld;
+    [Inject] IWorldSpawnContext _world;
 
     private PlayerController LocalPlayer => NetworkingPacketServices.Player;
 

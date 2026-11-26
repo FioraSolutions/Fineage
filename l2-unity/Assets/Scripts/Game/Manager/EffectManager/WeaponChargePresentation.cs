@@ -18,11 +18,9 @@ public static class WeaponChargePresentation
             return;
         }
 
-        WeaponChargeSkillPlayback.Play(
-            GlobalEffectsPacketServices.Effects,
+        WeaponChargeSkillPlayback.PlayChargeImpactSound(
             skillId,
-            entity.GetWeaponTransform(),
-            entity.transform);
+            entity.transform.position);
     }
 
     static int ResolveEquippedSoulshotSkill(Entity entity)

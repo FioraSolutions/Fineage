@@ -1,0 +1,35 @@
+# Skills that have a skillgrp desc path or a skill.usk entry whose effect asset is not imported.
+# Source: skillgrp.tsv desc, then Animations/skill.usk (skill-effects-engine.tsv).
+# Lists only leftovers: effect classes still without a prefab, unresolved skillgrp desc keys, or empty EffectClass rows.
+# skill.<group>.<id> desc keys that are not themselves a visual class follow that skill's official visual (cycle-checked).
+# 1147 has an empty desc at every level and no usk row, so followers stay listed here.
+skill_id	level	source	visual_key	missing_asset
+4088	1	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4088	10	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4088	11	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4088	12	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4088	2	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4088	3	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4088	4	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4088	5	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4088	6	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4088	7	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4088	8	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4088	9	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4204	1	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4204	10	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4204	11	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4204	12	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4204	2	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4204	3	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4204	4	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4204	5	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4204	6	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4204	7	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4204	8	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4204	9	skillgrp.desc	skill.dp.4204	phase:shot missing field=FlyingTime effect=el_ice_dagger_fl
+4548	1	skill.usk	skill.qu.4548	phase:casting missing field=EffectClass
+4549	1	skillgrp.desc	skill.qu.4548	phase:casting missing field=EffectClass
+4999	1	skillgrp.desc	skill.bl.1147	skill.bl.1147 followed skill=1147 empty desc
+5001	1	skillgrp.desc	skill.bl.1147	skill.bl.1147 followed skill=1147 empty desc
+5091	1	skillgrp.desc	skill.mb.832	phase:casting missing field=EffectClass

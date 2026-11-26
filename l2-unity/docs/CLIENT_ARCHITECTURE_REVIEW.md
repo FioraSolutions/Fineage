@@ -14,6 +14,7 @@
 - **GPT deep-audit High / P0 (2026-11-12):** A01–A07 + TX/DC/EP/OP landed via small PRs; A09–A11 + A08 App Unbind (#1387) + NetGameHost Manager preference wave (#1388–#1390). Residual medium: Game UI PacketServices bind wall / MonoBehaviour hosts; A12–A13 asmdef; B5 full EnterWorld resync.
 - **Overnight follow-ons (2026-11-12):** GPT High/P0 + A08/A09 seams; #33 RX soft-cap; #931 foliage height filter; #932 login menu + Fineage logo; #933 char-create stages through step-0/Clear (#1380–#1386) + head camera + EquipFace (#1383–#1384); `IGameManager.QuitGame`; obsolete `SpawnAllPawns`. Residual: #931 import re-layer, #933 visual polish (gallery idle/cameras), #932 layout polish, A12–A13, B5 resync.
 - **Ongoing residual (not the gate):** LifetimeScope / `GameRuntime` / `LoginRuntime` / `DiBootstrap` still ACS. Opportunistic #131 seams only when they unblock concrete pain — no DAT/World grind as finish-line. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **#131 slice queue (2026-11-22):** ordered cycle-safe moves (gameplay MonoBehaviours, render neighbors for #1688/#1690/#1691/#1692, `NetGameHost`, protocol shells). Those render issues are not implemented in the queue. Checkboxes live in the plan.
 - **Primary client focus now:** gameplay debug, graphics/import, Interlude parity; Gremlin **#129** smoke where it does not dump feature layers onto unreformed ACS.
 - **GPT A04:** `World.GetEntityAsync` no longer polls with `Task.Delay(150)` — uses `ObjectIdWaitMap` completed by Register*/clear (timeout still 150ms).
 

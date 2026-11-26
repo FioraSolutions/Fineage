@@ -22,7 +22,7 @@ public partial class AudioService
             return PlayFmodEvent(spec.Id, spec.Category, position);
 
         if (position.HasValue)
-            return PlayClipAtWorld(spec.Id, position.Value, spec.Category, volumeScale, atListener: false);
+            return PlayClipAtWorld(spec.Id, position.Value, spec.Category, volumeScale, atListener: false, sourceSystem: "Catalog");
 
         return PlayClip2D(spec.Id, spec.Category, volumeScale);
     }
