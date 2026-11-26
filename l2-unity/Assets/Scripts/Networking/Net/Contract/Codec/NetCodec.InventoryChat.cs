@@ -59,7 +59,11 @@ namespace Fineage.Net.Contract
                 w.WriteString(row.Icon ?? "");
                 w.WriteString(row.WeaponType ?? "");
                 w.WriteString(row.ArmorType ?? "");
+                w.WriteInt32(row.Option1);
+                w.WriteInt32(row.Option2);
             }
+
+            // The inventory version is not part of this body. See InventoryVersionTail.
         });
 
         public static InventoryUpdateNetMsg DecodeInventoryUpdate(ReadOnlySpan<byte> p)
@@ -85,6 +89,11 @@ namespace Fineage.Net.Contract
                     WeaponType = r.ReadString(),
                     ArmorType = r.ReadString()
                 };
+                if (r.Remaining >= 8)
+                {
+                    rows[i].Option1 = r.ReadInt32();
+                    rows[i].Option2 = r.ReadInt32();
+                }
             }
 
             return new InventoryUpdateNetMsg { Changes = rows };
@@ -122,6 +131,18 @@ namespace Fineage.Net.Contract
         {
             var r = new Reader(p);
             return new DestroyItemRequestMsg { ObjectId = r.ReadInt32(), Count = r.ReadInt32() };
+        }
+
+        public static byte[] EncodeCrystallizeItemRequest(CrystallizeItemRequestMsg m) => Write(w =>
+        {
+            w.WriteInt32(m.ObjectId);
+            w.WriteInt32(m.Count);
+        });
+
+        public static CrystallizeItemRequestMsg DecodeCrystallizeItemRequest(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            return new CrystallizeItemRequestMsg { ObjectId = r.ReadInt32(), Count = r.ReadInt32() };
         }
 
         public static byte[] EncodeUseItem(UseItemNetMsg m) => Write(w => w.WriteInt32(m.ObjectId));

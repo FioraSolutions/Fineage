@@ -15,14 +15,36 @@ public partial class BufferPanel
         _deathPenalty = etcStatusUpdatePacket.DeathPenalty;
         _weightPenalty = etcStatusUpdatePacket.WeightPenalty;
         _weaponPenalty = etcStatusUpdatePacket.WeaponPenalty;
+        int[] forceCharge = etcStatusUpdatePacket.ForceCharge;
 
-        AddDataCell(_deathPenalty[0], _deathPenalty[1]);
-        AddDataCell(_weightPenalty[0], _weightPenalty[1]);
-        AddDataCell(_weaponPenalty[0], _weaponPenalty[1]);
+        if (forceCharge != null)
+            UpsertPenaltyTrayCell(forceCharge[0], forceCharge[1]);
 
-        DeleteDataCell(_deathPenalty[0], _deathPenalty[1]);
-        DeleteDataCell(_weightPenalty[0], _weightPenalty[1]);
-        DeleteDataCell(_weaponPenalty[0], _weaponPenalty[1]);
+        UpsertPenaltyTrayCell(_deathPenalty[0], _deathPenalty[1]);
+        UpsertPenaltyTrayCell(_weightPenalty[0], _weightPenalty[1]);
+        UpsertPenaltyTrayCell(_weaponPenalty[0], _weaponPenalty[1]);
+    }
+
+    void UpsertPenaltyTrayCell(int skillId, int skillLevel)
+    {
+        if (skillLevel == 0)
+        {
+            DeleteDataCell(skillId, 0);
+            return;
+        }
+
+        if (_filterData.IsContain(skillId))
+        {
+            DataCell existing = _filterData.FilterBySkillId(skillId);
+            if (existing != null)
+            {
+                existing.RefreshData(skillId, true, skillLevel);
+                existing.ShowCell(true);
+            }
+            return;
+        }
+
+        AddDataCell(skillId, skillLevel);
     }
 
     public void AddDataCell(int skillId, int skillLevel)

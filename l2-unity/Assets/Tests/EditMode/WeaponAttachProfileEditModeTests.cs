@@ -39,6 +39,30 @@ public sealed class WeaponAttachProfileEditModeTests
     }
 
     [Test]
+    public void Mirrored_mount_forces_double_sided_materials()
+    {
+        var shader = Shader.Find("Universal Render Pipeline/Lit");
+        Assert.IsNotNull(shader);
+        var mat = new Material(shader);
+        mat.SetFloat("_Cull", 2f);
+
+        var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        go.GetComponent<Renderer>().sharedMaterial = mat;
+        var socket = new GameObject("Weapon_L_Bone").transform;
+        var mount = new WeaponAttachMount(
+            WeaponAttachSocket.LeftHand,
+            "LineageWeapons.test_m00_wp",
+            mirrorScaleX: true);
+
+        WeaponAttachApplicator.Apply(go, socket, mount);
+        float cull = go.GetComponent<Renderer>().sharedMaterial.GetFloat("_Cull");
+        Assert.AreEqual(0f, cull, 0.01f);
+
+        Object.DestroyImmediate(socket.gameObject);
+        Object.DestroyImmediate(go);
+    }
+
+    [Test]
     public void Apply_SnapsIdentityAtSocket()
     {
         var socket = new GameObject("Weapon_R_Bone").transform;

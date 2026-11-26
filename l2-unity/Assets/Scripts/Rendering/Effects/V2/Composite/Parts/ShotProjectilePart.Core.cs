@@ -12,7 +12,7 @@ public sealed partial class ShotProjectilePart : CompositePart
         // Clock is ProjectileManager flytime (ProjectileFlightTimeCalculator at launch
         // distance), not castData.FlightTime / EffectCastDurationResolver (those only
         // shift the animation shoot: HitTime − FlightTime).
-        float flytime = ResolveLaunchFlytimeSeconds(instance, context);
+        float flytime = ResolveLaunchFlytimeSeconds(instance, context, acceleration);
         if (settings != null)
         {
             settings.defaultLifeTime = flytime;
@@ -52,7 +52,10 @@ public sealed partial class ShotProjectilePart : CompositePart
 #endif
     }
 
-    static float ResolveLaunchFlytimeSeconds(BaseEffect instance, EffectResolveContext context)
+    static float ResolveLaunchFlytimeSeconds(
+        BaseEffect instance,
+        EffectResolveContext context,
+        float accelUnity)
     {
         if (instance == null || context == null || context.TargetTransform == null)
         {
@@ -62,7 +65,7 @@ public sealed partial class ShotProjectilePart : CompositePart
         Vector3 start = instance.transform.position;
         Vector3 aim = VectorWorldUtils.GetCollision(start, context.TargetTransform);
         float distance = Vector3.Distance(start, aim);
-        return ProjectileFlightTimeCalculator.CalculateL2AccelFlightTimeSeconds(distance);
+        return ProjectileFlightTimeCalculator.CalculateL2AccelFlightTimeSeconds(distance, accelUnity);
     }
 
     public override string Describe()

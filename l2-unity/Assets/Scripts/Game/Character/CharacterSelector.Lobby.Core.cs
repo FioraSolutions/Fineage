@@ -39,13 +39,13 @@ public partial class CharacterSelector
             for (int i = 0; i < _characterGameObjects.Count; i++)
             {
                 if (_characterGameObjects[i] != null)
-                    Object.Destroy(_characterGameObjects[i]);
+                    UnityEngine.Object.Destroy(_characterGameObjects[i]);
             }
         }
 
         if (_container != null)
         {
-            Object.Destroy(_container);
+            UnityEngine.Object.Destroy(_container);
             _container = null;
         }
 

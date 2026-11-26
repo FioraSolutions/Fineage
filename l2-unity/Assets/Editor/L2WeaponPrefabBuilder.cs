@@ -62,6 +62,36 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
         };
     }
 
+    /// <summary>Rebuild the loadable prefab for one LineageWeapons mesh after FBX repair.</summary>
+    public static bool TryRebuildPrefabForName(string meshName)
+    {
+        if (string.IsNullOrEmpty(meshName))
+            return false;
+        string fbxPath = ModelsFolder + "/" + meshName + ".fbx";
+        string prefabPath = PrefabFolder + "/" + meshName + ".prefab";
+        Dictionary<string, string> texMap = LoadTexMap();
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath) != null)
+            AssetDatabase.DeleteAsset(prefabPath);
+        return TryBuildPrefab(fbxPath, prefabPath, meshName, texMap);
+    }
+
+    static Mesh EnsureVolumetricSourceMesh(Mesh source, string fbxPath)
+    {
+        WeaponMeshTopology.Report report = WeaponMeshTopology.Analyze(source, source.name);
+        if (!report.IsDegenerate)
+            return source;
+        Mesh fixedMesh = WeaponMeshTopology.BuildSolidifiedMesh(source);
+        if (fixedMesh == null)
+            return source;
+        Debug.LogWarning(
+            "[L2WeaponPrefabBuilder] weapon FBX '"
+            + fbxPath
+            + "' is single-sided ("
+            + report.FailureReason
+            + "). Using in-editor solidify; rebake with tools/interlude/weapon_mesh_solidify.py --fix");
+        return fixedMesh;
+    }
+
     public static int BuildMissingPrefabs()
     {
         if (!AssetDatabase.IsValidFolder(ModelsFolder) || !AssetDatabase.IsValidFolder(PrefabFolder))
@@ -107,14 +137,16 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
         if (srcFilter == null || srcFilter.sharedMesh == null)
         {
             Object.DestroyImmediate(src);
-            Debug.LogWarning("[L2WeaponPrefabBuilder] no mesh in " + fbxPath);
+            Debug.LogError("[L2WeaponPrefabBuilder] no mesh in " + fbxPath);
             return false;
         }
+
+        Mesh weaponMesh = EnsureVolumetricSourceMesh(srcFilter.sharedMesh, fbxPath);
 
         GameObject go = new GameObject(name);
         MeshFilter mf = go.AddComponent<MeshFilter>();
         MeshRenderer mr = go.AddComponent<MeshRenderer>();
-        mf.sharedMesh = srcFilter.sharedMesh;
+        mf.sharedMesh = weaponMesh;
         // Shields (and other multi-slot weapons) ship t00;t01 — assign every submesh slot.
         mr.sharedMaterials = GetOrCreateMaterials(name, srcFilter.sharedMesh, texMap);
 
@@ -280,7 +312,16 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
             mat.SetFloat("_ActorAlpha", 1f);
         }
 
-        mat.SetFloat("_Cull", 0f);
+        if (!L2TwoSidedMaterials.TryGetProps(texStem, out _))
+        {
+            Debug.LogError("[TwoSided] weapon material " + texStem
+                + " props missing; original TwoSided flag unknown (LineageWeapons material build)");
+        }
+        else
+        {
+            L2Ue2MaterialChain.Eval eval = L2Ue2MaterialChain.Evaluate(texStem, L2TwoSidedMaterials.Props);
+            L2TwoSidedMaterials.Apply(mat, eval.TwoSided, texStem);
+        }
 
         // A weapon PNG stores the coverage mask in alpha: 255 on the island, 0 on the
         // black padding, and the mesh UVs of the padding triangles sit outside every
@@ -385,7 +426,6 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
     {
         mat.SetFloat("_AlphaClip", 1f);
         mat.SetFloat("_Cutoff", 160f / 255f);
-        mat.SetFloat("_Cull", 0f);
         mat.SetFloat("_ZWrite", 1f);
         mat.EnableKeyword("_ALPHATEST_ON");
         mat.SetOverrideTag("RenderType", "TransparentCutout");

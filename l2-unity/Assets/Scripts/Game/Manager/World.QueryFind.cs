@@ -27,8 +27,7 @@ public partial class World
                 // UnityReplaySession.OnStatus(e, attributes);
                 if (e.GetType() == typeof(PlayerEntity))
                 {
-                    if (CharacterInfo != null)
-                        CharacterInfo.UpdateValues();
+                    _characterInfo.UpdateValues();
                 }
             }
 
@@ -40,11 +39,10 @@ public partial class World
         return ExecuteWithEntityAsync(user.PlayerInfoInterlude.Identity.Id, e => {
             if (_worldCombat != null)
                 _worldCombat.StatusUpdate(e, user.PlayerInfoInterlude.Stats, user.PlayerInfoInterlude.Status , user.PlayerInfoInterlude.Identity.Id);
-            if (e == DomainPacketServices.LocalPlayer)
+            if (_localPlayer.IsLocal(e))
             {
-                DomainPacketServices.LocalPlayer.Running = user.PlayerInfoInterlude.Appearance.Running;
-                if (CharacterInfo != null)
-                    CharacterInfo.UpdateValues();
+                _localPlayer.SetRunning(user.PlayerInfoInterlude.Appearance.Running);
+                _characterInfo.UpdateValues();
             }
         });
     }
@@ -58,8 +56,7 @@ public partial class World
             if (entity.GetType() == typeof(PlayerEntity))
             {
 
-                PlayerStatePacketServices.PlayerState.ChangeState(PlayerState.REBIRTH);
-                PlayerStatePacketServices.PlayerState.NotifyEvent(Event.REBIRTH);
+                _playerRebirth.NotifyRebirth();
 
                 entity.SetDead(false);
 
@@ -133,7 +130,7 @@ public partial class World
             return;
 
         try {
-            _eventProcessor.QueueEvent(() => {
+            _eventQueue.QueueEvent(() => {
                 // Entity may have been removed between wait completion and main-thread apply.
                 if (GetEntityNoLockSync(id) != entity)
                     return;
@@ -162,7 +159,7 @@ public partial class World
             return;
 
         try {
-            _eventProcessor.QueueEvent(() => {
+            _eventQueue.QueueEvent(() => {
                 if (GetEntityNoLockSync(id1) != entity1 || GetEntityNoLockSync(id2) != entity2)
                     return;
                 action(entity1, entity2);
@@ -174,8 +171,6 @@ public partial class World
 
     private bool IsWorldSpawnReady()
     {
-        GameManager manager = _gameManager != null ? _gameManager : WorldPacketServices.Manager;
-        WorldPacketApply apply = WorldPacketServices.WorldApply;
-        return manager != null && manager.WorldSpawnReady && apply != null;
+        return _gameManager != null && _gameManager.WorldSpawnReady && _worldApply != null;
     }
 }

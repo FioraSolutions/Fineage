@@ -20,6 +20,7 @@
          Assembly-CSharp from a test assembly, so this host compiles them directly. -->
     <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Contract\**\*.cs"
              Link="Client\Net.Contract\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\CharacterInventory.cs" Link="Client\CharacterInventory.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\FineageWireConfig.cs" Link="Client\FineageWireConfig.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\FineageBackendSelector.cs" Link="Client\FineageBackendSelector.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\FineageServerProfile.cs" Link="Client\FineageServerProfile.cs" />
@@ -85,5 +86,9 @@
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\IPacketApplyQueue.cs" Link="Client\IPacketApplyQueue.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\PacketApplyQueue.cs" Link="Client\PacketApplyQueue.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\ClientLibrary\Model\Hit.cs" Link="Client\Hit.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Game\Combat\AttackHitWireRows.cs" Link="Client\AttackHitWireRows.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Game\Animation\SkinnedMeshBoneResolver.cs" Link="Client\SkinnedMeshBoneResolver.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Domain\World\L2DecoLayerArchive.cs" Link="Client\L2DecoLayerArchive.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Domain\World\L2DecoGenerator.cs" Link="Client\L2DecoGenerator.cs" />
   </ItemGroup>
 </Project>

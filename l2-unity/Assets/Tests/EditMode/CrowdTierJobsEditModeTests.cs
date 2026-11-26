@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Unity.Collections;
 using Unity.Mathematics;
+using UnityEngine;
 
 public sealed class CrowdTierJobsEditModeTests
 {
@@ -20,6 +21,7 @@ public sealed class CrowdTierJobsEditModeTests
             Tier1MaxSq = 25f * 25f,
             Tier2MaxSq = 60f * 60f,
             Tier3MaxSq = 120f * 120f,
+            PawnDrawMaxSq = 500f * 500f,
             Tiers = tiers,
         };
 
@@ -36,13 +38,18 @@ public sealed class CrowdTierJobsEditModeTests
     }
 
     [Test]
-    public void CrowdLodProfile_throttles_animator_speed_by_tier()
+    public void CrowdLodProfile_culls_distant_animators_without_global_speed_scale()
     {
         var profile = UnityEngine.ScriptableObject.CreateInstance<CrowdLodProfile>();
-        Assert.AreEqual(0.5f, profile.AnimatorSpeedForTier(CrowdDetailTier.T2Mid));
+        Assert.AreEqual(
+            UnityEngine.AnimatorCullingMode.CullUpdateTransforms,
+            profile.AnimatorCullingForTier(CrowdDetailTier.T3Far));
+        Assert.AreEqual(
+            UnityEngine.AnimatorCullingMode.CullUpdateTransforms,
+            profile.AnimatorCullingForTier(CrowdDetailTier.T1Near));
         Assert.AreEqual(
             UnityEngine.AnimatorCullingMode.CullCompletely,
-            profile.AnimatorCullingForTier(CrowdDetailTier.T3Far));
+            profile.AnimatorCullingForTier(CrowdDetailTier.TCulled));
         UnityEngine.Object.DestroyImmediate(profile);
     }
 

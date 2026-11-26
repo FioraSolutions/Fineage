@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Panel / hotkey social gestures — Mobius RequestActionUse ids 12–14 (#465).
 /// Zone fans SocialAction; client already applies it in NetSession.
@@ -17,8 +19,6 @@ public sealed class SocialActionUse : L2Action
             PlayerStatePacketServices.PlayerState.State == PlayerState.DEAD)
             return;
 
-        NetSession session = NetSession.TryGetBound();
-        if (session != null)
-            _ = session.SendActionUse(_actionId);
+        InterludeRequestActionUse.TrySend(_actionId);
     }
 }

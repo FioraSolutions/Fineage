@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
 
-public partial class CharacterInfoWindow : L2PopupWindow
+public partial class CharacterInfoWindow : L2PopupWindow, ICharacterInfoValues
 {
     const float BarWidth = 85f;
     // Same column as CP (bag icon sits just left of 156 on myinfo_back).

@@ -41,6 +41,22 @@ public partial class L2CloudSimple : MonoBehaviour
         ApplyTint(_domeA.mats, 1, cloudColors.sheet, opacity);
         ApplyTint(_domeB.mats, 0, cloudColors.sheet, opacity);
         ApplyTint(_domeB.mats, 1, cloudColors.silhouette, opacity);
+        Vector2 pan = Vector2.zero;
+        if (L2ZoneRender.TryActiveSkyPan(out float panU, out float panV))
+            pan = new Vector2(panU, panV) * Time.time;
+        ApplyPan(_domeA.mats, pan);
+        ApplyPan(_domeB.mats, pan);
+    }
+
+    static void ApplyPan(Material[] mats, Vector2 offset)
+    {
+        if (mats == null)
+            return;
+        for (int i = 0; i < mats.Length; i++)
+        {
+            if (mats[i] != null)
+                mats[i].SetTextureOffset("_MainTex", offset);
+        }
     }
 
     void StripStaleChildren()

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -6,28 +7,29 @@ public sealed partial class AppLifetimeScope : LifetimeScope
 {
     private static void RegisterDatTables(IContainerBuilder builder)
     {
-        builder.RegisterInstance(TablePacketServices.Items);
-        builder.RegisterInstance(TablePacketServices.ItemNames);
-        builder.RegisterInstance(TablePacketServices.ItemStats);
-        builder.RegisterInstance(TablePacketServices.ArmorGrps);
-        builder.RegisterInstance(TablePacketServices.EtcItemGrps);
-        builder.RegisterInstance(TablePacketServices.WeaponGrps);
-        builder.RegisterInstance(TablePacketServices.NpcDecoEffects);
-        builder.RegisterInstance(TablePacketServices.NpcGrps);
-        builder.RegisterInstance(TablePacketServices.NpcNames);
-        builder.RegisterInstance(TablePacketServices.QuestNames);
-        builder.RegisterInstance(TablePacketServices.Recipes);
-        builder.RegisterInstance(TablePacketServices.ActionNames);
-        builder.RegisterInstance(TablePacketServices.AnimLengths);
-        builder.RegisterInstance(TablePacketServices.SysStrings);
-        builder.RegisterInstance(TablePacketServices.SkillNames).AsSelf().As<ISkillNameTable>();
-        builder.RegisterInstance(TablePacketServices.SkillGrps).AsSelf().As<ISkillgrpLookup>();
-        builder.RegisterInstance(TablePacketServices.MobSkillAnimGrps);
-        builder.RegisterInstance(TablePacketServices.AnimTweens);
-        builder.RegisterInstance(TablePacketServices.EnterEvents);
-        builder.RegisterInstance(TablePacketServices.Models);
-        builder.RegisterInstance(TablePacketServices.LogonGrps);
-        builder.RegisterInstance(TablePacketServices.SystemMessages);
+        // Fresh instances — never TablePacketServices.* getters (they log empty MetaTable fallbacks pre-bind).
+        builder.Register<ItemTable>(Lifetime.Singleton);
+        builder.Register<ItemNameTable>(Lifetime.Singleton);
+        builder.Register<ItemStatDataTable>(Lifetime.Singleton);
+        builder.Register<ArmorgrpTable>(Lifetime.Singleton);
+        builder.Register<EtcItemgrpTable>(Lifetime.Singleton);
+        builder.Register<WeapongrpTable>(Lifetime.Singleton);
+        builder.Register<NpcDecoEffectsTable>(Lifetime.Singleton);
+        builder.Register<NpcgrpTable>(Lifetime.Singleton);
+        builder.Register<NpcNameTable>(Lifetime.Singleton);
+        builder.Register<QuestNameTable>(Lifetime.Singleton);
+        builder.Register<RecipeTable>(Lifetime.Singleton);
+        builder.Register<ActionNameTable>(Lifetime.Singleton);
+        builder.Register<AnimLeghtTable>(Lifetime.Singleton);
+        builder.Register<SysStringTable>(Lifetime.Singleton);
+        builder.Register<SkillNameTable>(Lifetime.Singleton).AsSelf().As<ISkillNameTable>();
+        builder.Register<SkillgrpTable>(Lifetime.Singleton).AsSelf().As<ISkillgrpLookup>();
+        builder.Register<MobSkillAnimgrpTable>(Lifetime.Singleton);
+        builder.Register<AnimTweenTable>(Lifetime.Singleton);
+        builder.Register<EnterEventTable>(Lifetime.Singleton);
+        builder.Register<ModelTable>(Lifetime.Singleton);
+        builder.Register<LogongrpTable>(Lifetime.Singleton);
+        builder.Register<SystemMessageTable>(Lifetime.Singleton);
     }
 
     private void RegisterAppEventProcessor(IContainerBuilder builder)
@@ -35,7 +37,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         EventProcessor events = GetComponent<EventProcessor>();
         if (events == null)
             events = gameObject.AddComponent<EventProcessor>();
-        builder.RegisterComponent(events);
+        builder.RegisterComponent(events).AsSelf().As<IEventQueue>();
     }
 
     /// <summary>
@@ -45,9 +47,14 @@ public sealed partial class AppLifetimeScope : LifetimeScope
     {
         GameManager local = GetComponent<GameManager>();
         if (local == null)
-            local = Object.FindFirstObjectByType<GameManager>(FindObjectsInactive.Include);
-        if (local != null)
-            builder.RegisterComponent(local).AsSelf().As<IGameManager>();
+            local = UnityEngine.Object.FindFirstObjectByType<GameManager>(FindObjectsInactive.Include);
+        if (local == null)
+        {
+            throw new InvalidOperationException(
+                "[AppLifetimeScope] IGameManager missing — RegisterGameManager found no GameManager on the host or in loaded scenes.");
+        }
+
+        builder.RegisterComponent(local).AsSelf().As<IGameManager>();
     }
 
     /// <summary>
@@ -57,9 +64,13 @@ public sealed partial class AppLifetimeScope : LifetimeScope
     {
         SceneLoader local = GetComponent<SceneLoader>();
         if (local == null)
-            local = Object.FindFirstObjectByType<SceneLoader>(FindObjectsInactive.Include);
-        if (local != null)
-            builder.RegisterComponent(local).AsSelf().As<ISceneLoader>();
+            local = UnityEngine.Object.FindFirstObjectByType<SceneLoader>(FindObjectsInactive.Include);
+        if (local == null)
+        {
+            Debug.LogError("[AppLifetimeScope] SceneLoader missing — RegisterSceneLoader found none on the host or in loaded scenes, so ISceneLoader is not registered.");
+            return;
+        }
+        builder.RegisterComponent(local).AsSelf().As<ISceneLoader>();
     }
 
     void HandleTransportDisconnected()

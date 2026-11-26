@@ -44,6 +44,27 @@ public partial class DataCell : L2Slot
         SetBusy(isbusy);
         _skillInstance.RefreshData(skillId , level , IsPassiveSkill() , false);
         if (isbusy != false) SetIcon(skillId, level);
+        RefreshAbnormalTooltip(skillId, level);
+    }
+
+    void RefreshAbnormalTooltip(int skillId, int level)
+    {
+        if (_element == null || skillId <= 0)
+            return;
+
+        int remaining = Mathf.Max(0, Mathf.CeilToInt(GetLastRemainingTime()));
+        string tip = AbnormalEffectTooltipBuilder.Build(skillId, level, remaining, includeRemainingTime: true);
+        if (_tooltipManipulator != null)
+        {
+            _element.RemoveManipulator(_tooltipManipulator);
+            _tooltipManipulator = null;
+        }
+
+        _tooltipManipulator = new TooltipManipulator(_element, tip);
+        _element.AddManipulator(_tooltipManipulator);
+
+        if (AbnormalEffectTooltipBuilder.TryFormatChargeLabel(skillId, level, out string chargeLabel))
+            SetText(chargeLabel);
     }
 
     public SkillInstance GetSkillInstance()

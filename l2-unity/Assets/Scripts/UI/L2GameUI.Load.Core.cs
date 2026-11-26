@@ -9,6 +9,9 @@ public partial class L2GameUI
     {
         base.LoadUI();
 
+        AbnormalEffectTooltipTables.SkillGrps = TablePacketServices.SkillGrps;
+        AbnormalEffectTooltipTables.SkillNames = TablePacketServices.SkillNames;
+
         if (LobbyUiPacketServices.LoginUi != null)
         {
             StartLoading();
@@ -219,5 +222,13 @@ public partial class L2GameUI
             TradePacketServices.Trade.AddWindow(_rootVisualContainer);
             TradePacketServices.Trade.HideWindow();
         }
+
+        EnsureInterludeRadarHud();
+    }
+
+    void EnsureInterludeRadarHud()
+    {
+        if (GetComponent<QuestRadarHud>() == null)
+            gameObject.AddComponent<QuestRadarHud>();
     }
 }

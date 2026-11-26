@@ -19,21 +19,44 @@ public partial class BufferPanel : L2Window
     protected override IEnumerator BuildWindow(VisualElement root)
     {
         InitWindow(root);
+        _windowEle.AddToClassList("drag-area");
+        InterludeWindowLayout.Apply(_windowEle, "AbnormalStatusWnd");
 
-        L2InterludeHudVerticalFrame.TryPaintVerticalColumn(_windowEle, nameof(BufferPanel));
+        VisualElement rail = _windowEle.Q<VisualElement>("InterludeHudVerticalRail");
+        if (rail != null)
+            rail.RemoveFromHierarchy();
 
-        var dragArea = GetElementByClass("drag-area");
+        VisualElement slots = GetElementById("anchor");
+        VisualElement icon = GetElementById("StatusIcon");
+        if (slots != null && icon != null)
+        {
+            icon.Add(slots);
+            icon.style.width = StyleKeyword.Auto;
+            icon.style.height = StyleKeyword.Auto;
+        }
+
+        float layoutWidth;
+        float layoutHeight;
+        if (InterludeWindowLayout.TryWindowSize("AbnormalStatusWnd", out layoutWidth, out layoutHeight))
+        {
+            _windowEle.style.minWidth = layoutWidth;
+            _windowEle.style.minHeight = layoutHeight;
+        }
+
+        _windowEle.style.width = StyleKeyword.Auto;
+        _windowEle.style.height = StyleKeyword.Auto;
+
         _content = GetElementById("content");
-        
-        DragManipulator drag = new DragManipulator(dragArea, _windowEle);
-        dragArea.AddManipulator(drag);
+        if (_content == null)
+            _content = _windowEle;
+        DragManipulator drag = new DragManipulator(_windowEle, _windowEle);
+        _windowEle.AddManipulator(drag);
 
         CreateItemsPanel1();
 
         yield return new WaitForEndOfFrame();
 
         _content.style.opacity = 0;
-        MovePanelToChatPosition(_defaultLeftOffset);
     }
 
     private void OnDestroy()

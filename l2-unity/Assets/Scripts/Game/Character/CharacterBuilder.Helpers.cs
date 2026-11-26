@@ -43,11 +43,9 @@ public partial class CharacterBuilder : MonoBehaviour
         if (gear == null || appearance == null || Models == null)
             return;
 
-        Transform container = gear.transform;
-        GameObject face = SpawnPiece(Models.GetFace(raceId, appearance.FaceByte), container);
-        if (face != null)
-            gear.EquipFace(face);
+        TryEquipFace(gear, raceId, appearance.FaceByte);
 
+        Transform container = gear.transform;
         GameObject hair1 = SpawnPiece(
             Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, false),
             container);
@@ -55,6 +53,23 @@ public partial class CharacterBuilder : MonoBehaviour
             Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, true),
             container);
         gear.EquipHair(hair1, hair2);
+    }
+
+    public bool TryEquipFace(UserGear gear, CharacterRaceAnimation raceId, byte faceIndex)
+    {
+        if (gear == null || Models == null)
+            return false;
+
+        GameObject source = Models.GetFace(raceId, faceIndex);
+        if (source == null)
+            return false;
+
+        GameObject face = SpawnPiece(source, gear.transform);
+        if (face == null)
+            return false;
+
+        gear.EquipFace(face);
+        return true;
     }
 
     static Transform ResolveModelContainer(GameObject entity, EntityType entityType)

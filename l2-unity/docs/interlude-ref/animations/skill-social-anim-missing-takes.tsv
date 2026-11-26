@@ -1,0 +1,12 @@
+# Official Interlude player takes that are absent from the race ukx (not an import miss).
+# Playback must log these and must not substitute the Player_Basic template clip.
+# Source: imported Clips vs retail sequence names in the Interlude client packages.
+# Skillgrp ani_char MS01 (skill 5006 lv1) has no row in AnimationCombo_Interlude.txt; do not invent one.
+kind	race	stem	note
+spatk	MMagic	SpAtk01_1HS	Interlude Magic.ukx has no SpAtk01 1HS/2HS/Bow for human mages
+spatk	MMagic	SpAtk01_2HS	Interlude Magic.ukx has no SpAtk01 1HS/2HS/Bow for human mages
+spatk	MMagic	SpAtk01_Bow	Interlude Magic.ukx has no SpAtk01 1HS/2HS/Bow for human mages
+spatk	FMagic	SpAtk01_1HS	Interlude Magic.ukx has no SpAtk01 1HS/2HS/Bow for human mages
+spatk	FMagic	SpAtk01_2HS	Interlude Magic.ukx has no SpAtk01 1HS/2HS/Bow for human mages
+spatk	FMagic	SpAtk01_Bow	Interlude Magic.ukx has no SpAtk01 1HS/2HS/Bow for human mages
+combo-tag		MS01	skillgrp skill_id=5006 level=1; AnimationCombo_Interlude has no MS01 row

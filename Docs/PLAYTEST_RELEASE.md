@@ -22,7 +22,7 @@ Login is the serialized `_serverIp` / `_serverPort` on `LoginClient` in `l2-unit
 - Game host replaces the ServerList address (`game.fineage.evpoint.by`), so a LAN IP in the server list does not win.
 - Game port is **7777** unless `gamePort` / `FINEAGE_GAME_PORT` overrides it.
 
-Zone v2 (`FineageWireConfig.ZoneHost`) is unchanged.
+`FineageWireConfig.ZoneHost` is the resolved game host after ServerList (typically `game.fineage.evpoint.by`).
 
 The socket accepts a DNS name, not only a dotted IP. IPv4 is preferred. The client opens a normal TCP connection to the login host on 2106 and the game host on 7777. `fineage.evpoint.by` is HTTP for the landing page and is not a game socket. Each TCP name has to resolve and accept TCP on that port. A tunnel route that only answers through `cloudflared access tcp` is not a socket this client can dial.
 

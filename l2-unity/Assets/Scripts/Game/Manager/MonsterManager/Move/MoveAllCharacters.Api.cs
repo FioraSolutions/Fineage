@@ -71,4 +71,13 @@ public partial class MoveAllCharacters
         return _moveDict.TryGetValue(objId, out data) ? data : null;
     }
 
+    public void ReplayUserGait(int objId)
+    {
+        MovementData move = GetMove(objId);
+        if (move == null || move.GetEntity() == null)
+            return;
+
+        move.ForceReplayUserGait();
+    }
+
 }

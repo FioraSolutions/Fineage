@@ -1,9 +1,17 @@
+using System;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
 public sealed class LoginLifetimeScope : LifetimeScope
 {
+    protected override void OnDestroy()
+    {
+        if (Container != null)
+            HierarchyScopeInjection.UnbindLobby(Container);
+        base.OnDestroy();
+    }
+
     protected override void Configure(IContainerBuilder builder)
     {
         LifetimeScopeMonoRegistration.RegisterIfFound<L2LoginUI>(builder);
@@ -21,6 +29,8 @@ public sealed class LoginLifetimeScope : LifetimeScope
 
         builder.RegisterBuildCallback(container =>
         {
+            RequireMotionServices(container);
+            HierarchyScopeInjection.BindLobby(container);
             LoginRuntime loginRuntime = container.Resolve<LoginRuntime>();
             AppLoginSessionApplyIncomingPacketServices.BindLogin(loginRuntime);
             if (App.Container != null)
@@ -31,13 +41,17 @@ public sealed class LoginLifetimeScope : LifetimeScope
                     LobbyFlowController lobby = lobbySession as LobbyFlowController
                         ?? App.Container.Resolve<LobbyFlowController>();
                     lobby.WireLogin(loginRuntime);
-                    // Login UI bind is LobbyFlowController.WireLogin / LobbyUiPacketServices —
-                    // GameManager.WireLoginUi never existed (ACS leftover).
+                    GameManager manager = App.Container.Resolve<GameManager>();
+                    L2LoginUI loginUi = loginRuntime.Ui;
+                    if (loginUi != null)
+                        manager.WireLoginUi(loginUi);
+                    else
+                        Debug.LogError("[LoginLifetimeScope] L2LoginUI missing — LoginRuntime.Ui was not registered, so GameManager has no login loading UI.");
                 }
                 catch (System.Exception ex)
                 {
                     Debug.LogError(
-                        "[LoginLifetimeScope] Failed to wire LobbyFlowController from App.Container: "
+                        "[LoginLifetimeScope] Failed to wire login session from App.Container: "
                         + ex.Message);
                 }
             }
@@ -47,6 +61,55 @@ public sealed class LoginLifetimeScope : LifetimeScope
                     "[LoginLifetimeScope] App.Container missing — lobby wire skipped (AppLifetimeScope not ready)");
             }
         });
+    }
+
+    static void RequireMotionServices(IObjectResolver container)
+    {
+        IAnimationManager animations;
+        try
+        {
+            animations = container.Resolve<IAnimationManager>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IAnimationManager))
+            {
+                throw new InvalidOperationException(
+                    "[LoginLifetimeScope] IAnimationManager missing — AppLifetimeScope did not register AnimationManager.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (animations is not AnimationManager)
+        {
+            throw new InvalidOperationException(
+                "[LoginLifetimeScope] IAnimationManager is not an AnimationManager — AppLifetimeScope did not register AnimationManager.");
+        }
+
+        IMoveRoster moves;
+        try
+        {
+            moves = container.Resolve<IMoveRoster>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IMoveRoster))
+            {
+                throw new InvalidOperationException(
+                    "[LoginLifetimeScope] IMoveRoster missing — AppLifetimeScope did not register SharedMoveRoster.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (moves is not SharedMoveRoster)
+        {
+            throw new InvalidOperationException(
+                "[LoginLifetimeScope] IMoveRoster is not a SharedMoveRoster — AppLifetimeScope did not register SharedMoveRoster.");
+        }
     }
 
 }

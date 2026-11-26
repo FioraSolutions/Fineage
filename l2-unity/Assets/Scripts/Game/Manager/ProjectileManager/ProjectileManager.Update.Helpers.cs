@@ -112,6 +112,11 @@ public partial class ProjectileManager
             Vector3 dir = projectile.targetPosition - projectile.transform.position;
             Quaternion rotation = Quaternion.LookRotation(dir);
             rotation *= Quaternion.Euler(0, 90, 0);
+            if (projectile.rotPerSecondEuler != Vector3.zero)
+            {
+                projectile.spinEuler += projectile.rotPerSecondEuler * Time.deltaTime;
+                rotation *= Quaternion.Euler(projectile.spinEuler);
+            }
             SetRotation(projectile , rotation);
         }
 

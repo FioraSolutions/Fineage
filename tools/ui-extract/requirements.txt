@@ -1,0 +1,11 @@
+# Python packages the window-layout tooling needs.
+#
+# `tools/ui-extract/interlude_layout.py` measures autosize text with the
+# Interlude Tahoma face through Pillow, and the render/comparison scripts draw
+# the original-vs-Fineage screenshots with it. `scripts/ci-client-guards.sh`
+# runs `scripts/check-interlude-window-layout.py` on every PR, so CI must have
+# these installed or the guard dies with ModuleNotFoundError before any real
+# check runs.
+#
+# Install locally with: python3 -m pip install -r tools/ui-extract/requirements.txt
+Pillow>=10.0

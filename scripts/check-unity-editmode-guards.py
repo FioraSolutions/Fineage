@@ -106,8 +106,20 @@ def _type_defined_in_file(text: str, name: str) -> bool:
     )
 
 
+def _method_defined_in_file(text: str, name: str) -> bool:
+    """A helper declared in this file is not an Assembly-CSharp type of the same name."""
+    return bool(
+        re.search(
+            rf"(?:^|\n)\s*(?:(?:public|private|protected|internal|static|async|override|virtual|sealed|unsafe)\s+)*"
+            rf"(?:[\w.<>,\[\]?]+\s+){re.escape(name)}\s*\(",
+            text,
+        )
+    )
+
+
 def _uses_type_name(fragment: str, name: str) -> bool:
-    if not re.search(rf"\b{re.escape(name)}\b", fragment):
+    # `Outer.Poly(` is the nested type, not Assembly-CSharp `Poly`.
+    if not re.search(rf"(?<!\.)\b{re.escape(name)}\b", fragment):
         return False
     if re.search(rf"\bNetOpcode\.{re.escape(name)}\b", fragment):
         return False
@@ -203,7 +215,10 @@ def check_editmode_asmdef_types() -> list[str]:
         used = sorted(
             name
             for name in ac_types
-            if name not in BUILTIN_ALLOW and _uses_type_name(code, name)
+            if name not in BUILTIN_ALLOW
+            and not _type_defined_in_file(text, name)
+            and not _method_defined_in_file(code, name)
+            and _uses_type_name(code, name)
         )
         if not used:
             continue
@@ -313,6 +328,51 @@ def check_cs9_syntax() -> list[str]:
     return errors
 
 
+def check_ambiguous_system_object() -> list[str]:
+    """Files with both `using System` and `using UnityEngine` must not bare-qualify `Object.`."""
+    errors: list[str] = []
+    pattern = re.compile(r"\bObject\.")
+    for path in sorted(SCRIPTS.rglob("*.cs")):
+        text = path.read_text(encoding="utf-8-sig", errors="replace")
+        if not re.search(r"^\s*using\s+System\s*;", text, re.MULTILINE):
+            continue
+        if not re.search(r"^\s*using\s+UnityEngine\s*;", text, re.MULTILINE):
+            continue
+        for line_no, line in enumerate(text.splitlines(), start=1):
+            code = _code_fragment(line)
+            if pattern.search(code) and "UnityEngine.Object." not in code:
+                errors.append(
+                    f"{path.relative_to(REPO)}:{line_no}: `Object.` is ambiguous with System + UnityEngine — use UnityEngine.Object"
+                )
+    return errors
+
+
+def check_anim_keyreduce_probe_registration() -> list[str]:
+    """Every anim-keyreduce-*-probes.json fixture must appear in AnimKeyReducePilotEditModeTests.ProbeFiles."""
+    test = EDITMODE_TESTS / "AnimKeyReducePilotEditModeTests.cs"
+    fixtures = EDITMODE_TESTS / "Fixtures"
+    if not test.is_file():
+        return []
+    text = test.read_text(encoding="utf-8-sig", errors="replace")
+    listed = set(
+        re.findall(
+            r"Tests/EditMode/Fixtures/(anim-keyreduce-[^\"]+\.json)",
+            text,
+        )
+    )
+    on_disk = {p.name for p in fixtures.glob("anim-keyreduce-*-probes.json")}
+    errors: list[str] = []
+    for name in sorted(on_disk - listed):
+        errors.append(
+            f"anim-keyreduce fixture not listed in ProbeFiles: Assets/Tests/EditMode/Fixtures/{name}"
+        )
+    for name in sorted(listed - on_disk):
+        errors.append(
+            f"ProbeFiles references missing anim-keyreduce fixture: Assets/Tests/EditMode/Fixtures/{name}"
+        )
+    return errors
+
+
 def main() -> int:
     errors = (
         check_editmode_asmdef_types()
@@ -320,6 +380,8 @@ def main() -> int:
         + check_asmdef_references_editor_scripts()
         + check_asmdef_missing_unityengine_usings()
         + check_cs9_syntax()
+        + check_ambiguous_system_object()
+        + check_anim_keyreduce_probe_registration()
     )
     if errors:
         print("Unity EditMode guard failed:", file=sys.stderr)

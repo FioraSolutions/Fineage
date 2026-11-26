@@ -32,14 +32,22 @@ public partial class LoginWindow
 
     void OnNewAccountPressed()
     {
-        if (!TryOpenConfiguredUrl(NewAccountUrlKey, NewAccountUrlEnv))
-            ShowErrorText(L10n.Get("ui.login.err_new_account_url"));
+        if (TryOpenConfiguredUrl(NewAccountUrlKey, NewAccountUrlEnv))
+            return;
+
+        const string control = "NCLoginFunctionWnd/NewAccountButton";
+        LogLoginNotImplemented(control, "account registration URL is not configured (fineage.login.newAccountUrl / FINEAGE_NEW_ACCOUNT_URL)");
+        ShowErrorText(L10n.Get("ui.login.err_new_account_url"));
     }
 
     void OnLostAccountPressed()
     {
-        if (!TryOpenConfiguredUrl(LostAccountUrlKey, LostAccountUrlEnv))
-            ShowErrorText(L10n.Get("ui.login.err_lost_account_url"));
+        if (TryOpenConfiguredUrl(LostAccountUrlKey, LostAccountUrlEnv))
+            return;
+
+        const string control = "NCLoginFunctionWnd/LostAccountButton";
+        LogLoginNotImplemented(control, "account recovery URL is not configured (fineage.login.lostAccountUrl / FINEAGE_LOST_ACCOUNT_URL)");
+        ShowErrorText(L10n.Get("ui.login.err_lost_account_url"));
     }
 
     void OnOptionsPressed()
@@ -63,11 +71,13 @@ public partial class LoginWindow
 
     void OnProductionTeamPressed()
     {
+        LogLoginNotImplemented("NCLoginFunctionWnd/ProductionTeamButton", "Interlude credits roll is not ported");
         ShowErrorText(L10n.Get("ui.login.err_production_team"));
     }
 
     void OnReplayPressed()
     {
+        LogLoginNotImplemented("NCLoginFunctionWnd/ReplayButton", "Interlude login replay / intro cinematics are not ported");
         ShowErrorText(L10n.Get("ui.login.err_replay"));
     }
 

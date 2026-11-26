@@ -35,26 +35,29 @@ public class SlotHoverDetectManipulator : PointerManipulator
     protected override void RegisterCallbacksOnTarget()
     {
         _byElement[_root] = _slot;
-        _root.RegisterCallback<PointerOverEvent>(PointerOverHandler);
-        _root.RegisterCallback<PointerOutEvent>(PointerOutHandler);
+        // Enter/Leave include descendants. Over/Out fire when the pointer moves
+        // onto a child icon, which cleared Hovering and dropped mouse-up clicks
+        // on ActionWnd slots whose icon covers the slot.
+        _root.RegisterCallback<PointerEnterEvent>(PointerEnterHandler);
+        _root.RegisterCallback<PointerLeaveEvent>(PointerLeaveHandler);
     }
 
     protected override void UnregisterCallbacksFromTarget()
     {
         if (_byElement.TryGetValue(_root, out L2Slot cur) && cur == _slot)
             _byElement.Remove(_root);
-        _root.UnregisterCallback<PointerOverEvent>(PointerOverHandler);
-        _root.UnregisterCallback<PointerOutEvent>(PointerOutHandler);
+        _root.UnregisterCallback<PointerEnterEvent>(PointerEnterHandler);
+        _root.UnregisterCallback<PointerLeaveEvent>(PointerLeaveHandler);
     }
 
 
-    public void PointerOverHandler(PointerOverEvent evt)
+    public void PointerEnterHandler(PointerEnterEvent evt)
     {
         Hovering = true;
         HudCorePacketServices.Slots.SetHoverSlot(_slot);
     }
 
-    public void PointerOutHandler(PointerOutEvent evt)
+    public void PointerLeaveHandler(PointerLeaveEvent evt)
     {
         Hovering = false;
         HudCorePacketServices.Slots.SetHoverSlot(null);

@@ -14,7 +14,9 @@ public partial class ItemDropPresentationService
         if (item == null)
             return;
 
-        landPos = WorldPlacement.Resolve(WorldPlacement.PlacementKind.ItemDrop, landPos);
+        int itemId = item.ItemId;
+        var failCtx = new WorldPlacement.PlacementFailContext(itemObjectId, itemId);
+        landPos = WorldPlacement.Resolve(WorldPlacement.PlacementKind.ItemDrop, landPos, null, failCtx);
         item.transform.position = landPos;
 
         if (kind == ItemDropVisualKind.Adena)

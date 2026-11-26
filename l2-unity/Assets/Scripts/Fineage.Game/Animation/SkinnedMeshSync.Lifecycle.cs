@@ -53,9 +53,9 @@ public partial class SkinnedMeshSync : MonoBehaviour
         List<SkinnedMeshRenderer> destinations = CollectGearSkinnedMeshes(gearContainer, transform);
         _destSkinnedRenderer = destinations.ToArray();
 
-        Transform fallbackRoot = ResolveRootBone(skeleton, _rootSkinnedRenderer);
+        string raceContext = transform != null ? transform.name : "unknown";
         for (int i = 0; i < destinations.Count; i++)
-            RemapToSkeleton(destinations[i], skeleton, fallbackRoot, _rootSkinnedRenderer, _restLocal, transform);
+            RemapToSkeleton(destinations[i], skeleton, _rootSkinnedRenderer, transform, raceContext);
 
         L2ActorMeshPolicy.DisableSkeletonPlaceholders(transform);
         L2ActorMeshPolicy.DisableAlphaOverlays(gearContainer);

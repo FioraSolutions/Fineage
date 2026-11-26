@@ -11,8 +11,14 @@ Material:
   m_Shader: {fileID: 4800000, guid: 699f590baf9747f39ab2925f3970aa59, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_ValidKeywords:
+  - _USE_SECOND_TEX
+  m_InvalidKeywords:
+  - _EXPANDSHADERBOUNDS_ON
+  - _FADEIN_ON
+  - _FADEOUT_ON
+  - _SPINPARTICLES_ON
+  - _USESIZESCALE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -24,11 +30,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: e91dd68cb56d42b49a270c4e31b20dd2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SecondTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: e91dd68cb56d42b49a270c4e31b20dd2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _VertMeshFramePosTex:
@@ -86,7 +92,7 @@ Material:
     - _UseManualAge: 0
     - _UseRevolution: 0
     - _UseRevolutionScale: 0
-    - _UseSecondTex: 0
+    - _UseSecondTex: 1
     - _UseSizeScale: 1
     - _UseVelocityScale: 0
     - _VelocityScaleCount: 1

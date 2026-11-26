@@ -1,32 +1,41 @@
+using System;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
 public sealed partial class AppLifetimeScope : LifetimeScope
 {
-    protected override void Configure(IContainerBuilder builder)
+    protected override void Configure(IContainerBuilder builder) => Install(builder);
+
+    /// <summary>
+    /// Registrations <see cref="Configure"/> uses. EditMode builds from here
+    /// so a deferred <see cref="LifetimeScope.Awake"/> is not the only path.
+    /// </summary>
+    public void Install(IContainerBuilder builder)
     {
         RegisterAppEventProcessor(builder);
         RegisterGameManager(builder);
         RegisterSceneLoader(builder);
-        LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<GameClient>(this, builder);
-        LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<LoginClient>(this, builder);
+        AppScopeCycleSafeRegistration.Register(this, builder);
 
-        builder.Register<TableInitializer>(Lifetime.Singleton);
+        builder.Register<TableInitializer>(Lifetime.Singleton).AsSelf().As<ITableInitializer>();
         builder.Register<IconManager>(Lifetime.Singleton);
         builder.Register<LobbyFlowController>(Lifetime.Singleton).AsSelf().As<ILobbySession>();
 
         builder.Register<EventProcessorApplyPump>(Lifetime.Singleton).As<IMainThreadApplyPump>();
-        builder.Register<PacketApplyQueue>(Lifetime.Singleton).As<IPacketApplyQueue>().AsSelf();
         builder.Register<FineageZoneTransport>(Lifetime.Singleton).As<IZoneTransport>();
-        builder.Register<AnimationManager>(Lifetime.Singleton).As<IAnimationManager>().AsSelf();
+        MotionPipelineRegistration.Register(builder);
         RegisterDatTables(builder);
 
         builder.RegisterBuildCallback(container =>
         {
+            AnimationManager animations = RequireAnimationRoster(container);
+            RequireAnimationManager(container);
+            RequireSharedMoveRoster(container);
+            RequireEventQueue(container);
+            RequireGameManager(container);
             AudioSessionBootstrap.EnsureSession();
             App.Container = container;
-            AnimationManager animations = container.Resolve<AnimationManager>();
             AnimationManager.Bind(animations);
             LogongrpTable.Bind(container.Resolve<LogongrpTable>());
             ItemNameTable.Bind(container.Resolve<ItemNameTable>());
@@ -66,5 +75,138 @@ public sealed partial class AppLifetimeScope : LifetimeScope
             // NetworkingPacketServices.Bind(manager) already done in BindApp above; session bound above.
             LobbyFlowLog.Wire(() => manager == null || manager.GameState < GameState.IN_GAME);
         });
+    }
+
+    static AnimationManager RequireAnimationRoster(IObjectResolver container)
+    {
+        IAnimationRoster roster;
+        try
+        {
+            roster = container.Resolve<IAnimationRoster>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IAnimationRoster))
+            {
+                throw new InvalidOperationException(
+                    "[AppLifetimeScope] IAnimationRoster missing — AnimationManager was not registered as IAnimationRoster.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        AnimationManager animations = roster as AnimationManager;
+        if (animations == null)
+        {
+            throw new InvalidOperationException(
+                "[AppLifetimeScope] IAnimationRoster is not an AnimationManager — AnimationManager was not registered as IAnimationRoster.");
+        }
+
+        return animations;
+    }
+
+    static void RequireAnimationManager(IObjectResolver container)
+    {
+        IAnimationManager manager;
+        try
+        {
+            manager = container.Resolve<IAnimationManager>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IAnimationManager))
+            {
+                throw new InvalidOperationException(
+                    "[AppLifetimeScope] IAnimationManager missing — AnimationManager was not registered as IAnimationManager.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (manager is AnimationManager)
+            return;
+
+        throw new InvalidOperationException(
+            "[AppLifetimeScope] IAnimationManager is not an AnimationManager — AnimationManager was not registered as IAnimationManager.");
+    }
+
+    static void RequireSharedMoveRoster(IObjectResolver container)
+    {
+        IMoveRoster roster;
+        try
+        {
+            roster = container.Resolve<IMoveRoster>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IMoveRoster))
+            {
+                throw new InvalidOperationException(
+                    "[AppLifetimeScope] IMoveRoster missing — SharedMoveRoster was not registered as IMoveRoster.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (roster is SharedMoveRoster)
+            return;
+
+        throw new InvalidOperationException(
+            "[AppLifetimeScope] IMoveRoster is not a SharedMoveRoster — SharedMoveRoster was not registered as IMoveRoster.");
+    }
+
+    static void RequireEventQueue(IObjectResolver container)
+    {
+        IEventQueue queue;
+        try
+        {
+            queue = container.Resolve<IEventQueue>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IEventQueue))
+            {
+                throw new InvalidOperationException(
+                    "[AppLifetimeScope] IEventQueue missing — EventProcessor was not registered as IEventQueue.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (queue is EventProcessor)
+            return;
+
+        throw new InvalidOperationException(
+            "[AppLifetimeScope] IEventQueue is not an EventProcessor — EventProcessor was not registered as IEventQueue.");
+    }
+
+    static void RequireGameManager(IObjectResolver container)
+    {
+        IGameManager manager;
+        try
+        {
+            manager = container.Resolve<IGameManager>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IGameManager))
+            {
+                throw new InvalidOperationException(
+                    "[AppLifetimeScope] IGameManager missing — GameManager was not registered as IGameManager.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (manager is GameManager)
+            return;
+
+        throw new InvalidOperationException(
+            "[AppLifetimeScope] IGameManager is not a GameManager — GameManager was not registered as IGameManager.");
     }
 }

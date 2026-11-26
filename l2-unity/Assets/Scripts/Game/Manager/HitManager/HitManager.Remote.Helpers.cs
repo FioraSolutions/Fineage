@@ -49,6 +49,12 @@ public partial class HitManager
         if (attacker.Identity == null)
             return;
 
+        if (packet != null && hitCount > 0)
+        {
+            SchedulePacketHits(attacker, target, packet);
+            return;
+        }
+
         if (miss && hitCount <= 1)
             return;
 
@@ -92,5 +98,55 @@ public partial class HitManager
         }
 
         _remoteHits[attackerId] = pending;
+    }
+
+    void SchedulePacketHits(Entity attacker, Entity target, AttackDto packet)
+    {
+        if (attacker == null || attacker.Identity == null || packet == null)
+            return;
+
+        int hitCount = AttackHitPresentation.CountHits(packet);
+        if (hitCount <= 0)
+        {
+            UnityEngine.Debug.LogError(
+                "[Attack] packet has no hit rows attackerId=" + attacker.Identity.Id);
+            return;
+        }
+
+        if (IsBowWeapon(attacker))
+        {
+            DropRemoteMeleeHit(attacker.Identity.Id);
+            Hit first = AttackHitPresentation.ResolveHit(packet, 0);
+            if (first != null && first.hasSoulshot())
+                attacker.IsSoulshotCharged = true;
+            return;
+        }
+
+        FlushRemoteMeleeHit(attacker);
+
+        float cycleSec = AttackTimingHelper.ResolveAttackCycleMs(attacker, null) / 1000f;
+        if (cycleSec < 0.05f)
+        {
+            UnityEngine.Debug.LogError(
+                "[Attack] attack cycle unresolved attackerId=" + attacker.Identity.Id +
+                " cycleSec=" + cycleSec.ToString("0.###"));
+            return;
+        }
+
+        int attackerId = attacker.Identity.Id;
+        float start = Time.time;
+        _remoteHits[attackerId] = new RemoteMeleeHit
+        {
+            AttackerId = attackerId,
+            Attacker = attacker,
+            Target = target,
+            NextHitIndex = 0,
+            HitCount = hitCount,
+            CycleStart = start,
+            CycleSec = cycleSec,
+            Packet = packet,
+            WaitForShot = false,
+            FireAt = start + cycleSec * AttackHitWireRows.HitCycleFraction(0, hitCount)
+        };
     }
 }

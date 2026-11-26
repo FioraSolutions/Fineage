@@ -4,10 +4,9 @@ using System.Diagnostics.Tracing;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public interface IAnimationManager
+public interface IAnimationManager : IAnimationRoster
 {
     public void RegisterController(int objectId, IAnimationController controller, Entity entity);
-    public void UnregisterController(int objectId);
     IAnimationController GetRegisteredController(int objectId);
 
     void PlayAnimation(int objectId , string animationName , bool disableTriggerAfterStart);
@@ -50,6 +49,10 @@ public interface IAnimationManager
     float ApplyLinearMeleePAtkSpeed(int objectId, string animName, float clipLengthSec);
     void SetPAtkSpeed(int objectId, float patkspd);
     void PlayLobbyLocomotion(IAnimationController controller, string stateOrPrefixWithWeapon);
+    /// <summary>
+    /// Play a clip on the shared motion graph. Bone scale stays at the bind pose captured when the graph binds.
+    /// </summary>
+    void PlayMotionClip(IAnimationController controller, AnimationClip clip);
     /// <summary>Raw animator state (death/rebirth/etc). Prefer <see cref="PlayGesture"/> for social/pickup.</summary>
     float PlayExactAnimatorState(int objectId, string stateName, bool snapToEnd = false);
 

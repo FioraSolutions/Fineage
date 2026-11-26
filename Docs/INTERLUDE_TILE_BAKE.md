@@ -77,6 +77,7 @@ Refresh after each batch or via **Shnok/0.1**.
 | Tile | Status | Notes |
 |------|--------|--------|
 | `16_24`, `16_25`, `17_24`, `17_25` | full | TI smoke |
+| `16_26`, `17_26`, `18_25`, `18_26` | partial | TI shoreline (Phase A: height, TerrainInfo0 with 2048-word holes, water, ambient, t3d). Unity bake + streamed scene still required. |
 | `22_22` | full | Giran town (#490) |
 | `22_21` | full | West of Giran (#510) |
 | `22_23` | full | East of Giran (#512) |
@@ -158,3 +159,137 @@ Per tile: Phase A (`run_mac_tile_bake.sh phase-a`, uses the prebuilt `L2TerrainE
 → Meshes (`run_mac_tile_bake.sh meshes`: umodel in Docker + Blender psk→fbx into `.work/umodel-export-XX_YY`, only when FBX coverage < 100%)
 → Unity `DefaultSteps` (+materials once) → `L2InterludeTileSceneCli.BuildScene` → diagnostics (t3d StaticMeshActors vs placed MeshFilters, missing FBX per package, alphamap garbage check, `_Splatmaps`, ground collider).
 Prereqs: Docker Desktop running, Blender, Java 17+, client at `~/Downloads/L2_Interlude_Client/Lineage II`. Generated Maps/Scenes stay local (no LFS).
+
+
+## TI shoreline tiles `16_26`, `17_26`, `18_25`, `18_26` (#1673)
+
+Phase A (extractor + `prepare_interlude_tile.py` + `write_ambient_sounds_json.py`) is in the repo: height BMP, `TerrainInfo0.txt` with official Location / 2048-word `QuadVisibilityBitmap`, `watervolumes.json`, 291 ambient objects, and t3d brushes. These maps have **0 StaticMeshActors**, **0 DecoLayers**, and **1 WaterVolume** each (same pattern as `17_24`).
+
+Heightmap preview (no Unity): `l2-unity/docs/interlude-ref/world/ti-shore-tiles-heightmaps.png`.
+
+Remaining Unity bake (terrain mesh, deco prefab, streamable scene, EditorBuildSettings). **Do not use `-nographics`** (Texture2DArrays come out as 0xCD garbage). Close any other Unity Editor first (`pgrep Unity`), and run against this worktree — never `~/Projects/Fineage`:
+
+```bash
+export FINEAGE_INTERLUDE_TILES=16_26,17_26,18_25,18_26
+/Applications/Unity/Hub/Editor/6000.3.27f1/Unity.app/Contents/MacOS/Unity \
+  -batchmode -quit \
+  -projectPath "$(pwd)/l2-unity" \
+  -executeMethod L2InterludeTileBatchCli.RunTerrainExitCli \
+  -logFile .work/unity-ti-shore-bake.log
+```
+
+`RunTerrainExitCli` matches the `17_24` shoreline shape (terrain + brushes + mesh + deco + scene) and skips the global material / static-mesh import (these tiles have no SMA). After prefabs exist, Shnok 0.4 can build water surfaces from `Maps/<tile>/Meta/watervolumes.json`, and Shnok 9.1 can build ambient prefabs from `*_AmbientSounds.json`.
+
+
+## Terrain holes (`QuadVisibilityBitmap`) (#1685)
+
+Official Interlude tiles have a 256×256 visibility mask. Phase A now stores the
+full 2048-word bitmap in `Meta/TerrainInfo0.txt` and in the TerrainInfo actor of
+`Meta/<tile>.t3d` (do not use the old 64-word all-visible truncation). Official
+words live in `l2-unity/docs/interlude-ref/world/quadvisibility/`.
+
+The bake parser reads the bitmap and `ConvertTerrainToMesh` skips hidden quads
+on the heightmap mesh (not the safenet). Use 256 mesh subdivisions so the cut
+matches the official grid 1:1. `16_24` / `16_25` / `17_24` have no t3d;
+`LoadMetadata` falls back to `TerrainInfo0.txt`.
+
+Shipped meshes stay continuous until Unity re-bakes. Close any other Unity
+Editor first (`pgrep Unity`), do **not** use `-nographics`, and run against
+this worktree — never `~/Projects/Fineage`. Tiles with hidden quads:
+
+`16_25` (7), `17_21` (36), `17_22` (2390), `18_14` (108), `19_18` (49),
+`19_19` (25), `19_21` (1191), `20_17` (33), `20_18` (4172), `20_20` (28),
+`20_22` (261), `21_21` (49), `21_22` (118), `21_23` (49), `22_22` (3814),
+`23_12` (29), `23_13` (10), `23_21` (3), `23_22` (294), `23_23` (49),
+`24_12` (21).
+
+```bash
+export FINEAGE_INTERLUDE_TILES=16_25,17_21,17_22,18_14,19_18,19_19,19_21,20_17,20_18,20_20,20_22,21_21,21_22,21_23,22_22,23_12,23_13,23_21,23_22,23_23,24_12
+/Applications/Unity/Hub/Editor/6000.3.27f1/Unity.app/Contents/MacOS/Unity \
+  -batchmode -quit \
+  -projectPath "$(pwd)/l2-unity" \
+  -executeMethod L2TerrainMeshCli.RunCli \
+  -logFile .work/unity-terrain-holes-1685.log
+```
+
+
+## Terrain deco layers
+
+UE2 does not store deco instances. The bake writes `Assets/Resources/Data/Maps/<tile>/<tile>_Deco.bytes`: DecoLayer scalars plus RLE density/scale/color maps (`L2DC`). Do not set `convertDecoLayer` onto the old YAML / prefab path. Deco-only does not rebuild terrain meshes and does not need `-nographics` off for a GPU blit (it reads the PNG on the CPU). `FINEAGE_TERRAIN_MESH=1` together with `FINEAGE_DECO_LAYER=1` also writes the heightmap mesh and then does need a GPU.
+
+Close any other Unity Editor first. Run from the Fineage repo, not a second checkout. The 41 shipped tiles:
+
+```bash
+export FINEAGE_DECO_LAYER=1
+export FINEAGE_INTERLUDE_TILES=16_24,16_25,16_26,17_21,17_22,17_24,17_25,17_26,18_13,18_14,18_15,18_25,18_26,19_14,19_15,19_17,19_18,19_19,19_21,20_17,20_18,20_19,20_20,20_22,21_18,21_19,21_20,21_21,21_22,21_23,22_21,22_22,22_23,23_11,23_12,23_13,23_21,23_22,23_23,24_11,24_12
+"/Applications/Unity/Unity.app/Contents/MacOS/Unity" \
+  -batchmode \
+  -projectPath "$(pwd)/l2-unity" \
+  -executeMethod L2TerrainMeshCli.RunCli \
+  -logFile .work/unity-deco-archive.log
+```
+
+A non-zero exit means at least one tile logged a missing official field (tile id and layer index). Those bytes are not a stand-in for the missing layer.
+
+
+## Terrain layers (#1686)
+
+Rebuild official `TerrainLayer` slots (texture, alphamap, U/VScale, UPan/VPan, `TextureRotation`, `TextureMapAxis`, `bUseAlpha`, layer Scale) from the #1670 map dump:
+
+```bash
+python3 tools/interlude-extract/rebuild_terrain_layers.py \
+  --export-dir .work/tex-export
+```
+
+The bake parser reads those fields and skips `Texture=None` slots (no silent Base substitution). `_Layer_N_UV.xy` is layer Scale times UScale/VScale (UU per repeat) and `.zw` is UPan/VPan. `_Layer_N_Xform` carries rotation (UE rotator units) and axis into `L2_TerrainLayerUv`. A missing Scale or UScale is an error, not a 128 UU stand-in. `T_themepark.17_16BG` is referenced on `19_17` but the official `T_themepark.utx` was not in this client tree — bake logs a missing-texture error for that layer.
+
+Shipped meshes/materials still need Unity `L2TerrainMeshCli.RunCli` (no `-nographics`) on every in-repo tile so the new layers paint. Close other Unity instances first; use this worktree, not `~/Projects/Fineage`.
+
+
+## Water volumes (#1689)
+
+Official `WaterVolume` bounds and the map's water Shader/FinalBlend are written to `Maps/<tile>/Meta/watervolumes.json`:
+
+```bash
+# build the fat jar once (do not commit it)
+cd tools/interlude/L2TerrainExtractor && gradle fatJar
+python3 tools/interlude-extract/rebuild_water_volumes.py \
+  --maps-dir "$L2_CLIENT/maps" \
+  --jar tools/interlude/L2TerrainExtractor/build/libs/l2terrain-1.0.0-all.jar
+```
+
+`WaterVolumeDump.java` reads official brush bounding boxes. The #1670 map dump supplies the official shader name (almost always `FX_E_T.WaterSurfaceShaderSet.WaterShader01`; `21_22` uses `ssq_water_01sh`). Volume brushes are often untextured physics boxes — do not invent a shared tint if the official Unity material is missing; bake logs an error.
+
+Shipped `*_Water.asset` / prefab children still need Unity (editor closed, no `-nographics`, this worktree not `~/Projects/Fineage`):
+
+```bash
+export FINEAGE_INTERLUDE_TILES=19_19,20_22,21_21,21_22,21_23,22_23,23_22,23_23
+# plus every other in-repo tile that has Meta/watervolumes.json
+# Unity 6000.3.27f1 -batchmode -quit -projectPath <worktree>/l2-unity
+# -executeMethod L2InterludeWaterVolumes.RunCli
+# -logFile .work/unity-water-volumes-1689.log
+```
+
+Tiles without `StaticMeshes.prefab` (the TI shoreline set) must run `L2InterludeTileBatchCli.RunTerrainExitCli` first.
+
+
+## Deco layers (#1687)
+
+Rebuild official `DecoLayers` (StaticMesh, DensityMap, FadeoutRadius, DensityMultiplier, MaxPerQuad, Seed, AlignToTerrain, RandomYaw, lighting flags) from the #1670 map dump:
+
+```bash
+python3 tools/interlude-extract/rebuild_deco_layers.py \
+  --export-dir .work/deco-export
+```
+
+Density maps are official PNGs from `L2DecoLayer.utx` / `L2DecoLayer_aden.utx` / `Primitive_FieldOBJ_T.utx`. The bake parser reads fade/density/MaxPerQuad. `GenerateDecoLayers` and `DecoToMesh` remap the density-map sample through DensityMultiplier and cap at MaxPerQuad (no raw 0-255, no uncapped scatter). Missing density maps or StaticMeshes log an error. Per-layer fade is stored in UU; Unity terrain details still share one global draw distance.
+
+Shipped `*_DecoLayer.prefab` / `*_DecoInstances.asset` still need a Unity tile bake (no `-nographics`, editor closed, this worktree not `~/Projects/Fineage`):
+
+```bash
+# included in the terrain mesh / tile-exit bake for each in-repo tile that has DecoLayers
+export FINEAGE_INTERLUDE_TILES=17_21,17_22,18_14,19_14,19_15,19_18,19_19,19_21,20_17,20_18,20_19,20_20,20_22,21_18,21_19,21_20,21_21,21_22,21_23,22_21,22_22,22_23,23_11,23_12,23_13,23_21,23_22,23_23,24_11,24_12
+# Unity 6000.3.27f1 -batchmode -quit -projectPath <worktree>/l2-unity
+# -executeMethod L2TerrainMeshCli.RunCli
+# -logFile .work/unity-deco-layers-1687.log
+```

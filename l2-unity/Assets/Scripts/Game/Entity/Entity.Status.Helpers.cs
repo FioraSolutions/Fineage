@@ -48,10 +48,11 @@ public partial class Entity
         return _status.GetRemainingHp();
     }
 
-    public void SetupTotalCastDuration(float serverHitTimeMs, float flightTimeMs, float[] clipsDurations, float shotEventTime, int targetObjectId = 0, int castStyle = 1, bool mixCombo = false)
+    public void SetupTotalCastDuration(float serverHitTimeMs, float flightTimeMs, float[] clipsDurations, float shotEventTime, int targetObjectId = 0, int castStyle = 1, bool mixCombo = false, int skillId = 0)
     {
         if (_castData == null) _castData = new MagicCastData();
 
+        _castData.SkillId = skillId;
         _castData.Setup(serverHitTimeMs, flightTimeMs, clipsDurations, shotEventTime, targetObjectId, castStyle, mixCombo);
     }
 

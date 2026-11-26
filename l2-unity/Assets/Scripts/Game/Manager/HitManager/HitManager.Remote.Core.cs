@@ -9,6 +9,23 @@ public partial class HitManager
     {
         _localAttack = dto;
         _localAttackToken++;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
+        if (player == null || dto == null)
+            return;
+        Entity target = player.GetTargetEntity();
+        if (target == null)
+            target = ResolveEntityFromWorld(dto.TargetId);
+        SchedulePacketHits(player, target, dto);
+    }
+
+    public bool HasScheduledMeleeHits(Entity attacker)
+    {
+        if (attacker == null || attacker.Identity == null)
+            return false;
+        RemoteMeleeHit pending;
+        if (!_remoteHits.TryGetValue(attacker.Identity.Id, out pending) || pending == null)
+            return false;
+        return pending.HitCount > 0 && pending.NextHitIndex < pending.HitCount;
     }
 
     /// <summary>
@@ -22,19 +39,12 @@ public partial class HitManager
         if (_localAttackToken == 0)
             return;
 
-        Hit hit = AttackHitPresentation.ResolveHit(_localAttack, hitIndex);
-        if (hit == null || hit.isMiss())
-            return;
-
-        if (attacker is PlayerEntity player)
-            player.SetSelfHit(hit);
-
-        if (hit.hasSoulshot())
-        {
-            attacker.IsSoulshotCharged = true;
-            WeaponChargePresentation.PlayMeleeSoulshotConsume(attacker);
-        }
-        else
-            attacker.IsSoulshotCharged = false;
+        Entity target = attacker.GetTargetEntity();
+        TryPresentMeleeHitFromAttackPacket(
+            attacker,
+            target,
+            _localAttack,
+            hitIndex,
+            playColliderImpactFx: false);
     }
 }

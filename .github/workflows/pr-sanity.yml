@@ -1,0 +1,72 @@
+# PR gate into dev — same Python/net guards as push build-and-test (minus push-only dotnet is included below).
+
+name: pr-sanity
+
+on:
+  pull_request:
+    branches: [dev]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "l2-unity/docs/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-sanity:
+    name: pr-sanity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out Backend (Net contract source of truth)
+        uses: actions/checkout@v4
+        with:
+          repository: FioraSolutions/Fineage-Backend
+          path: Fineage-Backend
+          ref: dev
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Python tooling dependencies
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 -m pip install --quiet -r tools/ui-extract/requirements.txt
+
+      - name: Parse workflow YAML files
+        run: |
+          python3 <<'PY'
+          import sys
+          from pathlib import Path
+          import yaml
+
+          root = Path(".github/workflows")
+          for wf in sorted(root.glob("*.yml")):
+              try:
+                  yaml.safe_load(wf.read_text())
+              except Exception as exc:
+                  print(f"{wf}: {exc}", file=sys.stderr)
+                  sys.exit(1)
+          print(f"Parsed {len(list(root.glob('*.yml')))} workflow files.")
+          PY
+
+      - name: Install ffprobe for audio import policy duration checks
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Client guards (parity with push build-and-test)
+        run: bash scripts/ci-client-guards.sh
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore tools/Fineage.Tools.sln
+
+      - name: Build
+        run: dotnet build tools/Fineage.Tools.sln --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test tools/Fineage.Tools.sln --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=results.trx"

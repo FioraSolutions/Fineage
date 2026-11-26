@@ -9,44 +9,37 @@ using UnityEngine.InputSystem.XR;
 using UnityEngine.UIElements.Experimental;
 using VContainer;
 
-public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLookup
+public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntityLookup
 {
     void Start() {
         if (_deadManager != null)
             _deadManager.OnReadyToRemove += RemoveObject;
-        if (GetComponent<L2VillageStatuePanner>() == null)
-            gameObject.AddComponent<L2VillageStatuePanner>();
+        if (GetComponent<L2Ue2MaterialRuntime>() == null)
+            gameObject.AddComponent<L2Ue2MaterialRuntime>();
         if (GetComponent<L2CaveTerrainGate>() == null)
             gameObject.AddComponent<L2CaveTerrainGate>();
         if (GetComponent<L2DoorPassage>() == null)
             gameObject.AddComponent<L2DoorPassage>();
         if (GetComponent<L2BrushPortal>() == null)
             gameObject.AddComponent<L2BrushPortal>();
-        if (GetComponent<L2TownMusic>() == null)
-            gameObject.AddComponent<L2TownMusic>();
-        if (GetComponent<L2TownAmbience>() == null)
-            gameObject.AddComponent<L2TownAmbience>();
-        if (GetComponent<L2Footsteps>() == null)
-            gameObject.AddComponent<L2Footsteps>();
+        if (GetComponent<OfficialMusicVolumePlayback>() == null)
+            gameObject.AddComponent<OfficialMusicVolumePlayback>();
+        if (GetComponent<OfficialAmbientSoundPlayback>() == null)
+            gameObject.AddComponent<OfficialAmbientSoundPlayback>();
+        if (GetComponent<OfficialWorldEmitterPlayback>() == null)
+            gameObject.AddComponent<OfficialWorldEmitterPlayback>();
         if (GetComponent<L2FlameAnim>() == null)
             gameObject.AddComponent<L2FlameAnim>();
         UpdateMasks();
     }
 
     public void UpdateMasks() {
-        NameplatesManager nameplates = NameplatePacketServices.Nameplates;
-        if (nameplates != null)
-            nameplates.SetMask(_entityMask);
+        _nameplates.SetMask(_entityMask);
         if (_geodata != null)
             _geodata.ObstacleMask = _obstacleMask;
-        ClickManager clicks = ControllerPacketServices.Clicks;
-        if (clicks != null)
-        {
-            LayerMask dropMask = _dropLayers != null ? _dropLayers.Mask : 0;
-            clicks.SetMasks(_entityClickAreaMask | dropMask, _clickThroughMask);
-        }
-        if (_camera != null)
-            _camera.SetMask(_obstacleMask);
+        LayerMask dropMask = _dropLayers != null ? _dropLayers.Mask : 0;
+        _clicks.SetMasks(_entityClickAreaMask | dropMask, _clickThroughMask);
+        _camera.SetMask(_obstacleMask);
     }
 
     public void ClearEntities() {
@@ -61,4 +54,5 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
     {
         return _entities.ContainsNpc(id);
     }
+
 }

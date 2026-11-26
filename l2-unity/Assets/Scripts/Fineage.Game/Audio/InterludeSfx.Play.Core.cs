@@ -18,6 +18,14 @@ public static partial class InterludeSfx
     public static void Play(AudioClip clip, float volume = 0.85f) =>
         InterludeSfxBridge.PlayClip2D?.Invoke(clip, AudioCategory.Sfx, volume);
 
-    public static void PlayAt(AudioClip clip, Vector3 worldPos, float volume, bool listener) =>
+    public static void PlayAt(AudioClip clip, Vector3 worldPos, float volume, bool listener, float innerRadiusUu = float.NaN)
+    {
+        if (InterludeSfxBridge.PlayClipAtRanged != null)
+        {
+            InterludeSfxBridge.PlayClipAtRanged(clip, worldPos, AudioCategory.Sfx, volume, listener, innerRadiusUu);
+            return;
+        }
+
         InterludeSfxBridge.PlayClipAt?.Invoke(clip, worldPos, AudioCategory.Sfx, volume, listener);
+    }
 }

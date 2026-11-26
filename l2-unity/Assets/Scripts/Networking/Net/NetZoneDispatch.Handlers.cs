@@ -10,7 +10,11 @@ public sealed partial class NetZoneDispatch
         if (packet == null)
             return;
 
-        switch (packet.Opcode)
+        ushort opcode = packet.Opcode;
+        if (opcode == NetOpcode.CursedWeaponList || opcode == NetOpcode.CursedWeaponLocation)
+            return;
+
+        switch (opcode)
         {
             case NetOpcode.HelloAck:
                 break;
@@ -40,7 +44,7 @@ public sealed partial class NetZoneDispatch
                 _session.ApplyPlayerStats((PlayerStatsMsg)packet.Body);
                 break;
             case NetOpcode.ItemList:
-                _session.ApplyItemList((ItemListNetMsg)packet.Body);
+                _session.ApplyItemList((ItemListNetMsg)packet.Body, packet.Envelope != null ? packet.Envelope.Payload : null);
                 break;
             case NetOpcode.SkillList:
                 _session.ApplySkillList((SkillListNetMsg)packet.Body);
@@ -106,7 +110,7 @@ public sealed partial class NetZoneDispatch
                 _session.ApplyDropItem((DropItemNetMsg)packet.Body);
                 break;
             case NetOpcode.InventoryUpdate:
-                _session.ApplyInventoryUpdate((InventoryUpdateNetMsg)packet.Body);
+                _session.ApplyInventoryUpdate((InventoryUpdateNetMsg)packet.Body, packet.Envelope != null ? packet.Envelope.Payload : null);
                 break;
             case NetOpcode.CreatureSay:
                 _session.ApplyCreatureSay((CreatureSayNetMsg)packet.Body);
@@ -155,6 +159,12 @@ public sealed partial class NetZoneDispatch
                 break;
             case NetOpcode.AcquireSkillInfo:
                 _session.ApplyAcquireSkillInfo((AcquireSkillInfoNetMsg)packet.Body);
+                break;
+            case NetOpcode.EnchantSkillList:
+                _session.ApplyEnchantSkillList((EnchantSkillListNetMsg)packet.Body);
+                break;
+            case NetOpcode.EnchantSkillInfo:
+                _session.ApplyEnchantSkillInfo((EnchantSkillInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.EnchantResult:
                 _session.ApplyEnchantResult((EnchantResultNetMsg)packet.Body);
@@ -276,6 +286,36 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.ClanHallList:
                 _ = (ClanHallListNetMsg)packet.Body;
                 break;
+            case NetOpcode.AgitDecoInfo:
+                _ = (AgitDecoInfoNetMsg)packet.Body;
+                break;
+            case NetOpcode.VehicleInfo:
+                _ = (VehicleInfoNetMsg)packet.Body;
+                break;
+            case NetOpcode.VehicleDeparture:
+                _ = (VehicleDepartureNetMsg)packet.Body;
+                break;
+            case NetOpcode.VehicleCheckLocation:
+                _ = (VehicleCheckLocationNetMsg)packet.Body;
+                break;
+            case NetOpcode.GetOnVehicle:
+                _ = (GetOnVehicleNetMsg)packet.Body;
+                break;
+            case NetOpcode.GetOffVehicle:
+                _ = (GetOffVehicleNetMsg)packet.Body;
+                break;
+            case NetOpcode.MoveToLocationInVehicle:
+                _ = (MoveToLocationInVehicleNetMsg)packet.Body;
+                break;
+            case NetOpcode.StopMoveInVehicle:
+                _ = (StopMoveInVehicleNetMsg)packet.Body;
+                break;
+            case NetOpcode.ValidateLocationInVehicle:
+                _ = (ValidateLocationInVehicleNetMsg)packet.Body;
+                break;
+            case NetOpcode.VehicleStarted:
+                _ = (VehicleStartedNetMsg)packet.Body;
+                break;
             case NetOpcode.CrestData:
                 _ = (CrestDataNetMsg)packet.Body;
                 break;
@@ -312,17 +352,26 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.WeddingEngageAsk:
                 _session.ApplyWeddingEngageAsk((WeddingEngageAskNetMsg)packet.Body);
                 break;
+            // Item augmentation (variation) UI — Mobius Ex* handlers; no client UI yet.
+            case NetOpcode.AugmentShowMakeWindow:
+            case NetOpcode.AugmentShowCancelWindow:
+            case NetOpcode.AugmentPutItemResult:
+            case NetOpcode.AugmentPutRefinerResult:
+            case NetOpcode.AugmentPutGemResult:
+            case NetOpcode.AugmentVariationResult:
+            case NetOpcode.AugmentPutCancelItemResult:
+            case NetOpcode.AugmentCancelResult:
+            case NetOpcode.CursedWeaponList:
+            case NetOpcode.CursedWeaponLocation:
+                break;
             case NetOpcode.PackageToList:
                 _ = (PackageToListNetMsg)packet.Body;
-                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
             case NetOpcode.PackageSendableList:
                 _ = (PackageSendableListNetMsg)packet.Body;
-                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
             case NetOpcode.MonRaceInfo:
                 _ = (MonRaceInfoNetMsg)packet.Body;
-                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
             case NetOpcode.PetInventory:
                 _ = (PetInventoryNetMsg)packet.Body;
@@ -335,6 +384,9 @@ public sealed partial class NetZoneDispatch
                 break;
             case NetOpcode.MagicSkillCanceled:
                 _ = (MagicSkillCanceledNetMsg)packet.Body;
+                break;
+            case NetOpcode.ClientSetTime:
+                ClientSetTimeApplyIncomingPacketServices.ApplyClientSetTime((ClientSetTimeNetMsg)packet.Body);
                 break;
             case NetOpcode.PlaySound:
                 NetQuestFxApply.ApplyPlaySound((PlaySoundNetMsg)packet.Body);
@@ -360,6 +412,31 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.PartySpelled:
                 _ = (AbnormalStatusUpdateNetMsg)packet.Body;
                 break;
+            case NetOpcode.RestartResponse:
+            {
+                var restart = (RestartResponseMsg)packet.Body;
+                if (restart == null)
+                {
+                    throw new InvalidOperationException(
+                        "[Net] RestartResponse missing body — NetZonePacketDecoder did not decode it.");
+                }
+
+                if (!restart.Ok)
+                {
+                    Debug.LogWarning("[Net] restart refused " + restart.Code);
+                    break;
+                }
+
+                GameManager manager = GamePacketServices.Manager;
+                if (manager == null)
+                {
+                    throw new InvalidOperationException(
+                        "[Net] RestartResponse ok but GameManager is missing, so the client stayed in the world.");
+                }
+
+                manager.RestartToCharacterSelect();
+                break;
+            }
             case NetOpcode.Reject:
             {
                 var reject = (RejectMsg)packet.Body;

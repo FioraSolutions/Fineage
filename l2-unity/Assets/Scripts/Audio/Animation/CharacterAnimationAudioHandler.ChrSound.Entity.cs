@@ -13,7 +13,7 @@ public partial class CharacterAnimationAudioHandler
             return;
 
         if (NpcChrSoundBankResolver.TryResolveFromDamageSounds(grp.DamageSounds, out string bank))
-            _chrSoundBank = bank;
+            _chrSoundBank = NpcChrSoundBankResolver.MapDamageBankToFmodBank(bank);
     }
 
     void LogUnresolvedChrSound(CharacterSoundEvent soundEvent)

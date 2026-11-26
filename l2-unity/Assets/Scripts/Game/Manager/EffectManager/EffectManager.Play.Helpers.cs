@@ -28,6 +28,32 @@ public partial class EffectManager
         PlayEffect(effectId, attach, castData);
     }
 
+    /// <summary>
+    /// Plays a composite built by the skill-visual resolver for this cast.
+    /// </summary>
+    public void PlayResolvedVisual(BaseEffect instance, EffectSettings settings, MagicCastData castData, Transform owner)
+    {
+        if (instance == null || owner == null)
+        {
+            Debug.LogError(
+                "[SkillVisual] PlayResolvedVisual abort instance=" + (instance != null) +
+                " owner=" + (owner != null));
+            return;
+        }
+
+        if (!TryGateSkillFx(owner, castData))
+        {
+            Destroy(instance.gameObject);
+            return;
+        }
+
+        InjectSpawned(instance);
+        instance.gameObject.SetActive(true);
+        instance.Setup(settings, castData, owner);
+        instance.Play();
+        TrackFxBudget(instance.gameObject, owner, castData);
+    }
+
     void InjectSpawned(BaseEffect instance)
     {
         if (instance == null || _container == null)

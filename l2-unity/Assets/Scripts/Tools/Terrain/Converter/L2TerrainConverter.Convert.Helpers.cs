@@ -6,12 +6,16 @@ using UnityEngine;
 
 public partial class TerrainConverter
 {
-    private static GameObject GenerateMesh(Terrain map, Material terrainMat, bool generateHeightmap) {
+    private static GameObject GenerateMesh(Terrain map, Material terrainMat, bool generateHeightmap, bool applyHoles) {
         // Generate mesh
         GameObject destObject = new GameObject(terrainToConvert.gameObject.name);
         Vector3 initialPosition = map.transform.position;
         map.transform.position = Vector3.zero;
         terrainToMesh.meshSubdivisions = meshSubdivisions;
+        terrainToMesh.quadVisibilityBitmap = applyHoles && currentTerrainInfo != null
+            ? currentTerrainInfo.quadVisibilityBitmap
+            : null;
+        terrainToMesh.applyQuadVisibilityHoles = applyHoles && terrainToMesh.quadVisibilityBitmap != null;
         terrainToMesh.terrain = terrainToConvert;
         terrainToMesh.dest = destObject;
         terrainToMesh.BuildMeshBase();

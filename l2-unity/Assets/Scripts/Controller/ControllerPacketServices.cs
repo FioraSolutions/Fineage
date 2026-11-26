@@ -77,6 +77,9 @@ public static class ControllerPacketServices
             ? _input
             : ResolveFromGame<InputManager>() ?? LegacyInputManagerInstance();
 
+    /// <summary>The manager <see cref="Bind"/> stored. No container or <c>Instance</c> fallback.</summary>
+    public static IClickMasks BoundClicks => _clicks;
+
     public static ClickManager Clicks =>
         _clicks != null
             ? _clicks
@@ -160,6 +163,51 @@ public sealed partial class PlayerController
     [Inject] PlayerPositionSender _injectedPositionSender;
     [Inject] ClickManager _packetClicks;
     [Inject] L2PawnYaw _pawnYaw;
+    [Inject] IPlayerIntention _intention;
+    [Inject] IWorldPlacement _placement;
+    [Inject] ISpawnedEntities _spawned;
+
+    IPlayerIntention PawnIntention
+    {
+        get
+        {
+            if (_intention == null)
+            {
+                throw new InvalidOperationException(
+                    "[PlayerController] IPlayerIntention missing — GameLifetimeScope did not register PlayerIntentionSlot, so the pawn intention was not applied.");
+            }
+
+            return _intention;
+        }
+    }
+
+    IWorldPlacement Placement
+    {
+        get
+        {
+            if (_placement == null)
+            {
+                throw new InvalidOperationException(
+                    "[PlayerController] IWorldPlacement missing — GameLifetimeScope did not register WorldPlacementAdapter, so the pawn was not placed.");
+            }
+
+            return _placement;
+        }
+    }
+
+    ISpawnedEntities Spawned
+    {
+        get
+        {
+            if (_spawned == null)
+            {
+                throw new InvalidOperationException(
+                    "[PlayerController] ISpawnedEntities missing — GameLifetimeScope did not register SpawnedEntityCatalog, so the pawn target was not found.");
+            }
+
+            return _spawned;
+        }
+    }
 
     void WireControllerPacketServices()
     {

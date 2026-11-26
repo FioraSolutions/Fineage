@@ -6,26 +6,8 @@ public partial class AudioService
 {
     static readonly HashSet<string> LoggedMissingFmodEvents = new HashSet<string>();
 
-    public bool PlayFmodEvent(string eventPath, AudioCategory category, Vector3? position = null)
-    {
-        if (_disabled || string.IsNullOrEmpty(eventPath))
-            return false;
-
-        EventReference er = RuntimeManager.PathToEventReference(eventPath);
-        if (er.IsNull)
-        {
-            if (LoggedMissingFmodEvents.Add(eventPath))
-                LogAudioError("AudioService: missing FMOD event id=\"" + eventPath + "\"");
-            return false;
-        }
-
-        if (position.HasValue)
-            RuntimeManager.PlayOneShot(er, position.Value);
-        else
-            RuntimeManager.PlayOneShot(er);
-
-        return true;
-    }
+    public bool PlayFmodEvent(string eventPath, AudioCategory category, Vector3? position = null) =>
+        PlayFmodEvent(eventPath, category, position, entityId: 0, eventLabel: "Sfx");
 
     public void PlayCharacterSound(CharacterSoundEvent soundEvent, CharacterRaceSound race, Vector3 position)
     {
@@ -33,19 +15,14 @@ public partial class AudioService
         PlayFmodEvent(path, AudioCategory.Sfx, position);
     }
 
-    public void PlayChrSoundBank(string chrSoundBank, CharacterSoundEvent soundEvent, Vector3 position)
-    {
-        if (string.IsNullOrEmpty(chrSoundBank))
-            return;
-
-        string path = AudioPathResolver.FmodChrSoundBank(chrSoundBank, soundEvent);
-        PlayFmodEvent(path, AudioCategory.Sfx, position);
-    }
+    public void PlayChrSoundBank(string chrSoundBank, CharacterSoundEvent soundEvent, Vector3 position) =>
+        CharacterCombatAudioDispatch.PlayCharacterBank(chrSoundBank, soundEvent, position, entityId: 0);
 
     public void PlayMonsterSoundFmod(MonsterSoundEvent soundEvent, string npcClassName, Vector3 position)
     {
+        string folder = AudioPathResolver.NormalizeMonsterSoundFolder(npcClassName);
         string key = soundEvent.ToString().ToLowerInvariant();
-        string path = AudioPathResolver.FmodMonsterSound(npcClassName, key);
+        string path = AudioPathResolver.FmodMonsterSound(folder, key);
         PlayFmodEvent(path, AudioCategory.Sfx, position);
     }
 
@@ -63,8 +40,27 @@ public partial class AudioService
 
     public void PlayUiSound(string soundName)
     {
-        string path = AudioPathResolver.FmodInterfaceSound(soundName);
-        PlayFmodEvent(path, AudioCategory.Ui);
+        if (string.IsNullOrEmpty(soundName))
+        {
+            LogAudioError(OfficialWaveTable.FormatMissingWaveError(null, soundName, "empty UI sound"));
+            return;
+        }
+
+        string resourcesPath = null;
+        string error = null;
+        if (soundName.IndexOf('.') >= 0)
+        {
+            OfficialWaveTable.TryResolveDatToken(soundName, out resourcesPath, out error);
+        }
+        else if (OfficialWaveTable.TryResolve(soundName, out OfficialWaveTable.Entry entry, out error))
+        {
+            resourcesPath = entry.ResourcesPath;
+        }
+
+        if (!string.IsNullOrEmpty(resourcesPath) && PlayClip2D(resourcesPath, AudioCategory.Ui))
+            return;
+
+        LogAudioError(error ?? OfficialWaveTable.FormatMissingWaveError(null, soundName, "UI sound"));
     }
 
     public void PlayStepSound(string surfaceTag, Vector3 position, bool running)

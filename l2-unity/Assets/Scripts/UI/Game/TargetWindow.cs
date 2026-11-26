@@ -38,7 +38,7 @@ public partial class TargetWindow : L2Window
     sealed class TargetEffectCell
     {
         public VisualElement Root;
-        public Label Timer;
+        public TargetAbnormalTooltipManipulator Tooltip;
         public float EndsAt;
     }
 

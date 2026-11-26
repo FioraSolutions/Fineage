@@ -22,7 +22,7 @@ Server wire SoT: [Fineage-Backend `docs/net-protocol.md`](https://github.com/Fio
   Editor or a build compiled with `FINEAGE_LOCAL_CAPABLE` (Fineage → Build Dev Mac); a
   release-clients player ignores all of them and stays remote. See
   `GameManager.ConfigureBackend`.
-- Login **9106**, Zone **9777** (forwarded / loopback). Public Pi remap: **2106** / **7777**.
+- Login **9106**, Zone **9777** (loopback / local Fineage-Backend). Public playtest on the Debian homeserver (DDNS + router forward): **2106** / **7777** — see [`PLAYTEST_RELEASE.md`](PLAYTEST_RELEASE.md).
 
 ## Types
 
@@ -45,7 +45,7 @@ The presentation layer is still Interlude-era (client protocol identity **746**,
 5. Click NPC → `SelectTarget` / `AttackRequest` → `TargetSelected` / `AttackState` / `StatusUpdate`.
 6. Kill → `EntityDie` + `DropItem`; corpse decay / leave → `EntityDespawn`.
 7. Click ground loot → `PickupRequest` → `InventoryUpdate` + `EntityDespawn`.
-8. Bag drop / equip / unequip → `DropItemRequest` / `UseItem` / `UnequipItem` → `InventoryUpdate` (+ `DropItem` for drops).
+8. Bag drop / equip / unequip → `DropItemRequest` / `UseItem` / `UnequipItem` → `InventoryUpdate` (+ `DropItem` for drops). The client keeps one inventory book (`CharacterInventory`), keyed by objectId. `ItemList` replaces it. `InventoryUpdate` applies add (0) / modify (1) / remove (2) in order. The bag, paperdoll, shortcut lookup, adena, and slot count are projections of that book. Weight stays the server load on `PlayerStats` (`StatusUpdate` / `UserInfo`). The zone appends one little-endian int32 after the `ItemList` and `InventoryUpdate` bodies (`Fineage-Backend` `docs/inventory.md`). The codec still stops at the rows. Re-encoding the decoded message is the body: 0 extra bytes is unversioned and does not move the cursor; 4 extra bytes are the version; any other length, or a negative int32, is unreadable and does not change the book. An enter `ItemList` is version 1. Each `InventoryUpdate` applies only when it is exactly cursor+1. A replay (`version <= cursor`) is ignored. A later `ItemList` replaces the book and sets the cursor to the version it carries. A gap, an unknown change, or an unreadable tail does not apply the rows; the client logs the expected and received versions and sends Interlude `RequestItemList` (opcode `0x0F`, empty body).
 9. Chat → `Say` / `CreatureSay`; welcome + notices → `SystemMessage`.
 10. Skills → `UseSkill` / `MagicSkillUse` (+ `StatusUpdate` for MP/heal).
 11. Death → `ReviveRequest` / `Revive` / `TeleportToLocation` (village restart).

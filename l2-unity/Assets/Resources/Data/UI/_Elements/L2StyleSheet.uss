@@ -22,9 +22,19 @@
     position: absolute;
 }
 
+.status-window .status-center-plate {
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back2');
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-left: 4;
+    -unity-slice-right: 4;
+    -unity-slice-top: 4;
+    -unity-slice-bottom: 4;
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .chat-window {
     -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0);
     min-width: 280px;
 }
 
@@ -144,6 +154,10 @@
     width: 100%;
 }
 
+.status-window .bar-label {
+    font-size: 9px;
+}
+
 .status-window .bar-label-name {
     -unity-font-definition: resource('Data/UI/Assets/Font/asiahm-medium');
     margin: 0;
@@ -153,9 +167,11 @@
     height: 12px;
     letter-spacing: 0;
     -unity-font-style: bold;
+    font-size: 9px;
 }
 
 .status-window .bar-label-numbers {
+    -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
     letter-spacing: 0;
     padding-left: 0;
     position: absolute;
@@ -163,7 +179,25 @@
     right: 0;
     top: 0;
     height: 12px;
+    font-size: 9px;
     -unity-text-align: middle-center;
+}
+
+.status-window #PlayerNameText,
+.status-window #UserName {
+    font-size: 10px;
+    letter-spacing: 0;
+    color: rgb(255, 255, 255);
+}
+
+.status-window #LevelText,
+.status-window #StatusWnd_LevelTextBox {
+    font-size: 10px;
+}
+
+.status-window #EXPText {
+    font-size: 9px;
+    letter-spacing: 0;
 }
 
 .bar-label-numbers {
@@ -670,6 +704,8 @@
     margin-bottom: 0;
     padding-top: 0;
     padding-bottom: 0;
+    font-size: 11px;
+    letter-spacing: 0;
     -unity-text-align: middle-left;
 }
 
@@ -775,43 +811,46 @@
 }
 
 .chat-window .unity-tab__header {
-    background-image: resource('Data/UI/Assets/Chat/chatting_tab1');
+    background-image: resource('Data/UI/Assets/Chat/chatting_tab2');
     background-color: transparent;
     -unity-background-scale-mode: stretch-to-fill;
     width: 64px;
-    min-width: 48px;
+    min-width: 64px;
     max-width: 64px;
-    height: 22px;
+    height: 23px;
     padding: 0;
     margin: 0;
     flex-grow: 0;
-    flex-shrink: 1;
+    flex-shrink: 0;
     overflow: hidden;
     justify-content: center;
 }
 
 .chat-window .tab-header {
-    background-image: resource('Data/UI/Assets/Chat/chatting_tab1');
+    background-image: resource('Data/UI/Assets/Chat/chatting_tab2');
     background-color: transparent;
     -unity-background-scale-mode: stretch-to-fill;
     width: 64px;
-    min-width: 48px;
+    min-width: 64px;
     max-width: 64px;
-    height: 22px;
+    height: 23px;
+    color: rgb(214, 204, 160);
+    font-size: 10px;
+    -unity-text-align: middle-center;
     padding: 0;
     margin: 0;
     flex-grow: 0;
-    flex-shrink: 1;
+    flex-shrink: 0;
     overflow: hidden;
     justify-content: center;
 }
 
 .chat-window .unity-tab__header:checked {
-    background-image: resource('Data/UI/Assets/Chat/chatting_tab2');
+    background-image: resource('Data/UI/Assets/Chat/chatting_tab1');
 }
 
 .chat-window .tab-header.active {
-    background-image: resource('Data/UI/Assets/Chat/chatting_tab2');
+    background-image: resource('Data/UI/Assets/Chat/chatting_tab1');
 }
 
 .chat-window .unity-tab__header:checked:hover,
@@ -1120,18 +1159,41 @@
 }
 
 .target-window .target-effect-icon .target-effect-timer {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 11px;
-    margin: 0;
-    padding: 0;
+    display: none;
+}
+
+/* Interlude BuffWnd / SkillTray: 24px abnormal cells with 9px time/charge labels. */
+.buff-tray #anchor {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.buff-tray .l2-slot.skillbar-slot {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    max-width: 24px;
+    max-height: 24px;
+}
+
+.buff-tray .slot-bg-container,
+.buff-tray .slot-bg {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    max-width: 24px;
+    max-height: 24px;
+}
+
+.buff-tray .buff-time-label,
+.buff-tray .buff-time-label #LabelText,
+.buff-tray .buff-time-label #LabelTextShadow {
     font-size: 9px;
-    color: rgb(255, 255, 200);
-    -unity-text-align: middle-center;
-    text-shadow: 1px 1px 0 rgb(0, 0, 0);
-    -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
+    letter-spacing: 0;
+    max-width: 24px;
+    max-height: 24px;
+    margin-top: -7px;
 }
 
 .target-window .target-expand-btn {
@@ -2131,10 +2193,152 @@
     padding-left: 5px;
 }
 
-.bar-label-numbers {
+/* Interlude L2UI_CH3 char-select (StatusWnd Ps bars + bigbutton; not Gracia DF chrome). */
+.il-char-select .char-select-detail {
+    background-image: resource('Data/UI/Login/Interlude/select1_back');
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-bottom: 0;
+    -unity-slice-left: 0;
+    -unity-slice-top: 0;
+    -unity-slice-right: 0;
+    background-color: rgba(0, 0, 0, 0);
 }
 
-.bar-label {
+.il-char-select .char-select-start {
+    width: 140px;
+    height: 49px;
+    background-image: resource('Data/UI/Login/Interlude/lobby_startbtnback');
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0, 0, 0, 0);
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+}
+
+.il-char-select .char-select-menu {
+    width: 120px;
+    height: 138px;
+    background-image: resource('Data/UI/Login/Interlude/lobby_menuback');
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0, 0, 0, 0);
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+}
+
+.il-char-select .login-input-bg {
+    height: 21px;
+    background-image: resource('Data/UI/Login/Interlude/inputbox2');
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.il-char-select .il-char-select-start-btn {
+    width: 116px;
+    height: 31px;
+    min-height: 31px;
+    max-height: 31px;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+    -unity-font: resource('Data/UI/Font/tahoma');
+}
+
+.il-char-select .il-char-select-start-btn .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton2');
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 31px;
+}
+
+.il-char-select .il-char-select-start-btn:active .l2-button-bg,
+.il-char-select .il-char-select-start-btn:active:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton2_down');
+}
+
+.il-char-select .il-char-select-menu-btn {
+    width: 96px;
+    height: 23px;
+    min-height: 23px;
+    max-height: 23px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 4px;
+    margin-left: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+    -unity-font: resource('Data/UI/Font/tahoma');
+}
+
+.il-char-select .il-char-select-menu-btn .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton');
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 23px;
+    -unity-slice-left: 8;
+    -unity-slice-right: 8;
+}
+
+.il-char-select .il-char-select-menu-btn:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton_over');
+}
+
+.il-char-select .il-char-select-menu-btn:active .l2-button-bg,
+.il-char-select .il-char-select-menu-btn:active:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton_down');
+}
+
+.il-char-select .il-char-select-btn-label {
+    font-size: 11px;
+    letter-spacing: 0;
+    color: rgba(255, 244, 214, 0.96);
+    -unity-font: resource('Data/UI/Font/tahoma');
+}
+
+/* Char-select StatusWnd Ps layout: two-column stat rows, not in-game status bar stack. */
+.il-char-select .char-select-row {
+    height: auto;
+    min-height: 18px;
+    flex-shrink: 0;
+}
+
+.il-char-select .char-select-col {
+    height: auto;
+    min-height: 16px;
+    align-items: center;
+}
+
+.il-char-select .bar-label-numbers {
+    letter-spacing: 0;
+    padding-left: 0;
+    margin: 0;
+    height: 14px;
+    -unity-font-definition: initial;
+    -unity-font: resource('Data/UI/Font/tahoma');
+    -unity-text-align: middle-center;
+}
+
+.il-char-select .bar-container {
+    align-items: center;
+}
+
+.il-char-select .char-select-window .bar-inner {
+    min-height: 12px;
+    max-height: 12px;
+}
+
+.il-char-select .char-select-window .bar-inner .bar-height {
+    min-height: 12px;
+    max-height: 12px;
 }
 
 
@@ -2742,12 +2946,6 @@
     max-width: 88px;
 }
 
-.skills-panel #Learn\ Skill {
-    width: 94px;
-    min-width: 94px;
-    max-width: 94px;
-}
-
 .skills-panel .tab-header.active,
 .skills-panel .tab-header.currentlySelectedTab {
     background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab1');
@@ -2836,7 +3034,7 @@
     margin-top: 6px;
 }
 
-.skills-panel .skills-section:first-child {
+.skills-panel .skills-section-first {
     margin-top: 0;
 }
 
@@ -2855,12 +3053,50 @@
     margin: 0;
     padding: 0;
     width: 100%;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .skills-panel .skills-section-rows {
     margin: 0;
     padding: 0;
     width: 100%;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* InventoryTab host defaults (height:1px) must not crush MagicSkillWnd rows. */
+.skills-panel #tab-content-container {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.skills-list-window #tab-content-container > VisualElement,
+.skills-panel #tab-content-container > VisualElement {
+    height: auto;
+    min-height: 0;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-direction: column;
+}
+
+.skills-list-window #tab-content-container > VisualElement > #Content,
+.skills-panel #tab-content-container > VisualElement > #Content {
+    flex-grow: 1;
+    flex-shrink: 0;
+    height: auto;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.inventory-window.skills-list-window .unity-tab,
+.inventory-window.skills-list-window #tab-content-container > VisualElement {
+    height: auto;
+    min-height: 0;
 }
 
 .skills-panel .df-button-active-skills {
@@ -2944,7 +3180,7 @@
     align-items: center;
 }
 
-.skills-panel .skills-window-slot:first-child {
+.skills-panel .skills-window-slot-first {
     margin-left: 0;
 }
 
@@ -3613,14 +3849,14 @@
 .skillbar-inner-container {
     flex-grow: 1;
     flex-direction: row;
-    background-image: resource('Data/UI/Assets/Windows/Windows_DF_Small_Vertical_Bg');
-    -unity-slice-left: 12;
-    -unity-slice-top: 12;
-    -unity-slice-right: 12;
-    -unity-slice-bottom: 12;
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back2');
+    -unity-slice-left: 4;
+    -unity-slice-top: 4;
+    -unity-slice-right: 4;
+    -unity-slice-bottom: 4;
     padding-top: 3px;
     padding-bottom: 3px;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.15);
 }
 
 .skillbar-arrow-control {
@@ -3707,7 +3943,7 @@
 }
 
 .skillbar-inner-container {
-    background-color: rgba(0, 0, 0, 0.49);
+    background-color: rgba(0, 0, 0, 0.15);
 }
 
 .skillbar-darkener {
@@ -3785,11 +4021,11 @@
 
 .skillbar-inner-container-vertical {
     flex-direction: column;
-    background-image: resource('Data/UI/Assets/Windows/Windows_DF_Small_Bg');
-    -unity-slice-left: 9;
-    -unity-slice-top: 9;
-    -unity-slice-right: 9;
-    -unity-slice-bottom: 9;
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back2');
+    -unity-slice-left: 4;
+    -unity-slice-top: 4;
+    -unity-slice-right: 4;
+    -unity-slice-bottom: 4;
     padding-right: 3px;
     padding-left: 3px;
     padding-bottom: 0;
@@ -3923,7 +4159,7 @@
 }
 
 .skillbar-inner-container {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.15);
 }
 
 .footer-container-vertical {
@@ -4929,10 +5165,11 @@
 .il-login-logo {
     position: absolute;
     left: 50%;
-    top: 6%;
-    width: 160px;
-    height: 150px;
-    margin-left: -80px;
+    top: 50px;
+    width: 256px;
+    height: 256px;
+    margin-left: 0;
+    translate: -128px 0;
     background-image: resource("Data/UI/Login/fineage-logo-white");
     -unity-background-scale-mode: scale-to-fit;
 }
@@ -4961,31 +5198,39 @@
 
 .il-login-menu {
     position: absolute;
-    right: 28px;
-    bottom: 52px;
+    right: 34px;
+    bottom: 62px;
+    width: 120px;
+    height: 138px;
     flex-direction: column;
     align-items: stretch;
     flex-grow: 0;
     flex-shrink: 0;
+    background-image: resource('Data/UI/Login/Interlude/lobby_menuback');
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
 .il-login-copyright {
     display: none;
 }
 
-/* logon_back.png is 256×108; frame taller for Fineage Remember under PWD. */
+/* logon_back.png is 256×108. Remember me sits in the gap under the password edit. */
 .il-login-frame {
+    position: absolute;
+    left: 50%;
+    top: 50%;
     width: 256px;
-    height: 126px;
+    height: 108px;
+    translate: -128px -54px;
     flex-grow: 0;
     flex-shrink: 0;
     background-image: resource('Data/UI/Login/Interlude/logon_back');
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0, 0, 0, 0);
-    padding-top: 16px;
-    padding-right: 14px;
-    padding-bottom: 10px;
-    padding-left: 14px;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
 }
 
 .il-login-row {
@@ -5027,15 +5272,24 @@
     letter-spacing: 0;
 }
 
-/* Both ID/PWD edits share the same width (256 - pad14*2 - label48 - gap4 = 176). */
+/* Extracted edit is 128x17. The label hangs to the left of that box. */
 .il-field {
-    width: 176px;
-    min-width: 176px;
-    max-width: 176px;
+    width: 128px;
+    min-width: 128px;
+    max-width: 128px;
     flex-grow: 0;
     flex-shrink: 0;
     height: 17px;
-    position: relative;
+    position: absolute;
+    overflow: visible;
+}
+
+.il-login-frame .il-login-label {
+    position: absolute;
+    right: 100%;
+    top: 0;
+    height: 17px;
+    margin-right: 4px;
 }
 
 .il-edit {
@@ -5077,7 +5331,7 @@
     left: 0;
     right: 0;
     top: 0;
-    width: 176px;
+    width: 128px;
     height: 17px;
     min-height: 0;
     max-height: 17px;
@@ -5176,7 +5430,7 @@
 
 /* NCLoginFunctionWnd: equal vertical stack, Interlude bigbutton art. */
 .il-login .il-login-menu-btn {
-    width: 133px;
+    width: 96px;
     height: 23px;
     min-height: 23px;
     max-height: 23px;
@@ -5291,14 +5545,17 @@
 
 /* Remember: Fineage-only under PWD — L2 checkbox left, English label. */
 .il-login .il-login-remember {
+    position: absolute;
+    left: 84px;
+    top: 59px;
     display: flex;
     flex-direction: row;
     align-items: center;
     align-self: flex-start;
-    height: 14px;
-    margin-top: -2px;
-    margin-bottom: 4px;
-    margin-left: 52px;
+    height: 12px;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
     margin-right: 0;
     padding-top: 0;
     padding-bottom: 0;
@@ -5358,7 +5615,7 @@
     background-color: rgba(0, 0, 0, 0);
     -unity-background-image-tint-color: rgb(255, 255, 255);
     -unity-background-scale-mode: stretch-to-fill;
-    background-image: resource('Data/UI/Quest/CheckBox_uncheked');
+    background-image: resource('Data/UI/Login/Interlude/CheckBox');
 }
 /* Kill Unity default check glyph (black V) on top of our sprite. */
 .il-login .il-login-remember .unity-toggle__checkmark > VisualElement,
@@ -5367,13 +5624,9 @@
     background-image: none;
     background-color: rgba(0, 0, 0, 0);
 }
-.il-login .il-login-remember:hover .unity-toggle__checkmark,
-.il-login .il-login-remember:hover #unity-checkmark {
-    background-image: resource('Data/UI/Quest/CheckBox_hover');
-}
 .il-login .il-login-remember:checked .unity-toggle__checkmark,
 .il-login .il-login-remember:checked #unity-checkmark {
-    background-image: resource('Data/UI/Quest/CheckBox_checked');
+    background-image: resource('Data/UI/Login/Interlude/CheckBox_checked');
 }
 .il-login .il-login-remember > .unity-label,
 .il-login .il-login-remember .unity-toggle__label {

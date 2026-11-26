@@ -21,6 +21,11 @@ public partial class BaseAnimationController : AnimationEventsBase, IAnimationCo
         return _castPlayable != null && _castPlayable.PlayOneShot(clip);
     }
 
+    public void EvaluateMotionGraph(float seconds)
+    {
+        _castPlayable?.Evaluate(seconds);
+    }
+
     public bool TryPlaySpAtkCombat(AnimationClip clip, string phaseStateName)
     {
         EnsureCastPlayable();

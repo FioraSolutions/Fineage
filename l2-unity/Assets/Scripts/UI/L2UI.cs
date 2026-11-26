@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
 
-public abstract partial class L2UI : MonoBehaviour
+public abstract partial class L2UI : MonoBehaviour, IUiLoading
 {
     private VisualElement _rootElement;
 

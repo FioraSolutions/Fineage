@@ -1,0 +1,22 @@
+{
+  "reference": "Mobius CT0 Interlude presentation triggers mapped to client celebration pipeline. Skill 5103: Fineage-Backend ZoneWorld.ClassChangeAnimationSkillId (Mobius VillageMaster / setActiveClass). Skill 2527: Mobius ClassMasterInstance.changeClass (SocialAction.VICTORY + MagicSkillUse 2527). SocialAction 15: Mobius SocialAction.LEVEL_UP.",
+  "magicSkillUse": [
+    {
+      "skillId": 5103,
+      "presentation": "LevelUpCelebration",
+      "mobiusSource": "Fineage-Backend ZoneWorldSubclass.cs ClassChangeAnimationSkillId; Mobius Player.setClassId / increase_clan_level"
+    },
+    {
+      "skillId": 2527,
+      "presentation": "LevelUpCelebration",
+      "mobiusSource": "Mobius ClassMasterInstance.changeClass (MagicSkillUse 2527, hitTime 500)"
+    }
+  ],
+  "socialAction": [
+    {
+      "actionId": 15,
+      "presentation": "LevelUpCelebration",
+      "mobiusSource": "Mobius SocialAction.LEVEL_UP (Interlude id 15)"
+    }
+  ]
+}

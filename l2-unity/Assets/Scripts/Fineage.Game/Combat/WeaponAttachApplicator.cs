@@ -21,6 +21,7 @@ public static class WeaponAttachApplicator
 
         NormalizeWeaponWorldScale(t);
         RepairSubmeshMaterials(weaponRoot);
+        L2TwoSidedMaterials.BindHierarchy(weaponRoot, logIfPropsMissing: true, "weapon attach");
 
         if (mount.MirrorScaleX)
         {
@@ -29,11 +30,11 @@ public static class WeaponAttachApplicator
             if (ax < 0.0001f)
                 ax = 1f;
             t.localScale = new Vector3(-ax, scale.y, scale.z);
-            InvertMaterialCull(weaponRoot);
+            WeaponAttachMirrorMaterials.ApplyForNegativeScaleX(weaponRoot);
         }
 
         if (mount.DoubleSidedMaterials)
-            ForceDoubleSided(weaponRoot);
+            WeaponAttachMirrorMaterials.ForceDoubleSidedInstanceMaterials(weaponRoot);
     }
 
     public static void NormalizeWeaponWorldScale(Transform weapon)
@@ -49,6 +50,8 @@ public static class WeaponAttachApplicator
         float signX = Mathf.Sign(local.x == 0f ? 1f : local.x);
         weapon.localScale = new Vector3(signX * (Mathf.Abs(local.x) / sx), local.y / sy, local.z / sz);
     }
+
+    public static void RepairSubmeshMaterialsPublic(GameObject go) => RepairSubmeshMaterials(go);
 
     static void RepairSubmeshMaterials(GameObject go)
     {
@@ -92,77 +95,4 @@ public static class WeaponAttachApplicator
         return 0;
     }
 
-    static void ForceDoubleSided(GameObject go)
-    {
-        Renderer[] renderers = go.GetComponentsInChildren<Renderer>(true);
-        for (int i = 0; i < renderers.Length; i++)
-        {
-            Renderer renderer = renderers[i];
-            if (renderer == null)
-                continue;
-            Material[] shared = renderer.sharedMaterials;
-            bool needsCopy = false;
-            for (int m = 0; m < shared.Length; m++)
-            {
-                Material mat = shared[m];
-                if (mat != null && mat.HasProperty("_Cull") && mat.GetFloat("_Cull") > 0.5f)
-                {
-                    needsCopy = true;
-                    break;
-                }
-            }
-            if (!needsCopy)
-                continue;
-
-            var copy = new Material[shared.Length];
-            for (int m = 0; m < shared.Length; m++)
-            {
-                if (shared[m] == null)
-                    continue;
-                copy[m] = new Material(shared[m]);
-                if (copy[m].HasProperty("_Cull"))
-                    copy[m].SetFloat("_Cull", 0f);
-            }
-            renderer.sharedMaterials = copy;
-        }
-    }
-
-    static void InvertMaterialCull(GameObject go)
-    {
-        Renderer[] renderers = go.GetComponentsInChildren<Renderer>(true);
-        for (int i = 0; i < renderers.Length; i++)
-        {
-            Renderer renderer = renderers[i];
-            if (renderer == null)
-                continue;
-            Material[] shared = renderer.sharedMaterials;
-            bool needsCopy = false;
-            for (int m = 0; m < shared.Length; m++)
-            {
-                Material mat = shared[m];
-                if (mat != null && mat.HasProperty("_Cull"))
-                {
-                    needsCopy = true;
-                    break;
-                }
-            }
-            if (!needsCopy)
-                continue;
-
-            var copy = new Material[shared.Length];
-            for (int m = 0; m < shared.Length; m++)
-            {
-                if (shared[m] == null)
-                    continue;
-                copy[m] = new Material(shared[m]);
-                if (copy[m].HasProperty("_Cull"))
-                {
-                    float cull = copy[m].GetFloat("_Cull");
-                    // 1 = Back, 2 = Front in URP Lit — flip so mirrored winding stays visible.
-                    copy[m].SetFloat("_Cull", Mathf.Approximately(cull, 2f) ? 1f : 2f);
-                }
-            }
-            renderer.sharedMaterials = copy;
-        }
-    }
 }

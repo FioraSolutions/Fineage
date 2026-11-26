@@ -15,6 +15,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
 
     protected override void OnDestroy()
     {
+        DiBootstrap.ForgetAppScope(this);
         if (_boundTransport != null && _onDisconnected != null)
             _boundTransport.OnDisconnected -= _onDisconnected;
         _onDisconnected = null;

@@ -1,0 +1,148 @@
+class we_4c355383ac2fa977 extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=BeamEmitter Name=BeamEmitter_0
+         BeamTextureVScale=2.000000
+         LowFrequencyNoiseRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=2000.000000,Max=2000.000000))
+         LowFrequencyPoints=2
+         HighFrequencyPoints=2
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=125,G=154,R=193,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=160,G=90,R=56,A=255),RelativeTime=1.000000)
+         ColorMultiplierRange=(X=(Min=0.913000,Max=0.913000),Y=(Min=0.913000,Max=0.913000),Z=(Min=1.000000,Max=1.000000))
+         Opacity=0.500000
+         FadeOutStartTime=18.200001
+         FadeOut=True
+         FadeInEndTime=2.400000
+         FadeIn=True
+         MaxParticles=12
+         WeatherSoundCheck=True
+         Name="Beam"
+         StartLocationRange=(X=(Min=-50.000000,Max=50.000000),Y=(Min=-50.000000,Max=50.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSizeRange=(X=(Min=110.000000,Max=220.000000),Y=(Min=110.000000,Max=220.000000),Z=(Min=110.000000,Max=220.000000))
+         InitialParticlesPerSecond=3.000000
+         DrawStyle=PTDS_Brighten
+         Texture=Texture'LineageEffectsTextures.Particles2.fx_m_t1077'
+         LifetimeRange=(Min=20.000000,Max=20.000000)
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(0)=BeamEmitter'BeamEmitter_0'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_1
+         Acceleration=(X=0.000000,Y=0.000000,Z=5.000000)
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=165,G=165,R=165,A=255),RelativeTime=0.471429)
+         ColorScale(2)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorScaleRepeats=4.000000
+         ColorMultiplierRange=(X=(Min=0.850000,Max=1.000000),Y=(Min=0.850000,Max=1.000000),Z=(Min=0.850000,Max=1.000000))
+         Opacity=0.510000
+         FadeOutStartTime=1.600000
+         FadeOut=True
+         FadeInEndTime=1.600000
+         FadeIn=True
+         MaxParticles=20
+         Name="Dot_dust"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=30.000000)
+         StartLocationRange=(X=(Min=-50.000000,Max=50.000000),Y=(Min=-50.000000,Max=50.000000),Z=(Min=40.000000,Max=170.000000))
+         SpinParticles=True
+         SpinsPerSecondRange=(X=(Min=0.100000,Max=0.400000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=-1.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=0.500000,RelativeTime=0.000000)
+         StartSizeRange=(X=(Min=2.000000,Max=7.000000),Y=(Min=2.000000,Max=7.000000),Z=(Min=2.000000,Max=7.000000))
+         UniformSize=True
+         InitialParticlesPerSecond=8.000000
+         AutomaticInitialSpawning=False
+         DrawStyle=PTDS_Brighten
+         Texture=Texture'FX_E_T.particles_etc.elf_particleA_03'
+         UseRandomSubdivision=True
+         StartVelocityRange=(X=(Min=-3.000000,Max=3.000000),Y=(Min=-3.000000,Max=3.000000),Z=(Min=-10.000000,Max=10.000000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter_1'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter_2
+         Acceleration=(X=0.000000,Y=0.000000,Z=10.000000)
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=2,G=203,R=253,A=255),RelativeTime=0.471429)
+         ColorScale(2)=(Color=(B=252,G=156,R=99,A=255),RelativeTime=1.000000)
+         Opacity=0.490000
+         FadeOutStartTime=2.120000
+         FadeOut=True
+         FadeInEndTime=2.120000
+         FadeIn=True
+         MaxParticles=3
+         Name="grow_pink"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=200.000000)
+         UseRevolution=True
+         RevolutionsPerSecondRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.040000))
+         SpinParticles=True
+         SpinsPerSecondRange=(X=(Min=0.010000,Max=0.020000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=-1.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=1.000000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=1.200000,RelativeTime=1.000000)
+         StartSizeRange=(X=(Min=130.000000,Max=130.000000),Y=(Min=130.000000,Max=130.000000),Z=(Min=130.000000,Max=130.000000))
+         UniformSize=True
+         InitialParticlesPerSecond=2.000000
+         DrawStyle=PTDS_Brighten
+         Texture=Texture'FX_E_T.Fx_argos_eye.Fx_argos_eye_t04'
+         UseRandomSubdivision=True
+         LifetimeRange=(Min=7.000000,Max=7.000000)
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(2)=SpriteEmitter'SpriteEmitter_2'
+     Begin Object Class=MeshEmitter Name=MeshEmitter_3
+         StaticMesh=StaticMesh'FX_E_S.broadcasting_tower_s.FX_e_still_mesh00'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=76,G=76,R=76,A=255),RelativeTime=1.000000)
+         Opacity=0.200000
+         FadeOutStartTime=1.880000
+         FadeOut=True
+         FadeInEndTime=1.880000
+         FadeIn=True
+         MaxParticles=3
+         Name="MeshEmitter19"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=60.000000)
+         StartLocationRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=-5.000000,Max=10.000000))
+         SpinParticles=True
+         StartSpinRange=(X=(Min=0.070000,Max=0.070000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSizeRange=(X=(Min=1.000000,Max=1.000000),Y=(Min=1.000000,Max=1.000000),Z=(Min=2.000000,Max=2.000000))
+         StartVelocityRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=5.000000,Max=15.000000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(3)=MeshEmitter'MeshEmitter_3'
+     Begin Object Class=MeshEmitter Name=MeshEmitter_4
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Aura.auracharge00'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=97,G=97,R=97,A=255),RelativeTime=0.485714)
+         ColorScale(2)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorScaleRepeats=3.000000
+         Opacity=0.210000
+         FadeOutStartTime=1.840000
+         FadeOut=True
+         FadeInEndTime=1.840000
+         FadeIn=True
+         MaxParticles=2
+         Name="MeshEmitter18"
+         StartLocationOffset=(X=0.000000,Y=0.000000,Z=80.000000)
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=1.000000,Z=1.000000)
+         SpinsPerSecondRange=(X=(Min=0.010000,Max=0.010000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSizeRange=(X=(Min=1.500000,Max=1.500000),Y=(Min=1.500000,Max=1.500000),Z=(Min=1.500000,Max=1.500000))
+         StartVelocityRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=10.000000,Max=10.000000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(4)=MeshEmitter'MeshEmitter_4'
+}

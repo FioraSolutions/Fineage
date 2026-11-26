@@ -34,36 +34,35 @@ public partial class SkillgrpTable
     }
 
     /// <summary>
-    /// Overlays official Interlude skillgrp columns onto a Classic row, or inserts a new row
-    /// for Interlude-only skills. Classic-only columns (cool_time, reuse_delay, effect_point,
-    /// enchant/icon panel, ...) are kept when a Classic row already exists.
+    /// Copies the columns Interlude skillgrp.dat does not carry onto an existing Interlude row.
+    /// Rows for skills Interlude does not know are ignored; animation, visual effect, icon,
+    /// timing and cost always stay Interlude.
     /// </summary>
-    private void OverlayOrAdd(Skillgrp incoming)
+    private void SupplementNonVisualColumns(Skillgrp supplement)
     {
-        if (incoming == null)
+        if (supplement == null)
             return;
 
-        if (_skills.TryGetValue(incoming.Id, out Dictionary<int, Skillgrp> byLevel)
-            && byLevel != null
-            && byLevel.TryGetValue(incoming.Level, out Skillgrp existing)
-            && existing != null)
+        if (!_skills.TryGetValue(supplement.Id, out Dictionary<int, Skillgrp> byLevel)
+            || byLevel == null
+            || !byLevel.TryGetValue(supplement.Level, out Skillgrp existing)
+            || existing == null)
         {
-            existing.OperateType = incoming.OperateType;
-            existing.MpConsume = incoming.MpConsume;
-            existing.CastRange = incoming.CastRange;
-            existing.CastStyle = incoming.CastStyle;
-            existing.HitTime = incoming.HitTime;
-            existing.IsMagic = incoming.IsMagic;
-            existing.Animation = incoming.Animation;
-            existing.SkillVisualEffect = incoming.SkillVisualEffect;
-            existing.Icon = incoming.Icon;
-            existing.HpConsume = incoming.HpConsume;
-            existing.RumbleSelf = incoming.RumbleSelf;
-            existing.RumbleTarget = incoming.RumbleTarget;
             return;
         }
 
-        TryAdd(incoming);
+        existing.SubLevel = supplement.SubLevel;
+        existing.Icon_type = supplement.Icon_type;
+        existing.MagicType = supplement.MagicType;
+        existing.CoolTime = supplement.CoolTime;
+        existing.ReuseDelay = supplement.ReuseDelay;
+        existing.EffectPoint = supplement.EffectPoint;
+        existing.IsDouble = supplement.IsDouble;
+        existing.IconPanel = supplement.IconPanel;
+        existing.Debuff = supplement.Debuff;
+        existing.ResistCast = supplement.ResistCast;
+        existing.EnchantSkillLevel = supplement.EnchantSkillLevel;
+        existing.EnchantIcon = supplement.EnchantIcon;
     }
 
     private Dictionary<int, Skillgrp> CreateDict()
@@ -86,14 +85,14 @@ public partial class SkillgrpTable
     }
 
 
-    public void ReadAnimationCombo_Classic()
+    public void ReadAnimationCombo_Interlude()
     {
-        //_actionsInterlude = new Dictionary<int, ActionData>();
-        string dataPath = Path.Combine(Application.streamingAssetsPath, "Data/Meta/AnimationCombo_Classic.txt");
+        string dataPath = Path.Combine(Application.streamingAssetsPath, "Data/Meta/AnimationCombo_Interlude.txt");
 
         if (!File.Exists(dataPath))
         {
-            // Debug.LogWarning("File not found: " + dataPath);
+            Debug.LogError("[SkillgrpTable] animation combo table not found: " + dataPath);
+            return;
         }
 
         using (StreamReader reader = new StreamReader(dataPath))

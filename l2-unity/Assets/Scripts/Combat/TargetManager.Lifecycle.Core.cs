@@ -27,7 +27,7 @@ public partial class TargetManager
     [Inject]
     void WireControllerPacketServices()
     {
-        ControllerPacketServices.Bind(targets: this, gameWorld: GameWorld);
+        ControllerPacketServices.Bind(targets: this);
         TargetPacketServices.Bind(targets: this);
     }
 

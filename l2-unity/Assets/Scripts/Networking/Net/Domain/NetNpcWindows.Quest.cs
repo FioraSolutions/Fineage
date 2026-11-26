@@ -85,4 +85,18 @@ public static partial class NetNpcWindows
         }
     }
 
+    public static void ApplyEnchantSkillList(Fineage.Net.Contract.EnchantSkillListEntryNet[] rows)
+    {
+        if (rows == null || rows.Length == 0)
+            return;
+        Debug.Log($"[Net] EnchantSkillList ({rows.Length} rows); UI seam pending");
+    }
+
+    public static void ApplyEnchantSkillInfo(Fineage.Net.Contract.EnchantSkillInfoNetMsg info)
+    {
+        Debug.Log(
+            $"[Net] EnchantSkillInfo skill={info.SkillId} level={info.Level} "
+            + $"sp={info.SpCost} exp={info.ExpCost} rate={info.Rate}; UI seam pending");
+    }
+
 }

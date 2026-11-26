@@ -32,28 +32,7 @@ public partial class MapClassId
 
     public static CharacterRace GetRace(int race)
     {
-        if(race == 0)
-        {
-            return CharacterRace.Human;
-        }else if (race == 1)
-        {
-            return CharacterRace.Elf;
-        }
-        else if (race == 2)
-        {
-            return CharacterRace.DarkElf;
-        }
-        else if (race == 3)
-        {
-            return CharacterRace.Orc;
-        }
-        else if (race == 4)
-        {
-            return CharacterRace.Dwarf;
-        }
-
-        Debug.LogError("[MapClassId] unknown lobby race id=" + race + " (expected 0–4 Interlude race).");
-        return CharacterRace.Human;
+        return (CharacterRace)InterludeCharAppearance.RaceFromPacket(race);
     }
 
     public static CharacterRace GetCharacterRace(int serverClassId)

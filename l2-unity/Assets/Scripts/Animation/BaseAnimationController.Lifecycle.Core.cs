@@ -59,7 +59,7 @@ public partial class BaseAnimationController : AnimationEventsBase, IAnimationCo
 
     void EnsureCastPlayable()
     {
-        if (!_castIdleSkip || _castPlayable != null)
+        if (_castPlayable != null)
             return;
         if (!TryGetAnimator())
             return;

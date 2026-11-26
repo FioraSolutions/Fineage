@@ -80,48 +80,6 @@ public class CharacterClassParser
     /// </summary>
     public static bool IsMage(int classId)
     {
-        switch (classId)
-        {
-            case (int)ClassId.MAGE:
-            case (int)ClassId.WIZARD:
-            case (int)ClassId.SORCERER:
-            case (int)ClassId.NECROMANCER:
-            case (int)ClassId.WARLOCK:
-            case (int)ClassId.CLERIC:
-            case (int)ClassId.BISHOP:
-            case (int)ClassId.PROPHET:
-            case (int)ClassId.ARCHMAGE:
-            case (int)ClassId.SOULTAKER:
-            case (int)ClassId.ARCANA_LORD:
-            case (int)ClassId.CARDINAL:
-            case (int)ClassId.HIEROPHANT:
-            case (int)ClassId.ELVEN_MAGE:
-            case (int)ClassId.ELVEN_WIZARD:
-            case (int)ClassId.SPELLSINGER:
-            case (int)ClassId.ELEMENTAL_SUMMONER:
-            case (int)ClassId.ORACLE:
-            case (int)ClassId.ELDER:
-            case (int)ClassId.MYSTIC_MUSE:
-            case (int)ClassId.ELEMENTAL_MASTER:
-            case (int)ClassId.EVA_SAINT:
-            case (int)ClassId.DARK_MAGE:
-            case (int)ClassId.DARK_WIZARD:
-            case (int)ClassId.SPELLHOWLER:
-            case (int)ClassId.PHANTOM_SUMMONER:
-            case (int)ClassId.SHILLIEN_ORACLE:
-            case (int)ClassId.SHILLIEN_ELDER:
-            case (int)ClassId.STORM_SCREAMER:
-            case (int)ClassId.SPECTRAL_MASTER:
-            case (int)ClassId.SHILLIEN_SAINT:
-            case (int)ClassId.ORC_MAGE:
-            case (int)ClassId.ORC_SHAMAN:
-            case (int)ClassId.OVERLORD:
-            case (int)ClassId.WARCRYER:
-            case (int)ClassId.DOMINATOR:
-            case (int)ClassId.DOOMCRYER:
-                return true;
-            default:
-                return false;
-        }
+        return InterludeCharAppearance.IsMage(classId);
     }
 }

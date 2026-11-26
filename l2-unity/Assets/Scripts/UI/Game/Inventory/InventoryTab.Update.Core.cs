@@ -1,45 +1,30 @@
-using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using static L2Slot;
-using static PlayerInventory;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.UIElements;
 
 public partial class InventoryTab
 {
-    public void UpdateItemList(List<ItemInstance> removeAndAdd , List<ItemInstance> modified , ChangeInventoryData changeInventoryData)
+    public void UpdateItemList(List<ItemInstance> removeAndAdd, List<ItemInstance> modified, ChangeInventoryData changeInventoryData)
     {
-        AddAndRemove(removeAndAdd);
-        Modified(modified , changeInventoryData);
-
-        if (_selectedSlot != -1)
-        {
-            SelectSlot(_selectedSlot);
-        }
+        RebindFromModel();
     }
 
     public void ModifiedRemove(ItemInstance item)
     {
-        InventorySlot i_slot1 = GetInventorySlot(item.ObjectId);
-
-        if (i_slot1 != null)
-        {
-            i_slot1.AssignEmpty();
-            ShiftElements.ShiftElementsLeft(_inventorySlots, i_slot1.Position);
-        }
-        else
-        {
-            // Debug.Log("Shift element number null " + i_slot1);
-        }
+        RebindFromModel();
     }
 
     public void AddItem(ItemInstance item)
     {
-        InventorySlot i_slot1 = GetEmptyInventorySlot();
-        i_slot1.AssignItem(item);
+        RebindFromModel();
+    }
+
+    void RebindFromModel()
+    {
+        InventoryWindow window = InventoryPacketServices.Window;
+        if (window == null)
+        {
+            UnityEngine.Debug.LogError("[Inventory] tab update has no window");
+            return;
+        }
+        window.RebindFromModel();
     }
 }

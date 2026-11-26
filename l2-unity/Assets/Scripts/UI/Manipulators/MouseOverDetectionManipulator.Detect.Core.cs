@@ -13,11 +13,10 @@ public partial class MouseOverDetectionManipulator : PointerManipulator
  
         Vector2 panelPos = new Vector2(posScreen.x, Screen.height - posScreen.y);
 
-
-        if (el.worldBound.Contains(posScreen))
+        if (el.worldBound.Contains(panelPos))
             return true;
 
-        var picked = panel.Pick(panelPos); 
+        var picked = panel.Pick(panelPos);
         if (picked == null) return false;
 
         return picked == el || el.Contains(picked);

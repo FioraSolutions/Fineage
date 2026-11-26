@@ -7,9 +7,9 @@ using UnityEngine;
 public partial class L2TerrainInfoParser
 {
     public static L2TerrainInfo ParseTerrainInfo0(string mapID) {
-        string dataPath = "Assets/Data/Maps/Meta/" + mapID + "/TerrainInfo0.txt";
+        string dataPath = L2InterludeMapPaths.TerrainInfo0AbsolutePath(mapID);
         if (!File.Exists(dataPath)) {
-            // Debug.LogWarning("File not found: " + dataPath);
+            Debug.LogError("[Interlude terrain] TerrainInfo0.txt not found for " + mapID + " at " + dataPath);
             return null;
         }
 
@@ -17,10 +17,12 @@ public partial class L2TerrainInfoParser
         terrainInfo.mapName = mapID;
         terrainInfo.uvLayers = new List<L2TerrainLayer>();
         terrainInfo.decoLayers = new List<L2DecoLayer>();
+        var quadWords = new Dictionary<int, int>();
 
         using (StreamReader reader = new StreamReader(dataPath)) {
             string line;
             while ((line = reader.ReadLine()) != null) {
+                line = line.Trim();
                 if (line.StartsWith("TerrainMap=")) {
                     terrainInfo.terrainMapPath = TextureUtils.GetHeightMapPath(line);
                 } else if (line.StartsWith("GeneratedSectorCounter=")) {
@@ -29,6 +31,8 @@ public partial class L2TerrainInfoParser
                     terrainInfo.terrainScale = ParseVector3(line);
                 } else if (line.StartsWith("Location=")) {
                     terrainInfo.location = ParseVector3(line);
+                } else if (TryParseQuadVisibilityLine(line, out int qi, out int qw)) {
+                    quadWords[qi] = qw;
                 } else if (line.StartsWith("Layer")) {
                     L2TerrainLayer layer = ParseL2TerrainLayer(line);
                     if (layer != null) {
@@ -43,6 +47,8 @@ public partial class L2TerrainInfoParser
             }
         }
 
+        ValidateOfficialUvLayers(mapID, terrainInfo.uvLayers);
+        terrainInfo.quadVisibilityBitmap = FinalizeQuadVisibility(dataPath, quadWords);
         return terrainInfo;
     }
 

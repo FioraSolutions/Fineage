@@ -30,7 +30,17 @@ public class UserStateBase : StateMachineBehaviour {
             _gear = _entity.GetComponent<UserGear>();
         }
 
-        _weaponAnim = LocomotionProfileResolver.RemoteAnimatorSuffix(_gear);
+        if (_gear == null)
+        {
+            FineageLog.Error(FineageLogCategory.World, "LocomotionProfile: remote UserGear missing on entity");
+            _weaponAnim = LocomotionProfile.BareHand.AnimSuffix;
+        }
+        else
+        {
+            _weaponAnim = LocomotionProfileResolver.RemoteAnimatorSuffix(
+                _gear.CombatStyle,
+                _gear.gameObject.name);
+        }
 
         if (_audioHandler == null) {
             _audioHandler = animator.gameObject.GetComponent<CharacterAnimationAudioHandler>();
@@ -49,6 +59,17 @@ public class UserStateBase : StateMachineBehaviour {
 
     public void PlaySoundAtRatio(ItemSoundEvent soundEvent, float ratio) {
         _audioHandler.PlaySoundAtRatio(soundEvent, ratio);
+    }
+
+    protected void PlayEquippedWeaponItemSounds() {
+        if (_audioHandler == null || _gear == null)
+            return;
+
+        int weaponId = _gear.EquippedRightHandWeapon != null ? _gear.EquippedRightHandWeapon.Id : 0;
+        string swing = CombatHitSoundResolver.ResolveWeaponSwingToken(weaponId);
+        string shing = CombatHitSoundResolver.ResolveWeaponShingToken(weaponId);
+        _audioHandler.PlayItemSoundTokenAtRatio(swing, _audioHandler.SwishRatio);
+        _audioHandler.PlayItemSoundTokenAtRatio(shing, _audioHandler.AtkRatio);
     }
 
     public void SetBool(string name, bool value) {

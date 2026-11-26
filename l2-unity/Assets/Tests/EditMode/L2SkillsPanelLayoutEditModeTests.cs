@@ -1,12 +1,18 @@
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 public sealed class L2SkillsPanelLayoutEditModeTests
 {
+    [SetUp]
+    public void SetUp() => InterludeMagicSkillWndLayout.ResetForEditModeTests();
+
     [Test]
-    public void ComputeColumns_fits_six_slots_in_mainwnd_skills_host()
+    public void Interlude_layout_config_defines_six_columns_per_row()
     {
-        // CharacterInfo #SkillsHost content width after skills chrome padding (~248px).
-        Assert.AreEqual(6, L2SkillsPanelLayout.ComputeColumns(248f));
+        InterludeMagicSkillWndLayout.EnsureLoaded();
+        Assert.AreEqual(6, InterludeMagicSkillWndLayout.ColumnsPerRow);
+        Assert.AreEqual(6, L2SkillsPanelLayout.ResolveGridColumns());
     }
 
     [Test]
@@ -17,9 +23,46 @@ public sealed class L2SkillsPanelLayoutEditModeTests
     }
 
     [Test]
-    public void RowFrameResource_uses_6x1_art_for_six_or_fewer_columns()
+    public void RowFrameResource_uses_configured_interlude_skill_bar_texture()
     {
-        Assert.AreEqual(L2SkillsPanelLayout.RowFrame6, L2SkillsPanelLayout.RowFrameResourceForColumns(6));
-        Assert.AreEqual(L2SkillsPanelLayout.RowFrame7, L2SkillsPanelLayout.RowFrameResourceForColumns(7));
+        Assert.AreEqual(
+            "Data/UI/Window/Skills/Skills_SkillBar_6x1",
+            L2SkillsPanelLayout.RowFrameResourceForColumns(6));
+    }
+
+    [Test]
+    public void ApplyMagicSkillTabHostLayout_clears_inventory_one_pixel_tab_host()
+    {
+        var tabTemplate = Resources.Load<VisualTreeAsset>("Data/UI/_Elements/Game/Inventory/InventoryTab");
+        Assert.NotNull(tabTemplate, "InventoryTab.uxml missing");
+
+        var tabRoot = tabTemplate.Instantiate();
+        var tabHost = tabRoot.Q<VisualElement>("Tab") ?? tabRoot[0];
+        tabHost.style.height = 1;
+        tabHost.Clear();
+        tabHost.Add(new VisualElement { name = "Content" });
+
+        L2SkillsPanelLayout.ApplyMagicSkillTabHostLayout(tabHost);
+        Assert.AreEqual(StyleKeyword.Auto, tabHost.style.height.keyword);
+    }
+
+    [Test]
+    public void ApplyGridRowMetrics_sets_interlude_row_height()
+    {
+        var row = new VisualElement();
+        L2SkillsPanelLayout.ApplyGridRowMetrics(row);
+        Assert.GreaterOrEqual(
+            L2SkillsPanelLayout.ReadConfiguredRowHeight(row),
+            L2SkillsPanelLayout.RowHeight - 0.01f);
+    }
+
+    [Test]
+    public void ResolveGridColumns_ignores_hidden_tab_width_uses_fixed_six()
+    {
+        var tabHost = new VisualElement();
+        tabHost.AddToClassList("unselected-tab");
+        tabHost.style.width = 1;
+
+        Assert.AreEqual(6, L2SkillsPanelLayout.ResolveGridColumns());
     }
 }

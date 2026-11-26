@@ -10,17 +10,25 @@ using UnityEngine;
 /// the most animated editor curves of each reduced clip. Unity must load the reduced YAML clip and
 /// reproduce those values within the tool tolerance (plus float32 evaluation slack).
 /// </summary>
+[Category("Slow")]
 public sealed class AnimKeyReducePilotEditModeTests
 {
     private static readonly string[] ProbeFiles =
     {
         "Tests/EditMode/Fixtures/anim-keyreduce-pilot-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagemonsters-probes.json",
+        "Tests/EditMode/Fixtures/anim-keyreduce-lineagemonsters2-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagenpcs-batch1-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagenpcs-batch2-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagenpcs-batch3-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagenpcs-batch4-probes.json",
+        "Tests/EditMode/Fixtures/anim-keyreduce-lineagenpcs4-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-orc-probes.json",
+        "Tests/EditMode/Fixtures/anim-keyreduce-fighter-probes.json",
+        "Tests/EditMode/Fixtures/anim-keyreduce-darkelf-probes.json",
+        "Tests/EditMode/Fixtures/anim-keyreduce-dwarf-probes.json",
+        "Tests/EditMode/Fixtures/anim-keyreduce-elf-probes.json",
+        "Tests/EditMode/Fixtures/anim-keyreduce-magic-probes.json",
     };
 
     // Unity evaluates curves in float32; the tool validates in float64.

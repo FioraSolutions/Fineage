@@ -18,15 +18,7 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
         switch (evt)
         {
             case Event.READY_TO_ACT:
-
-                AnimationCombo animComboAct = TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
-                //not use bow atk
-                //RotateFaceToMonster(_stateMachine.Player);
-                _ = SkillExecutorPacketServices.Executor.ExecuteSkill(_stateMachine.Player, animComboAct, _events);
-                // Every physical skill that has art must play it, not just Power Strike (3):
-                // Deadly Blow / Lethal Blow animated the swing and stayed invisible.
-                SkillVisualEffectDispatch.PlayIfKnown(
-                    _stateMachine.Player, useSkill, animComboAct);
+                PlayMixCast(useSkill);
                 break;
             case Event.CANCEL:
                 // Debug.Log("NewPhysicalSkillsState Use Sate> Отмена скорее всего запрос пришел из ActionFaild");
@@ -42,8 +34,7 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
                          useSkill.SkillGrp != null &&
                          SkillExecutorPacketServices.Executor != null)
                 {
-                    Entity entity = _stateMachine.Player;
-                    if (useSkill.SkillId == 2046)
+                    if (SkillPresentationCatalog.IsTwistDoomPhysical(useSkill.SkillId))
                     {
                         string[] cycle = castCombo.GetAnimCycle();
                         Debug.Log(
@@ -53,23 +44,12 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
                             " cycle=" + (cycle == null ? "null" : string.Join(",", cycle)) +
                             " state=" + _stateMachine.State);
                     }
-                    SetupDurationHelper.SetupDurationIfHitTimeNot0(
-                        useSkill, entity.Identity.Id, entity, castCombo);
-                    // Physical self skills (Ultimate Evasion X, Dash X, Focus Chance X, Escape Shackle X)
-                    // are tags that map to SpAtk06 → the shared SpAtk06_hand buff gesture on the
-                    // template controller (each race override points it at its own
-                    // *_ao_SpAtk06_Hand_* clip). The override runner would map that single clip to
-                    // the "CastEnd" trigger, which plays the magic cast pose and never fires the
-                    // SpAtk SMB — the hero stands frozen. StartRun plays the combat CrossFade
-                    // instead, which resolves SpAtk06_<weapon> to SpAtk06_hand.
-                    _ = SkillExecutorPacketServices.Executor.ExecuteSkill(
-                        entity, castCombo, _events);
-                    SkillVisualEffectDispatch.PlayIfKnown(entity, useSkill, castCombo);
+                    // Same SetupDuration / MagicCastData path as a targeted Mix cast.
+                    PlayMixCast(useSkill);
                 }
-                else if (skillgrp != null && SkillExecutorPacketServices.Executor != null)
+                else if (skillgrp != null)
                 {
-                    AnimationCombo combo = new AnimationCombo("-1", new string[1] { skillgrp.GetAnimOperationType3() }, "");
-                    _ = SkillExecutorPacketServices.Executor.ExecuteSkill(_stateMachine.Player, combo, _events);
+                    PhysicalSkillPresentation.TryPlay(_stateMachine.Player, useSkill, _events);
                 }
 
 
@@ -96,5 +76,24 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
                 break;
 
         }
+    }
+
+    /// <summary>
+    /// Targeted PHYS (READY_TO_ACT) and self PHYS (APPLY_SELF_SKILL) share this cast.
+    /// Mix combo stretch in <see cref="MagicCastData"/> fits every SpAtk phase to hit time.
+    /// </summary>
+    void PlayMixCast(MagicSkillUseDto useSkill)
+    {
+        Entity entity = _stateMachine.Player;
+        AnimationCombo combo = null;
+        if (entity != null && entity.Identity != null &&
+            SetupDurationHelper.TryGetPlayableCombo(useSkill, out combo))
+        {
+            SetupDurationHelper.SetupDurationIfHitTimeNot0(
+                useSkill, entity.Identity.Id, entity, combo);
+        }
+
+        PhysicalSkillPresentation.TryPlay(entity, useSkill, _events);
+        SkillVisualEffectDispatch.PlayIfKnown(entity, useSkill, combo);
     }
 }

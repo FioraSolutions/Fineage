@@ -1,53 +1,11 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss?fileID=7433441132597879392&amp;guid=72e99cc94b130bf4ba100dceaa830b13&amp;type=3#L2StyleSheet" />
-    <!--
-      Interlude interface.xdat TargetStatusWnd — geometry read from the client:
-        root      176x46
-        BackTex1  L2UI_CH3.SmallWnd.SmallWindow_Back1      16x46   left cap
-        BackTex2  L2UI_CH3.SmallWnd.SmallWindow_Back2      16x46   repeatable middle
-        BackTex3  L2UI_CH3.SmallWnd.SmallWindow_Back3_ex   19x46   right cap + close groove
-        btnClose  L2UI_CH3.FrameCtrl.FrameCloseBtn         15x15 @ 3,3
-        UserName  NameCtrl                        x=12 y=9  h=14
-        barHP     L2UI_CH3.SmallWnd.HpBar/_back   x=16 y=26 h=6, width auto
-        barMP     L2UI_CH3.SmallWnd.MpBar/_back   x=16 y=33 h=6 (mobs never fill it — not built)
-        NpcInfo   TreeCtrl                        x=18 y=40, shows on the 76px SmallWindow2 plate
-      Stock Interlude TargetStatusWnd has no StatusIconCtrl: target buff/debuff rows are the later
-      BuffWnd / TargetStatusBuff* extension, painted as a strip UNDER the plate. EffectsRow is that
-      strip, and it only ever lists monsters/NPCs (TargetWindow.Effects.Core.cs).
-    -->
-    <ui:GroupBox name="TargetWindow" class="target-window hidden" style="width: auto; min-width: 176px; align-self: auto; justify-content: flex-start; align-items: stretch; flex-direction: column; margin: 0; padding: 0; background-color: rgba(0, 0, 0, 0); transform-origin: left top; max-width: none; overflow: visible;">
-        <!-- The 46px SmallWnd plate (76px with the SmallWindow2 trio while NpcInfo is open). -->
-        <ui:VisualElement name="ChromeRow" class="target-chrome-row drag-area" style="flex-direction: row; flex-grow: 0; flex-shrink: 0; margin: 0; padding: 0; overflow: visible;">
-            <ui:VisualElement name="Back1" class="target-back1" picking-mode="Ignore" style="width: 16px; min-width: 16px; max-width: 16px; margin: 0; padding: 0;" />
-            <ui:VisualElement name="Back2" class="target-back2" picking-mode="Ignore" style="flex-grow: 1; flex-shrink: 1; min-width: 0; margin: 0; padding: 0;" />
-            <ui:VisualElement name="Back3" class="target-back3" picking-mode="Ignore" style="width: 19px; min-width: 19px; max-width: 19px; margin: 0; padding: 0;" />
-            <!-- NameCtrl UserName x=12 y=9 h=14: Tahoma 11 white, retail black shadow. -->
-            <ui:Label name="TargetName" text="" class="target-name" picking-mode="Ignore" style="position: absolute; left: 12px; right: 22px; top: 9px; height: 14px; margin: 0; padding: 0;" />
-            <!-- barHP x=16 y=26 h=6: the 8x6 retail strip stretches across the plate and stops
-                 at the 19px SmallWindow_Back3_ex right cap, exactly like the client. -->
-            <ui:VisualElement name="HPBarContainer" class="target-bar-container l2-bar-percent-fill" picking-mode="Ignore" style="position: absolute; left: 16px; right: 19px; top: 26px; height: 6px; margin: 0; padding: 0;">
-                <ui:VisualElement name="HPBarBG" class="target-bar-back" picking-mode="Ignore" style="position: absolute; left: 0; right: 0; top: 0; height: 6px; margin: 0; padding: 0;" />
-                <ui:VisualElement name="HPBar" class="target-bar-fill" picking-mode="Ignore" style="position: absolute; left: 0; top: 0; height: 6px; width: 100%; margin: 0; padding: 0;" />
-            </ui:VisualElement>
-            <!-- NpcInfo TreeCtrl x=18 y=40: only this swaps in the 76px SmallWindow2 plate. -->
-            <ui:VisualElement name="PropertiesRow" class="target-properties-row" picking-mode="Ignore" style="display: none; position: absolute; left: 18px; right: 0; top: 40px; margin: 0; padding: 0;" />
-            <!-- btnClose 15x15 @ 3,3 sits in the SmallWindow_Back3_ex groove. -->
-            <ui:Button name="CloseBtn" class="target-close-btn" style="position: absolute; right: 3px; top: 3px; width: 15px; height: 15px; min-width: 15px; min-height: 15px; margin: 0; padding: 0;" />
-            <!-- NpcInfo toggle, only for mobs that carry property skills. -->
-            <ui:Button name="ExpandBtn" class="target-expand-btn" tooltip="NpcInfo" style="display: none; position: absolute; left: 1px; top: 27px; width: 16px; height: 16px; min-width: 16px; min-height: 16px; margin: 0; padding: 0;">
-                <ui:VisualElement name="ButtonBg" picking-mode="Ignore" style="width: 16px; height: 16px;" />
-            </ui:Button>
-        </ui:VisualElement>
-        <!-- Horizontal resize grip: sibling of the drag plate, kept off the drag-area so both
-             manipulators do not fight for the pointer. Height tracks the 46/76px plate. The grip
-             art is applied by USS on hover only — retail has no grip and it used to paint over
-             the SmallWindow_Back3_ex right cap. -->
-        <ui:VisualElement name="SizeControl" class="target-size-control" style="position: absolute; right: 0; top: 0; width: 5px; max-width: 5px; margin: 0; padding: 0;">
-            <ui:VisualElement name="SizeControlHandle" class="hor-resize-handle resize-hor" style="position: absolute; top: 0; left: 0; width: 5px; margin: 0; padding: 0;" />
-        </ui:VisualElement>
-        <!-- Target abnormal strip: monsters/NPCs only. It is painted UNDER the plate as an
-             overlay, exactly like BuffWnd hangs below its own window: as a flex sibling it
-             added its 24px row to the GroupBox and the plate looked like a tall empty box. -->
-        <ui:VisualElement name="EffectsRow" class="target-effects-row" picking-mode="Ignore" style="display: none; margin: 0; padding: 0;" />
-    </ui:GroupBox>
+    <ui:VisualElement name="TargetStatusWnd" class="target-window hidden drag-area">
+        <ui:Label name="UserName" picking-mode="Ignore" />
+        <ui:VisualElement name="barHP" class="l2-bar-percent-fill" picking-mode="Ignore" />
+        <ui:VisualElement name="NpcInfo" class="target-properties-row" picking-mode="Ignore" style="display: none;" />
+        <ui:Button name="btnClose" class="target-close-btn" />
+        <ui:Button name="ExpandBtn" class="target-expand-btn" style="display: none; position: absolute; left: 1px; top: 27px; width: 16px; height: 16px;" />
+        <ui:VisualElement name="EffectsRow" class="target-effects-row" picking-mode="Ignore" />
+    </ui:VisualElement>
 </ui:UXML>

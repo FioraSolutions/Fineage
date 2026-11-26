@@ -18,6 +18,9 @@ public static class NameplatePacketServices
             _lobbyNameplates = lobbyNameplates;
     }
 
+    /// <summary>The manager <see cref="Bind"/> stored. No container or <c>Instance</c> fallback.</summary>
+    public static INameplateRoster BoundNameplates => _nameplates;
+
     public static NameplatesManager Nameplates =>
         _nameplates != null
             ? _nameplates

@@ -30,7 +30,8 @@ public partial class DayNightCycle
             }
 
             float hours = _clock.WorldHours;
-            if (_skyReady && Mathf.Abs(hours - _appliedHours) < 0.0001f)
+            string map = L2ZoneRender.ActiveMap;
+            if (MapTileLoadPolicy.LightingIsCurrent(_skyReady, hours, _appliedHours, map, _appliedMap))
             {
                 L2ActorPointLights.Push();
                 return;
@@ -123,6 +124,7 @@ public partial class DayNightCycle
             }
 
             _appliedHours = _clock.WorldHours;
+            _appliedMap = L2ZoneRender.ActiveMap;
             _skyReady = true;
         }
         catch (Exception)

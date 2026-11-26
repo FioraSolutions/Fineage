@@ -20,10 +20,13 @@ public partial class NetworkCharacterControllerShare : MonoBehaviour
     }
 
     void Start() {
-        NetworkingPacketServices.Bind(world: _world);
+        if (_world == null) {
+            Debug.LogError("[NetworkCharacterControllerShare] IWorldSpawnContext missing — GameLifetimeScope.RegisterWorld did not register World.");
+            enabled = false;
+            return;
+        }
         _characterController = GetComponent<CharacterController>();
-        World world = GameWorld;
-        if (_characterController == null || (world != null && world.OfflineMode)) {
+        if (_characterController == null || _world.OfflineMode) {
             enabled = false;
             return;
         }

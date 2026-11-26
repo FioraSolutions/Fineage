@@ -17,8 +17,9 @@ public partial class PlayerStateMachine : MonoBehaviour
         if (_currentIntention == Intention.INTENTION_MOVE_TO ||
             _currentIntention == Intention.INTENTION_MOVE_TO_PAWN)
             return true;
-        return ControllerPacketServices.Player != null &&
-               ControllerPacketServices.Player.RunningToDestination;
+        PlayerController found = ControllerPacketServices.Player;
+        IPlayerPawn pawn = found;
+        return found != null && pawn.RunningToDestination;
     }
 
     public void OnWaitReturn()

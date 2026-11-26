@@ -16,6 +16,9 @@ public static partial class MagicSkillPresentation
             case MagicSkillUseKind.Potion:
                 SetupDurationHelper.PlayPotionEffect(entity, dto);
                 return;
+            case MagicSkillUseKind.Presentation:
+                InterludePacketPresentationApply.TryApplyMagicSkillUse(entity, dto);
+                return;
         }
 
         // Interlude toggle (skillgrp operate_type 3): the client applies it and only redraws the toggle marker.
@@ -23,6 +26,14 @@ public static partial class MagicSkillPresentation
         // no row for them, so every "war_cry"/"battle_roar" line we played here was invented.
         if (SkillToggleRules.IsToggle(dto.SkillId, dto.SkillLvl, dto.SkillGrp))
             return;
+
+        if (PlayerStatePacketServices.PlayerState == null)
+        {
+            Debug.LogWarning(
+                "[MagicSkills] PresentLocal no PlayerStateMachine skill=" + dto.SkillId +
+                " lv=" + dto.SkillLvl + " hit=" + dto.HitTime);
+            return;
+        }
 
         AnimChannel.Begin(AnimChannel.Kind.Cast);
 
@@ -35,14 +46,6 @@ public static partial class MagicSkillPresentation
         {
             try { CastBarOverlay.Begin(dto.HitTime, dto.SkillId); }
             catch (System.Exception bar) { Debug.LogWarning("[CastBar] " + bar.Message); }
-        }
-
-        if (PlayerStatePacketServices.PlayerState == null)
-        {
-            Debug.LogWarning(
-                "[MagicSkills] PresentLocal no PlayerStateMachine skill=" + dto.SkillId +
-                " lv=" + dto.SkillLvl + " hit=" + dto.HitTime);
-            return;
         }
 
         Skillgrp grp = dto.SkillGrp;

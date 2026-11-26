@@ -1,0 +1,158 @@
+class we_c3a1034c8499a3d3 extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=MeshEmitter Name=MeshEmitter_0
+         StaticMesh=StaticMesh'Aden_GiantCave_S.25_19_02'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=150,G=150,R=150,A=255),RelativeTime=0.289286)
+         ColorScale(2)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.550000)
+         ColorScale(3)=(Color=(B=153,G=153,R=153,A=255),RelativeTime=0.753571)
+         ColorScale(4)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorScaleRepeats=1.000000
+         ColorMultiplierRange=(X=(Min=0.800000,Max=0.800000),Y=(Min=0.800000,Max=0.800000),Z=(Min=0.800000,Max=0.800000))
+         Opacity=0.160000
+         FadeOutStartTime=7.000000
+         MaxParticles=1
+         Name="바닥"
+         StartLocationRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=-200.000000,Max=-200.000000))
+         StartSizeRange=(X=(Min=1.200000,Max=1.200000),Y=(Min=1.200000,Max=1.200000),Z=(Min=1.200000,Max=1.200000))
+         LifetimeRange=(Min=7.000000,Max=7.000000)
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=7.000000
+     End Object
+     Emitters(0)=MeshEmitter'MeshEmitter_0'
+     Begin Object Class=MeshEmitter Name=MeshEmitter_1
+         StaticMesh=StaticMesh'Aden_GiantCave_S.25_19_03'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=157,G=157,R=157,A=255),RelativeTime=0.285714)
+         ColorScale(2)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.628571)
+         ColorScale(3)=(Color=(B=157,G=157,R=157,A=255),RelativeTime=0.839286)
+         ColorScale(4)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         Opacity=0.520000
+         FadeOutStartTime=9.240000
+         FadeOut=True
+         FadeInEndTime=4.920000
+         FadeIn=True
+         MaxParticles=2
+         Name="바닥_원"
+         StartLocationRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=-200.000000,Max=-200.000000))
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=1.000000,Z=1.000000)
+         SpinsPerSecondRange=(X=(Min=0.010000,Max=0.010000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSizeRange=(X=(Min=2.000000,Max=2.000000),Y=(Min=2.000000,Max=2.000000),Z=(Min=2.000000,Max=2.000000))
+         LifetimeRange=(Min=12.000000,Max=12.000000)
+         WarmupTicksPerSecond=2.000000
+         RelativeWarmupTime=12.000000
+     End Object
+     Emitters(1)=MeshEmitter'MeshEmitter_1'
+     Begin Object Class=MeshEmitter Name=MeshEmitter_2
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Etc.castleob05'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorMultiplierRange=(X=(Min=0.400000,Max=0.400000),Y=(Min=1.000000,Max=1.000000),Z=(Min=1.000000,Max=1.000000))
+         Opacity=0.470000
+         FadeOutStartTime=2.920000
+         FadeOut=True
+         FadeInEndTime=1.360000
+         FadeIn=True
+         MaxParticles=3
+         Name="글씨"
+         StartLocationRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=-20.000000,Max=80.000000))
+         SpinParticles=True
+         SpinsPerSecondRange=(X=(Min=0.020000,Max=0.020000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSizeRange=(X=(Min=3.000000,Max=3.000000),Y=(Min=3.000000,Max=3.000000),Z=(Min=1.500000,Max=1.500000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(2)=MeshEmitter'MeshEmitter_2'
+     Begin Object Class=MeshEmitter Name=MeshEmitter_3
+         StaticMesh=StaticMesh'Aden_GiantCave_S.25_19_06'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         Opacity=0.230000
+         FadeOutStartTime=0.920000
+         FadeOut=True
+         FadeInEndTime=0.520000
+         FadeIn=True
+         MaxParticles=3
+         Name="삼각형"
+         StartLocationRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=500.000000,Max=500.000000))
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=1.000000,Z=1.000000)
+         SpinsPerSecondRange=(X=(Min=0.170000,Max=0.170000),Y=(Min=0.000000,Max=0.000000),Z=(Min=-0.010000,Max=0.010000))
+         UseSizeScale=True
+         UseRegularSizeScale=False
+         SizeScale(0)=(RelativeSize=1.000000,RelativeTime=0.000000)
+         SizeScale(1)=(RelativeSize=1.300000,RelativeTime=0.470000)
+         SizeScale(2)=(RelativeSize=1.000000,RelativeTime=0.600000)
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(3)=MeshEmitter'MeshEmitter_3'
+     Begin Object Class=MeshEmitter Name=MeshEmitter_4
+         StaticMesh=StaticMesh'Aden_GiantCave_S.25_19_07'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=127,G=127,R=127,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.128571)
+         ColorScale(2)=(Color=(B=124,G=124,R=124,A=255),RelativeTime=0.425000)
+         ColorScale(3)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.703571)
+         ColorScale(4)=(Color=(B=136,G=136,R=136,A=255),RelativeTime=1.000000)
+         ColorScaleRepeats=5.000000
+         ColorMultiplierRange=(X=(Min=0.200000,Max=0.200000),Y=(Min=1.000000,Max=1.000000),Z=(Min=1.000000,Max=1.000000))
+         Opacity=0.730000
+         FadeOutStartTime=0.560000
+         FadeOut=True
+         FadeInEndTime=0.210000
+         FadeIn=True
+         MaxParticles=2
+         Name="가로선"
+         StartLocationRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=-500.000000,Max=-500.000000))
+         SpinParticles=True
+         SpinCCWorCW=(X=1.000000,Y=1.000000,Z=1.000000)
+         SpinsPerSecondRange=(X=(Min=0.010000,Max=0.010000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSpinRange=(X=(Min=0.000000,Max=1.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         LifetimeRange=(Min=7.000000,Max=7.000000)
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=7.000000
+     End Object
+     Emitters(4)=MeshEmitter'MeshEmitter_4'
+     Begin Object Class=MeshEmitter Name=MeshEmitter_5
+         StaticMesh=StaticMesh'Aden_GiantCave_S.25_19_012'
+         UseMeshBlendMode=False
+         RenderTwoSided=True
+         UseColorScale=True
+         ColorScale(0)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.000000)
+         ColorScale(1)=(Color=(B=161,G=161,R=161,A=255),RelativeTime=0.235714)
+         ColorScale(2)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=0.471429)
+         ColorScale(3)=(Color=(B=172,G=172,R=172,A=255),RelativeTime=0.696429)
+         ColorScale(4)=(Color=(B=255,G=255,R=255,A=255),RelativeTime=1.000000)
+         ColorMultiplierRange=(X=(Min=0.300000,Max=0.300000),Y=(Min=1.000000,Max=1.000000),Z=(Min=1.000000,Max=1.000000))
+         Opacity=0.140000
+         FadeOutStartTime=3.360000
+         FadeOut=True
+         FadeInEndTime=0.680000
+         FadeIn=True
+         MaxParticles=2
+         Name="글라데이션"
+         StartLocationRange=(X=(Min=0.000000,Max=0.000000),Y=(Min=0.000000,Max=0.000000),Z=(Min=150.000000,Max=150.000000))
+         SpinParticles=True
+         SpinsPerSecondRange=(X=(Min=0.020000,Max=0.020000),Y=(Min=0.000000,Max=0.000000),Z=(Min=0.000000,Max=0.000000))
+         StartSizeRange=(X=(Min=0.100000,Max=0.100000),Y=(Min=0.100000,Max=0.100000),Z=(Min=0.070000,Max=0.070000))
+         WarmupTicksPerSecond=1.000000
+         RelativeWarmupTime=4.000000
+     End Object
+     Emitters(5)=MeshEmitter'MeshEmitter_5'
+}

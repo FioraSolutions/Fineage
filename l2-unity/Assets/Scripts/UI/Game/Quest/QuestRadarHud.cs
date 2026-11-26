@@ -2,31 +2,30 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Interlude top-right CH3 radar (L2UI_CH3 Radar package). Heading-up compass
-/// with a quest-target needle and blip from the shared QuestDirection pipeline.
-/// Mounted on the game UI document so it follows HUD visibility.
+/// Compass drawn inside the extracted RadarContainerWnd (102x102, top-right).
+/// The radar has no map texture. Heading, north, self, and the quest blip are the compass marks.
 /// </summary>
 public sealed class QuestRadarHud : MonoBehaviour
 {
-    const string BackPath = "Data/UI/Map/Radar/radar_back";
     const string ArrowPath = "Data/UI/Map/Radar/radar_arrow";
     const string NorthPath = "Data/UI/Map/Radar/radar_n";
     const string SelfPath = "Data/UI/Map/Radar/radar_myself";
     const string TargetPath = "Data/UI/Map/Radar/radar_target";
-    const float SizePx = 128f;
-    const float MarginPx = 12f;
     const float NorthSizePx = 16f;
     const float SelfSizePx = 16f;
     const float TargetSizePx = 8f;
-    const float RimRadiusPx = 54f;
 
     VisualElement _host;
+    VisualElement _compass;
     VisualElement _arrow;
     VisualElement _north;
     VisualElement _target;
     VisualElement _self;
+    float _sizePx;
     bool _assetsFailed;
     bool _ready;
+
+    float RimRadiusPx => _sizePx * 0.5f - NorthSizePx * 0.5f - 2f;
 
     void OnDestroy()
     {
@@ -49,10 +48,8 @@ public sealed class QuestRadarHud : MonoBehaviour
         _host.style.display = DisplayStyle.Flex;
 
         Vector3 fwd = ResolveRadarForward(player);
-        // Unity +X = L2 +Y (north), Unity +Z = L2 +X (east).
         float faceAng = Mathf.Atan2(fwd.z, fwd.x);
-        PlaceOnRim(_north, -faceAng, NorthSizePx);
-        _north.style.unityBackgroundImageTintColor = Color.white;
+        AnchorNorthFixed();
 
         if (!QuestDirectionSight.TryActive(out QuestDirectionTarget target, out _, out Vector3 playerL2, out float planarUu))
         {
@@ -70,8 +67,8 @@ public sealed class QuestRadarHud : MonoBehaviour
         if (planarUu < QuestDirectionSight.RadarRadiusUu)
         {
             float r = (planarUu / QuestDirectionSight.RadarRadiusUu) * RimRadiusPx;
-            float cx = (SizePx * 0.5f) + Mathf.Sin(rel) * r;
-            float cy = (SizePx * 0.5f) - Mathf.Cos(rel) * r;
+            float cx = (_sizePx * 0.5f) + Mathf.Sin(rel) * r;
+            float cy = (_sizePx * 0.5f) - Mathf.Cos(rel) * r;
             _target.style.display = DisplayStyle.Flex;
             _target.style.left = cx - TargetSizePx * 0.5f;
             _target.style.top = cy - TargetSizePx * 0.5f;
@@ -82,12 +79,14 @@ public sealed class QuestRadarHud : MonoBehaviour
         }
     }
 
-    void PlaceOnRim(VisualElement el, float angle, float size)
+    void AnchorNorthFixed()
     {
-        float cx = (SizePx * 0.5f) + Mathf.Sin(angle) * RimRadiusPx;
-        float cy = (SizePx * 0.5f) - Mathf.Cos(angle) * RimRadiusPx;
-        el.style.left = cx - size * 0.5f;
-        el.style.top = cy - size * 0.5f;
+        if (_north == null)
+            return;
+        float top = (_sizePx - NorthSizePx) * 0.5f - RimRadiusPx;
+        _north.style.left = (_sizePx - NorthSizePx) * 0.5f;
+        _north.style.top = Mathf.Max(0f, top);
+        _north.style.unityBackgroundImageTintColor = Color.white;
     }
 
     bool EnsureUi()
@@ -105,44 +104,79 @@ public sealed class QuestRadarHud : MonoBehaviour
         if (root == null)
             return false;
 
-        Texture2D back = Load(BackPath);
         Texture2D arrow = Load(ArrowPath);
         Texture2D north = Load(NorthPath);
         Texture2D self = Load(SelfPath);
         Texture2D target = Load(TargetPath);
-        if (back == null || arrow == null || north == null || self == null || target == null)
+        if (arrow == null || north == null || self == null || target == null)
         {
             _assetsFailed = true;
             return false;
         }
 
-        _host = new VisualElement { name = "QuestRadar" };
+        _host = new VisualElement { name = "RadarContainerWnd" };
         _host.pickingMode = PickingMode.Ignore;
-        _host.style.position = Position.Absolute;
-        _host.style.right = MarginPx;
-        _host.style.top = MarginPx;
-        _host.style.width = SizePx;
-        _host.style.height = SizePx;
-        _host.style.backgroundImage = new StyleBackground(back);
-        _host.style.display = DisplayStyle.None;
         root.Add(_host);
+        if (!InterludeWindowLayout.Apply(_host, "RadarContainerWnd"))
+        {
+            _assetsFailed = true;
+            return false;
+        }
 
-        _arrow = Image(arrow, SizePx, 0f, 0f);
+        _compass = _host.Q<VisualElement>("Radar");
+        if (_compass == null)
+        {
+            Debug.LogError("[QuestRadar] Radar is missing from RadarContainerWnd.");
+            _assetsFailed = true;
+            return false;
+        }
+
+        _sizePx = _compass.resolvedStyle.width;
+        if (float.IsNaN(_sizePx) || _sizePx <= 1f)
+            _sizePx = _compass.style.width.value.value;
+        if (_sizePx <= 1f)
+        {
+            Debug.LogError("[QuestRadar] Radar has no positive size in the extracted layout.");
+            _assetsFailed = true;
+            return false;
+        }
+
+        _self = Image(self, SelfSizePx, (_sizePx - SelfSizePx) * 0.5f, (_sizePx - SelfSizePx) * 0.5f);
+        _compass.Add(_self);
+
+        _arrow = Image(arrow, _sizePx, 0f, 0f);
         _arrow.style.display = DisplayStyle.None;
-        _host.Add(_arrow);
+        _arrow.style.transformOrigin = new StyleTransformOrigin(
+            new TransformOrigin(Length.Percent(50), Length.Percent(50)));
+        _compass.Add(_arrow);
 
         _north = Image(north, NorthSizePx, 0f, 0f);
-        _host.Add(_north);
+        _compass.Add(_north);
+        AnchorNorthFixed();
 
         _target = Image(target, TargetSizePx, 0f, 0f);
         _target.style.display = DisplayStyle.None;
-        _host.Add(_target);
+        _compass.Add(_target);
 
-        _self = Image(self, SelfSizePx, (SizePx - SelfSizePx) * 0.5f, (SizePx - SelfSizePx) * 0.5f);
-        _host.Add(_self);
+        VisualElement icons = new VisualElement { name = "RadarWnd" };
+        icons.pickingMode = PickingMode.Ignore;
+        root.Add(icons);
+        if (InterludeWindowLayout.Apply(icons, "RadarWnd"))
+            ShowOnlyIcon(icons, "icon1");
 
+        _host.style.display = DisplayStyle.None;
         _ready = true;
         return true;
+    }
+
+    static void ShowOnlyIcon(VisualElement icons, string visibleName)
+    {
+        icons.Query<VisualElement>(className: "il-xdat").ForEach(element =>
+        {
+            if (element == icons || element.name == "RadarWnd")
+                return;
+            element.style.display = element.name == visibleName ? DisplayStyle.Flex : DisplayStyle.None;
+        });
     }
 
     static VisualElement Image(Texture2D tex, float size, float left, float top)
@@ -162,7 +196,7 @@ public sealed class QuestRadarHud : MonoBehaviour
     {
         var tex = Resources.Load<Texture2D>(path);
         if (tex == null)
-            Debug.LogError($"[QuestRadar] missing texture path={path}. Import L2UI_CH3 Radar from Interlude client.");
+            Debug.LogError("[QuestRadar] missing texture path='" + path + "'.");
         return tex;
     }
 

@@ -14,14 +14,14 @@ internal static class GameScopePlayerControllerRegistration
         PlayerController inScene = Object.FindFirstObjectByType<PlayerController>(FindObjectsInactive.Include);
         if (inScene != null)
         {
-            builder.RegisterComponent(inScene);
+            builder.RegisterComponent(inScene).AsSelf().As<IPlayerPawn>();
             return;
         }
 
         builder.Register<LivePlayerControllerAccessor>(Lifetime.Singleton);
         builder.Register<PlayerController>(
             container => container.Resolve<LivePlayerControllerAccessor>().Current,
-            Lifetime.Singleton);
+            Lifetime.Singleton).AsSelf().As<IPlayerPawn>();
     }
 
     sealed class LivePlayerControllerAccessor

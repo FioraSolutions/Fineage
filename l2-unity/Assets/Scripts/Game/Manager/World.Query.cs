@@ -21,7 +21,10 @@ public partial class World
         _entities.ForEachNpc(action);
     }
 
-    /// <summary>Tile colliders arrived after the spawn snap. Drop town NPCs onto the floor.</summary>
+    /// <summary>
+    /// Tile colliders arrived after the spawn snap. Re-ground NPCs/monsters and ground items
+    /// that spawned before walk mesh was present.
+    /// </summary>
     public void ResnapSpawnedActors()
     {
         ForEachNpc(entity =>
@@ -29,6 +32,12 @@ public partial class World
             if (entity == null || entity.Identity == null || entity is PlayerEntity)
                 return;
             EntitySpawnShared.ReapplyGroundAfterActivate(entity.gameObject, entity.Identity);
+        });
+
+        ForEachEntity(entity =>
+        {
+            if (entity is ItemEntity item)
+                EntitySpawnShared.ReapplyGroundForItem(item);
         });
     }
 

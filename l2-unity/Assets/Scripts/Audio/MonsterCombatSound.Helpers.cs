@@ -2,8 +2,15 @@ using UnityEngine;
 
 public static partial class MonsterCombatSound
 {
-    static AudioClip LoadEvent(string npc, string eventKey)
+    internal static AudioClip LoadEvent(string npc, string eventKey)
     {
+        if (OfficialWaveTable.TryResolveMonster(npc, eventKey, out string officialPath, out _))
+        {
+            AudioClip official = InterludeSfx.Load(officialPath);
+            if (official != null)
+                return official;
+        }
+
         string[] stems =
         {
             npc + "_" + eventKey,
@@ -19,7 +26,7 @@ public static partial class MonsterCombatSound
         return null;
     }
 
-    static AudioClip LoadVariant(string npc, string baseKey)
+    internal static AudioClip LoadVariant(string npc, string baseKey)
     {
         int[] order = { 1, 2, 3 };
         for (int i = order.Length - 1; i > 0; i--)

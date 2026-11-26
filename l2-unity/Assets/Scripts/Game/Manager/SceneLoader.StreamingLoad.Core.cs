@@ -16,6 +16,11 @@ public partial class SceneLoader
         }
 
         Vector3 l2Pos = VectorUtils.ConvertPosUnityToL2j(player.transform.position);
+        int standX;
+        int standY;
+        VectorUtils.GetSwMapTile(l2Pos, out standX, out standY);
+        string standing = VectorUtils.FormatSwMapName(standX, standY);
+        L2ZoneRender.SetActiveMap(standing);
         List<string> wanted = ResolveSeamlessTiles(l2Pos);
         if (wanted.Count == 0)
         {
@@ -25,8 +30,18 @@ public partial class SceneLoader
         for (int i = 0; i < wanted.Count; i++)
         {
             string tile = wanted[i];
-            if (_loadedTiles.Contains(tile) || !CanLoadTile(tile))
+            if (_loadedTiles.Contains(tile))
+                continue;
+
+            if (!CanLoadTile(tile))
             {
+                // The tile under the player is a catalog miss. Neighbors outside the
+                // catalog are not authored maps, so they are not requested.
+                if (tile == standing)
+                {
+                    _worldStreaming = false;
+                    throw MapTileLoadPolicy.Missing(tile);
+                }
                 continue;
             }
 

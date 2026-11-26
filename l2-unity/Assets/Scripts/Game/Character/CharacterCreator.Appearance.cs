@@ -9,15 +9,21 @@ public partial class CharacterCreator
     public void ReBuildFace(CharacterRaceAnimation raceId, byte _face)
     {
         GameObject pawnObject = pawns[currentPawnIndex];
-        if (pawnObject != null)
+        if (pawnObject == null)
+            return;
+
+        UserGear gear = pawnObject.GetComponent<UserGear>();
+        if (gear == null)
+            return;
+
+        if (!Builder.TryEquipFace(gear, raceId, _face))
         {
-            UserGear gear = pawnObject.GetComponent<UserGear>();
-            // Parent immediately — unparented Instantiate lands in the active scene
-            // (can be Game) and survives Menu unload as a floating mesh.
-            GameObject face = Instantiate(Models.GetFace(raceId, _face), pawnObject.transform, false);
-            gear.EquipFace(face);
-            LobbyPresentation.ApplyLayer(pawnObject);
+            Debug.LogError(
+                "[CharCreate] ReBuildFace failed pawnIndex=" + currentPawnIndex + " raceId=" + raceId + " face=" + _face);
+            return;
         }
+
+        LobbyPresentation.ApplyLayer(pawnObject);
     }
 
     public void ReBuildHair(CharacterRaceAnimation raceId, byte hairColor, byte hairStyle)

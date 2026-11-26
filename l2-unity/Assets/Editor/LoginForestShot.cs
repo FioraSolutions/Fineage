@@ -191,16 +191,27 @@ public static class LoginForestShot
         EditorApplication.isPlaying = true;
     }
 
+    static int _exitCode;
+
     static void Exit(int code)
     {
         if (_exitQueued)
             return;
         _exitQueued = true;
-        // Batchmode / -quit proof runs must leave the process; interactive Editor stays open.
-        if (Application.isBatchMode || IsCliProofRun())
-            EditorApplication.Exit(code);
-        else
+        _exitCode = code;
+        if (EditorApplication.isPlaying)
             EditorApplication.isPlaying = false;
+        EditorApplication.update += QuitWhenIdle;
+    }
+
+    static void QuitWhenIdle()
+    {
+        if (EditorApplication.isPlaying || EditorApplication.isPlayingOrWillChangePlaymode
+            || EditorApplication.isCompiling || EditorApplication.isUpdating)
+            return;
+        EditorApplication.update -= QuitWhenIdle;
+        if (Application.isBatchMode || IsCliProofRun())
+            EditorApplication.Exit(_exitCode);
     }
 
     static bool IsCliProofRun()

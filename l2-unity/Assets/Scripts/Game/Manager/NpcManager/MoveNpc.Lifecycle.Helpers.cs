@@ -2,10 +2,21 @@ using UnityEngine;
 
 public partial class MoveNpc : MonoBehaviour
 {
-    private void FixedUpdate()
+    public bool RequiresCentralizedStep() => _isMove || _isFollow || _isRotate;
+
+    void SyncMoveNpcRegistration()
     {
-    
-            if (_isRotate)
+        if (!FineageMovementCentralization.RouteMoveNpcThroughMoveAllCharacters)
+            return;
+        if (RequiresCentralizedStep())
+            MoveAllCharacters.RegisterMoveNpc(this);
+        else
+            MoveAllCharacters.UnregisterMoveNpc(this);
+    }
+
+    public void StepNpcFrame(float deltaTime)
+    {
+        if (_isRotate)
             {
                 // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                 if (IsRotating())
@@ -52,8 +63,13 @@ public partial class MoveNpc : MonoBehaviour
                 //Debug.Log("NPC MOVEEEEEEEEEEEE POSIIITIIIION");
                 MoveToPoint(_targetMove, false);
             }
+    }
 
-        
+    private void FixedUpdate()
+    {
+        if (FineageMovementCentralization.RouteMoveNpcThroughMoveAllCharacters)
+            return;
+        StepNpcFrame(Time.deltaTime);
     }
 
     public void CancelMove()
@@ -61,6 +77,7 @@ public partial class MoveNpc : MonoBehaviour
         if (_isMove)
         {
             _isMove = false;
+            SyncMoveNpcRegistration();
         }
     }
 }

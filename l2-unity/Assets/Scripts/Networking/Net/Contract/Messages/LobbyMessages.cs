@@ -1,3 +1,5 @@
+using System;
+
 namespace Fineage.Net.Contract
 {
     public sealed class AuthMsg
@@ -122,6 +124,13 @@ namespace Fineage.Net.Contract
         public string Message { get; set; } = "";
         public int Slot { get; set; } = -1;
         public int CharacterId { get; set; }
+    }
+
+    /// <summary>Retail <c>RestartResponse</c>. <see cref="Ok"/> is false when a restart gate refused.</summary>
+    public sealed class RestartResponseMsg
+    {
+        public bool Ok { get; set; }
+        public string Code { get; set; } = "";
     }
 
     public sealed class HandoffMsg

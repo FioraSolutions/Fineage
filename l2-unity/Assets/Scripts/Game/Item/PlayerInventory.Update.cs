@@ -1,199 +1,113 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using VContainer;
 
 public partial class PlayerInventory
 {
-    public void UpdateInventory(Dictionary<int, ItemInstance> items , Dictionary<int, ItemInstance> equipitems)
+    public CharacterInventory Book
     {
-        lock (_lock)
+        get
         {
-
-            _changeInventoryData.ClearData();
-
-            List<ItemInstance> listEquip = equipitems.Values.ToList();
-
-            var items_f = items.Values.ToArray();
-            var _tempForRemoveAndAdd = FilterByRemove(items_f);
-            var _tempForModified = FilterByModified(items_f);
-
-            try
-            {
-
-                UpdatePlayerInventory(_tempForRemoveAndAdd, _tempForModified , listEquip);
-                ModifiedEquip(_playerInventory, _playerEquipInventory, listEquip);
-
-                int adenaCount = GetAdenaCount(_playerInventory.Values.ToList());
-                int useSlot = _playerInventory.Count + _playerEquipInventory.Count;
-
-                if(_currentUser == null) _currentUser =  StorageNpc.getInstance().GetFirstUser();
-                int userId = _currentUser.PlayerInfoInterlude.Identity.Id;
-                DispatcherPacketServices.Dispatcher.Enqueue(() => {
-                    // Same reason as SetInventory: the window may not exist yet. The change data
-                    // is applied to _playerInventory above, so only the redraw is skipped.
-                    if (InventoryPacketServices.Window == null)
-                        return;
-                    InventoryPacketServices.Window.UpdateItemList(_tempForRemoveAndAdd, _tempForModified, listEquip, adenaCount, useSlot, _changeInventoryData, userId);
-                    InventoryPacketServices.Window.RemoveOldEquipItemOrNoQuipItem(_changeInventoryData , userId);
-                });
-
-            }
-            catch (Exception)
-            {
-                // Debug.LogError("PlayerInventory Errors: " + ex.StackTrace);
-            }
-        }
-
-    }
-    private int GetAdenaCount(List<ItemInstance> modified)
-    {
-        ItemInstance item =  modified.FirstOrDefault(o => o.Category == ItemCategory.Adena);
-        return (item != null) ? item.Count : 0;
-    }
-    private void UpdatePlayerInventory(List<ItemInstance> removeAndAdd, List<ItemInstance> modified , List<ItemInstance> listEquip)
-    {
-        for (int i = 0; i < removeAndAdd.Count; i++)
-        {
-            ItemInstance item = removeAndAdd[i];
-            AddAndRemove(_playerInventory, item);
-        }
-
-        for (int i = 0; i < modified.Count; i++)
-        {
-            ItemInstance item_m = modified[i];
-            Modified(_playerInventory, _playerEquipInventory , listEquip , item_m);
+            if (_book == null)
+                _book = new CharacterInventory();
+            return _book;
         }
     }
 
-    private void AddAndRemove(Dictionary<int, ItemInstance> _playerInventory , ItemInstance item)
-    {
-        //Debug.Log("Add new Object 1 NoFilter" + item.ItemId + " ObjectID " + item.ObjectId);
-        if (item.LastChange == (int)InventoryChange.REMOVED)
-        {
-            if (_playerInventory.ContainsKey(item.ObjectId))
-            {
-                //Debug.Log("Remove object id " + item.ObjectId + " remove item id " + item.ItemId);
-                _playerInventory.Remove(item.ObjectId);
-                RefreshPosition(_playerInventory);
-            }
+    public int AdenaCount { get { return Book.Adena; } }
 
-            if (_playerEquipInventory != null && _playerEquipInventory.ContainsKey(item.ObjectId))
-                RemoveGearInventory(_playerEquipInventory, _playerEquipInventory[item.ObjectId]);
-        }
-        else if(item.LastChange == (int)InventoryChange.ADDED)
-        {
-            
-            if (!_playerInventory.ContainsKey(item.ObjectId))
-            {
-                AddInventory(item);
-            }
-            
-        }
+    public int UsedSlots { get { return Book.Count; } }
+
+    public int CountOfItem(int itemId)
+    {
+        return Book.SumItem(itemId);
     }
 
-    private void AddInventory(ItemInstance item)
+    public void ReplaceFromServer(IReadOnlyList<CharacterInventory.Row> rows, int version)
     {
-        item.SetSlot(FindFreeSlot());
-        _playerInventory.Add(item.ObjectId, item);
-
+        var errors = new List<string>();
+        int generation = Book.Generation;
+        CharacterInventory.ApplyStatus status = Book.Replace(rows, version, errors);
+        LogBook(errors);
+        if (Book.ResyncRequired)
+            NetGearSession.RequestResync("ItemList");
+        if (status == CharacterInventory.ApplyStatus.Applied && Book.Generation != generation)
+            Publish(false);
     }
 
-    /// <summary>
-    /// Lowest bag slot not used by another row. The slot used to come from the inventory window
-    /// (<c>GetEmptySlot</c>), but the window is repainted from a queued dispatcher callback while the
-    /// model is updated immediately. A purchase that adds several rows in one packet therefore read
-    /// the same still-empty UI slot for each row, so every item collapsed onto one cell and only the
-    /// last was visible until the next full ItemList. Allocating from the model keeps rows distinct.
-    /// </summary>
-    private int FindFreeSlot()
+    public void ApplyFromServer(IReadOnlyList<CharacterInventory.Change> changes, int version)
     {
-        // Bag rows only: paperdoll slots are a separate numbering (0..16) used by the gear tab,
-        // so mixing them in would shove bag items into high slots for no reason.
-        var used = new HashSet<int>();
-        if (_playerInventory != null)
+        var errors = new List<string>();
+        int generation = Book.Generation;
+        CharacterInventory.ApplyStatus status = Book.Apply(changes, version, errors);
+        LogBook(errors);
+        if (status == CharacterInventory.ApplyStatus.Gap || status == CharacterInventory.ApplyStatus.Rejected)
+            NetGearSession.RequestResync("InventoryUpdate");
+        else if (Book.ResyncRequired)
+            NetGearSession.RequestResync("InventoryUpdate");
+        if (status == CharacterInventory.ApplyStatus.Applied && Book.Generation != generation)
+            Publish(false);
+    }
+
+    public void UpdateInventory(Dictionary<int, ItemInstance> items, Dictionary<int, ItemInstance> equipItems)
+    {
+        var changes = new List<CharacterInventory.Change>();
+        if (!TryAppendChanges(items, changes) || !TryAppendChanges(equipItems, changes))
         {
-            foreach (var row in _playerInventory.Values)
-                used.Add(row.GetPosition());
-        }
-
-        int slot = 0;
-        while (used.Contains(slot))
-            slot++;
-        return slot;
-    }
-
-    private void RefreshPosition(Dictionary<int, ItemInstance> playerInventory)
-    {
-        if (playerInventory == null || playerInventory.Count == 0)
+            NetGearSession.RequestResync("legacy InventoryUpdate");
             return;
-
-        // The inventory window shifts cells left after a removal
-        // (InventoryTab.Update.Helpers → ShiftElementsLeft). Mirror it in the model, otherwise
-        // FindFreeSlot fills the gap while the UI paints a compacted list and the two disagree
-        // about which cell a row belongs to.
-        var rows = playerInventory.Values.OrderBy(row => row.GetPosition()).ToList();
-        for (int i = 0; i < rows.Count; i++)
-            rows[i].SetSlot(i);
+        }
+        ApplyFromServer(changes, 0);
     }
 
-    private void Modified(Dictionary<int, ItemInstance> playerInventory, Dictionary<int, ItemInstance> playerEquipInventory, List<ItemInstance> listEquip , ItemInstance item)
+    static void LogBook(List<string> errors)
     {
-        //Debug.Log("Modified data count " + item.Count + " item obj id " + item.ObjectId + " itemid" + item.ItemId + " equiped " + item.Equipped);
-        UpdateInventory(playerInventory, playerEquipInventory , listEquip , item);
-        UpdateEquip(playerInventory , playerEquipInventory, item);
+        if (errors == null)
+            return;
+        for (int i = 0; i < errors.Count; i++)
+            Debug.LogError("[Inventory] " + errors[i]);
     }
 
-    private void ModifiedEquip(Dictionary<int, ItemInstance> playerInventory, Dictionary<int, ItemInstance> playerEquipInventory , List<ItemInstance> modified)
+    static bool TryAppendChanges(Dictionary<int, ItemInstance> source, List<CharacterInventory.Change> changes)
     {
-        for(int i =0; i < modified.Count; i++)
+        if (source == null)
+            return true;
+        foreach (ItemInstance item in source.Values)
         {
-            ItemInstance item = modified[i];
-            UpdateInventoryEquip(playerInventory, playerEquipInventory, item);
+            if (item == null)
+            {
+                Debug.LogError("[Inventory] legacy update row is null");
+                return false;
+            }
+            int code;
+            if (!TryWireChange(item.LastChange, out code))
+            {
+                Debug.LogError("[Inventory] legacy update objectId " + item.ObjectId + " has change " + item.LastChange);
+                return false;
+            }
+            changes.Add(new CharacterInventory.Change { Code = code, Row = RowFromItem(item) });
         }
-        
+        return true;
     }
 
-    private void UpdateInventory(Dictionary<int, ItemInstance> playerInventory , Dictionary<int, ItemInstance> playerEquipInventory, List<ItemInstance> listEquip ,ItemInstance item)
+    static bool TryWireChange(int lastChange, out int code)
     {
-   
-        if (playerEquipInventory.ContainsKey(item.ObjectId) & !item.Equipped)
+        if (lastChange == (int)InventoryChange.ADDED)
         {
-           
-            ItemInstance del_item_replace = listEquip.FirstOrDefault(itemEquip => itemEquip.EqualsBodyPart(item.BodyPart , item.IsBow()));
-
-            if (del_item_replace != null)
-            {
-                GearReplaceSlot(playerEquipInventory, del_item_replace, item);
-            }
-            else
-            {
-                ItemInstance del_item = playerEquipInventory[item.ObjectId];
-                RemoveGearInventory(playerEquipInventory, del_item);
-            }
-
+            code = CharacterInventory.Add;
+            return true;
         }
-
-        //If we move from gear Inventory to items Inventory
-        if (!playerInventory.ContainsKey(item.ObjectId))
+        if (lastChange == (int)InventoryChange.MODIFIED)
         {
-            if (!item.Equipped)
-            {
-                AddInventory(item); 
-            }
+            code = CharacterInventory.Modify;
+            return true;
         }
-        else
+        if (lastChange == (int)InventoryChange.REMOVED)
         {
-            
-            ItemInstance oldItem = playerInventory[item.ObjectId];
-            int count = item.Count - oldItem.Count;
-            item.SetSlot(oldItem.Slot);
-            
-            //StorageVariable.getInstance().AddS1Items(new VariableItem(count.ToString(), item.ObjectId));
-           // StorageVariable.getInstance().AddS2Items(new VariableItem(item.ItemData.ItemName.Name, item.ObjectId));
-            oldItem.Update(item);
+            code = CharacterInventory.Remove;
+            return true;
         }
+        code = -1;
+        return false;
     }
-
 }

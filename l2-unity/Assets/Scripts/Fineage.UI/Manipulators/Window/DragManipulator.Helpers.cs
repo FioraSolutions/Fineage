@@ -39,7 +39,7 @@ public partial class DragManipulator : PointerManipulator
     {
         for (; ve != null && ve != target; ve = ve.parent)
         {
-            if (ve is Button)
+            if (ve is Button || ve.ClassListContains("hor-resize-handle"))
                 return true;
         }
         return false;

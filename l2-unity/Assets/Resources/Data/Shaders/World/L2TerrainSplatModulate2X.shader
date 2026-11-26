@@ -1,6 +1,6 @@
 // L2 terrain base: opaque layer 0 only. D3D9 FF saturate(t0 * Color0 * 2) + linear fog.
 // Overlays: L2/World/TerrainLayerModulate2X, L2TerrainOverlayRenderPass after opaques.
-// Color UV = worldXZ_UU / 128 / _Layer_0_UV. DepthPriming: DepthOnly / DepthNormalsOnly.
+// Color UV = projected world UU / _Layer_0_UV.xy (layer Scale * UScale).
 Shader "L2/World/TerrainBaseModulate2X"
 {
     Properties
@@ -34,17 +34,53 @@ Shader "L2/World/TerrainBaseModulate2X"
         [Toggle] _Layer_7_Enabled ("Layer 7 Enabled", Float) = 1
         [Toggle] _Layer_8_Enabled ("Layer 8 Enabled", Float) = 1
         [Toggle] _Layer_9_Enabled ("Layer 9 Enabled", Float) = 1
-        _Layer_0_UV ("Layer 0 UScale (TerrainInfo)", Vector) = (1, 1, 0, 0)
-        _Layer_1_UV ("Layer 1 UScale", Vector) = (1, 1, 0, 0)
-        _Layer_2_UV ("Layer 2 UScale", Vector) = (1, 1, 0, 0)
-        _Layer_3_UV ("Layer 3 UScale", Vector) = (2, 2, 0, 0)
-        _Layer_4_UV ("Layer 4 UScale", Vector) = (1, 1, 0, 0)
-        _Layer_5_UV ("Layer 5 UScale", Vector) = (1, 1, 0, 0)
-        _Layer_6_UV ("Layer 6 UScale", Vector) = (1, 1, 0, 0)
-        _Layer_7_UV ("Layer 7 UScale", Vector) = (1.5, 1.5, 0, 0)
-        _Layer_8_UV ("Layer 8 UScale", Vector) = (1, 1, 0, 0)
-        _Layer_9_UV ("Layer 9 UScale", Vector) = (1.5, 1.5, 0, 0)
-        _L2WorldUvPerTileUu ("World UV tile (UU)", Float) = 128
+        _Layer_0_UV ("Layer 0 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_1_UV ("Layer 1 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_2_UV ("Layer 2 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_3_UV ("Layer 3 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_4_UV ("Layer 4 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_5_UV ("Layer 5 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_6_UV ("Layer 6 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_7_UV ("Layer 7 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_8_UV ("Layer 8 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_9_UV ("Layer 9 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_10_UV ("Layer 10 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_11_UV ("Layer 11 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_12_UV ("Layer 12 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_13_UV ("Layer 13 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_14_UV ("Layer 14 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_15_UV ("Layer 15 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_16_UV ("Layer 16 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_17_UV ("Layer 17 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_18_UV ("Layer 18 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_19_UV ("Layer 19 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_20_UV ("Layer 20 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_21_UV ("Layer 21 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_22_UV ("Layer 22 repeat UU", Vector) = (0, 0, 0, 0)
+        _Layer_0_Xform ("Layer 0 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_1_Xform ("Layer 1 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_2_Xform ("Layer 2 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_3_Xform ("Layer 3 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_4_Xform ("Layer 4 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_5_Xform ("Layer 5 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_6_Xform ("Layer 6 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_7_Xform ("Layer 7 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_8_Xform ("Layer 8 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_9_Xform ("Layer 9 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_10_Xform ("Layer 10 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_11_Xform ("Layer 11 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_12_Xform ("Layer 12 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_13_Xform ("Layer 13 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_14_Xform ("Layer 14 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_15_Xform ("Layer 15 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_16_Xform ("Layer 16 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_17_Xform ("Layer 17 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_18_Xform ("Layer 18 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_19_Xform ("Layer 19 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_20_Xform ("Layer 20 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_21_Xform ("Layer 21 rotation/axis", Vector) = (0, 0, 0, 0)
+        _Layer_22_Xform ("Layer 22 rotation/axis", Vector) = (0, 0, 0, 0)
+        _L2WorldUvPerTileUu ("Unused legacy tile UU", Float) = 128
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2
         [HideInInspector] _BaseMap ("BaseMap", 2D) = "white" {}
     }
@@ -96,6 +132,42 @@ Shader "L2/World/TerrainBaseModulate2X"
         float4 _Layer_7_UV;
         float4 _Layer_8_UV;
         float4 _Layer_9_UV;
+        float4 _Layer_10_UV;
+        float4 _Layer_11_UV;
+        float4 _Layer_12_UV;
+        float4 _Layer_13_UV;
+        float4 _Layer_14_UV;
+        float4 _Layer_15_UV;
+        float4 _Layer_16_UV;
+        float4 _Layer_17_UV;
+        float4 _Layer_18_UV;
+        float4 _Layer_19_UV;
+        float4 _Layer_20_UV;
+        float4 _Layer_21_UV;
+        float4 _Layer_22_UV;
+        float4 _Layer_0_Xform;
+        float4 _Layer_1_Xform;
+        float4 _Layer_2_Xform;
+        float4 _Layer_3_Xform;
+        float4 _Layer_4_Xform;
+        float4 _Layer_5_Xform;
+        float4 _Layer_6_Xform;
+        float4 _Layer_7_Xform;
+        float4 _Layer_8_Xform;
+        float4 _Layer_9_Xform;
+        float4 _Layer_10_Xform;
+        float4 _Layer_11_Xform;
+        float4 _Layer_12_Xform;
+        float4 _Layer_13_Xform;
+        float4 _Layer_14_Xform;
+        float4 _Layer_15_Xform;
+        float4 _Layer_16_Xform;
+        float4 _Layer_17_Xform;
+        float4 _Layer_18_Xform;
+        float4 _Layer_19_Xform;
+        float4 _Layer_20_Xform;
+        float4 _Layer_21_Xform;
+        float4 _Layer_22_Xform;
         float _Layer_1_Enabled;
         float _Layer_2_Enabled;
         float _Layer_3_Enabled;
@@ -150,6 +222,7 @@ Shader "L2/World/TerrainBaseModulate2X"
                 float2 worldUu : TEXCOORD0;
                 float3 color0 : TEXCOORD1;
                 float viewAbsZ : TEXCOORD2;
+                float heightUu : TEXCOORD3;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -161,6 +234,7 @@ Shader "L2/World/TerrainBaseModulate2X"
                 VertexPositionInputs posInputs = GetVertexPositionInputs(IN.positionOS.xyz);
                 OUT.positionCS = posInputs.positionCS;
                 OUT.worldUu = posInputs.positionWS.xz * 52.5;
+                OUT.heightUu = posInputs.positionWS.y * 52.5;
                 float3 vtx = IN.color.rgb;
                 if (max(max(vtx.r, vtx.g), vtx.b) < 0.001)
                     vtx = float3(1, 1, 1);
@@ -175,7 +249,7 @@ Shader "L2/World/TerrainBaseModulate2X"
                 UNITY_SETUP_INSTANCE_ID(IN);
                 if (_L2TerrainLightDebug > 0.5)
                     return half4(L2_TerrainLightDebugColor(IN.worldUu), 1);
-                float2 uv = L2_TerrainLayerUv(IN.worldUu, _Layer_0_UV, _L2WorldUvPerTileUu);
+                float2 uv = L2_TerrainLayerUv(IN.worldUu, IN.heightUu, _Layer_0_UV, _Layer_0_Xform.x, _Layer_0_Xform.y);
                 half3 albedo = SAMPLE_TEXTURE2D(_Layer_0, sampler_Layer_0, uv).rgb;
                 float3 rgb = L2_LinearFog(L2_Modulate2X(albedo, IN.color0), IN.viewAbsZ);
                 return half4(rgb, 1);
@@ -301,7 +375,19 @@ Shader "L2/World/TerrainBaseModulate2X"
                 c += SAMPLE_TEXTURE2D(_LayerMask_7, sampler_Layer_0, uv);
                 c += SAMPLE_TEXTURE2D(_LayerMask_8, sampler_Layer_0, uv);
                 c += SAMPLE_TEXTURE2D(_LayerMask_9, sampler_Layer_0, uv);
-                return c * 0;
+                // Keep per-layer repeat/xform in the compiled cbuffer so the overlay stack can read them.
+                float4 keep = _L2WorldUvPerTileUu;
+                keep += _Layer_0_UV + _Layer_1_UV + _Layer_2_UV + _Layer_3_UV + _Layer_4_UV;
+                keep += _Layer_5_UV + _Layer_6_UV + _Layer_7_UV + _Layer_8_UV + _Layer_9_UV;
+                keep += _Layer_10_UV + _Layer_11_UV + _Layer_12_UV + _Layer_13_UV + _Layer_14_UV;
+                keep += _Layer_15_UV + _Layer_16_UV + _Layer_17_UV + _Layer_18_UV + _Layer_19_UV;
+                keep += _Layer_20_UV + _Layer_21_UV + _Layer_22_UV;
+                keep += _Layer_0_Xform + _Layer_1_Xform + _Layer_2_Xform + _Layer_3_Xform + _Layer_4_Xform;
+                keep += _Layer_5_Xform + _Layer_6_Xform + _Layer_7_Xform + _Layer_8_Xform + _Layer_9_Xform;
+                keep += _Layer_10_Xform + _Layer_11_Xform + _Layer_12_Xform + _Layer_13_Xform + _Layer_14_Xform;
+                keep += _Layer_15_Xform + _Layer_16_Xform + _Layer_17_Xform + _Layer_18_Xform + _Layer_19_Xform;
+                keep += _Layer_20_Xform + _Layer_21_Xform + _Layer_22_Xform;
+                return (c + keep) * 0;
             }
             ENDHLSL
         }

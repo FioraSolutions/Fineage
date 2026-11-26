@@ -3,12 +3,12 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
 
-public partial class ClickManager : MonoBehaviour
+public partial class ClickManager : MonoBehaviour, IClickMasks
 {
     void Update()
     {
         Camera cam = ResolvePickCamera();
-        if (cam == null)
+        if (!EntityPick.IsWorldView(cam))
         {
             _hoverObjectData = null;
             return;
@@ -20,7 +20,7 @@ public partial class ClickManager : MonoBehaviour
         if (_hoverObjectData != null && _hoverObjectData.ObjectTransform != null)
             stickyDrop = _hoverObjectData.ObjectTransform.GetComponent<ItemEntity>();
 
-        bool overUi = SystemUIPacketServices.Ui != null && SystemUIPacketServices.Ui.IsPointerOverPanel();
+        bool overUi = SystemUIPacketServices.Ui != null && SystemUIPacketServices.Ui.BlocksWorldPointerInput();
         if (!overUi && _dropPicker != null &&
             _dropPicker.TryPick(ray, MousePickDistance, stickyDrop, out ItemEntity dropItem, out _))
         {
@@ -38,8 +38,7 @@ public partial class ClickManager : MonoBehaviour
             return;
         }
 
-        if (SystemUIPacketServices.Ui != null &&
-            (SystemUIPacketServices.Ui.MouseOverUI || SystemUIPacketServices.Ui.IsPointerOverPanel()))
+        if (SystemUIPacketServices.Ui != null && SystemUIPacketServices.Ui.BlocksWorldPointerInput())
         {
             _hoverObjectData = null;
             return;
@@ -59,7 +58,8 @@ public partial class ClickManager : MonoBehaviour
             return;
         }
 
-        if (EntityPick.TryPickMove(ray, MousePickDistance, _clickThroughMask, out hit))
+        if (EntityPick.TryPickMove(ray, MousePickDistance, _clickThroughMask, out hit)
+            && !EntityPick.IsLobbyPresentation(hit.collider))
         {
             _hoverObjectData = new ObjectData(hit.collider.gameObject);
             if (GameInput != null &&

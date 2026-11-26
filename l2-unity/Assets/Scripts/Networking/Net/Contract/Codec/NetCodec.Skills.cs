@@ -24,7 +24,12 @@ namespace Fineage.Net.Contract
                 w.WriteString(row.Icon ?? "");
                 w.WriteString(row.WeaponType ?? "");
                 w.WriteString(row.ArmorType ?? "");
+                w.WriteInt32(row.Option1);
+                w.WriteInt32(row.Option2);
             }
+
+            // The inventory version is not part of this body. The zone appends one little-endian int32
+            // (InventoryVersionTail) so a client that re-encodes with this method sees exactly four extra bytes.
         });
 
         public static ItemListNetMsg DecodeItemList(ReadOnlySpan<byte> p)
@@ -49,8 +54,15 @@ namespace Fineage.Net.Contract
                     WeaponType = r.ReadString(),
                     ArmorType = r.ReadString()
                 };
+                if (r.Remaining >= 8)
+                {
+                    rows[i].Option1 = r.ReadInt32();
+                    rows[i].Option2 = r.ReadInt32();
+                }
             }
 
+            // A trailing int32 is the inventory version. It is not consumed here: Encode(Decode(payload))
+            // must equal the body, and the four extra bytes stay a tail.
             return new ItemListNetMsg { Items = rows };
         }
 
@@ -227,6 +239,101 @@ namespace Fineage.Net.Contract
                 CrystalCount = r.ReadInt32()
             };
         }
+
+        public static byte[] EncodeEnchantSkillList(EnchantSkillListNetMsg m) => Write(w =>
+        {
+            var rows = m.Skills ?? System.Array.Empty<EnchantSkillListEntryNet>();
+            w.WriteInt32(rows.Length);
+            foreach (var row in rows)
+            {
+                w.WriteInt32(row.SkillId);
+                w.WriteInt32(row.NextLevel);
+                w.WriteInt32(row.Sp);
+                w.WriteInt64(row.Exp);
+            }
+        });
+
+        public static EnchantSkillListNetMsg DecodeEnchantSkillList(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            int count = r.ReadInt32();
+            var rows = new EnchantSkillListEntryNet[count];
+            for (int i = 0; i < count; i++)
+            {
+                rows[i] = new EnchantSkillListEntryNet
+                {
+                    SkillId = r.ReadInt32(),
+                    NextLevel = r.ReadInt32(),
+                    Sp = r.ReadInt32(),
+                    Exp = r.ReadInt64()
+                };
+            }
+
+            return new EnchantSkillListNetMsg { Skills = rows };
+        }
+
+        public static byte[] EncodeEnchantSkillInfo(EnchantSkillInfoNetMsg m) => Write(w =>
+        {
+            w.WriteInt32(m.SkillId);
+            w.WriteInt32(m.Level);
+            w.WriteInt32(m.SpCost);
+            w.WriteInt64(m.ExpCost);
+            w.WriteInt32(m.Rate);
+            var reqs = m.Requirements ?? System.Array.Empty<EnchantSkillRequirementNet>();
+            w.WriteInt32(reqs.Length);
+            foreach (var req in reqs)
+            {
+                w.WriteInt32(req.Type);
+                w.WriteInt32(req.ItemId);
+                w.WriteInt32(req.Count);
+                w.WriteInt32(req.Unk);
+            }
+        });
+
+        public static EnchantSkillInfoNetMsg DecodeEnchantSkillInfo(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            int id = r.ReadInt32();
+            int level = r.ReadInt32();
+            int sp = r.ReadInt32();
+            long exp = r.ReadInt64();
+            int rate = r.ReadInt32();
+            int reqCount = r.ReadInt32();
+            var reqs = new EnchantSkillRequirementNet[reqCount];
+            for (int i = 0; i < reqCount; i++)
+            {
+                reqs[i] = new EnchantSkillRequirementNet
+                {
+                    Type = r.ReadInt32(),
+                    ItemId = r.ReadInt32(),
+                    Count = r.ReadInt32(),
+                    Unk = r.ReadInt32()
+                };
+            }
+
+            return new EnchantSkillInfoNetMsg
+            {
+                SkillId = id,
+                Level = level,
+                SpCost = sp,
+                ExpCost = exp,
+                Rate = rate,
+                Requirements = reqs
+            };
+        }
+
+        public static byte[] EncodeEnchantSkillRequest(int skillId, int skillLevel) => Write(w =>
+        {
+            w.WriteInt32(skillId);
+            w.WriteInt32(skillLevel);
+        });
+
+        public static EnchantSkillRequestNetMsg DecodeEnchantSkillRequest(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            return new EnchantSkillRequestNetMsg { SkillId = r.ReadInt32(), SkillLevel = r.ReadInt32() };
+        }
+
         public static PositionCorrectionMsg DecodePositionCorrection(ReadOnlySpan<byte> p)
         {
             var r = new Reader(p);

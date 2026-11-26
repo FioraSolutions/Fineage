@@ -1,0 +1,22 @@
+{
+  "catalog_unique_skill_ids": 2630,
+  "skillgrp_desc_path_ids": 900,
+  "engine_table_entries": 243,
+  "engine_table_unique_ids": 238,
+  "engine_ids_already_in_skillgrp_desc": 207,
+  "engine_ids_new": 31,
+  "engine_ids_not_in_catalog": [
+    831,
+    832,
+    1058
+  ],
+  "union_desc_or_engine": 928,
+  "remaining_no_unique_effect": 1702,
+  "remaining_with_ani_char": 274,
+  "remaining_without_ani_char": 1428,
+  "note": "The Interlude 'engine' skill-effect table lives in Animations/skill.usk (SkillVisualEffect objects), not in packed engine.dll. Cruma 1.2.0 SkillEffects.listVisuals() reads it. C1/C2 still keep equivalents only in Engine.dll, which Cruma cannot read.",
+  "engine_ids_new_in_catalog": 28,
+  "source": "Cruma 1.2.0 SkillEffects.listVisuals() on official Interlude Animations/skill.usk",
+  "cruma_version": "1.2.0",
+  "cruma_share": "https://drive.proton.me/urls/SS3B4GRJ5G#NEyZPwz2LUSH"
+}

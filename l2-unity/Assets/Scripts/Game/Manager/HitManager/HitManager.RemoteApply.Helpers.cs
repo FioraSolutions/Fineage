@@ -5,6 +5,13 @@ using VContainer;
 
 public partial class HitManager
 {
+    public void FlushRemoteMeleeHit(Entity attacker)
+    {
+        if (attacker == null || attacker.Identity == null)
+            return;
+        PresentScheduledHits(attacker.Identity.Id, forceAll: true);
+    }
+
     void DropRemoteMeleeHit(int attackerId)
     {
         RemoteMeleeHit pending;

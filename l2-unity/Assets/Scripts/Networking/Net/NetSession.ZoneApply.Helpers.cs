@@ -6,6 +6,15 @@ using UnityEngine;
 
 public sealed partial class NetSession
 {
+    static int ResolveSpawnRace(EntitySpawnMsg spawn)
+    {
+        if (spawn.Race >= 0 && spawn.Race <= (int)CharacterRace.Dwarf)
+            return spawn.Race;
+
+        SpawnAppearanceApplyLog.LogRaceDerivedFromClass((int)spawn.EntityValue, spawn.Race, spawn.ClassId);
+        return (int)MapClassId.GetCharacterRace(spawn.ClassId);
+    }
+
     static int ResolveSpawnCurHp(EntitySpawnMsg spawn, int maxHp)
     {
         if (spawn.Dead)
@@ -26,7 +35,6 @@ public sealed partial class NetSession
         dto.Identity.NpcId = spawn.TemplateId;
         if (!string.IsNullOrEmpty(spawn.Name))
             dto.Identity.Name = spawn.Name;
-        dto.Identity.SetHideHp(spawn.TemplateId);
         if (liveDoor)
         {
             NetDoorSession.RememberDoorSpawn(objectId);
@@ -46,12 +54,9 @@ public sealed partial class NetSession
         int pAtkSpd = spawn.PAtkSpd > 0 ? spawn.PAtkSpd : 253;
         dto.Stats.PAtkSpd = pAtkSpd;
         dto.Stats.PAtkRealSpeed = pAtkSpd;
-        float run = spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f;
-        float walk = spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f;
-        dto.Stats.BaseRunSpeed = Mathf.RoundToInt(run);
-        dto.Stats.BaseWalkingSpeed = Mathf.RoundToInt(walk);
-        dto.Stats.WalkRealSpeed = walk;
-        dto.Stats.RunRealSpeed = run;
+        if (spawn.RunSpeed <= 0.001f || spawn.WalkSpeed <= 0.001f)
+            SpawnAppearanceApplyLog.LogDefaultMoveSpeed(objectId, spawn.RunSpeed, spawn.WalkSpeed);
+        PawnMoveSpeed.Apply(dto.Stats, spawn.RunSpeed, spawn.WalkSpeed, templateChanged: true);
         dto.Appearance.CollisionRadius = 10f;
         dto.Appearance.CollisionHeight = 22f;
         NetNpcSession.RememberNpc(objectId, spawn.Name, liveDoor || spawn.Attackable, spawn.Rhand, spawn.Lhand);

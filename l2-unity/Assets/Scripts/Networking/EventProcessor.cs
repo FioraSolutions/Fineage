@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using UnityEngine;
 using VContainer;
 
-public partial class EventProcessor : MonoBehaviour
+public partial class EventProcessor : MonoBehaviour, IEventQueue
 {
     WorldPacketApply _worldApply;
     private static EventProcessor _instance;
@@ -35,8 +35,6 @@ public partial class EventProcessor : MonoBehaviour
 
 
 
-
-    private World GameWorld => NetworkingPacketServices.GameWorld;
 
     private WorldPacketApply WorldApply => NetworkingPacketServices.WorldApply;
 

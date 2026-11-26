@@ -37,9 +37,8 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<InventoryWindow>(builder);
         RegisterIfFound<DeadWindow>(builder);
         RegisterIfFound<StatusWindow>(builder);
-        RegisterLiveMono<CharacterInfoWindow>(builder);
+        RegisterCharacterInfo(builder);
 
-        builder.Register<StatsConverter>(Lifetime.Singleton);
         builder.Register<PlayerSpawner>(Lifetime.Singleton);
         builder.Register<BowArrowVisual>(Lifetime.Singleton);
         builder.RegisterFactory<UserEntity, UserBowArrowEvents>(container =>
@@ -54,7 +53,6 @@ public sealed partial class GameLifetimeScope
         builder.Register<NpcSpawner>(Lifetime.Singleton);
         builder.Register<MonsterSpawner>(Lifetime.Singleton);
         builder.Register<ItemSpawner>(Lifetime.Singleton);
-        builder.Register<ItemDropLayerService>(Lifetime.Singleton);
         builder.Register<ItemDropClickAreaService>(Lifetime.Singleton);
         builder.Register<ItemDropPicker>(Lifetime.Singleton);
         builder.Register<ItemDropGrpCatalog>(Lifetime.Singleton);
@@ -65,10 +63,8 @@ public sealed partial class GameLifetimeScope
         builder.Register<ItemDropPresentationService>(Lifetime.Singleton);
         builder.Register<PlayerPositionSender>(Lifetime.Singleton);
         builder.Register<L2PawnRange>(Lifetime.Singleton);
-        builder.Register<L2PawnYaw>(Lifetime.Singleton);
-        builder.RegisterEntryPoint<EntityActionMachine>().AsSelf();
+        builder.RegisterEntryPoint<EntityActionMachine>().AsSelf().As<IEntityActionRoster>();
         builder.RegisterEntryPoint<StriderRideService>().AsSelf();
-        builder.Register<InterludeActionAvailabilityService>(Lifetime.Singleton);
         builder.RegisterEntryPoint<UnityChainTicker>();
         builder.Register(_ => new PlayerWorldApply(), Lifetime.Singleton);
         builder.Register<NpcWorldApply>(Lifetime.Singleton);
@@ -96,6 +92,19 @@ public sealed partial class GameLifetimeScope
 
         builder.RegisterBuildCallback(container =>
         {
+            RequireSpawnedEntities(container);
+            RequireVisibilityRoster(container);
+            RequireEntityActionRoster(container);
+            RequireMoveRoster(container);
+            RequireNameplateRoster(container);
+            RequireClickMasks(container);
+            RequireCameraCollision(container);
+            RequireCharacterInfo(container);
+            RequirePlayerRebirth(container);
+            RequireLocalPlayer(container);
+            RequirePlayerPawn(container);
+            RequirePlayerIntention(container);
+            RequireWorldPlacement(container);
             App.GameContainer = container;
             try
             {
@@ -178,6 +187,8 @@ public sealed partial class GameLifetimeScope
                         GameManager manager = App.Container.Resolve<GameManager>();
                         if (runtime.Ui != null)
                             manager.WireGameUi(runtime.Ui);
+                        else
+                            Debug.LogError("[GameLifetimeScope] L2GameUI missing — GameRuntime.Ui was not registered, so GameManager has no game loading UI.");
                     }
                     catch
                     {
@@ -193,5 +204,46 @@ public sealed partial class GameLifetimeScope
                     UnityEngine.Object.DestroyImmediate(broken.gameObject);
             }
         });
+    }
+
+    /// <summary>
+    /// Register the scene <see cref="CharacterInfoWindow"/> as <see cref="ICharacterInfoValues"/> (#131 S38p).
+    /// </summary>
+    void RegisterCharacterInfo(IContainerBuilder builder)
+    {
+        CharacterInfoWindow found = UnityEngine.Object.FindFirstObjectByType<CharacterInfoWindow>(FindObjectsInactive.Include);
+        if (found == null)
+        {
+            throw new InvalidOperationException(
+                "[GameLifetimeScope] ICharacterInfoValues missing — RegisterCharacterInfo found no CharacterInfoWindow in loaded scenes.");
+        }
+
+        builder.RegisterComponent(found).AsSelf().As<ICharacterInfoValues>();
+    }
+
+    static void RequireCharacterInfo(IObjectResolver container)
+    {
+        ICharacterInfoValues values;
+        try
+        {
+            values = container.Resolve<ICharacterInfoValues>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(ICharacterInfoValues))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] ICharacterInfoValues missing — CharacterInfoWindow was not registered as ICharacterInfoValues.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (values is CharacterInfoWindow)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] ICharacterInfoValues is not a CharacterInfoWindow — CharacterInfoWindow was not registered as ICharacterInfoValues.");
     }
 }

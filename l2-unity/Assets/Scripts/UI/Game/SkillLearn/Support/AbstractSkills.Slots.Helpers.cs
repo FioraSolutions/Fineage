@@ -40,21 +40,15 @@ public partial class AbstractSkills
         return panelCount;
     }
 
-    protected void ResolveSkillsPerPanel(VisualElement widthSource, int sizeCellOverride)
+    protected void ResolveSkillsPerPanel(int sizeCellOverride)
     {
-        if (sizeCellOverride > 0)
+        skillsPerPanel = L2SkillsPanelLayout.ResolveGridColumns(sizeCellOverride);
+        if (skillsPerPanel <= 0)
         {
-            skillsPerPanel = sizeCellOverride;
-            return;
+            Debug.LogError(
+                "[Skills] ResolveSkillsPerPanel failed: MagicSkillWnd column count unavailable (see " +
+                InterludeMagicSkillWndLayout.ResourcesKey + ").");
         }
-
-        float width = widthSource != null ? widthSource.resolvedStyle.width : 0f;
-        if (width <= 0f && widthSource?.parent != null)
-            width = widthSource.parent.resolvedStyle.width;
-        if (width <= 0f && widthSource?.hierarchy.parent != null)
-            width = widthSource.hierarchy.parent.resolvedStyle.width;
-
-        skillsPerPanel = L2SkillsPanelLayout.ComputeColumns(width);
     }
 
     public void SetWidthBoxPanel(VisualElement boxPanel, int columns)

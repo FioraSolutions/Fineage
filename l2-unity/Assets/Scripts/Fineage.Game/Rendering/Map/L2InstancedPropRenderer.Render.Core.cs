@@ -6,6 +6,17 @@ public partial class L2InstancedPropRenderer : MonoBehaviour
 {
     private void DrawCell(Cell cell, Matrix4x4 world)
     {
+        if (cell.material == null || cell.mesh == null)
+            return;
+
+        if (!L2ActorMaterialSetup.MaterialHasBaseMap(cell.material))
+        {
+            L2ActorMaterialSetup.LogMissingBaseMapOnce(
+                cell.material,
+                cell.mesh != null ? cell.mesh.name : name);
+            return;
+        }
+
         int remaining = cell.matrices.Length;
         int offset = 0;
         while (remaining > 0)

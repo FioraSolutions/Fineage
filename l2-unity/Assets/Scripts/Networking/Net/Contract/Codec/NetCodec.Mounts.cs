@@ -1,3 +1,5 @@
+using System;
+
 namespace Fineage.Net.Contract
 {
     public static partial class NetCodec
@@ -10,7 +12,7 @@ namespace Fineage.Net.Contract
             w.WriteInt32(m.RideNpcId);
         });
 
-        public static RideNetMsg DecodeRide(System.ReadOnlySpan<byte> p)
+        public static RideNetMsg DecodeRide(ReadOnlySpan<byte> p)
         {
             var r = new Reader(p);
             return new RideNetMsg

@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using UnityEngine;
 
-public partial class EventProcessor : MonoBehaviour
+public partial class EventProcessor : MonoBehaviour, IEventQueue
 {
     public static EventProcessor EnsureInstance()
     {

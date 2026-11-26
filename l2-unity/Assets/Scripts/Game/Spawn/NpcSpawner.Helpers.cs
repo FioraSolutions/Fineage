@@ -2,7 +2,7 @@
 
 public sealed partial class NpcSpawner
 {
-    public Entity Spawn(NpcSpawnRequest request, IWorldSpawnContext world)
+    public Entity Spawn(NpcSpawnRequest request, IWorldSpawnRegistration world)
     {
         if (request == null || world == null)
             return null;
@@ -44,7 +44,7 @@ public sealed partial class NpcSpawner
         return npc;
     }
 
-    private static void InitNpc(Entity npc, GameObject npcGo, IWorldSpawnContext world)
+    private static void InitNpc(Entity npc, GameObject npcGo, IWorldSpawnRegistration world)
     {
         NetworkAnimationController animationController =
             EntitySpawnShared.FindOnPrefab<NetworkAnimationController>(npcGo);

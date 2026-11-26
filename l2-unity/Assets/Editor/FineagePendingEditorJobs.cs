@@ -130,7 +130,7 @@ static class FineagePendingEditorJobs
                 string export = Path.Combine(repo, ".work", "umodel-export-18_14");
                 L2InterludeMaterialBinder.Bind(
                     Directory.Exists(export) ? new[] { export } : null,
-                    log);
+                    log, "18_14");
                 foreach (var l in log) Debug.Log("[MatBinder] " + l);
                 return string.Join("; ", log);
             }
@@ -222,7 +222,7 @@ static class FineagePendingEditorJobs
             Debug.Log("[bake_tile " + tile + "] " + line);
 
         var matLog = new List<string>();
-        L2InterludeMaterialBinder.Bind(Directory.Exists(export) ? new[] { export } : null, matLog);
+        L2InterludeMaterialBinder.Bind(Directory.Exists(export) ? new[] { export } : null, matLog, tile);
         foreach (string line in matLog)
             Debug.Log("[bake_tile " + tile + "] materials: " + line);
 

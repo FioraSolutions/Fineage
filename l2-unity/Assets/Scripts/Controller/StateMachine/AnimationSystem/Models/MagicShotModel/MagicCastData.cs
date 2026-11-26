@@ -48,6 +48,9 @@ public partial class MagicCastData
     public float HitTime;
     public float FlightTime;
 
+    /// <summary>Skill being cast (MagicSkillUseDto.SkillId); used for animation resolution logs.</summary>
+    public int SkillId;
+
     /// <summary>
     /// Wall-clock skill animation duration (e.g. SpAtk until SwitchToIdle).
     /// When &gt; 0 and composite has Match Lifetime To Skill Animation, FX lifetime uses this instead of HitTime.
@@ -103,6 +106,7 @@ public partial class MagicCastData
 
     int _clipCount;
     int _fillerIndex;
+    int _spatkPhase;
     float _dur0;
     float _dur1;
     float _dur2;

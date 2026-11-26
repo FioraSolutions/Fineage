@@ -26,6 +26,9 @@ public static partial class NetworkingPacketServices
         }
     }
 
+    /// <summary>The session <see cref="Bind"/> stored. Null when nothing was bound.</summary>
+    public static NetSession BoundSession => _session;
+
     public static EventProcessor Events =>
         _events != null ? _events : ResolveFromApp<EventProcessor>();
 

@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 using VContainer;
-using System.Collections;
 
 public partial class SelectableCharacterEntity : MonoBehaviour
 {
@@ -11,8 +10,28 @@ public partial class SelectableCharacterEntity : MonoBehaviour
         _destination = transform.position;
         if (_characterController != null)
             _characterController.enabled = false;
-        App.InjectGameObject(gameObject);
+        InjectSharedMotion();
         WireCharacterPacketServices();
+    }
+
+    void InjectSharedMotion()
+    {
+        if (_animations != null)
+            return;
+
+        IObjectResolver lobby = HierarchyScopeInjection.Lobby;
+        if (lobby == null)
+        {
+            throw new InvalidOperationException(
+                "[LobbyMotion] lobby container missing — LoginLifetimeScope did not build, so the lobby pawn was not injected.");
+        }
+
+        HierarchyScopeInjection.Inject(lobby, gameObject);
+        if (_animations == null)
+        {
+            throw new InvalidOperationException(
+                "[LobbyMotion] IAnimationManager missing — LoginLifetimeScope did not register AnimationManager, so the lobby pawn has no motion pipeline.");
+        }
     }
 
     private void Start()

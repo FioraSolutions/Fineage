@@ -21,14 +21,14 @@ public partial class InventorySlot
 
     public virtual void UseItem()
     {
-        if (!_empty)
+        if (_empty || _objectId <= 0)
+            return;
+        PlayerInventory inventory = InventoryPacketServices.Inventory;
+        if (inventory == null)
         {
-            if (!InventoryPacketServices.Inventory.UseItem(_objectId))
-            {
-                AssignEmpty();
-            }
-            
+            Debug.LogError("[Inventory] use objectId " + _objectId + " has no inventory");
+            return;
         }
-
+        inventory.UseItem(_objectId);
     }
 }

@@ -213,6 +213,11 @@ public sealed class RequestDestroyItemCommand : INetworkCommand
     }
 }
 
+/// <summary>Interlude RequestItemList (opcode 0x0F, empty body). The zone answers with ItemList.</summary>
+public sealed class RequestItemListCommand : INetworkCommand
+{
+}
+
 public sealed class RequestDropItemCommand : INetworkCommand
 {
     public int ObjectId;

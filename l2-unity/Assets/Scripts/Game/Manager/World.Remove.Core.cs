@@ -79,20 +79,17 @@ public partial class World
         if (entity != null && entity.transform != null)
             L2ActorPointLights.UnregisterActorRoot(entity.transform);
 
-        CrowdTierPacketServices.System?.Unregister(id);
+        _visibility.Unregister(id);
 
-        if (MoveAllCharactersPacketServices.Moves != null)
-            MoveAllCharactersPacketServices.Moves.Forget(id);
+        _moveRoster.Forget(id);
         _entities.Unregister(id);
         _entityWait.Fail(id);
-        if (EntityActionPacketServices.Actions != null)
-            EntityActionPacketServices.Actions.Remove(entity);
+        _entityActions.Remove(entity);
 
         if (_gravityNpc != null)
             _gravityNpc.DeleteGravity(id);
 
-        if (Animations != null)
-            Animations.UnregisterController(id);
+        _animationRoster.UnregisterController(id);
     }
 
     void BeginActorDisappear(int id, Entity entity, Action<GameObject> onFinished)
@@ -103,9 +100,7 @@ public partial class World
         if (_npcDeco != null)
             _npcDeco.Stop(id);
         UnregisterObject(id, entity);
-        NameplatesManager nameplates = NameplatePacketServices.Nameplates;
-        if (nameplates != null)
-            nameplates.Remove(id);
+        _nameplates.Remove(id);
         SetEntityInteraction(go, false);
 
         if (_appearFade == null || go == null)

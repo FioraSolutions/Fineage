@@ -6,9 +6,9 @@ using System.Collections;
 
 public partial class TargetWindow
 {
-    bool TryAddEffectIcon(int skillId, int level, int durationSeconds)
+    bool TryAddEffectIcon(int skillId, int wireValue, int durationSeconds)
     {
-        int safeLevel = level > 0 ? level : 1;
+        int safeLevel = AbnormalEffectTooltipBuilder.ResolveSkillLevel(skillId, wireValue);
         Skillgrp skill = TablePacketServices.SkillGrps != null
             ? TablePacketServices.SkillGrps.GetSkill(skillId, safeLevel)
             : null;
@@ -16,7 +16,7 @@ public partial class TargetWindow
             ? TablePacketServices.SkillNames.GetName(skillId, safeLevel)
             : null;
 
-        var icon = new VisualElement();
+        var icon = new VisualElement { pickingMode = PickingMode.Position };
         icon.AddToClassList("l2-abnormal-icon");
         icon.AddToClassList("target-effect-icon");
 
@@ -42,23 +42,18 @@ public partial class TargetWindow
                 icon.Add(panel);
         }
 
-        var timer = new Label();
-        timer.AddToClassList("target-effect-timer");
-        timer.pickingMode = PickingMode.Ignore;
+        // Retail TargetStatusWnd abnormal strip: icons only — no stack badge or per-second overlay (the
+        // old target-effect-timer showed wire duration and read as a bogus "x3" stack count in playtests).
         int remaining = Mathf.Max(0, durationSeconds);
-        timer.text = remaining > 0 ? remaining.ToString() : "";
-        icon.Add(timer);
-
-        string tip = BuildPropertyTooltip(nameData, skillId, safeLevel);
-        if (!string.IsNullOrEmpty(tip))
-            icon.AddManipulator(new TooltipManipulator(icon, tip));
+        var tipManipulator = new TargetAbnormalTooltipManipulator(icon, skillId, wireValue, remaining);
+        icon.AddManipulator(tipManipulator);
 
         _effectsRow.Add(icon);
         _effectCells.Add(new TargetEffectCell
         {
             Root = icon,
-            Timer = timer,
-            EndsAt = Time.time + Mathf.Max(0, durationSeconds)
+            Tooltip = tipManipulator,
+            EndsAt = Time.time + remaining
         });
         return true;
     }

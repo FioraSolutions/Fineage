@@ -63,11 +63,13 @@ public partial class MoveNpc : MonoBehaviour
     {
         // Debug.Log("MoveMonster: пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ!!!! " + this.name);
         _isMove = false;
+        _isFollow = false;
 
         Vector3 dest = new Vector3(target.x, transform.position.y, target.z);
         transform.position = WorldPlacement.KeepOnBrush(dest);
         _detectedIsMove = false;
         if (EntityActionPacketServices.Actions != null)
             EntityActionPacketServices.Actions.NotifyArrived(_entity);
+        SyncMoveNpcRegistration();
     }
 }

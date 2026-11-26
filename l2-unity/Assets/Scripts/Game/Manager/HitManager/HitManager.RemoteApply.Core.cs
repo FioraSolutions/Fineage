@@ -5,13 +5,6 @@ using VContainer;
 
 public partial class HitManager
 {
-    public void FlushRemoteMeleeHit(Entity attacker)
-    {
-        if (attacker == null || attacker.Identity == null)
-            return;
-        TryFireRemoteMeleeHit(attacker.Identity.Id);
-    }
-
     void TickRemoteMeleeHits()
     {
         if (_remoteHits.Count == 0)
@@ -52,11 +45,13 @@ public partial class HitManager
                 continue;
             }
 
-            TryFireRemoteMeleeHit(id);
+            PresentScheduledHits(id, forceAll: false);
         }
     }
 
-    void TryFireRemoteMeleeHit(int attackerId)
+    void TryFireRemoteMeleeHit(int attackerId) => PresentScheduledHits(attackerId, forceAll: false);
+
+    void PresentScheduledHits(int attackerId, bool forceAll)
     {
         RemoteMeleeHit pending;
         if (!_remoteHits.TryGetValue(attackerId, out pending) || pending == null)
@@ -69,6 +64,30 @@ public partial class HitManager
             return;
         }
 
+        if (pending.HitCount > 0)
+        {
+            while (pending.NextHitIndex < pending.HitCount)
+            {
+                float due = pending.CycleStart + pending.CycleSec *
+                    AttackHitWireRows.HitCycleFraction(pending.NextHitIndex, pending.HitCount);
+                if (!forceAll && Time.time + 0.0001f < due)
+                    break;
+                if (!PresentOnePacketHit(pending))
+                    break;
+            }
+
+            if (pending.NextHitIndex >= pending.HitCount)
+            {
+                UnbindRemoteMeleeHit(pending);
+                _remoteHits.Remove(attackerId);
+                return;
+            }
+
+            pending.FireAt = pending.CycleStart + pending.CycleSec *
+                AttackHitWireRows.HitCycleFraction(pending.NextHitIndex, pending.HitCount);
+            return;
+        }
+
         int hitCount = AttackHitPresentation.CountHits(pending.Packet);
         if (hitCount == 0)
         {
@@ -76,7 +95,7 @@ public partial class HitManager
             return;
         }
 
-        if (pending.WaitForShot)
+        if (pending.WaitForShot && !forceAll)
         {
             if (!PresentOnePacketHit(pending))
             {
@@ -110,27 +129,7 @@ public partial class HitManager
         int hitIndex = pending.NextHitIndex;
         pending.NextHitIndex++;
 
-        Hit hit = AttackHitPresentation.ResolveHit(packet, hitIndex);
-        if (hit == null || hit.isMiss())
-            return true;
-
-        Entity target = ResolveAttackHitTarget(pending.Target, hit);
-
-        if (target == null)
-            target = ResolveEntityFromWorld(packet != null ? packet.TargetId : 0);
-
-        if (target == null || target == attacker)
-            return true;
-
-        if (hit.hasSoulshot())
-        {
-            attacker.IsSoulshotCharged = true;
-            WeaponChargePresentation.PlayMeleeSoulshotConsume(attacker);
-        }
-        else
-            attacker.IsSoulshotCharged = false;
-        Vector3 hitPoint = ResolveTargetImpactCenter(target);
-        HandleHitCollider(attacker, attacker.transform, target, hitPoint, Vector3.zero);
-        return true;
+        Entity target = ResolveAttackHitTarget(pending.Target, AttackHitPresentation.ResolveHit(packet, hitIndex));
+        return TryPresentMeleeHitFromAttackPacket(attacker, target, packet, hitIndex, playColliderImpactFx: true);
     }
 }

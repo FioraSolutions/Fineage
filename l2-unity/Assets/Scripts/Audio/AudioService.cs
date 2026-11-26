@@ -61,6 +61,7 @@ public partial class AudioService : MonoBehaviour
         public AudioSource Source;
         public AudioCategory Category;
         public float ReleaseAt;
+        public int VoiceIndex = -1;
     }
 
     sealed class AudioServiceRunner : MonoBehaviour { }
@@ -88,7 +89,12 @@ public partial class AudioService : MonoBehaviour
             _instance = null;
     }
 
-    void Start() => SetBuses();
+    void Start()
+    {
+        SetBuses();
+        InterludeFmodCombatSoundResolver.WarmCombatBanks();
+        LogStartupFmodBanks();
+    }
 
     void Update()
     {
@@ -193,8 +199,19 @@ public partial class AudioService : MonoBehaviour
         }
     }
 
-    void LogAudioError(string message) =>
+    void LogAudioError(string message)
+    {
+        if (!AudioErrorThrottle.TryEmit(message, Time.unscaledTime, once: false, out string suffix))
+            return;
+        FineageLog.Error(FineageLogCategory.World, message + suffix);
+    }
+
+    void LogAudioErrorOnce(string key, string message)
+    {
+        if (!AudioErrorThrottle.TryEmit(key, Time.unscaledTime, once: true, out _))
+            return;
         FineageLog.Error(FineageLogCategory.World, message);
+    }
 
     public void SyncInspectorVolumes(
         float master,

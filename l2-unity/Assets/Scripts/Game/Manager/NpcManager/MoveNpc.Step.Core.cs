@@ -21,10 +21,12 @@ public partial class MoveNpc
         _targetObj = targetObj;
         _isRotate = true;
         _lastRotation = transform.rotation;
+        SyncMoveNpcRegistration();
     }
 
     public void StopRotateObject()
     {
         _isRotate = false;
+        SyncMoveNpcRegistration();
     }
 }

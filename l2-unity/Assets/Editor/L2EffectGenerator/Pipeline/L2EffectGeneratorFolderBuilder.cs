@@ -53,7 +53,8 @@ public static class L2EffectGeneratorFolderBuilder
         string effectRootPath,
         string effectNameOverride,
         int preferredSkillId,
-        out BuildResult result)
+        out BuildResult result,
+        bool requireUniqueSkillId = true)
     {
         result = new BuildResult();
 
@@ -125,11 +126,23 @@ public static class L2EffectGeneratorFolderBuilder
         }
         if (skillResolve.Ambiguous && skillResolve.SkillId <= 0)
         {
-            result.ErrorMessage =
-                "Ambiguous skill visual id (" + string.Join(", ", skillResolve.Candidates) +
-                "). Enter Skill Visual ID before generating.";
-            result.Success = false;
-            return false;
+            string candidates = string.Join(", ", skillResolve.Candidates);
+            if (requireUniqueSkillId)
+            {
+                result.ErrorMessage =
+                    "Ambiguous skill visual id (" + candidates +
+                    "). Enter Skill Visual ID before generating.";
+                result.Success = false;
+                return false;
+            }
+
+            // Shared effect classes (su_might_ta, wh_heal_ta, ...) are one prefab
+            // referenced by many skills. Bind is skipped, so a unique id is not
+            // required; playback resolves placement from the skill table.
+            result.LogLines.Add(
+                "Ambiguous skill visual id (" + candidates +
+                "); generating unassigned prefab (bind skipped).");
+            result.SkillVisualId = 0;
         }
 
         if (skillResolve.Ambiguous && skillResolve.SkillId > 0)
@@ -235,7 +248,12 @@ public static class L2EffectGeneratorFolderBuilder
         int preferredSkillId,
         bool bindToGlobalEffect = true)
     {
-        if (!TryPlanFromFolder(effectRootPath, effectNameOverride, preferredSkillId, out BuildResult result))
+        if (!TryPlanFromFolder(
+                effectRootPath,
+                effectNameOverride,
+                preferredSkillId,
+                out BuildResult result,
+                requireUniqueSkillId: bindToGlobalEffect))
         {
             return result;
         }

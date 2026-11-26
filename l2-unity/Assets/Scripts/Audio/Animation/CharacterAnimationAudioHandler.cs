@@ -18,16 +18,20 @@ public partial class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
             return;
         }
 
-        AudioManager audio = RequiredAudioServices.RequireAudio(nameof(CharacterAnimationAudioHandler));
-        if (audio == null)
+        int entityId = ResolveEntityId();
+
+        if (!AudioWorldGate.ShouldPlayWorldSound(entityId, transform.position))
             return;
 
+        if (TryGateNpcVoice(soundEvent, entityId))
+            return;
         if (!TryBindChrSoundBank())
             TryBindChrSoundBankFromEntity();
 
         if (!string.IsNullOrEmpty(_chrSoundBank))
         {
-            AudioPacketServices.Service.PlayChrSoundBank(_chrSoundBank, soundEvent, transform.position);
+            CharacterCombatAudioDispatch.PlayCharacterBank(
+                _chrSoundBank, soundEvent, transform.position, entityId);
             return;
         }
 
@@ -37,7 +41,42 @@ public partial class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
             return;
         }
 
-        audio.PlayCharacterSound(soundEvent, _race, transform.position);
+        CharacterCombatAudioDispatch.PlayCharacterRace(
+            soundEvent, _race, transform.position, entityId);
+    }
+
+    int ResolveEntityId()
+    {
+        Entity entity = GetComponent<Entity>();
+        return entity != null && entity.Identity != null ? entity.Identity.Id : 0;
+    }
+
+    bool TryGateNpcVoice(CharacterSoundEvent soundEvent, int entityId)
+    {
+        if (entityId == 0 || !IsNpcAmbientVoice(soundEvent))
+            return false;
+
+        NpcVoicePriority priority = soundEvent switch
+        {
+            CharacterSoundEvent.Admiration => NpcVoicePriority.SocialIdle,
+            CharacterSoundEvent.Yawn => NpcVoicePriority.SocialIdle,
+            CharacterSoundEvent.Agree => NpcVoicePriority.Targeted,
+            _ => NpcVoicePriority.IdleAmbient,
+        };
+
+        if (VisibilityPacketServices.ShouldPlayNpcVoice(entityId, priority))
+            return false;
+
+        return true;
+    }
+
+    static bool IsNpcAmbientVoice(CharacterSoundEvent soundEvent)
+    {
+        return soundEvent == CharacterSoundEvent.Yawn
+            || soundEvent == CharacterSoundEvent.Admiration
+            || soundEvent == CharacterSoundEvent.Agree
+            || soundEvent == CharacterSoundEvent.Wait
+            || soundEvent == CharacterSoundEvent.Breath;
     }
 
     public void PlaySoundFromAnimationClip(int type) {
@@ -52,6 +91,27 @@ public partial class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
         }
 
         StartCoroutine(PlaySoundAtRatioCoroutine(soundEvent, ratio));
+    }
+
+    public void PlayItemSoundTokenAtRatio(string datToken, float ratio) {
+        if (string.IsNullOrEmpty(datToken))
+            return;
+
+        if (ratio == 0) {
+            int entityId = ResolveEntityId();
+            CharacterCombatAudioDispatch.PlayItemSoundToken(datToken, transform.position, entityId);
+            return;
+        }
+
+        StartCoroutine(PlayItemSoundTokenAtRatioCoroutine(datToken, ratio));
+    }
+
+    IEnumerator PlayItemSoundTokenAtRatioCoroutine(string datToken, float ratio) {
+        while ((_animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1) < ratio)
+            yield return null;
+
+        int entityId = ResolveEntityId();
+        CharacterCombatAudioDispatch.PlayItemSoundToken(datToken, transform.position, entityId);
     }
 
     public IEnumerator PlaySoundAtRatioCoroutine(CharacterSoundEvent soundEvent, float ratio) {

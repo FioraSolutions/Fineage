@@ -12,8 +12,11 @@ missing in CI and Unity's asset pipeline does not re-stat symlink targets (a
 symlink's mtime does not change when the file it points to is edited, so Bee
 silently skips the rebuild).
 
-Instead the client keeps real copies and this script synchronises them. Run it
-in two ways:
+Instead the client keeps real copies and this script synchronises them. Backend
+sources may use newer C# and SDK implicit usings; ``prepare_contract_bytes`` lowers
+them to Unity C# 9 (see ``net_contract_unity_cs9.py``): syntax lowering, explicit
+``using`` directives, and hard failure when lowering cannot complete.
+Run it in two ways:
 
   * `--check`   exit 1 if the copies differ (what CI does on every client PR)
   * `--write`   copy the backend sources over the client copies
@@ -44,79 +47,63 @@ from pathlib import Path
 _SCRIPT_DIR = Path(__file__).resolve().parent
 if str(_SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_DIR))
-from net_contract_unity_cs9 import prepare_contract_bytes  # noqa: E402
+from net_contract_unity_cs9 import build_contract_lookup_corpus, prepare_contract_bytes  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CLIENT = REPO_ROOT / "l2-unity/Assets/Scripts/Networking/Net/Contract"
 # Sibling checkout is the normal developer layout (see AGENTS.md).
 BACKEND = REPO_ROOT.parent / "Fineage-Backend/src/Fineage.Net.Contract"
 
-# Relative to each contract root. Order is the diff/report order.
-FILES = (
-    "Envelope/PacketEnvelope.cs",
-    "Envelope/NetFraming.cs",
-    "Envelope/ProtocolCapabilities.cs",
-    "Ids/EntityId.cs",
-    "Opcodes/NetOpcode.cs",
-    "Messages/SessionMessages.cs",
-    "Messages/LobbyMessages.cs",
-    "Messages/WorldMessages.Presence.cs",
-    "Messages/WorldMessages.Movement.cs",
-    "Messages/WorldMessages.Combat.cs",
-    "Messages/WorldMessages.Inventory.cs",
-    "Messages/WorldMessages.Skills.cs",
-    "Messages/WorldMessages.Clan.cs",
-    "Messages/WorldMessages.Shop.cs",
-    "Messages/WorldMessages.Quest.cs",
-    "Messages/WorldMessages.Party.cs",
-    "Messages/WorldMessages.Trade.cs",
-    "Messages/WorldMessages.PrivateStore.cs",
-    "Messages/WorldMessages.Craft.cs",
-    "Messages/WorldMessages.Friends.cs",
-    "Messages/WorldMessages.Chat.cs",
-    "Messages/BossMessages.cs",
-    "Messages/SiegeMessages.cs",
-    "Messages/OlympiadMessages.cs",
-    "Messages/DungeonMessages.cs",
-    "Messages/SevenSignsMessages.cs",
-    "Messages/WorldMessages.Pledge.cs",
-    "Messages/DuelMessages.cs",
-    "Messages/SummonMessages.cs",
-    "Messages/FishingMessages.cs",
-    "Messages/ManorMessages.cs",
-    "Messages/WorldMessages.Freight.cs",
-    "Messages/WorldMessages.MonsterRace.cs",
-    "Messages/WorldMessages.Wedding.cs",
-    "Codec/NetCodec.cs",
-    "Codec/NetCodec.Session.cs",
-    "Codec/NetCodec.Shop.cs",
-    "Codec/NetCodec.Warehouse.cs",
-    "Codec/NetCodec.WorldEvents.cs",
-    "Codec/NetCodec.Olympiad.cs",
-    "Codec/NetCodec.DungeonSigns.cs",
-    "Codec/NetCodec.Clan.cs",
-    "Codec/NetCodec.Friends.cs",
-    "Codec/NetCodec.Craft.cs",
-    "Codec/NetCodec.PrivateStore.cs",
-    "Codec/NetCodec.Trade.cs",
-    "Codec/NetCodec.Party.cs",
-    "Codec/NetCodec.Quest.cs",
-    "Codec/NetCodec.Presence.cs",
-    "Codec/NetCodec.Skills.cs",
-    "Codec/NetCodec.Movement.cs",
-    "Codec/NetCodec.Combat.cs",
-    "Codec/NetCodec.InventoryChat.cs",
-    "Codec/NetCodec.Pledge.cs",
-    "Codec/NetCodec.Duel.cs",
-    "Codec/NetCodec.Summons.cs",
-    "Codec/NetCodec.Fishing.cs",
-    "Codec/NetCodec.Manor.cs",
-    "Codec/NetCodec.Freight.cs",
-    "Codec/NetCodec.MonsterRace.cs",
-    "Codec/NetCodec.Wedding.cs",
-    "Codec/NetCodec.Castle.cs",
-    "Modules/IDomainModule.cs",
+# Backend contract sources may use C# 10+ syntax; Unity EditMode still targets C# 9.
+# The file set is every .cs under the backend contract tree. A hardcoded list
+# left new codecs (vehicle, augmentation) unsynced while their opcodes landed.
+UNITY_CS9_ADAPT_FILES = frozenset(
+    {
+        "Messages/WorldMessages.Freight.cs",
+        "Messages/WorldMessages.MonsterRace.cs",
+        "Codec/NetCodec.Freight.cs",
+        "Codec/NetCodec.MonsterRace.cs",
+        "Codec/NetCodec.Skills.cs",
+    }
 )
+
+
+def contract_rel_paths(
+    source: Path,
+    ref: str | None,
+    backend_repo: Path | None,
+) -> tuple[str, ...]:
+    """Every backend contract .cs, relative to the contract root.
+
+    A ref uses ``git ls-tree`` so a dirty working tree cannot hide a file the
+    committed contract added. Otherwise the working tree is the source.
+    """
+    if ref and backend_repo is not None:
+        try:
+            prefix = source.resolve().relative_to(backend_repo.resolve()).as_posix()
+        except ValueError:
+            prefix = ""
+        if prefix:
+            listed = subprocess.run(
+                ["git", "-C", str(backend_repo), "ls-tree", "-r", "--name-only", ref, prefix],
+                capture_output=True,
+                check=False,
+            )
+            if listed.returncode == 0:
+                rels: list[str] = []
+                head = prefix + "/"
+                for line in listed.stdout.decode("utf-8", errors="replace").splitlines():
+                    if line.startswith(head) and line.endswith(".cs"):
+                        rels.append(line[len(head) :])
+                if rels:
+                    return tuple(sorted(rels))
+
+    rels = []
+    for path in source.rglob("*.cs"):
+        if any(part in {"obj", "bin"} for part in path.parts):
+            continue
+        rels.append(path.relative_to(source).as_posix())
+    return tuple(sorted(rels))
 
 
 def backend_root(explicit: str | None) -> Path:
@@ -140,6 +127,33 @@ def _git_source(repo: Path, ref: str, rel: str) -> bytes | None:
     except OSError:
         return None
     return out.stdout if out.returncode == 0 else None
+
+
+def adapt_net_contract_for_unity_cs9(text: str, rel: str) -> str:
+    if rel not in UNITY_CS9_ADAPT_FILES:
+        return text
+    marker = "namespace Fineage.Net.Contract;\n"
+    idx = text.find(marker)
+    if idx != -1:
+        prefix = text[:idx]
+        body = text[idx + len(marker) :].rstrip("\n")
+        lines = []
+        for line in body.splitlines():
+            if line.strip():
+                lines.append("    " + line)
+            else:
+                lines.append("")
+        text = prefix + "namespace Fineage.Net.Contract\n{\n" + "\n".join(lines) + "\n}\n"
+    text = text.replace(
+        "public MonRaceRunnerNetMsg[] Runners { get; set; } = [];",
+        "public MonRaceRunnerNetMsg[] Runners { get; set; } = System.Array.Empty<MonRaceRunnerNetMsg>();",
+    )
+    return text
+
+
+def client_expected_bytes(data: bytes, rel: str) -> bytes:
+    text = data.decode("utf-8")
+    return adapt_net_contract_for_unity_cs9(text, rel).encode("utf-8")
 
 
 def read_source(
@@ -173,6 +187,22 @@ def read_source(
     return path.read_bytes() if path.is_file() else None
 
 
+def contract_lookup_corpus(
+    source: Path,
+    files: tuple[str, ...],
+    ref: str | None,
+    backend_repo: Path | None,
+) -> str:
+    """Types for ``?? []`` come from the same revision ``--write`` copies."""
+    texts: list[str] = []
+    for rel in files:
+        data = read_source(source, rel, ref, backend_repo)
+        if data is None:
+            continue
+        texts.append(data.decode("utf-8-sig", errors="replace"))
+    return build_contract_lookup_corpus(texts)
+
+
 def compare(
     source: Path,
     target: Path,
@@ -182,8 +212,10 @@ def compare(
     """Return (missing, differing) relative paths."""
     missing: list[str] = []
     differing: list[str] = []
+    files = contract_rel_paths(source, ref, backend_repo)
+    lookup_corpus = contract_lookup_corpus(source, files, ref, backend_repo)
 
-    for rel in FILES:
+    for rel in files:
         data = read_source(source, rel, ref, backend_repo)
         dst = target / rel
         if data is None:
@@ -192,7 +224,7 @@ def compare(
         if not dst.is_file():
             differing.append(rel)
             continue
-        prepared = prepare_contract_bytes(data)
+        prepared = prepare_contract_bytes(data, lookup_corpus=lookup_corpus, rel=rel)
         if dst.read_bytes() != prepared:
             differing.append(rel)
 
@@ -207,14 +239,16 @@ def write_contract(
 ) -> int:
     """Copy the backend sources over the client copies, preserving .meta files."""
     changed = 0
+    files = contract_rel_paths(source, ref, backend_repo)
+    lookup_corpus = contract_lookup_corpus(source, files, ref, backend_repo)
 
-    for rel in FILES:
+    for rel in files:
         data = read_source(source, rel, ref, backend_repo)
         dst = target / rel
         if data is None:
             print(f"skip (no backend source): {rel}", file=sys.stderr)
             continue
-        prepared = prepare_contract_bytes(data)
+        prepared = prepare_contract_bytes(data, lookup_corpus=lookup_corpus, rel=rel)
         if dst.is_file() and dst.read_bytes() == prepared:
             continue
 
@@ -300,7 +334,8 @@ def main() -> int:
         )
         return 1
 
-    print(f"Net contract in sync ({len(FILES)} files)")
+    count = len(contract_rel_paths(source, ref, backend_repo))
+    print(f"Net contract in sync ({count} files)")
     return 0
 
 

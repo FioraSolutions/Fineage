@@ -6,6 +6,21 @@ using UnityEngine;
 /// <summary>Editor-side apply + audit for <see cref="L2ActorMaterialSetup"/>.</summary>
 public static class L2ActorMaterialSetupEditor
 {
+    /// <summary>All SysTextures / paperdoll material creation must go through this (import pipelines).</summary>
+    public static Material CreateActorMaterial(
+        Shader actorShader,
+        Texture albedo,
+        string materialNameForResolve,
+        IReadOnlyDictionary<string, string> propsByName,
+        bool logMissingTexture)
+    {
+        if (actorShader == null)
+            return null;
+        var mat = new Material(actorShader) { name = materialNameForResolve };
+        ApplyToMaterial(mat, actorShader, albedo, materialNameForResolve, propsByName, logMissingTexture);
+        return mat;
+    }
+
     public static void ApplyToMaterial(
         Material mat,
         Shader actorShader,

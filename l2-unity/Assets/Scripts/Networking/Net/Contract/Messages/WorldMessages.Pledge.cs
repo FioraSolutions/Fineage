@@ -1,3 +1,5 @@
+using System;
+
 namespace Fineage.Net.Contract
 {
     /// <summary>
@@ -171,5 +173,11 @@ namespace Fineage.Net.Contract
     public sealed class ClanHallListNetMsg
     {
         public ClanHallNet[] Halls { get; set; } = System.Array.Empty<ClanHallNet>();
+    }
+
+    public sealed class AgitDecoInfoNetMsg
+    {
+        public int HallId { get; set; }
+        public byte[] DecoBytes { get; set; } = System.Array.Empty<byte>();
     }
 }

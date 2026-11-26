@@ -8,6 +8,7 @@ public static class InterludeSfxBridge
     public static Func<string, float, bool> PlayResourcesPath;
     public static Action<AudioClip, AudioCategory, float> PlayClip2D;
     public static Action<AudioClip, Vector3, AudioCategory, float, bool> PlayClipAt;
+    public static Action<AudioClip, Vector3, AudioCategory, float, bool, float> PlayClipAtRanged;
     public static Action<AudioClip, float> PlayCastClip;
     public static Action StopCast;
     public static Action<AudioClip, float> PlayVoiceClip;

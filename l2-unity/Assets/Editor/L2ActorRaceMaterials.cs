@@ -99,6 +99,9 @@ public static class L2ActorRaceMaterials
         if (m.shader == null) return true;
         string s = m.shader.name;
         if (s == "Universal Render Pipeline/Lit" || s == "Standard" || s.StartsWith("Shader Graphs/")) return true;
+        if (s.IndexOf("ActorEnvAdd", StringComparison.Ordinal) >= 0
+            || s.IndexOf("ActorEnvSpecular", StringComparison.Ordinal) >= 0)
+            return true;
         string p = AssetDatabase.GetAssetPath(m.shader);
         return p != null && p.EndsWith(".shadergraph");
     }

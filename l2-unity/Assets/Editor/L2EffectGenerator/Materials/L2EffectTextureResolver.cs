@@ -25,7 +25,9 @@ public static class L2EffectTextureResolver
             for (int i = 0; i < meshOverrideNames.Length; i++)
             {
                 string meshOverrideName = meshOverrideNames[i];
-                Texture2D overrideTexture = FindByUcName(meshOverrideName);
+                Texture2D overrideTexture = FindByUcName(meshOverrideName) ??
+                    L2EffectGeneratorViewerImport.TryImportTexture(
+                        "LineageEffectsTextures." + meshOverrideName);
                 if (overrideTexture == null)
                 {
                     Debug.LogWarning(
@@ -56,7 +58,18 @@ public static class L2EffectTextureResolver
             }
         }
 
-        return Resolve(emitter != null ? emitter.TextureReference : null, slotMesh, emitter);
+        List<Texture2D> resolved =
+            Resolve(emitter != null ? emitter.TextureReference : null, slotMesh, emitter);
+        if (resolved.Count == 0 && emitter != null)
+        {
+            Debug.LogError(
+                "[L2EffectGenerator] " + emitter.EmitterName +
+                ": no texture resolved (Texture=" + (emitter.TextureReference ?? "none") +
+                ", StaticMesh=" + (emitter.StaticMeshReference ?? "none") +
+                "); import the texture or add the mesh to Data/effect_mesh_textures.tsv");
+        }
+
+        return resolved;
     }
 
     public static List<Texture2D> Resolve(string textureReference, Mesh slotMesh)
@@ -145,6 +158,10 @@ public static class L2EffectTextureResolver
             return fromPackageMaterial;
         }
 
+        // Exact-name lookup only. A fuzzy FindAssets hit used to be returned as a
+        // fallback even when its file name did not match, which bound unrelated
+        // textures (e.g. a font atlas, shown as "Font Texture") to emitters whose
+        // real texture was not imported yet.
         string[] guids;
         try
         {
@@ -155,32 +172,33 @@ public static class L2EffectTextureResolver
             return null;
         }
 
-        Texture2D fallback = null;
+        Texture2D exactOutsideEffects = null;
         for (int i = 0; i < guids.Length; i++)
         {
             string path = AssetDatabase.GUIDToAssetPath(guids[i]);
+            if (!string.Equals(
+                    Path.GetFileNameWithoutExtension(path),
+                    fileName,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
             if (texture == null)
             {
                 continue;
             }
 
-            if (string.Equals(texture.name, fileName, StringComparison.OrdinalIgnoreCase))
+            if (path.IndexOf("LineageEffectsTextures", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                if (path.IndexOf("LineageEffectsTextures", StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    return texture;
-                }
+                return texture;
+            }
 
-                fallback ??= texture;
-            }
-            else
-            {
-                fallback ??= texture;
-            }
+            exactOutsideEffects ??= texture;
         }
 
-        return fallback;
+        return exactOutsideEffects;
     }
 
     static void CollectMeshTextures(Mesh slotMesh, List<Texture2D> result)
@@ -221,11 +239,17 @@ public static class L2EffectTextureResolver
             return null;
         }
 
-        Texture texture = material.GetTexture("_BaseMap") ??
-                          material.GetTexture("_MainTex") ??
-                          material.GetTexture("_MainTexture") ??
-                          material.mainTexture;
-        return texture as Texture2D;
+        string[] properties = { "_BaseMap", "_MainTex", "_MainTexture" };
+        for (int i = 0; i < properties.Length; i++)
+        {
+            if (material.HasProperty(properties[i]) &&
+                material.GetTexture(properties[i]) is Texture2D texture)
+            {
+                return texture;
+            }
+        }
+
+        return null;
     }
 
     static void AddUnique(List<Texture2D> textures, Texture2D texture)

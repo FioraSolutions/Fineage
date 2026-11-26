@@ -1,14 +1,25 @@
 #if UNITY_EDITOR
 using System;
 using UnityEditor;
-/// Unity -batchmode (NO -nographics: texture arrays need GPU Blit) -executeMethod L2TerrainMeshCli.RunCli  (env FINEAGE_INTERLUDE_TILES=21_19)
-/// Runs only the ConvertTerrainToMesh step (heightmap mesh + material + safenet) per tile.
+/// Unity -batchmode (NO -nographics when also writing terrain meshes: texture arrays need GPU Blit)
+/// -executeMethod L2TerrainMeshCli.RunCli
+/// FINEAGE_INTERLUDE_TILES=21_19
+/// FINEAGE_DECO_LAYER=1 writes XX_YY_Deco.bytes only, unless FINEAGE_TERRAIN_MESH=1 as well.
+/// Deco-only reads density PNGs on the CPU and does not need the terrain prefab.
 public static class L2TerrainMeshCli {
     public static void RunCli() {
         string raw = Environment.GetEnvironmentVariable("FINEAGE_INTERLUDE_TILES") ?? "21_19";
+        bool deco = Environment.GetEnvironmentVariable("FINEAGE_DECO_LAYER") == "1";
+        string meshEnv = Environment.GetEnvironmentVariable("FINEAGE_TERRAIN_MESH");
+        bool terrain = deco ? meshEnv == "1" : true;
         bool ok = true;
         foreach (var t in raw.Split(',', StringSplitOptions.RemoveEmptyEntries)) {
-            ok &= TerrainConverter.ConvertTerrainToMeshForMap(t.Trim());
+            try {
+                ok &= TerrainConverter.ConvertTerrainToMeshForMap(t.Trim(), terrain, deco);
+            } catch (Exception e) {
+                UnityEngine.Debug.LogError("[L2TerrainMeshCli] " + t.Trim() + " failed: " + e);
+                ok = false;
+            }
         }
         AssetDatabase.SaveAssets();
         EditorApplication.Exit(ok ? 0 : 1);

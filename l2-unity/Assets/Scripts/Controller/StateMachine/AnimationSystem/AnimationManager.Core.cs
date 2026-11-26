@@ -65,8 +65,8 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         // Locomotion: wait_/walk_/run_/atkwait_* → CrossFadeInFixedTime (bool graph bypass).
         if (PlayerLocomotionAnim.TryResolve(finalAnimName, out string locoStateName, out PlayerLocomotionFamily family))
         {
-            // Sitting is held until WT_STANDING (same idea as Fake Death): a later wait/atkwait/walk
-            // CrossFade must not stand the pawn up. "sit" itself is not locomotion, so it still plays.
+            // Sitting is held until WT_STANDING (Relax uses the same sit pose): a later wait/atkwait/walk
+            // CrossFade must not stand the pawn up. Sit/stand use PlayExactAnimatorState, not locomotion.
             if (EntityActionVisual.IsSitPoseHeld(objectId))
                 return;
 
