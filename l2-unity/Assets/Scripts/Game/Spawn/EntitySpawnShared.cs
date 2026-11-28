@@ -4,10 +4,11 @@ using System.Collections;
 
 public static partial class EntitySpawnShared
 {
-    /// <summary>npcIds already reported as unresolvable, so a repeated NpcInfo does not spam logs.</summary>
+    /// <summary>
+    /// npcIds already reported as unresolvable: one line per distinct npcId, never capped (the set is bounded by
+    /// the NPC template count), so the complete list of NPCs the client cannot render is in the log.
+    /// </summary>
     static readonly HashSet<int> ReportedUnresolvedNpcIds = new HashSet<int>();
-    const int MaxUnresolvedReports = 20;
-    static bool _unresolvedReportsSuppressed;
 
 
     /// <summary>

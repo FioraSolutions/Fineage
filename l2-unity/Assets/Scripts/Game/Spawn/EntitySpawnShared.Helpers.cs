@@ -9,18 +9,6 @@ public static partial class EntitySpawnShared
         if (!ReportedUnresolvedNpcIds.Add(npcId))
             return;
 
-        if (_unresolvedReportsSuppressed)
-            return;
-        if (ReportedUnresolvedNpcIds.Count > MaxUnresolvedReports)
-        {
-            _unresolvedReportsSuppressed = true;
-            FineageLog.Warn(
-                FineageLogCategory.World,
-                "NpcInfo unresolved reports capped at " + MaxUnresolvedReports
-                + " distinct npcIds; further ids are not logged.");
-            return;
-        }
-
         FineageLog.Warn(
             FineageLogCategory.World,
             "NpcInfo npcId=" + npcId + " not rendered: " + reason);
