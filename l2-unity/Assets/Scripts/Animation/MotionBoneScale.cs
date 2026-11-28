@@ -121,6 +121,13 @@ public sealed class MotionBoneScale : IDisposable
             stream.angularVelocity = input.angularVelocity;
         }
 
+        static bool ResolveInStream(TransformStreamHandle handle, AnimationStream stream)
+        {
+            if (!handle.IsResolved(stream))
+                handle.Resolve(stream);
+            return handle.IsResolved(stream);
+        }
+
         public void ProcessAnimation(AnimationStream stream)
         {
             if (stream.inputStreamCount < 1)
@@ -130,6 +137,12 @@ public sealed class MotionBoneScale : IDisposable
             {
                 TransformStreamHandle handle = bones[i];
                 if (!handle.IsValid(stream) || !handle.IsValid(input))
+                    continue;
+                // Transforms under the Animator that are not part of its rig (attached weapons, FX
+                // anchors) never resolve; touching them throws InvalidOperationException from inside
+                // the job and aborts the rest of the bones for the frame. They carry no animated
+                // pose, so there is nothing to copy or lock.
+                if (!ResolveInStream(handle, stream) || !ResolveInStream(handle, input))
                     continue;
                 handle.SetLocalPosition(stream, handle.GetLocalPosition(input));
                 handle.SetLocalRotation(stream, handle.GetLocalRotation(input));
