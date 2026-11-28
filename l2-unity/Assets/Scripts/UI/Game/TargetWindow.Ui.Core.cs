@@ -68,6 +68,8 @@ public partial class TargetWindow : L2Window
                 _nameLabel.text = targetData.Identity.Name;
                 _nameLabel.style.color = targetData.GetColorName();
             }
+            if (CombatTrace.Enabled)
+                TraceTargetHp(targetData);
             if(_HPBarBG != null && _HPBar != null) {
                 // Percentage fill: the 8x6 barHP strip stays exact at any plate width.
                 L2ResourceBarView.SetFill(
@@ -88,5 +90,23 @@ public partial class TargetWindow : L2Window
             ClearProperties();
             HideWindow();
         }
+    }
+
+    int _tracedHpTargetId = -1;
+    double _tracedHp = double.NaN;
+
+    // Combat trace: the moment the target window's HP gauge value changes (what the player sees drop).
+    void TraceTargetHp(TargetData targetData)
+    {
+        int id = targetData.Identity != null ? targetData.Identity.Id : 0;
+        double hp = targetData.Status != null ? targetData.Status.GetHp() : double.NaN;
+        if (id == _tracedHpTargetId && hp.Equals(_tracedHp))
+            return;
+        bool retarget = id != _tracedHpTargetId;
+        _tracedHpTargetId = id;
+        _tracedHp = hp;
+        if (!retarget)
+            CombatTrace.Write("ui.target-hp", "tgt=" + id + " hp=" + hp.ToString("F0") +
+                " max=" + (targetData.Stats != null ? targetData.Stats.MaxHp : 0));
     }
 }

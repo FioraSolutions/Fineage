@@ -35,6 +35,13 @@ public partial class HitManager
 
         int hitCount = AttackHitPresentation.CountHits(packet);
         AttackHitCue cue = AttackHitWireRows.CueFor(hit, hitIndex, hitCount > 0 ? hitCount : 1);
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("hit.shown",
+                "atk=" + (attacker.Identity != null ? attacker.Identity.Id : 0) +
+                " tgt=" + (target != null && target.Identity != null ? target.Identity.Id : hit.TargetId) +
+                " index=" + hitIndex + "/" + hitCount + " dmg=" + hit.Damage + " miss=" + hit.isMiss() +
+                " crit=" + hit.isCrit() + " label=" + cue.Label + " via=" + (playColliderImpactFx ? "timer" : "attackshot") +
+                " local=" + ReferenceEquals(packet, _localAttack));
         if (string.IsNullOrEmpty(cue.Label))
         {
             Debug.LogError(

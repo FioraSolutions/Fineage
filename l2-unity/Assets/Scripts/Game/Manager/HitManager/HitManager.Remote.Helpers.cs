@@ -135,6 +135,15 @@ public partial class HitManager
 
         int attackerId = attacker.Identity.Id;
         float start = Time.time;
+        if (CombatTrace.Enabled)
+        {
+            var rows = new System.Text.StringBuilder();
+            for (int i = 0; i < hitCount; i++)
+                rows.Append(i == 0 ? "" : ",").Append((cycleSec * AttackHitWireRows.HitCycleFraction(i, hitCount) * 1000f).ToString("F0"));
+            CombatTrace.Write("hit.scheduled",
+                "atk=" + attackerId + " tgt=" + packet.TargetId + " hits=" + hitCount +
+                " cycleMs=" + (cycleSec * 1000f).ToString("F0") + " showAtMs=" + rows);
+        }
         _remoteHits[attackerId] = new RemoteMeleeHit
         {
             AttackerId = attackerId,
