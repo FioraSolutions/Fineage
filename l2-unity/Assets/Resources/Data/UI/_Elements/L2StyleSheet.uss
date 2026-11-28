@@ -5214,7 +5214,9 @@
     display: none;
 }
 
-/* logon_back.png is 256×108. Remember me sits in the gap under the password edit. */
+/* logon_back.png is 256×108. Remember me sits in the gap under the password edit.
+   The 5px border is 9-sliced so the frame can grow downward for the status line
+   (LoginWindow.UpdateStatusLayout); at 108px high it is pixel-identical to the plain texture. */
 .il-login-frame {
     position: absolute;
     left: 50%;
@@ -5226,6 +5228,10 @@
     flex-shrink: 0;
     background-image: resource('Data/UI/Login/Interlude/logon_back');
     -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-left: 5;
+    -unity-slice-right: 5;
+    -unity-slice-top: 5;
+    -unity-slice-bottom: 5;
     background-color: rgba(0, 0, 0, 0);
     padding-top: 0;
     padding-right: 0;
@@ -5474,14 +5480,30 @@
     background-image: resource('Data/UI/Login/Interlude/bigbutton_down');
 }
 
-.il-login-error {
-    color: rgb(255, 220, 210);
-    margin-top: 8px;
-    font-size: 12px;
+/* Status / error line: inside the frame, under Login/Exit (buttons end at y=95), wraps at 228px. */
+.il-login .il-login-error {
+    position: absolute;
+    left: 14px;
+    top: 99px;
+    width: 228px;
+    min-width: 228px;
+    max-width: 228px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    color: rgb(255, 214, 190);
+    font-size: 11px;
     -unity-text-align: upper-center;
     -unity-font: resource('Data/UI/Font/tahoma');
+    -unity-font-definition: resource('Data/UI/Font/tahoma Light');
     white-space: normal;
-    width: 256px;
+    text-overflow: clip;
+    display: none;
 }
 
 

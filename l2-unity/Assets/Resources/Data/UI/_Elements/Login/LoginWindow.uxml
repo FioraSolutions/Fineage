@@ -31,7 +31,7 @@
                 <ui:VisualElement name="ButtonBg" picking-mode="Ignore" class="l2-button-bg" />
                 <ui:Label text="ui.login.exit" name="ButtonLabel" picking-mode="Ignore" class="button-label il-login-btn-label l10n" />
             </ui:Button>
-            <ui:Label tabindex="-1" name="LabelError" class="il-login-error" />
+            <ui:Label tabindex="-1" name="LabelError" picking-mode="Ignore" class="il-login-error" />
         </ui:VisualElement>
         <ui:VisualElement name="LoginMenu" picking-mode="Ignore" class="il-login-menu">
             <ui:Button text="ui.login.new_account" name="NewAccountButton" focusable="false" class="l2-button il-login-menu-btn l10n">
