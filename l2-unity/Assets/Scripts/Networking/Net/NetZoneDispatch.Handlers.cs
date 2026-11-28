@@ -446,6 +446,22 @@ public sealed partial class NetZoneDispatch
                     CharSelectEnterWorld.Failed(LobbyCharacterText.ErrorMessage(reject.Code, reject.Message));
                 break;
             }
+            case NetOpcode.Dice:
+            case NetOpcode.MacroList:
+            case NetOpcode.PartyMatchDetail:
+            case NetOpcode.PartyMatchRoomList:
+            case NetOpcode.ShopPreviewInfo:
+            case NetOpcode.ShopPreviewList:
+            case NetOpcode.ShowBoard:
+            case NetOpcode.ShowCalculator:
+            case NetOpcode.ShowMiniMap:
+            case NetOpcode.ShowXMasSeal:
+            {
+                // The server sends these (backend contract synced); the client has no window for them yet.
+                // Logged by name instead of the generic "unhandled" warning so the gap is visible.
+                Debug.LogWarning($"[Net] zone opcode 0x{packet.Opcode:X4} received; the client window for it is not implemented yet");
+                break;
+            }
             default:
                 Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
