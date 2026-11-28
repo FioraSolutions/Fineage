@@ -213,7 +213,10 @@ Shader "L2/World/Ue2Chain"
                 }
                 if (_HasDetail > 0.5)
                 {
-                    float2 duv = TRANSFORM_TEX(IN.uv * max(_DetailScale, 0.001), _DetailMap);
+                    // TRANSFORM_TEX applies _DetailMap_ST.xy to .xy of its first argument: the scaled UVs must be a
+                    // float2 before the macro, otherwise it is a scalar and Metal rejects the swizzle.
+                    float2 duv0 = IN.uv * max(_DetailScale, 0.001);
+                    float2 duv = TRANSFORM_TEX(duv0, _DetailMap);
                     diff.rgb *= SAMPLE_TEXTURE2D(_DetailMap, sampler_DetailMap, duv).rgb;
                 }
 
