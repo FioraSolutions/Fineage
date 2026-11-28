@@ -31,6 +31,17 @@ public static partial class EntitySpawnShared
             SetLayer(area.gameObject, layer);
         }
 
+        // click_area is a pick volume only. Imported prefabs keep a disabled cube MeshRenderer on it whose
+        // material is not in the project; it must never draw, whatever later toggles Renderer.enabled.
+        Renderer[] pickRenderers = area.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < pickRenderers.Length; i++)
+        {
+            if (pickRenderers[i] == null)
+                continue;
+            pickRenderers[i].enabled = false;
+            pickRenderers[i].forceRenderingOff = true;
+        }
+
         if (area.GetComponent<Collider>() == null)
             FitClickCollider(go, area.gameObject);
     }

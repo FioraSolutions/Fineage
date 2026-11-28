@@ -259,15 +259,18 @@ public sealed class VisibilityManager : MonoBehaviour, IVisibilityRoster
                          " cap=" + InterludeVisibilityOptions.RenderCharacterCount);
     }
 
+    // Culling uses forceRenderingOff, never Renderer.enabled: un-culling with enabled = true also switched on
+    // renderers the pawn keeps off by design — the click_area cube (its material is not shipped, so it drew as a
+    // magenta box around the Gremlin), alpha overlays and skeleton placeholder meshes.
     static void ApplyCulledDraw(Transform root, CrowdDetailTier tier)
     {
-        bool show = tier != CrowdDetailTier.TCulled;
+        bool hide = tier == CrowdDetailTier.TCulled;
         Renderer[] renderers = root.GetComponentsInChildren<Renderer>(false);
         for (int i = 0; i < renderers.Length; i++)
         {
             Renderer r = renderers[i];
-            if (r != null && r.enabled != show)
-                r.enabled = show;
+            if (r != null && r.forceRenderingOff != hide)
+                r.forceRenderingOff = hide;
         }
     }
 
