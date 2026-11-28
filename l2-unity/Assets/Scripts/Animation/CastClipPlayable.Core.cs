@@ -81,7 +81,7 @@ public sealed partial class CastClipPlayable
             _mixer.SetInputWeight(0, 1f);
             _mixer.SetInputWeight(1, 0f);
 
-            _scaleLock = MotionBoneScale.Create(_graph, boneHandles, boneScales);
+            _scaleLock = MotionBoneScale.Create(_graph, boneHandles, boneScales, animator.applyRootMotion);
             _graph.Connect(_mixer, 0, _scaleLock.Playable, 0);
             _scaleLock.Playable.SetInputWeight(0, 1f);
 

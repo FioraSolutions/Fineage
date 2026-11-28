@@ -7,7 +7,8 @@ using UnityEngine.Playables;
 
 /// <summary>
 /// Last node of the shared motion graph. Copies the animated pose and writes each bone's
-/// bind scale back, so a clip's scale curves cannot inflate the mesh.
+/// bind scale back, so a clip's scale curves cannot inflate the mesh. Root motion velocity is
+/// forwarded only when the Animator applies root motion.
 /// </summary>
 public sealed class MotionBoneScale : IDisposable
 {
@@ -63,7 +64,8 @@ public sealed class MotionBoneScale : IDisposable
     public static MotionBoneScale Create(
         PlayableGraph graph,
         List<TransformStreamHandle> handles,
-        List<Vector3> scales)
+        List<Vector3> scales,
+        bool forwardRootMotion)
     {
         if (!graph.IsValid())
         {
@@ -83,6 +85,7 @@ public sealed class MotionBoneScale : IDisposable
         {
             bones = bones,
             scales = bindScales,
+            forwardRootMotion = forwardRootMotion,
         };
         AnimationScriptPlayable playable = AnimationScriptPlayable.Create(graph, job, 1);
         playable.SetInputWeight(0, 1f);
@@ -104,9 +107,14 @@ public sealed class MotionBoneScale : IDisposable
         public NativeArray<TransformStreamHandle> bones;
         public NativeArray<Vector3> scales;
 
+        // Unity logs "Root Motion is OFF" on every frame when a job reads or writes the stream
+        // velocity while the Animator has applyRootMotion disabled, so the velocity is only
+        // forwarded when the Animator actually applies root motion.
+        public bool forwardRootMotion;
+
         public void ProcessRootMotion(AnimationStream stream)
         {
-            if (stream.inputStreamCount < 1)
+            if (!forwardRootMotion || stream.inputStreamCount < 1)
                 return;
             AnimationStream input = stream.GetInputStream(0);
             stream.velocity = input.velocity;
