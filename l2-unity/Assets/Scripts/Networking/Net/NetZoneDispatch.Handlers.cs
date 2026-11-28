@@ -463,6 +463,14 @@ public sealed partial class NetZoneDispatch
                 break;
             }
             default:
+                if ((packet.Opcode & 0xFF00) == NetOpcodeMobius.ExServerBase)
+                {
+                    // Mobius extended packets (wire 0xFE + sub) the server sends for protocol parity, e.g. 0xFE31
+                    // ExPCCafePointInfo on enter world. The client has no UI for them.
+                    Debug.LogWarning($"[Net] Mobius Ex zone opcode 0x{packet.Opcode:X4} (sub 0x{packet.Opcode & 0xFF:X2}) has no client handler yet");
+                    break;
+                }
+
                 Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
         }
