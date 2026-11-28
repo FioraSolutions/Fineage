@@ -23,6 +23,10 @@ public partial class HitManager : MonoBehaviour
     private readonly List<int> _remoteHitScratch = new List<int>();
     private AttackDto _localAttack;
     private int _localAttackToken;
+    // Hit rows of _localAttack already shown (bit = hit index). Two owners can present a local hit: the packet
+    // timer from RememberLocalAttack and the AttackShot notify (once the timer has fired its rows, AttackShot no
+    // longer sees a pending timer and presented the same row again: second label, second sound).
+    private int _localAttackShownMask;
 
 
 }

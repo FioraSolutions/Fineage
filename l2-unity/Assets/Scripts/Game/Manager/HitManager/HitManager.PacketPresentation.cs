@@ -16,6 +16,20 @@ public partial class HitManager
         if (attacker == null || packet == null)
             return false;
 
+        if (ReferenceEquals(packet, _localAttack) && hitIndex >= 0 && hitIndex < 31)
+        {
+            int bit = 1 << hitIndex;
+            if ((_localAttackShownMask & bit) != 0)
+            {
+                if (CombatTrace.Enabled)
+                    CombatTrace.Write("hit.duplicate-suppressed",
+                        "atk=" + (attacker.Identity != null ? attacker.Identity.Id : 0) + " index=" + hitIndex +
+                        " via=" + (playColliderImpactFx ? "timer" : "attackshot"));
+                return true;
+            }
+            _localAttackShownMask |= bit;
+        }
+
         Hit hit = AttackHitPresentation.ResolveHit(packet, hitIndex);
         if (hit == null)
         {
