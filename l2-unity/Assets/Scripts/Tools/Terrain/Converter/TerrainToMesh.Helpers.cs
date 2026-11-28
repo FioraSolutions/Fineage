@@ -65,6 +65,13 @@ public partial class TerrainToMesh : MonoBehaviour
     }
 
     public void ConvertTerrain(bool optimize) {
+        Vector3 terrainSize = terrain.terrainData.size;
+        if (!(terrainSize.x > 0f && terrainSize.y > 0f && terrainSize.z > 0f)) {
+            throw new System.InvalidOperationException(
+                "[Interlude terrain] terrain '" + terrain.name + "' has size " + terrainSize +
+                "; SampleHeight would return NaN. Check GeneratedSectorCounter in its TerrainInfo0.txt.");
+        }
+
         // get the bounds of the terrain
         var bounds = terrain.terrainData.bounds;
 
@@ -76,6 +83,10 @@ public partial class TerrainToMesh : MonoBehaviour
             var wPos = dest.transform.localToWorldMatrix * vert;
             var newVert = vert;
             newVert.y = terrain.SampleHeight(wPos);
+            if (float.IsNaN(newVert.y) || float.IsInfinity(newVert.y)) {
+                throw new System.InvalidOperationException(
+                    "[Interlude terrain] terrain '" + terrain.name + "' sampled height " + newVert.y + " at " + wPos + ".");
+            }
             newVerts.Add(newVert);
         }
         mesh.SetVertices(newVerts.ToArray());

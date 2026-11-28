@@ -47,14 +47,27 @@ public partial class L2TerrainInfoParser
             }
         }
 
+        // Without it the terrain size is 0 x 0 x 0 and TerrainToMesh bakes NaN heights (the tile mesh
+        // then has min=(0,nan,0) bounds and no ground).
+        if (terrainInfo.generatedSectorCounter <= 0) {
+            throw new InvalidDataException(
+                "[Interlude terrain] " + mapID + ": TerrainInfo0.txt has no GeneratedSectorCounter line (" + dataPath + ").");
+        }
+
         ValidateOfficialUvLayers(mapID, terrainInfo.uvLayers);
         terrainInfo.quadVisibilityBitmap = FinalizeQuadVisibility(dataPath, quadWords);
         return terrainInfo;
     }
 
     private static int ParseGeneratedSectorCounter(string line) {
-        // TODO: Handle parsing of GeneratedSectorCounter if needed
-        return 256; // Temporary value
+        string valueText = line.Substring(line.IndexOf('=') + 1).Trim();
+        if (!int.TryParse(valueText, System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture, out int counter) || counter <= 0) {
+            throw new InvalidDataException(
+                "[Interlude terrain] invalid GeneratedSectorCounter line '" + line + "' (expected a positive integer).");
+        }
+
+        return counter;
     }
 
     private static Vector3 ParseVector3(string line) {
