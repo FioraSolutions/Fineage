@@ -3,7 +3,9 @@
     public override float UpdateMAtkSpeed(int mAtkSpd)
     {
         float converted = base.UpdateMAtkSpeed(mAtkSpd);
-        _networkAnimationReceive.SetMAtkSpd(converted);
+        // Doors spawn as MonsterEntity without a NetworkAnimationReceive; there is no animation to speed up.
+        if (_networkAnimationReceive != null)
+            _networkAnimationReceive.SetMAtkSpd(converted);
 
         return converted;
     }
@@ -11,7 +13,8 @@
     public override float UpdatePAtkSpeed(int pAtkSpd)
     {
         float converted = base.UpdatePAtkSpeed(pAtkSpd);
-        _networkAnimationReceive.SetPAtkSpd(converted);
+        if (_networkAnimationReceive != null)
+            _networkAnimationReceive.SetPAtkSpd(converted);
 
         return converted;
     }
