@@ -199,6 +199,7 @@ public sealed class VisibilityManager : MonoBehaviour, IVisibilityRoster
 
         for (int i = 0; i < count; i++)
             tierScratch[i] = (CrowdDetailTier)tiers[i];
+        int culledByRange = CountCulled(tierScratch);
 
         VisibilityDecisionPolicy.ApplyRenderCharacterCap(
             entityIds,
@@ -207,6 +208,7 @@ public sealed class VisibilityManager : MonoBehaviour, IVisibilityRoster
             InterludeVisibilityOptions.RenderCharacterCount,
             localPlayerIndex: -1);
 
+        int culledByCap = CountCulled(tierScratch) - culledByRange;
         ApplyPawnFrustumCull(positions, tierScratch, pawnDrawSq);
 
         int culledNow = 0;
@@ -237,6 +239,31 @@ public sealed class VisibilityManager : MonoBehaviour, IVisibilityRoster
 
         _histogramLine = FormatHistogram(count);
         ReportMassCull(count, culledNow, observer);
+        TraceCullJump(count, culledNow, culledByRange, culledByCap, observer);
+    }
+
+    int _prevCulled;
+
+    // combat-trace.txt: a jump of 3+ newly culled pawns in one frame, split into range / cap / frustum,
+    // so a "mobs vanished" report can be told apart from a server DeleteObject (rx.despawn / obj.remove).
+    void TraceCullJump(int tracked, int culled, int byRange, int byCap, float3 observer)
+    {
+        int prev = _prevCulled;
+        _prevCulled = culled;
+        if (!CombatTrace.Enabled || culled - prev < 3)
+            return;
+        CombatTrace.Write("vis.cull", "tracked=" + tracked + " culled=" + culled + " prev=" + prev
+            + " range=" + byRange + " cap=" + byCap + " frustum=" + (culled - byRange - byCap)
+            + " observer=" + (int)observer.x + "," + (int)observer.y + "," + (int)observer.z);
+    }
+
+    static int CountCulled(CrowdDetailTier[] tiers)
+    {
+        int n = 0;
+        for (int i = 0; i < tiers.Length; i++)
+            if (tiers[i] == CrowdDetailTier.TCulled)
+                n++;
+        return n;
     }
 
     bool _massCullActive;

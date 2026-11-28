@@ -21,6 +21,8 @@ public sealed partial class NetSession
     internal void ApplyEntityDie(EntityDieMsg die)
     {
         DieDto dieDto = DieDto.FromZoneWire((int)die.EntityValue);
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("rx.die", "id=" + (int)die.EntityValue);
         if (_combatDie != null) _combatDie.Apply(dieDto);
         else DieApplyIncomingPacketServices.ApplyDie(dieDto);
     }
