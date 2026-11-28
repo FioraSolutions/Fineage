@@ -22,6 +22,8 @@ public sealed partial class NetTransport : IDisposable
             Payload = payload ?? Array.Empty<byte>()
         };
         byte[] frame = NetFraming.Encode(envelope);
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("tx.pkt", "op=" + NetPacketTrace.OpName(opcode) + " seq=" + sequence + " len=" + envelope.Payload.Length);
         return _outbound.EnqueueAsync(frame, ct);
     }
 

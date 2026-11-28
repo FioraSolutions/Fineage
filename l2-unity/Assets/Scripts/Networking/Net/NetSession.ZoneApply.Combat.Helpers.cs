@@ -22,7 +22,10 @@ public sealed partial class NetSession
     {
         DieDto dieDto = DieDto.FromZoneWire((int)die.EntityValue);
         if (CombatTrace.Enabled)
+        {
+            CombatTrace.NoteDie((int)die.EntityValue);
             CombatTrace.Write("rx.die", "id=" + (int)die.EntityValue);
+        }
         if (_combatDie != null) _combatDie.Apply(dieDto);
         else DieApplyIncomingPacketServices.ApplyDie(dieDto);
     }

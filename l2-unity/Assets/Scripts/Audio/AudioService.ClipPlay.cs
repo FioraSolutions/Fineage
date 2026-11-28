@@ -173,6 +173,10 @@ public partial class AudioService
         AudioPlayTrace.Write(
             action, Time.unscaledTime, clipId, source, ownerName, ownerId,
             distance, radiusUu, volume, slot, reason);
+        if (CombatTrace.Enabled && source != "ui")
+            CombatTrace.Write("snd." + action,
+                "clip=" + clipId + " src=" + source + " owner=" + ownerId + " dist=" + distance.ToString("F0") +
+                " radius=" + radiusUu.ToString("F0") + " reason=" + reason + " sinceDieMs=" + CombatTrace.SinceDieMs(ownerId));
     }
 
     bool TryDistanceToListener(Vector3 worldPos, out float distance)

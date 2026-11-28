@@ -58,6 +58,41 @@ public static class CombatTrace
 
     public static long WallUnixMs() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
+    static readonly System.Collections.Generic.Dictionary<int, long> DieWall = new System.Collections.Generic.Dictionary<int, long>();
+
+    /// <summary>Remember when Die for <paramref name="objectId"/> arrived so death anim / sound lines carry <c>sinceDieMs</c>.</summary>
+    public static void NoteDie(int objectId)
+    {
+        if (!Enabled)
+            return;
+        lock (DieWall)
+        {
+            if (DieWall.Count > 512)
+                DieWall.Clear();
+            DieWall[objectId] = WallUnixMs();
+        }
+    }
+
+    /// <summary>Wall ms since Die for <paramref name="objectId"/>, or -1 when no Die was seen (or it is older than 10 s).</summary>
+    public static long SinceDieMs(int objectId)
+    {
+        if (objectId == 0)
+            return -1;
+        lock (DieWall)
+        {
+            if (!DieWall.TryGetValue(objectId, out long at))
+                return -1;
+            long d = WallUnixMs() - at;
+            return d > 10000 ? -1 : d;
+        }
+    }
+
+    public static void ForgetDie(int objectId)
+    {
+        lock (DieWall)
+            DieWall.Remove(objectId);
+    }
+
     /// <summary><paramref name="fields"/> is "key=value key=value"; keep it allocation-light at call sites behind <see cref="Enabled"/>.</summary>
     public static void Write(string eventName, string fields)
     {

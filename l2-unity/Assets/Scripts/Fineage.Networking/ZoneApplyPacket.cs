@@ -7,4 +7,6 @@ public sealed class ZoneApplyPacket
     /// <summary>Null for opcodes with no decoded body (e.g. HelloAck).</summary>
     public object Body { get; set; }
     public PacketEnvelope Envelope { get; set; }
+    /// <summary>Wall clock (unix ms) when the receive thread decoded it; 0 when <see cref="CombatTrace"/> is off.</summary>
+    public long ReceivedUnixMs { get; set; }
 }

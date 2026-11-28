@@ -96,6 +96,11 @@ public partial class HitManager
         }
 
         target.PlayHitReaction(hit.isCrit());
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("hit.fx",
+                "atk=" + (attacker.Identity != null ? attacker.Identity.Id : 0) +
+                " tgt=" + (target.Identity != null ? target.Identity.Id : 0) + " impactFx=" + playColliderImpactFx +
+                " crit=" + hit.isCrit() + " reaction=True sinceDieMs=" + CombatTrace.SinceDieMs(target.Identity != null ? target.Identity.Id : 0));
         return true;
     }
 }

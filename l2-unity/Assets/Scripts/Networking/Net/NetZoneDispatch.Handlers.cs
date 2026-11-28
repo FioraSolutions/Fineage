@@ -14,6 +14,12 @@ public sealed partial class NetZoneDispatch
         if (opcode == NetOpcode.CursedWeaponList || opcode == NetOpcode.CursedWeaponLocation)
             return;
 
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("rx.pkt",
+                "op=" + NetPacketTrace.OpName(opcode) +
+                " queueMs=" + (packet.ReceivedUnixMs > 0 ? CombatTrace.WallUnixMs() - packet.ReceivedUnixMs : -1) +
+                " " + NetPacketTrace.Describe(packet.Body));
+
         switch (opcode)
         {
             case NetOpcode.HelloAck:

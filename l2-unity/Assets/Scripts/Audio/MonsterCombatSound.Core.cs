@@ -12,14 +12,17 @@ public static partial class MonsterCombatSound
             soundEvent.ToString());
     }
 
-    public static void Play(MonsterSoundEvent soundEvent, Entity entity)
+    public static bool Play(MonsterSoundEvent soundEvent, Entity entity)
     {
         if (entity == null)
-            return;
+            return false;
         string name = ResolveNpcName(entity);
         int entityId = entity.Identity != null ? entity.Identity.Id : 0;
         Vector3 position = entity.transform.position;
-        CharacterCombatAudioDispatch.PlayMonster(soundEvent, name, position, entityId);
+        bool played = CharacterCombatAudioDispatch.PlayMonster(soundEvent, name, position, entityId);
+        if (CombatTrace.Enabled && soundEvent != MonsterSoundEvent.Step)
+            CombatTrace.Write("snd.monster", "id=" + entityId + " ev=" + soundEvent + " npc=" + name + " played=" + played);
+        return played;
     }
 
     internal static bool TryLoadClip(MonsterSoundEvent soundEvent, string npcClassName, out AudioClip clip)
