@@ -68,6 +68,8 @@ public sealed partial class NetSession
     internal void ApplyEntityDespawn(EntityDespawnMsg despawn)
     {
         int objectId = (int)despawn.EntityValue;
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("rx.despawn", "id=" + objectId);
         NetNpcSession.Forget(objectId);
         NetDoorSession.Forget(objectId);
         var dto = new DeleteObjectDto { ObjectId = objectId };

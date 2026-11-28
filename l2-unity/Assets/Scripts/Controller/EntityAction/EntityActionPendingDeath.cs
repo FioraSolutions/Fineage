@@ -47,6 +47,9 @@ public static class EntityActionPendingDeath
         float flushAt = Time.time + FlyGraceSeconds;
         if (ArmedUntil.TryGetValue(id, out float until) && until > flushAt)
             flushAt = until;
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("death.deferred", "id=" + id + " source=" + source + " waitMs=" + (int)((flushAt - Time.time) * 1000f)
+                + " projectile=" + HasInboundProjectile(entity));
         QueuedDeaths[id] = new Queued
         {
             Entity = entity,

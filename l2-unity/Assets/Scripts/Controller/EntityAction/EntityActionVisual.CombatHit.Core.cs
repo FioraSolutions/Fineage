@@ -7,6 +7,8 @@ public partial class EntityActionVisual
         if (entity == null)
             return;
 
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("anim.death", "id=" + (entity.Identity != null ? entity.Identity.Id : 0) + " corpse=" + alreadyCorpse);
         entity.SetDead(true);
         if (!CanPlayAnim(entity))
             return;

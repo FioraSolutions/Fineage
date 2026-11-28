@@ -19,6 +19,8 @@ public partial class World
 
         string goName = entity != null ? entity.name : "null";
         string typeName = entity != null ? entity.GetType().Name : "null";
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("obj.remove", "id=" + id + " type=" + typeName + " dead=" + (entity != null && entity.IsDead()));
         GameObject go = entity != null ? entity.gameObject : null;
         bool wasActive = go != null && go.activeSelf;
         string parentBefore = go != null && go.transform.parent != null
