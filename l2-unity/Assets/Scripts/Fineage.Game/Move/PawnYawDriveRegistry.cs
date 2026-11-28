@@ -36,14 +36,13 @@ public static class PawnYawDriveRegistry
     {
       for (int i = Active.Count - 1; i >= 0; i--)
       {
-        IPawnYawDriveStep drive = Active[i];
-        if (drive == null)
-        {
-          Active.RemoveAt(i);
+        // A drive stepped earlier in this loop may unregister itself or others (despawn, state
+        // change), shrinking the list below the current index.
+        if (i >= Active.Count)
           continue;
-        }
 
-        if (!drive.Active)
+        IPawnYawDriveStep drive = Active[i];
+        if (drive == null || !drive.Active)
         {
           Active.RemoveAt(i);
           continue;
@@ -51,7 +50,7 @@ public static class PawnYawDriveRegistry
 
         drive.StepFromMoveAllCharacters(deltaTime);
         if (!drive.Active)
-          Active.RemoveAt(i);
+          Active.Remove(drive);
       }
     }
   }
