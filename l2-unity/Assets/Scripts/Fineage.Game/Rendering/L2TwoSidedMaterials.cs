@@ -103,23 +103,51 @@ public static class L2TwoSidedMaterials
     }
 
     /// <summary>
-    /// Writes <c>_Cull</c> from the original flag. Logs when TwoSided is set and the shader has no cull property.
+    /// Shaders whose face culling is baked in and not exposed as a material property. Both are two-sided:
+    /// <c>L2/World/FlameAdd</c> has a hard <c>Cull Off</c>; the L2Grass / L2LeafLit Shader Graphs have
+    /// <c>m_RenderFace: 0</c> (Both) and <c>m_AllowMaterialOverride: false</c>, so no <c>_Cull</c> is generated.
+    /// An original TwoSided material is already honored by them; an original one-sided material is not.
+    /// </summary>
+    static readonly HashSet<string> BakedTwoSidedShaders = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "L2/World/FlameAdd",
+        "Shader Graphs/L2Grass",
+        "Shader Graphs/L2LeafLit",
+    };
+
+    /// <summary>
+    /// Writes the cull mode from the original flag: <c>_Cull</c>, or <c>_TwoSided</c> on URP SpeedTree8
+    /// (<c>[Enum(No,2,Yes,0)] _TwoSided</c>, same 0 = Off / 2 = Back values; the shader uses <c>Cull [_TwoSided]</c>).
+    /// Shaders with a baked two-sided face are honored without a write when the original is TwoSided.
+    /// Any other shader without a cull property logs once per material and shader.
     /// </summary>
     public static bool Apply(Material material, bool twoSided, string materialName)
     {
         if (material == null)
             return false;
         string name = string.IsNullOrEmpty(materialName) ? BaseName(material.name) : materialName;
-        if (!material.HasProperty("_Cull"))
+        string cullProperty = material.HasProperty("_Cull") ? "_Cull"
+            : material.HasProperty("_TwoSided") ? "_TwoSided"
+            : null;
+        if (cullProperty == null)
         {
+            string shader = ShaderName(material);
+            if (BakedTwoSidedShaders.Contains(shader))
+            {
+                if (twoSided)
+                    return true;
+                LogOnce("baked:" + name + "@" + shader, "[TwoSided] material " + name + " shader \"" + shader
+                    + "\" is baked two-sided; original one-sided (Cull Back) cannot be honored");
+                return false;
+            }
             if (twoSided)
             {
-                Debug.LogError("[TwoSided] material " + name + " shader \"" + ShaderName(material)
+                LogOnce("nocull:" + name + "@" + shader, "[TwoSided] material " + name + " shader \"" + shader
                     + "\" has no _Cull; original TwoSided cannot be honored");
             }
             return false;
         }
-        material.SetFloat("_Cull", CullFor(twoSided));
+        material.SetFloat(cullProperty, CullFor(twoSided));
         material.doubleSidedGI = twoSided;
         return true;
     }
