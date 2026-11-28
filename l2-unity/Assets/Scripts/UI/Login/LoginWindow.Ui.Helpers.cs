@@ -176,7 +176,12 @@ public partial class LoginWindow
 
         if (!regex.IsMatch(username)) {
             // If the input doesn't match the regex, revert to the previous value
-            _userInput.SetValueWithoutNotify(evt.previousValue);
+            string previous = evt.previousValue ?? string.Empty;
+            _userInput.SetValueWithoutNotify(previous);
+            // The edit handler keeps the cursor it advanced for the rejected character; leaving it
+            // past the end makes the next keystroke throw ArgumentOutOfRangeException in String.Insert.
+            _userInput.cursorIndex = previous.Length;
+            _userInput.selectIndex = previous.Length;
         }
     }
 
