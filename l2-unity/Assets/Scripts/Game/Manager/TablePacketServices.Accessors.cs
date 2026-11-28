@@ -182,6 +182,10 @@ public static partial class TablePacketServices
     /// </summary>
     public static bool HideNpcHpBar(int npcId)
     {
+        // NpcId 0 is a live door (ZoneEntity, NpcType "Door"): it has no npc template and no overhead HP bar.
+        if (npcId == 0)
+            return true;
+
         Npcgrp npc = NpcGrps != null ? NpcGrps.GetNpcgrp(npcId) : null;
         if (npc == null)
         {
