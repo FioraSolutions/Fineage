@@ -98,7 +98,12 @@ public abstract partial class AbstractAttackEvents
         // Packet hit list owns text, sound, soulshot and impact at each hit time.
         // A second AttackShot must not emit another blade spark on top of that clock.
         var scheduled = CombatPacketServices.Hits;
-        if (scheduled != null && scheduled.HasScheduledMeleeHits(player))
+        bool timerOwnsHit = scheduled != null && scheduled.HasScheduledMeleeHits(player);
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("anim.attackshot",
+                "who=local anim=" + animName + " atk=" + (player != null && player.Identity != null ? player.Identity.Id : 0) +
+                " timerPending=" + timerOwnsHit);
+        if (timerOwnsHit)
             return;
 
         if (player == null || SwordCollisionPacketServices.Collision == null)

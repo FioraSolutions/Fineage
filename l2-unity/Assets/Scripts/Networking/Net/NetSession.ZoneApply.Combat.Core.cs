@@ -39,6 +39,11 @@ public sealed partial class NetSession
         }
 
         int targetId = (int)attack.TargetValue;
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("rx.attack",
+                "atk=" + (int)attack.AttackerValue + " tgt=" + targetId + " dmg=" + attack.Damage +
+                " flags=" + attack.Flags + " extraHits=" + extraCount +
+                (extraCount > 0 ? " dmg2=" + extraDamage[0] + " flags2=" + extraFlags[0] : ""));
         var dto = new AttackDto();
         dto.InitFromNet(
             (int)attack.AttackerValue,
@@ -84,6 +89,17 @@ public sealed partial class NetSession
             : Mathf.Min(status.AttributeIds.Length, status.Values.Length);
         for (int i = 0; i < n; i++)
             attributes.Add(new StatusUpdate.Attribute(status.AttributeIds[i], status.Values[i]));
+        if (CombatTrace.Enabled)
+        {
+            // Interlude StatusUpdate CUR_HP = 0x09: only the HP-carrying updates matter for the hit timeline.
+            for (int i = 0; i < n; i++)
+            {
+                if (status.AttributeIds[i] != 0x09)
+                    continue;
+                CombatTrace.Write("rx.status", "id=" + (int)status.EntityValue + " hp=" + status.Values[i] + " attrs=" + n);
+                break;
+            }
+        }
         if (_statusUpdate != null) _statusUpdate.Apply((int)status.EntityValue, attributes);
         else StatusUpdateApplyIncomingPacketServices.ApplyStatusUpdate((int)status.EntityValue, attributes);
     }

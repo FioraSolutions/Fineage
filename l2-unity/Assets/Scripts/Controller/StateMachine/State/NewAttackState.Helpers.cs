@@ -36,6 +36,12 @@ public partial class NewAttackState : AbstractAttackEvents
                 float attackDurationMs = AttackTimingHelper.ResolveServerLikeAttackDurationMs(_stateMachine.Player);
                 float hitFraction = AttackTimingHelper.ResolveHitFractionByWeapon(_stateMachine.Player);
                 float pAtkSpd = _stateMachine.Player.Stats != null ? _stateMachine.Player.Stats.BasePAtkSpeed : 0f;
+                if (CombatTrace.Enabled)
+                    CombatTrace.Write("anim.start",
+                        "who=local atk=" + _stateMachine.GetObjectId() + " tgt=" + targetEntityId +
+                        " cycleMs=" + attackDurationMs.ToString("F0") + " hitFraction=" + hitFraction.ToString("F2") +
+                        " hitAtMs=" + (attackDurationMs * hitFraction).ToString("F0") + " basePAtkSpd=" + pAtkSpd.ToString("F0") +
+                        " pAtkSpd=" + (_stateMachine.Player.Stats != null ? _stateMachine.Player.Stats.PAtkSpd : 0));
                 // ReplayAttackTrace.Write(
                     // "START_ANIMATION",
                     // _stateMachine.Player,

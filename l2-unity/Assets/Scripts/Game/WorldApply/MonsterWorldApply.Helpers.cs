@@ -7,6 +7,12 @@ public sealed partial class MonsterWorldApply : EntityWorldApply
         if (attacker == null || attacker.IsDead() || target == null || attacker == target)
             return;
 
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("anim.start",
+                "who=npc atk=" + (attacker.Identity != null ? attacker.Identity.Id : 0) +
+                " tgt=" + (target.Identity != null ? target.Identity.Id : 0) +
+                " cycleMs=" + AttackTimingHelper.ResolveAttackCycleMs(attacker, null).ToString("F0") +
+                " pAtkSpd=" + (attacker.Stats != null ? attacker.Stats.PAtkSpd : 0));
         _actions.Set(attacker, EntityActionKind.Attack, dto);
     }
 
