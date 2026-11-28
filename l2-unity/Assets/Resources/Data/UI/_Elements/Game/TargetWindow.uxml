@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss?fileID=7433441132597879392&amp;guid=72e99cc94b130bf4ba100dceaa830b13&amp;type=3#L2StyleSheet" />
     <ui:VisualElement name="TargetStatusWnd" class="target-window hidden drag-area">
-        <ui:Label name="UserName" picking-mode="Ignore" />
+        <ui:Label name="UserName" class="target-name" picking-mode="Ignore" />
         <ui:VisualElement name="barHP" class="l2-bar-percent-fill" picking-mode="Ignore" />
         <ui:VisualElement name="NpcInfo" class="target-properties-row" picking-mode="Ignore" style="display: none;" />
         <ui:Button name="btnClose" class="target-close-btn" />
