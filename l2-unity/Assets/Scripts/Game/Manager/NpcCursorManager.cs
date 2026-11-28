@@ -15,6 +15,8 @@ public partial class NpcCursorManager : MonoBehaviour
     private Texture2D _hoverCursorAtk;
     private Texture2D _hoverCursorPickup;
     private int _currentCursor;
+    private float _reassertAt;
+    private bool _loggedMissing;
     private ItemEntity _stickyDropItem;
     const int DefaultCursorId = 0;
     const int AtkCursorId = 1;

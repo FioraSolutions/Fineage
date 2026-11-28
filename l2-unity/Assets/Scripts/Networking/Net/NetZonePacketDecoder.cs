@@ -141,6 +141,7 @@ public static partial class NetZonePacketDecoder
             Opcode = opcode,
             Body = body,
             Envelope = envelope,
+            ReceivedUnixMs = CombatTrace.Enabled ? CombatTrace.WallUnixMs() : 0,
         };
     }
 }

@@ -6,6 +6,8 @@ public sealed partial class NetCommandSender
 {
     public Task SendMoveAsync(int destX, int destY, int destZ)
     {
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("tx.move", "dest=" + destX + "," + destY + "," + destZ);
         if (!TryGetZone(out NetTransport zone))
             return Task.CompletedTask;
         return zone.SendAsync(
@@ -16,6 +18,8 @@ public sealed partial class NetCommandSender
 
     public Task SendSelectTargetAsync(int targetObjectId)
     {
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("tx.select", "tgt=" + targetObjectId);
         if (!TryGetZone(out NetTransport zone))
             return Task.CompletedTask;
         return zone.SendAsync(
@@ -26,6 +30,8 @@ public sealed partial class NetCommandSender
 
     public Task SendAttackRequestAsync(int targetObjectId)
     {
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("tx.attack", "tgt=" + targetObjectId);
         if (!TryGetZone(out NetTransport zone))
             return Task.CompletedTask;
         return zone.SendAsync(
@@ -51,6 +57,8 @@ public sealed partial class NetCommandSender
 
     public Task SendTargetCancelAsync()
     {
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("tx.cancel", "");
         if (!TryGetZone(out NetTransport zone))
             return Task.CompletedTask;
         return zone.SendAsync(NetOpcode.TargetCancelRequest, Array.Empty<byte>(), _nextSeq());
@@ -58,6 +66,8 @@ public sealed partial class NetCommandSender
 
     public Task SendActionUseAsync(int actionId, bool ctrlPressed, bool shiftPressed)
     {
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("tx.action", "action=" + actionId + " ctrl=" + ctrlPressed + " shift=" + shiftPressed);
         if (!TryGetZone(out NetTransport zone))
             return Task.CompletedTask;
         return zone.SendAsync(
@@ -73,6 +83,8 @@ public sealed partial class NetCommandSender
 
     public Task SendValidatePositionAsync(int x, int y, int z, int heading)
     {
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("tx.validate", "pos=" + x + "," + y + "," + z + " heading=" + heading);
         if (!TryGetZone(out NetTransport zone))
             return Task.CompletedTask;
         return zone.SendAsync(

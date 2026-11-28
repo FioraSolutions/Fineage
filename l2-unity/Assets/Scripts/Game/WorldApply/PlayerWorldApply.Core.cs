@@ -13,6 +13,17 @@ public sealed partial class PlayerWorldApply : EntityWorldApply
 
     public override void OnPositionCorrection(Entity entity, Vector3 position, int heading = -1)
     {
+        if (CombatTrace.Enabled && entity != null)
+        {
+            Vector3 from = VectorUtils.ConvertPosUnityToL2j(entity.transform.position);
+            Vector3 to = VectorUtils.ConvertPosUnityToL2j(position);
+            CombatTrace.Write("pos.correct",
+                "id=" + (entity.Identity != null ? entity.Identity.Id : 0) +
+                " from=" + Mathf.RoundToInt(from.x) + "," + Mathf.RoundToInt(from.y) + "," + Mathf.RoundToInt(from.z) +
+                " to=" + Mathf.RoundToInt(to.x) + "," + Mathf.RoundToInt(to.y) + "," + Mathf.RoundToInt(to.z) +
+                " drift=" + Vector2.Distance(new Vector2(from.x, from.y), new Vector2(to.x, to.y)).ToString("F0") +
+                " heading=" + heading);
+        }
         SnapTransform(entity, position, heading);
         // Drop any local MoveTo that was racing ValidatePosition rubber-bands.
         LocalCastStop.Halt();

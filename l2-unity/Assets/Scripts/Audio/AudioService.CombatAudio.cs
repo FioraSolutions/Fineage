@@ -51,6 +51,8 @@ public partial class AudioService
         EventReference er = RuntimeManager.PathToEventReference(eventPath);
         if (er.IsNull || !IsFmodEventAvailable(eventPath))
         {
+            if (CombatTrace.Enabled)
+                CombatTrace.Write("snd.fmod-missing", "event=" + eventPath + " label=" + eventLabel + " owner=" + entityId);
             if (LoggedMissingFmodEvents.Add(eventPath))
             {
                 LogCombatAudioError(
@@ -70,6 +72,9 @@ public partial class AudioService
 
         AudioPlayTrace.Write(
             "play", Time.unscaledTime, eventPath, "Fmod", eventLabel, entityId, 0f, 0f, 1f, 0, "fmod");
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("snd.fmod", "event=" + eventPath + " label=" + eventLabel + " owner=" + entityId +
+                " sinceDieMs=" + CombatTrace.SinceDieMs(entityId));
         return true;
     }
 

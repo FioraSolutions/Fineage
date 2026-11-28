@@ -14,6 +14,8 @@ public partial class PlayerStateMachine : MonoBehaviour
     {
         PlayerState prev = _currentState;
         //if (_enableLogs) Debug.Log($"[StateMachine][STATE] {prev} → {newState}");
+        if (CombatTrace.Enabled && prev != newState)
+            CombatTrace.Write("anim.state", "who=local from=" + prev + " to=" + newState + " intention=" + _currentIntention);
 
         _stateInstance?.Exit();
         _currentState = newState;
@@ -30,6 +32,8 @@ public partial class PlayerStateMachine : MonoBehaviour
     {
         Intention prev = _currentIntention;
         //if (_enableLogs) Debug.Log($"[Player->StateMachine][INTENTION] {prev} → {newIntention}");
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("intent", "who=local from=" + prev + " to=" + newIntention + " state=" + _currentState);
         _intentionInstance?.Exit();
         _currentIntention = newIntention;
         InitializeIntention();

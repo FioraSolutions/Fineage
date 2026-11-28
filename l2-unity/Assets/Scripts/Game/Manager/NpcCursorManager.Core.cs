@@ -12,11 +12,18 @@ public partial class NpcCursorManager : MonoBehaviour
     void Start()
     {
         WireManagerInteractionPacketServices();
-        _defaultCursor = IconPacketServices.Icons.LoadCursorByName("Default");
-        _hoverCursorAtk = IconPacketServices.Icons.LoadCursorByName("Attack");
-        _hoverCursorTalk = IconPacketServices.Icons.LoadCursorByName("Talk");
-        _hoverCursorPickup = IconPacketServices.Icons.LoadCursorByName("Pickup");
-        _currentCursor = -1;
+        // Icons may not be bound yet when the component is added at spawn (#1907); Update retries.
+        TryReloadCursors();
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("cursor.manager", "go=" + gameObject.name + " icons=" + (IconPacketServices.Icons != null) +
+                " default=" + (_defaultCursor != null) + " attack=" + (_hoverCursorAtk != null));
+    }
+
+    // The Editor Game view (and the OS on alt-tab) drops a custom cursor when focus leaves; re-apply on return.
+    void OnApplicationFocus(bool focused)
+    {
+        if (focused)
+            _currentCursor = -1;
     }
 
     void Update()

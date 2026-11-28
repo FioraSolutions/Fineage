@@ -8,7 +8,10 @@ public partial class EntityActionVisual
             return;
 
         if (CombatTrace.Enabled)
-            CombatTrace.Write("anim.death", "id=" + (entity.Identity != null ? entity.Identity.Id : 0) + " corpse=" + alreadyCorpse);
+        {
+            int deathId = entity.Identity != null ? entity.Identity.Id : 0;
+            CombatTrace.Write("anim.death", "id=" + deathId + " corpse=" + alreadyCorpse + " sinceDieMs=" + CombatTrace.SinceDieMs(deathId));
+        }
         entity.SetDead(true);
         if (!CanPlayAnim(entity))
             return;
@@ -37,7 +40,12 @@ public partial class EntityActionVisual
         }
 
         if (!alreadyCorpse && entity is MonsterEntity monster)
-            MonsterCombatSound.Play(MonsterSoundEvent.Death, monster);
+        {
+            bool played = MonsterCombatSound.Play(MonsterSoundEvent.Death, monster);
+            if (CombatTrace.Enabled)
+                CombatTrace.Write("snd.death", "id=" + entity.Identity.Id + " played=" + played +
+                    " sinceDieMs=" + CombatTrace.SinceDieMs(entity.Identity.Id));
+        }
 
         TryPlayCreatureAnim(entity, AnimationNames.DEAD.ToString());
     }

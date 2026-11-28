@@ -31,6 +31,10 @@ public static partial class EntityActionVisual
         if (ControllerPacketServices.Animations == null)
             return false;
 
+        if (CombatTrace.Enabled)
+            CombatTrace.Write("anim.npc", "id=" + entity.Identity.Id + " state=" + state +
+                (fixedDuration.HasValue ? " fixed=" + fixedDuration.Value.ToString("F2") : "") +
+                " sinceDieMs=" + CombatTrace.SinceDieMs(entity.Identity.Id));
         ControllerPacketServices.Animations.PlayCreatureAnimation(
             entity.Identity.Id, state, fixedDuration);
         return true;
