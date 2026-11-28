@@ -79,6 +79,7 @@ public partial class TargetWindow : L2Window
 
                 TooogleHide(ShouldHideHpBar(targetData));
             }
+            ApplyRetailControlVisibility();
 
             BindEffects(targetData);
             TickEffectTimers();
