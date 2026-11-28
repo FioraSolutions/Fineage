@@ -47,6 +47,7 @@ public partial class ModelTable : AbstractCache
     {
         _npcs = new Dictionary<string, L2Npc>();
         int success = 0;
+        List<int> noTextureList = new List<int>();
 
         foreach (KeyValuePair<int, Npcgrp> pair in TablePacketServices.NpcGrps.Npcgrps)
         {
@@ -59,11 +60,23 @@ public partial class ModelTable : AbstractCache
                 continue;
 
             Dictionary<string, Material[]> materials = new Dictionary<string, Material[]>();
-            materials[mesh] = LoadAllMaterials(new List<string>(pair.Value.Materials));
+            if (pair.Value.Materials == null)
+            {
+                // Interlude-appended npcgrp rows (#1895) carry no texture list: the prefab keeps its own materials.
+                noTextureList.Add(pair.Key);
+                materials[mesh] = System.Array.Empty<Material>();
+            }
+            else
+            {
+                materials[mesh] = LoadAllMaterials(new List<string>(pair.Value.Materials));
+            }
             _npcs[mesh] = new L2Npc(npc, materials);
             success++;
         }
 
+        if (noTextureList.Count > 0)
+            Debug.LogWarning("[ModelTable] " + noTextureList.Count + " npcgrp row(s) without texture list in Npcgrp_Classic.txt; using prefab materials. First ids: "
+                + string.Join(",", noTextureList.GetRange(0, System.Math.Min(20, noTextureList.Count))));
         // Debug.Log("Loaded " + success + " npc model(s).");
     }
 
