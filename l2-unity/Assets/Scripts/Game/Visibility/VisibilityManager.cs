@@ -209,10 +209,13 @@ public sealed class VisibilityManager : MonoBehaviour, IVisibilityRoster
 
         ApplyPawnFrustumCull(positions, tierScratch, pawnDrawSq);
 
+        int culledNow = 0;
         for (int i = 0; i < count; i++)
         {
             int id = entityIds[i];
             var tier = tierScratch[i];
+            if (tier == CrowdDetailTier.TCulled)
+                culledNow++;
             _tierById[id] = tier;
             Transform root = _entries[i].Root;
             if (root != null)
@@ -233,6 +236,27 @@ public sealed class VisibilityManager : MonoBehaviour, IVisibilityRoster
         }
 
         _histogramLine = FormatHistogram(count);
+        ReportMassCull(count, culledNow, observer);
+    }
+
+    bool _massCullActive;
+    float _massCullNextReportAt;
+
+    // Every tracked pawn culled at once is what a player sees as "all mobs and NPCs vanished";
+    // report each entry into that state (at most once per 10 s) with the numbers that tell
+    // range, frustum and character cap apart.
+    void ReportMassCull(int tracked, int culled, float3 observer)
+    {
+        const int MinTracked = 8;
+        bool all = tracked >= MinTracked && culled == tracked;
+        bool entered = all && !_massCullActive;
+        _massCullActive = all;
+        if (!entered || Time.unscaledTime < _massCullNextReportAt)
+            return;
+        _massCullNextReportAt = Time.unscaledTime + 10f;
+        Debug.LogWarning("[Visibility] all " + tracked + " tracked pawns culled; observer=" + observer +
+                         " pawnDrawMeters=" + math.sqrt(InterludeVisibilityOptions.PawnDrawDistanceSq) +
+                         " cap=" + InterludeVisibilityOptions.RenderCharacterCount);
     }
 
     static void ApplyCulledDraw(Transform root, CrowdDetailTier tier)

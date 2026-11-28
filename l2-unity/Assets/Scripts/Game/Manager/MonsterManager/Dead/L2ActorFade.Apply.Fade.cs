@@ -54,6 +54,14 @@ public sealed partial class L2ActorFade
         int count = CountFadeRenderers(found);
         if (count == 0)
         {
+            // VisibilityManager disables the renderers of pawns outside the clip range or frustum;
+            // there is nothing to fade on such an actor and the caller removes it right away.
+            int objectId = entity.Identity != null ? entity.Identity.Id : 0;
+            if (objectId != 0 && VisibilityTierRegistry.GetTier(objectId) == CrowdDetailTier.TCulled)
+            {
+                return false;
+            }
+
             LogFadeBeginFailure(entity, found, "no enabled SkinnedMeshRenderer/MeshRenderer");
             return false;
         }
