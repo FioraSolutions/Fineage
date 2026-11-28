@@ -54,7 +54,8 @@ public sealed partial class NetSession
         int pAtkSpd = spawn.PAtkSpd > 0 ? spawn.PAtkSpd : 253;
         dto.Stats.PAtkSpd = pAtkSpd;
         dto.Stats.PAtkRealSpeed = pAtkSpd;
-        if (spawn.RunSpeed <= 0.001f || spawn.WalkSpeed <= 0.001f)
+        // Live doors (Mobius NpcKind door, template id 0) never move: the server sends speed 0 for them.
+        if (!liveDoor && (spawn.RunSpeed <= 0.001f || spawn.WalkSpeed <= 0.001f))
             SpawnAppearanceApplyLog.LogDefaultMoveSpeed(objectId, spawn.RunSpeed, spawn.WalkSpeed);
         PawnMoveSpeed.Apply(dto.Stats, spawn.RunSpeed, spawn.WalkSpeed, templateChanged: true);
         dto.Appearance.CollisionRadius = 10f;
