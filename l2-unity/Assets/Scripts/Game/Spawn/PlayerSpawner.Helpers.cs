@@ -53,6 +53,7 @@ public sealed partial class PlayerSpawner
             UnityEngine.Object.Destroy(go);
             return null;
         }
+        EnsureLocalPlayerComponents(go);
         controller.enabled = true;
         controller.Initialize();
         CharacterController cc = go.GetComponent<CharacterController>();
@@ -123,5 +124,16 @@ public sealed partial class PlayerSpawner
         player.UpdatePAtkSpeedPlayer((int)statsIntr.BasePAtkSpeed);
         player.UpdateMAtkSpeed((int)statsIntr.MAtkSpd);
         player.RefreshVisuals();
+    }
+
+    // The female Player_* prefabs (FFighter, FMagic, FElf, FDarkElf, FDwarf) never got the root components the male
+    // ones carry: no NpcCursorManager left the OS cursor in place of the L2 cursor (no attack/talk/pickup cursor
+    // either), and no PlayerTeleport made World.TeleportTo throw. Add them at spawn instead of editing each prefab.
+    static void EnsureLocalPlayerComponents(GameObject go)
+    {
+        if (go.GetComponent<NpcCursorManager>() == null)
+            go.AddComponent<NpcCursorManager>();
+        if (go.GetComponent<PlayerTeleport>() == null)
+            go.AddComponent<PlayerTeleport>();
     }
 }
