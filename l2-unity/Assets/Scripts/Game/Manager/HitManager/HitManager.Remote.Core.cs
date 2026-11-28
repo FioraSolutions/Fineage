@@ -9,6 +9,7 @@ public partial class HitManager
     {
         _localAttack = dto;
         _localAttackToken++;
+        _localAttackShownMask = 0;
         PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player == null || dto == null)
             return;
