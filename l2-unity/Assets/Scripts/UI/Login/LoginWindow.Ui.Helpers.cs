@@ -18,6 +18,7 @@ public partial class LoginWindow
         yield return new WaitForEndOfFrame();
 
         _labelError = (Label)GetElementById("LabelError");
+        _loginFrame = root.Q<VisualElement>("LoginFrame");
         _loginButton = (Button) GetElementById("LoginButton");
         if (_loginButton != null)
         {
@@ -70,8 +71,7 @@ public partial class LoginWindow
         _rememberToggle = root.Q<Toggle>("RememberToggle");
         if (_rememberToggle != null)
         {
-            // Interlude NCAuthWnd has no Remember control (Login.json deviations); keep vault behavior off-screen.
-            _rememberToggle.style.display = DisplayStyle.None;
+            // Not an original NCAuthWnd control (Login.json deviations): drawn with the option-window checkbox.
             L10nUiBinder.SetText(_rememberToggle, "ui.login.remember");
             _rememberToggle.RegisterValueChangedCallback(evt =>
             {
@@ -84,6 +84,7 @@ public partial class LoginWindow
 
         ApplyExtractedLoginLayout(root);
         WireLoginMenu(root);
+        WireStatusLine();
 
         // Inline styles beat Unity's default TextField chrome and any password-only padding.
         ApplyLoginFieldMetrics(_userInput);
@@ -118,6 +119,34 @@ public partial class LoginWindow
             _rememberToggle.style.marginTop = 0f;
             _rememberToggle.style.marginBottom = 0f;
         }
+    }
+
+    // The status line lives inside the frame, below Login/Exit. The frame grows downward
+    // (nine-sliced border, top edge and all controls stay put) only while a message is shown.
+    void WireStatusLine()
+    {
+        if (_loginFrame == null)
+            throw new InvalidOperationException("LoginWindow.uxml has no LoginFrame element.");
+        if (_labelError == null)
+            throw new InvalidOperationException("LoginWindow.uxml has no LabelError element.");
+
+        _loginFrame.style.unitySliceLeft = InterludeLoginFrameMetrics.SliceBorder;
+        _loginFrame.style.unitySliceRight = InterludeLoginFrameMetrics.SliceBorder;
+        _loginFrame.style.unitySliceTop = InterludeLoginFrameMetrics.SliceBorder;
+        _loginFrame.style.unitySliceBottom = InterludeLoginFrameMetrics.SliceBorder;
+        _labelError.RegisterCallback<GeometryChangedEvent>(_ => UpdateStatusLayout());
+        UpdateStatusLayout();
+    }
+
+    void UpdateStatusLayout()
+    {
+        if (_loginFrame == null || _labelError == null)
+            return;
+
+        bool hasText = !string.IsNullOrEmpty(_labelError.text);
+        _labelError.style.display = hasText ? DisplayStyle.Flex : DisplayStyle.None;
+        float textHeight = hasText ? _labelError.resolvedStyle.height : 0f;
+        _loginFrame.style.height = InterludeLoginFrameMetrics.FrameHeight(textHeight);
     }
 
     private void OnKeyPressed(KeyDownEvent evt, TextField input) {

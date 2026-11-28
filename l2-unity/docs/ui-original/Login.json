@@ -25,6 +25,10 @@
     {
       "element": "RememberToggle",
       "what": "Not an original login control. It is drawn with the option-window checkbox. OptionWnd / GameTab / VideoTab / AudioTab checkboxes leave checkTexture and unCheckTexture undefined, so the client uses the default L2UI.Control.CheckBox (16x16, DXT5, object at serial offset 1086692) and L2UI.Control.CheckBox_checked (serial offset 14901324). It sits in the gap under the password edit: the edit is (84, 42, 128, 17) so it ends at y=59, and the buttons start at y=72. The mark is 12px tall, the option-tab checkbox height (GameTab NameBox height 12), because a 16px mark does not fit that 13px gap. Unchecked and checked use the default textures. There is no hover texture on the default checkbox."
+    },
+    {
+      "element": "LabelError",
+      "what": "Not an original NCAuthWnd control; the retail window has no status text. Fineage draws one wrapped 11px tahoma line inside the frame under Login/Exit at (14, 99), 228px wide. The frame (logon_back, 9-sliced with a 5px border) grows downward from 108px to 99 + text height + 9 only while a message is shown. The top edge, the edits and the buttons do not move."
     }
   ],
   "gaps": [

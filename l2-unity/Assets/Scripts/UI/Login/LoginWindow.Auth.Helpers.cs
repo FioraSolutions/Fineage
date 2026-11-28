@@ -17,8 +17,10 @@ public partial class LoginWindow
 
     public void ShowStatusText(string text)
     {
-        if (_labelError != null)
-            _labelError.text = text ?? string.Empty;
+        if (_labelError == null)
+            return;
+        _labelError.text = text ?? string.Empty;
+        UpdateStatusLayout();
     }
 
     public override void HideWindow() {

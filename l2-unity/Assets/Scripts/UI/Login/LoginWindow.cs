@@ -21,6 +21,7 @@ public partial class LoginWindow : L2Window
     const string RememberAccountKey = "fineage.login.account";
     const string RememberPasswordKey = "fineage.login.password";
     private Label _labelError;
+    private VisualElement _loginFrame;
     private Button _loginButton;
     private bool _loginBusy;
 
